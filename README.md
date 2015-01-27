@@ -1,2 +1,3 @@
-# neo4j-onm
-PHP Object-Node Mapping for Neo4j
+# Neo4j-ONM
+
+[Doctrine](http://www.doctrine-project.org/projects/orm.html) like project but for Neo4j.
