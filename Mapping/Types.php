@@ -52,7 +52,7 @@ class Types
      *
      * @return TypeInterface
      */
-    public function getType($name)
+    public static function getType($name)
     {
         if (!isset(self::$map[(string) $name])) {
             throw new InvalidTypeException(sprintf(
