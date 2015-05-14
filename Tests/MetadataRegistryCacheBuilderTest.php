@@ -19,7 +19,6 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
             ->setClass('Resource')
             ->setRepositoryClass('stdClassRepo')
             ->setAlias('N')
-            ->addLabel('Foo')
             ->setId(
                 (new Id)
                     ->setProperty('id')
@@ -33,17 +32,18 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
                     ->setNullable(true)
                     ->addOption('foo', ['bar' => 'baz'])
             );
+        $node->addLabel('Foo');
         $registry->addMetadata($node);
         $relationship = new RelationshipMetadata;
         $relationship
             ->setClass('Referer')
-            ->setType('FOO')
             ->setId(
                 (new Id)
                     ->setProperty('id')
                     ->setType('int')
                     ->setStrategy('AUTO')
             );
+        $relationship->setType('FOO');
         $registry->addMetadata($relationship);
         $expected = <<<EOF
 <?php
