@@ -52,7 +52,7 @@ class Readers
      *
      * @return void
      */
-    protected function addDefaults()
+    protected static function addDefaults()
     {
         self::$map = [
             'yaml' => new YamlReader
