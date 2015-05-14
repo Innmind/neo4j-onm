@@ -1,0 +1,17 @@
+machine:
+    php:
+        version: 5.4.37
+
+dependencies:
+    pre:
+        - sed -i 's/^;//' ~/.phpenv/versions/$(phpenv global)/etc/conf.d/xdebug.ini
+    override:
+        - curl -sS https://getcomposer.org/installer | php
+        - php composer.phar install --no-dev --prefer-source
+
+test:
+    override:
+        - phpunit --coverage-clover=coverage.clover
+    post:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
