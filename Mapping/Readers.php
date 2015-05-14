@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\Exception\InvalidReaderTypeException;
 class Readers
 {
     protected static $map = [];
+    protected static $defaultLoaded = false;
 
     /**
      * Associate a type to a reader
@@ -19,9 +20,7 @@ class Readers
      */
     public static function addReader($type, ReaderInterface $reader)
     {
-        if (count(self::$map) === 0) {
-            self::addDefaults();
-        }
+        self::addDefaults();
 
         if (!isset(self::$map[(string) $type])) {
             self::$map[(string) $type] = $reader;
@@ -37,9 +36,7 @@ class Readers
      */
     public static function getReader($type)
     {
-        if (count(self::$map) === 0) {
-            self::addDefaults();
-        }
+        self::addDefaults();
 
         if (!isset(self::$map[(string) $type])) {
             throw new InvalidReaderTypeException(sprintf(
@@ -58,8 +55,14 @@ class Readers
      */
     protected static function addDefaults()
     {
+        if (self::$defaultLoaded === true) {
+            return;
+        }
+
         self::$map = [
             'yaml' => new YamlReader
         ];
+
+        self::$defaultLoaded = true;
     }
 }
