@@ -49,4 +49,15 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($p->hasOption('foo'));
         $this->assertEquals('bar', $p->getOption('foo'));
     }
+
+    public function testGetOptions()
+    {
+        $p = new Property;
+        $p->addOption('foo', 'bar');
+
+        $this->assertEquals(
+            ['foo' => 'bar'],
+            $p->getOptions()
+        );
+    }
 }
