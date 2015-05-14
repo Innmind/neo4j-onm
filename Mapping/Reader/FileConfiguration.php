@@ -38,7 +38,7 @@ class FileConfiguration implements ConfigurationInterface
                 ->end()
                 ->beforeNormalization()
                     ->always()
-                    ->then(function (array $data) {
+                    ->then(function(array $data) {
                         if (!isset($data['type']) || empty($data['type'])) {
                             throw new InvalidConfigurationException(
                                 'An entity type must be defined'
@@ -119,7 +119,7 @@ class FileConfiguration implements ConfigurationInterface
                 ->prototype('variable')->end()
                 ->beforeNormalization()
                     ->always()
-                    ->then(function ($v) {
+                    ->then(function($v) {
                         if (is_string($v)) {
                             return ['type' => $v];
                         }
