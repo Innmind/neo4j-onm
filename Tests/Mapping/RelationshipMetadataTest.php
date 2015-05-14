@@ -71,6 +71,6 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMetadata;
 
         $this->assertEquals($m, $m->setType('Foo'));
-        $this->assertEquals('Foo', $m->getType());
+        $this->assertEquals('FOO', $m->getType());
     }
 }

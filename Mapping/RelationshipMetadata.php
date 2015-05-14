@@ -16,7 +16,7 @@ class RelationshipMetadata extends Metadata
      */
     public function setType($type)
     {
-        $this->type = (string) $type;
+        $this->type = strtoupper((string) $type);
 
         return $this;
     }

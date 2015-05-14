@@ -16,7 +16,7 @@ class NodeMetadata extends Metadata
      */
     public function addLabel($label)
     {
-        $this->labels[] = (string) $label;
+        $this->labels[] = ucfirst((string) $label);
 
         return $this;
     }
