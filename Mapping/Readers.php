@@ -19,6 +19,10 @@ class Readers
      */
     public static function addReader($type, ReaderInterface $reader)
     {
+        if (count(self::$map) === 0) {
+            self::addDefaults();
+        }
+
         if (!isset(self::$map[(string) $type])) {
             self::$map[(string) $type] = $reader;
         }
