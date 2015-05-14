@@ -9,10 +9,19 @@ use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\ONM\Mapping\ReaderInterface;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
+use Symfony\Component\Config\Definition\Processor;
 
 class YamlReader implements ReaderInterface
 {
     protected $resources = [];
+    protected $processor;
+    protected $config;
+
+    public function __construct()
+    {
+        $this->processor = new Processor;
+        $this->config = new FileConfiguration;
+    }
 
     /**
      * {@inheritdoc}
@@ -24,6 +33,11 @@ class YamlReader implements ReaderInterface
 
         foreach ($files as $file) {
             $content = Yaml::parse(file_get_contents($file));
+
+            $content = $this->processor->processConfiguration(
+                $this->config,
+                [$content]
+            );
 
             foreach ($content as $class => $meta) {
                 $metas[] = $this->buildMetadata($class, $meta);
