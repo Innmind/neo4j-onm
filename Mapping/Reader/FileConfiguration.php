@@ -4,6 +4,7 @@ namespace Innmind\Neo4j\ONM\Mapping\Reader;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class FileConfiguration implements ConfigurationInterface
@@ -27,78 +28,105 @@ class FileConfiguration implements ConfigurationInterface
                     ->scalarNode('alias')
                         ->cannotBeEmpty()
                     ->end()
-                    ->arrayNode('id')
-                        ->useAttributeAsKey('name')
-                        ->requiresAtLeastOneElement()
-                        ->prototype('array')
-                            ->children()
-                                ->scalarNode('type')
-                                    ->isRequired()
-                                    ->cannotBeEmpty()
-                                ->end()
-                                ->arrayNode('generator')
-                                    ->children()
-                                        ->enumNode('strategy')
-                                            ->values(['AUTO', 'UUID'])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
+                    ->append($this->addIdNode())
                     ->arrayNode('labels')
                         ->canBeUnset()
                         ->prototype('scalar')->end()
                     ->end()
                     ->scalarNode('rel_type')->end()
-                    ->arrayNode('properties')
-                        ->useAttributeAsKey('name')
-                        ->requiresAtLeastOneElement()
-                        ->prototype('array')
-                            ->prototype('variable')->end()
-                            ->beforeNormalization()
-                                ->always()
-                                ->then(function ($v) {
-                                    if (is_string($v)) {
-                                        return ['type' => $v];
-                                    }
-
-                                    if (!isset($v['type']) || empty($v['type'])) {
-                                        throw new InvalidConfigurationException(
-                                            'A type must be set for a property'
-                                        );
-                                    }
-
-                                    return $v;
-                                })
-                            ->end()
-                        ->end()
-                    ->end()
+                    ->append($this->addPropertiesNode())
                 ->end()
                 ->beforeNormalization()
                     ->always()
-                    ->then(function ($v) {
-                        if (!isset($v['type']) || empty($v['type'])) {
+                    ->then(function (array $data) {
+                        if (!isset($data['type']) || empty($data['type'])) {
                             throw new InvalidConfigurationException(
                                 'An entity type must be defined'
                             );
                         }
 
-                        if (
-                            $v['type'] === 'node' &&
-                            (!isset($v['labels']) || empty($v['labels']))
-                        ) {
-                            throw new InvalidConfigurationException(
-                                'At least one label must be set for a node'
-                            );
+                        $required = [
+                            'node' => ['labels'],
+                            'relationship' => ['rel_type'],
+                        ];
+
+                        foreach ($required as $type => $requirements) {
+                            foreach ($requirements as $req) {
+                                if ($data['type'] === $type && (!isset($data[$req]) || empty($data[$req]))) {
+                                    throw new InvalidConfigurationException(sprintf(
+                                        'Entity type "%s" requires "%s" to be set and not empty',
+                                        $type,
+                                        $req
+                                    ));
+                                }
+                            }
                         }
 
-                        if (
-                            $v['type'] === 'relationship' &&
-                            (!isset($v['rel_type']) || empty($v['rel_type']))
-                        ) {
+                        return $data;
+                    })
+                ->end()
+            ->end();
+
+        return $builder;
+    }
+
+    /**
+     * Build the config for the id key
+     *
+     * @return NodeDefinition
+     */
+    protected function addIdNode()
+    {
+        $builder = new TreeBuilder;
+        $node = $builder->root('id');
+
+        $node
+            ->useAttributeAsKey('name')
+            ->requiresAtLeastOneElement()
+            ->prototype('array')
+                ->children()
+                    ->scalarNode('type')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->arrayNode('generator')
+                        ->children()
+                            ->enumNode('strategy')
+                                ->values(['AUTO', 'UUID'])
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $node;
+    }
+
+    /**
+     * Build the config for the 'properties' key
+     *
+     * @return NodeDefinition
+     */
+    protected function addPropertiesNode()
+    {
+        $builder = new TreeBuilder;
+        $node = $builder->root('properties');
+
+        $node
+            ->useAttributeAsKey('name')
+            ->requiresAtLeastOneElement()
+            ->prototype('array')
+                ->prototype('variable')->end()
+                ->beforeNormalization()
+                    ->always()
+                    ->then(function ($v) {
+                        if (is_string($v)) {
+                            return ['type' => $v];
+                        }
+
+                        if (!isset($v['type']) || empty($v['type'])) {
                             throw new InvalidConfigurationException(
-                                'A "rel_type" must be defined for a relationship'
+                                'A type must be set for a property'
                             );
                         }
 
@@ -107,6 +135,6 @@ class FileConfiguration implements ConfigurationInterface
                 ->end()
             ->end();
 
-        return $builder;
+        return $node;
     }
 }

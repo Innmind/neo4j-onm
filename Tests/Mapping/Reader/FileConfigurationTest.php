@@ -46,7 +46,7 @@ class FileConfigurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage At least one label must be set for a node
+     * @expectedExceptionMessage Entity type "node" requires "labels" to be set and not empty
      */
     public function testThrowIfNoLabelForNode()
     {
@@ -156,7 +156,7 @@ class FileConfigurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage A "rel_type" must be defined for a relationship
+     * @expectedExceptionMessage Entity type "relationship" requires "rel_type" to be set and not empty
      */
     public function testThrowIfNoRelTypeSet()
     {
