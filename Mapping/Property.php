@@ -119,4 +119,14 @@ class Property
     {
         return $this->options[(string) $name];
     }
+
+    /**
+     * Return all options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }
