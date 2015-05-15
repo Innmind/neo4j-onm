@@ -23,8 +23,7 @@ class JsonType implements TypeInterface
         return json_decode(
             $value,
             $property->hasOption('associative') ?
-                (bool) $property->getOption('associative'):
-                false
+                (bool) $property->getOption('associative'): false
         );
     }
 }
