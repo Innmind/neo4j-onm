@@ -44,7 +44,7 @@ abstract class Repository implements RepositoryInterface
      */
     public function findOneBy(array $criteria, array $orderBy = null)
     {
-        return $this->findBy($criteria, $orderBy, 1);
+        return isset($this->findBy($criteria, $orderBy, 1)[0]) ?: null;
     }
 
     /**

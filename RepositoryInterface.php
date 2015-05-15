@@ -33,7 +33,7 @@ interface RepositoryInterface
      * @param array $criteria
      * @param array $orderBy
      *
-     * @return object
+     * @return object|null
      */
     public function findOneBy(array $criteria, array $orderBy = null);
 
