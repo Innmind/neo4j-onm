@@ -75,6 +75,8 @@ abstract class Repository implements RepositoryInterface
                 );
         }
 
+        $arguments[0] = [lcfirst($by) => $arguments[0]];
+
         return call_user_func_array([$this, $method], $arguments);
     }
 
