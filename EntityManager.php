@@ -53,7 +53,7 @@ class EntityManager implements EntityManagerInterface
      */
     public function rollback()
     {
-        $this->conn->rollbak();
+        $this->conn->rollback();
 
         return $this;
     }
