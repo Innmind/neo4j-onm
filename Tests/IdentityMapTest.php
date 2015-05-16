@@ -10,7 +10,7 @@ class IdentityMapTest extends \PHPUnit_Framework_TestCase
     {
         $i = new IdentityMap;
 
-        $this->assertEquals($i, $i->addClass('stdClass'));
+        $this->assertSame($i, $i->addClass('stdClass'));
         $this->assertTrue($i->has('stdClass'));
     }
 
@@ -20,7 +20,7 @@ class IdentityMapTest extends \PHPUnit_Framework_TestCase
 
         $i->addClass('stdClass');
 
-        $this->assertEquals($i, $i->addAlias('foo', 'stdClass'));
+        $this->assertSame($i, $i->addAlias('foo', 'stdClass'));
         $this->assertTrue($i->has('stdClass'));
         $this->assertTrue($i->has('foo'));
     }

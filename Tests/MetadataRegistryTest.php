@@ -13,11 +13,11 @@ class MetadataRegistryTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMetadata;
         $m->setClass('stdClass');
 
-        $this->assertEquals(
+        $this->assertSame(
             $r,
             $r->addMetadata($m)
         );
-        $this->assertEquals(
+        $this->assertSame(
             $m,
             $r->getMetadata('stdClass')
         );
@@ -30,7 +30,7 @@ class MetadataRegistryTest extends \PHPUnit_Framework_TestCase
         $m->setClass('stdClass');
         $r->addMetadata($m);
 
-        $this->assertEquals(
+        $this->assertSame(
             ['stdClass' => $m],
             $r->getMetadatas()
         );

@@ -46,7 +46,7 @@ class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $repo = $this->factory->make('stdClass', $this->em);
 
-        $this->assertEquals(
+        $this->assertSame(
             $repo,
             $this->factory->make('stdClass', $this->em)
         );

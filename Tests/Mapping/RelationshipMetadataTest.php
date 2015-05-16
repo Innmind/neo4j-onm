@@ -12,7 +12,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
     {
         $m = new RelationshipMetadata;
 
-        $this->assertEquals($m, $m->setClass('stdClass'));
+        $this->assertSame($m, $m->setClass('stdClass'));
         $this->assertEquals('stdClass', $m->getClass());
     }
 
@@ -30,7 +30,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
     {
         $m = new RelationshipMetadata;
 
-        $this->assertEquals($m, $m->setRepositoryClass('stdClass'));
+        $this->assertSame($m, $m->setRepositoryClass('stdClass'));
         $this->assertEquals('stdClass', $m->getRepositoryClass());
     }
 
@@ -40,7 +40,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
         $p->setName('foo');
 
-        $this->assertEquals($m, $m->addProperty($p));
+        $this->assertSame($m, $m->addProperty($p));
         $this->assertEquals(
             ['foo' => $p],
             $m->getProperties()
@@ -52,8 +52,8 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMetadata;
         $id = new Id;
 
-        $this->assertEquals($m, $m->setId($id));
-        $this->assertEquals($id, $m->getId());
+        $this->assertSame($m, $m->setId($id));
+        $this->assertSame($id, $m->getId());
     }
 
     public function testSetAlias()
@@ -61,7 +61,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMetadata;
 
         $this->assertFalse($m->hasAlias());
-        $this->assertEquals($m, $m->setAlias('foo'));
+        $this->assertSame($m, $m->setAlias('foo'));
         $this->assertTrue($m->hasAlias());
         $this->assertEquals('foo', $m->getAlias());
     }
@@ -70,7 +70,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
     {
         $m = new RelationshipMetadata;
 
-        $this->assertEquals($m, $m->setType('Foo'));
+        $this->assertSame($m, $m->setType('Foo'));
         $this->assertEquals('FOO', $m->getType());
     }
 }

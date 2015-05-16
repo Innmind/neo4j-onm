@@ -10,7 +10,7 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
     {
         $p = new Property;
 
-        $this->assertEquals($p, $p->setName('foo'));
+        $this->assertSame($p, $p->setName('foo'));
         $this->assertEquals('foo', $p->getName());
     }
 
@@ -25,7 +25,7 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
     {
         $p = new Property;
 
-        $this->assertEquals($p, $p->setType('int'));
+        $this->assertSame($p, $p->setType('int'));
         $this->assertEquals('int', $p->getType());
     }
 
@@ -34,9 +34,9 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
 
         $this->assertTrue($p->isNullable());
-        $this->assertEquals($p, $p->setNullable(false));
+        $this->assertSame($p, $p->setNullable(false));
         $this->assertFalse($p->isNullable());
-        $this->assertEquals($p, $p->setNullable(true));
+        $this->assertSame($p, $p->setNullable(true));
         $this->assertTrue($p->isNullable());
     }
 
@@ -45,7 +45,7 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
 
         $this->assertFalse($p->hasOption('foo'));
-        $this->assertEquals($p, $p->addOption('foo', 'bar'));
+        $this->assertSame($p, $p->addOption('foo', 'bar'));
         $this->assertTrue($p->hasOption('foo'));
         $this->assertEquals('bar', $p->getOption('foo'));
     }
