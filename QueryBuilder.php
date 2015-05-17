@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\Expression\UpdateExpression;
 use Innmind\Neo4j\ONM\Expression\CreateExpression;
 use Innmind\Neo4j\ONM\Expression\RemoveExpression;
 use Innmind\Neo4j\ONM\Expression\WhereExpression;
+use Innmind\Neo4j\ONM\Expression\CypherExpression;
 use Innmind\Neo4j\ONM\Expression\ReturnExpression;
 
 class QueryBuilder
