@@ -135,8 +135,8 @@ class UnitOfWork
      */
     public function clear($class = null)
     {
-        if ($class) {
-            $class = $this->identityMap->getClass($class);
+        if ($class !== null) {
+            $class = $this->identityMap->getClass((string) $class);
         }
 
         foreach ($this->entities as $entity) {
