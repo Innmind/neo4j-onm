@@ -12,7 +12,7 @@ class CypherExpression implements ParametrableExpressionInterface
     {
         if ($params !== null && empty($key)) {
             throw new \LogicException(
-                'Where expression parameters can\'t be used without a key name'
+                'Cypher query parameters can\'t be used without a key name'
             );
         }
 
