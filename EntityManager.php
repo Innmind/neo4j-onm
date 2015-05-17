@@ -18,6 +18,7 @@ class EntityManager implements EntityManagerInterface
         $this->conn = $conn;
         $this->config = $config;
         $this->dispatcher = $dispatcher;
+        $this->repoFactory = $config->getRepositoryFactory();
     }
 
     /**

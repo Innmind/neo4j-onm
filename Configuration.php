@@ -13,6 +13,7 @@ class Configuration
 
     protected $identityMap;
     protected $metadataRegistry;
+    protected $repositoryFactory;
 
     /**
      * Create a new configuration
@@ -92,6 +93,30 @@ class Configuration
     public function getMetadataRegistry()
     {
         return $this->metadataRegistry;
+    }
+
+    /**
+     * Set the repository factory
+     *
+     * @param RepositoryFactory $factory
+     *
+     * @return Configuration self
+     */
+    public function setRepositoryFactory(RepositoryFactory $factory)
+    {
+        $this->repositoryFactory = $factory;
+
+        return $this;
+    }
+
+    /**
+     * Return the repository factory
+     *
+     * @return RepositoryFactory
+     */
+    public function getRepositoryFactory()
+    {
+        return $this->repositoryFactory;
     }
 
     /**
