@@ -22,7 +22,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMatchExpression('a', 'foo');
 
         $this->assertSame(
-            '(a:__foo__)',
+            '(a:foo)',
             (string) $m
         );
     }
@@ -32,7 +32,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMatchExpression(null, 'foo');
 
         $this->assertSame(
-            '(:__foo__)',
+            '(:foo)',
             (string) $m
         );
     }
@@ -42,7 +42,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '(a:__foo__ { a_match_props })',
+            '(a:foo { a_match_props })',
             (string) $m
         );
     }
@@ -52,7 +52,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMatchExpression(null, 'foo');
 
         $this->assertSame(
-            '(:__foo__)',
+            '(:foo)',
             (string) $m
         );
     }
@@ -74,7 +74,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m->relatedTo(new RelationshipMatchExpression('r', 'foo'));
 
         $this->assertSame(
-            '()-[r:__foo__]->()',
+            '()-[r:foo]->()',
             (string) $m
         );
     }
@@ -91,7 +91,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $n1->relatedTo($r1, $n2);
 
         $this->assertSame(
-            '(n1:__foo__)-[r1:__foo__]->(n2:__bar__)<-[r2:__foo__]-(n3:__baz__)',
+            '(n1:foo)-[r1:foo]->(n2:bar)<-[r2:foo]-(n3:baz)',
             (string) $n1
         );
     }

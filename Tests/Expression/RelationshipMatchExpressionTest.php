@@ -31,7 +31,7 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $r = new RelationshipMatchExpression('r', 'foo');
 
         $this->assertSame(
-            '-[r:__foo__]->()',
+            '-[r:foo]->()',
             (string) $r
         );
     }
@@ -41,7 +41,7 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $r = new RelationshipMatchExpression('r', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '-[r:__foo__ { r_match_props }]->()',
+            '-[r:foo { r_match_props }]->()',
             (string) $r
         );
     }
@@ -51,7 +51,7 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $r = new RelationshipMatchExpression(null, 'foo');
 
         $this->assertSame(
-            '-[:__foo__]->()',
+            '-[:foo]->()',
             (string) $r
         );
     }
