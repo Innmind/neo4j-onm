@@ -1,17 +1,8 @@
 <?php
 
-namespace Innmind\Neo4j\ONM;
+namespace Innmind\Neo4j\ONM\Expression;
 
-use Innmind\Neo4j\ONM\Expression\NodeMatchExpression;
-use Innmind\Neo4j\ONM\Expression\RelationshipMatchExpression;
-use Innmind\Neo4j\ONM\Expression\UpdateExpression;
-use Innmind\Neo4j\ONM\Expression\CreateExpression;
-use Innmind\Neo4j\ONM\Expression\RemoveExpression;
-use Innmind\Neo4j\ONM\Expression\WhereExpression;
-use Innmind\Neo4j\ONM\Expression\CypherExpression;
-use Innmind\Neo4j\ONM\Expression\ReturnExpression;
-
-class QueryBuilder
+class Builder
 {
     /**
      * Return a new NodeMatchExpression
