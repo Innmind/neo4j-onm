@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class RelationshipMatchExpression implements ParametrableExpressionInterface
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class RelationshipMatchExpression implements ParametrableExpressionInterface, ExpressionInterface
 {
     const DIRECTION_RIGHT = 'right';
     const DIRECTION_LEFT = 'left';
@@ -74,9 +76,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface
     }
 
     /**
-     * String representation of the relationship
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function __toString()
     {

@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class UpdateExpression implements ParametrableExpressionInterface
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class UpdateExpression implements ParametrableExpressionInterface, ExpressionInterface
 {
     protected $variable;
     protected $params;
@@ -61,9 +63,7 @@ class UpdateExpression implements ParametrableExpressionInterface
     }
 
     /**
-     * String representation of the update statement
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function __toString()
     {

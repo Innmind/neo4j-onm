@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class NodeMatchExpression implements ParametrableExpressionInterface
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class NodeMatchExpression implements ParametrableExpressionInterface, ExpressionInterface
 {
     protected $variable;
     protected $alias;
@@ -53,9 +55,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface
     }
 
     /**
-     * String representation of the match
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function __toString()
     {

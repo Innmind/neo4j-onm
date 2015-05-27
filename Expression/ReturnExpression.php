@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class ReturnExpression
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class ReturnExpression implements ExpressionInterface
 {
     protected $string;
 
@@ -11,6 +13,9 @@ class ReturnExpression
         $this->string = (string) $string;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __toString()
     {
         return $this->string;

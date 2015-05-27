@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class RemoveExpression
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class RemoveExpression implements ExpressionInterface
 {
     protected $variable;
 
@@ -11,6 +13,9 @@ class RemoveExpression
         $this->variable = (string) $variable;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __toString()
     {
         return $this->variable;

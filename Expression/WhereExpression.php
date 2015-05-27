@@ -2,7 +2,9 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
-class WhereExpression implements ParametrableExpressionInterface
+use Innmind\Neo4j\ONM\ExpressionInterface;
+
+class WhereExpression implements ParametrableExpressionInterface, ExpressionInterface
 {
     protected $expr;
     protected $key;
@@ -46,9 +48,7 @@ class WhereExpression implements ParametrableExpressionInterface
     }
 
     /**
-     * Return the where expression
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function __toString()
     {
