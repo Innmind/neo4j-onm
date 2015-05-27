@@ -4,7 +4,7 @@ namespace Innmind\Neo4j\ONM\Expression;
 
 use Innmind\Neo4j\ONM\ExpressionInterface;
 
-class RelationshipMatchExpression implements ParametrableExpressionInterface, ExpressionInterface
+class RelationshipMatchExpression implements ParametrableExpressionInterface, VariableAwareInterface, ExpressionInterface
 {
     const DIRECTION_RIGHT = 'right';
     const DIRECTION_LEFT = 'left';
@@ -115,9 +115,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Ex
     }
 
     /**
-     * Return the variable name
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getVariable()
     {
@@ -125,9 +123,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Ex
     }
 
     /**
-     * Check if a variable name is specified
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function hasVariable()
     {
@@ -135,9 +131,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Ex
     }
 
     /**
-     * Return the node alias
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getAlias()
     {
@@ -145,9 +139,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Ex
     }
 
     /**
-     * Check is an alias is set
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function hasAlias()
     {

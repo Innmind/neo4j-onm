@@ -4,7 +4,7 @@ namespace Innmind\Neo4j\ONM\Expression;
 
 use Innmind\Neo4j\ONM\ExpressionInterface;
 
-class NodeMatchExpression implements ParametrableExpressionInterface, ExpressionInterface
+class NodeMatchExpression implements ParametrableExpressionInterface, VariableAwareInterface, ExpressionInterface
 {
     protected $variable;
     protected $alias;
@@ -86,9 +86,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, Expression
     }
 
     /**
-     * Return the variable name
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getVariable()
     {
@@ -96,9 +94,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, Expression
     }
 
     /**
-     * Check if a variable name is specified
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function hasVariable()
     {
@@ -106,9 +102,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, Expression
     }
 
     /**
-     * Return the node alias
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getAlias()
     {
@@ -116,9 +110,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, Expression
     }
 
     /**
-     * Check is an alias is set
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function hasAlias()
     {

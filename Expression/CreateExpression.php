@@ -4,14 +4,16 @@ namespace Innmind\Neo4j\ONM\Expression;
 
 use Innmind\Neo4j\ONM\ExpressionInterface;
 
-class CreateExpression implements ParametrableExpressionInterface, ExpressionInterface
+class CreateExpression implements ParametrableExpressionInterface, VariableAwareInterface, ExpressionInterface
 {
     protected $variable;
+    protected $alias;
     protected $params;
 
-    public function __construct($variable, array $params)
+    public function __construct($variable, $alias, array $params)
     {
         $this->variable = (string) $variable;
+        $this->alias = (string) $alias;
         $this->params = (array) $params;
     }
 
@@ -43,9 +45,7 @@ class CreateExpression implements ParametrableExpressionInterface, ExpressionInt
     }
 
     /**
-     * Return the variable name
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getVariable()
     {
@@ -53,11 +53,25 @@ class CreateExpression implements ParametrableExpressionInterface, ExpressionInt
     }
 
     /**
-     * Check if a variable name is specified
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function hasVariable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasAlias()
     {
         return true;
     }
@@ -68,8 +82,9 @@ class CreateExpression implements ParametrableExpressionInterface, ExpressionInt
     public function __toString()
     {
         return sprintf(
-            '(%s { %s })',
+            '(%s:%s { %s })',
             $this->variable,
+            $this->alias,
             $this->getParametersKey()
         );
     }
