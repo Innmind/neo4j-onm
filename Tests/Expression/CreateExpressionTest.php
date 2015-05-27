@@ -8,10 +8,10 @@ class CreateExpressionTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateRepresentation()
     {
-        $n = new CreateExpression('n', ['foo' => 'bar']);
+        $n = new CreateExpression('n', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '(n { n_create_props })',
+            '(n:foo { n_create_props })',
             (string) $n
         );
     }
