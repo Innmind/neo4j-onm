@@ -24,4 +24,18 @@ interface ParametrableExpressionInterface
      * @return string
      */
     public function getParametersKey();
+
+    /**
+     * Return the types associated to the params
+     *
+     * @return array
+     */
+    public function getTypes();
+
+    /**
+     * Check if types are defined
+     *
+     * @return bool
+     */
+    public function hasTypes();
 }

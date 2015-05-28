@@ -10,12 +10,13 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity class alias (or class directly)
      * @param array $params Parameters used to match the node
+     * @param array $types
      *
      * @return NodeMatchExpression
      */
-    public function matchNode($variable = null, $alias = null, array $params = null)
+    public function matchNode($variable = null, $alias = null, array $params = null, array $types = null)
     {
-        return new NodeMatchExpression($variable, $alias, $params);
+        return new NodeMatchExpression($variable, $alias, $params, $types);
     }
 
     /**
@@ -24,10 +25,11 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity class alias (or class directly)
      * @param array $params Parameters used to match the relationship
+     * @param array $types
      *
      * @return RelationshipMatchExpression
      */
-    public function matchRelationship($variable = null, $alias = null, array $params)
+    public function matchRelationship($variable = null, $alias = null, array $params, array $types = null)
     {
         return new RelationshipMatchExpression($variable, $alias, $params);
     }
@@ -37,12 +39,13 @@ class Builder
      *
      * @param string $variable Variable name to be used in the cypher query
      * @param array $params Data to update for the given variable
+     * @param array $types
      *
      * @return UpdateExpression
      */
-    public function update($variable, array $params)
+    public function update($variable, array $params, array $types = null)
     {
-        return new UpdateExpression($variable, $params);
+        return new UpdateExpression($variable, $params, $types);
     }
 
     /**
@@ -50,10 +53,11 @@ class Builder
      *
      * @param string $variable Variable name to be used in the cypher query
      * @param array $params Data to set in the new node
+     * @param array $types
      *
      * @return CreateExpression
      */
-    public function create($variable, array $params)
+    public function create($variable, array $params, array $types = null)
     {
         return new CreateExpression($variable, $params);
     }
@@ -75,13 +79,14 @@ class Builder
      *
      * @param string $expr The where expression
      * @param string $key Parameters key used in the cypher query
-     * @param mixed $params
+     * @param array $params
+     * @param array $types
      *
      * @return WhereExpression
      */
-    public function where($expr, $key = null, $params = null)
+    public function where($expr, $key = null, array $params = null, array $types = null)
     {
-        return new WhereExpression($expr, $key, $params);
+        return new WhereExpression($expr, $key, $params, $types);
     }
 
     /**

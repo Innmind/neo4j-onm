@@ -9,9 +9,10 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
     protected $variable;
     protected $alias;
     protected $params;
+    protected $types;
     protected $relation;
 
-    public function __construct($variable = null, $alias = null, array $params = null)
+    public function __construct($variable = null, $alias = null, array $params = null, array $types = null)
     {
         if (!empty($variable) && empty($alias)) {
             throw new \LogicException(
@@ -28,6 +29,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
+        $this->types = $types;
     }
 
     /**
@@ -142,6 +144,22 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
             '%s_match_props',
             $this->variable
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTypes()
+    {
+        return !empty($this->types);
     }
 
     /**

@@ -9,8 +9,9 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
     protected $expr;
     protected $key;
     protected $params;
+    protected $types;
 
-    public function __construct($expr, $key = null, $params = null)
+    public function __construct($expr, $key = null, array $params = null, array $types = null)
     {
         if ($params !== null && empty($key)) {
             throw new \LogicException(
@@ -21,6 +22,7 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
         $this->expr = (string) $expr;
         $this->key = (string) $key;
         $this->params = $params;
+        $this->types = $types;
     }
 
     /**
@@ -45,6 +47,22 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
     public function getParametersKey()
     {
         return $this->key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTypes()
+    {
+        return !empty($this->types);
     }
 
     /**

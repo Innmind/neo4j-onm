@@ -9,12 +9,14 @@ class CreateExpression implements ParametrableExpressionInterface, VariableAware
     protected $variable;
     protected $alias;
     protected $params;
+    protected $types;
 
-    public function __construct($variable, $alias, array $params)
+    public function __construct($variable, $alias, array $params, array $types = null)
     {
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
-        $this->params = (array) $params;
+        $this->params = $params;
+        $this->types = $types;
     }
 
     /**
@@ -42,6 +44,22 @@ class CreateExpression implements ParametrableExpressionInterface, VariableAware
             '%s_create_props',
             $this->variable
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTypes()
+    {
+        return !empty($this->types);
     }
 
     /**

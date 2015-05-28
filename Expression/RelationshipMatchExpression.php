@@ -13,10 +13,11 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
     protected $variable;
     protected $alias;
     protected $params;
+    protected $types;
     protected $node;
     protected $direction = 'right';
 
-    public function __construct($variable = null, $alias = null, array $params = null)
+    public function __construct($variable = null, $alias = null, array $params = null, array $types = null)
     {
         if (!empty($variable) && empty($alias)) {
             throw new \LogicException(
@@ -33,6 +34,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
+        $this->types = $types;
 
         $this->node = new NodeMatchExpression;
     }
@@ -171,6 +173,22 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
             '%s_match_props',
             $this->variable
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTypes()
+    {
+        return !empty($this->types);
     }
 
     /**

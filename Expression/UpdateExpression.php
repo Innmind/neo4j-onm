@@ -8,11 +8,13 @@ class UpdateExpression implements ParametrableExpressionInterface, ExpressionInt
 {
     protected $variable;
     protected $params;
+    protected $types;
 
-    public function __construct($variable, array $params)
+    public function __construct($variable, array $params, array $types = null)
     {
         $this->variable = (string) $variable;
-        $this->params = (array) $params;
+        $this->params = $params;
+        $this->types = $types;
     }
 
     /**
@@ -40,6 +42,22 @@ class UpdateExpression implements ParametrableExpressionInterface, ExpressionInt
             '%s_update_props',
             $this->variable
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTypes()
+    {
+        return !empty($this->types);
     }
 
     /**
