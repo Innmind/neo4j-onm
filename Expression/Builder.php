@@ -90,20 +90,6 @@ class Builder
     }
 
     /**
-     * Return a CypherExpression
-     *
-     * @param string $cypher The cypher query
-     * @param string $key Parameters key used in the cypher query
-     * @param mixed $params
-     *
-     * @return CypherExpression
-     */
-    public function query($cypher, $key = null, $params = null)
-    {
-        return new CypherExpression($cypher, $key, $params);
-    }
-
-    /**
      * Create a ReturnExpression
      *
      * @param string $return
