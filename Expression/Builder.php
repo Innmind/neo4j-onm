@@ -52,14 +52,15 @@ class Builder
      * Return a CreateExpression
      *
      * @param string $variable Variable name to be used in the cypher query
+     * @param string $alias Entity alias for the node
      * @param array $params Data to set in the new node
      * @param array $types
      *
      * @return CreateExpression
      */
-    public function create($variable, array $params, array $types = null)
+    public function create($variable, $alias, array $params, array $types = null)
     {
-        return new CreateExpression($variable, $params);
+        return new CreateExpression($variable, $alias, $params, $types);
     }
 
     /**
