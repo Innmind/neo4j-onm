@@ -31,7 +31,7 @@ class Builder
      */
     public function matchRelationship($variable = null, $alias = null, array $params = null, array $types = null)
     {
-        return new RelationshipMatchExpression($variable, $alias, $params);
+        return new RelationshipMatchExpression($variable, $alias, $params, $types);
     }
 
     /**
