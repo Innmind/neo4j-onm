@@ -43,13 +43,11 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
      */
     public function relatedTo(RelationshipMatchExpression $rel, NodeMatchExpression $node = null, $direction = 'right')
     {
-        if ($node === null) {
-            $node = new self;
+        if ($node !== null) {
+            $rel->setNodeMatcher($node);
         }
 
-        $rel
-            ->setNodeMatcher($node)
-            ->setDirection($direction);
+        $rel->setDirection($direction);
 
         $this->relation = $rel;
 

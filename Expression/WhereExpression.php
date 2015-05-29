@@ -38,7 +38,7 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
      */
     public function hasParameters()
     {
-        return $this->params !== null;
+        return !empty($this->params);
     }
 
     /**

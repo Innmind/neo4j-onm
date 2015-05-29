@@ -129,6 +129,20 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($m->hasVariable());
     }
 
+    public function testHasAlias()
+    {
+        $m = new NodeMatchExpression('a', 'foo');
+
+        $this->assertTrue($m->hasAlias());
+    }
+
+    public function testHasntAlias()
+    {
+        $m = new NodeMatchExpression;
+
+        $this->assertFalse($m->hasAlias());
+    }
+
     public function testGetAlias()
     {
         $m = new NodeMatchExpression('a', 'foo');
@@ -153,6 +167,50 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($m->hasParameters());
     }
 
+    public function testGetParameters()
+    {
+        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar']);
+
+        $this->assertSame(
+            ['foo' => 'bar'],
+            $m->getParameters()
+        );
+    }
+
+    public function testGetParametersKey()
+    {
+        $m = new NodeMatchExpression('a', 'foo');
+
+        $this->assertSame(
+            'a_match_props',
+            $m->getParametersKey()
+        );
+    }
+
+    public function testHasntTypes()
+    {
+        $m = new NodeMatchExpression;
+
+        $this->assertFalse($m->hasTypes());
+    }
+
+    public function testHasTypes()
+    {
+        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+
+        $this->assertTrue($m->hasTypes());
+    }
+
+    public function testGetTypes()
+    {
+        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+
+        $this->assertSame(
+            ['foo' => 'string'],
+            $m->getTypes()
+        );
+    }
+
     public function testSetRelationship()
     {
         $m = new NodeMatchExpression;
@@ -164,6 +222,21 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             $r,
             $m->getRelationship()
+        );
+    }
+
+    public function testDoesnOverrideRelationshipNodeMatcher()
+    {
+        $m = new NodeMatchExpression;
+        $m2 = new NodeMatchExpression;
+        $r = new RelationshipMatchExpression;
+
+        $r->setNodeMatcher($m2);
+        $m->relatedTo($r);
+
+        $this->assertSame(
+            $m2,
+            $r->getNodeMatcher()
         );
     }
 

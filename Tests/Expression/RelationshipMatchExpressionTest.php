@@ -119,6 +119,20 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testHasAlias()
+    {
+        $m = new RelationshipMatchExpression('a', 'foo');
+
+        $this->assertTrue($m->hasAlias());
+    }
+
+    public function testHasntAlias()
+    {
+        $m = new RelationshipMatchExpression;
+
+        $this->assertFalse($m->hasAlias());
+    }
+
     public function testDoesntHaveParameters()
     {
         $m = new RelationshipMatchExpression;
@@ -131,6 +145,50 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertTrue($m->hasParameters());
+    }
+
+    public function testGetParameters()
+    {
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
+
+        $this->assertSame(
+            ['foo' => 'bar'],
+            $m->getParameters()
+        );
+    }
+
+    public function testGetParametersKey()
+    {
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
+
+        $this->assertSame(
+            'a_match_props',
+            $m->getParametersKey()
+        );
+    }
+
+    public function testHasntTypes()
+    {
+        $m = new RelationshipMatchExpression;
+
+        $this->assertFalse($m->hasTypes());
+    }
+
+    public function testHasTypes()
+    {
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+
+        $this->assertTrue($m->hasTypes());
+    }
+
+    public function testGetTypes()
+    {
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+
+        $this->assertSame(
+            ['foo' => 'string'],
+            $m->getTypes()
+        );
     }
 
     public function testGetNodeMatcher()
