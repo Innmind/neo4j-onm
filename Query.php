@@ -42,12 +42,12 @@ class Query
      * Add parameters to the query
      *
      * @param string $key
-     * @param array $params
-     * @param array $types Types associated to the parameters
+     * @param mixed $params
+     * @param mixed $types Types associated to the parameters
      *
      * @return Query self
      */
-    public function addParameters($key, array $params, array $types = null)
+    public function addParameters($key, $params, $types = null)
     {
         $this->params[(string) $key] = $params;
 
