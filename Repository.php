@@ -91,4 +91,14 @@ abstract class Repository implements RepositoryInterface
     {
         return $this->em;
     }
+
+    /**
+     * Return a new query builder
+     *
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        return new QueryBuilder;
+    }
 }
