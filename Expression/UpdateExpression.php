@@ -8,13 +8,20 @@ class UpdateExpression implements ParametrableExpressionInterface, ExpressionInt
 {
     protected $variable;
     protected $params;
-    protected $references;
+    protected $references = [];
 
-    public function __construct($variable, array $params, array $references = null)
+    public function __construct($variable, array $params)
     {
         $this->variable = (string) $variable;
         $this->params = $params;
-        $this->references = $references;
+
+        foreach ($params as $key => $value) {
+            $this->references[$key] = sprintf(
+                '%s.%s',
+                $variable,
+                $key
+            );
+        }
     }
 
     /**

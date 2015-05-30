@@ -66,7 +66,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->qb->matchNode('n', 'Foo');
         $this->assertSame(
             $this->qb,
-            $this->qb->update('n', ['foo' => 'bar'], ['foo' => 'string'])
+            $this->qb->update('n', ['foo' => 'bar'])
         );
         $this->assertSame(
             'MATCH (n:Foo)' . "\n" . 'SET n += { n_update_props };',
@@ -77,7 +77,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->getQuery()->getParameters()
         );
         $this->assertSame(
-            ['n_update_props' => ['foo' => 'string']],
+            ['n_update_props' => ['foo' => 'n.foo']],
             $this->qb->getQuery()->getReferences()
         );
     }

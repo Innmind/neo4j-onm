@@ -76,13 +76,12 @@ class QueryBuilder
      *
      * @param string $variable
      * @param array $params
-     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function update($variable, array $params, array $references = null)
+    public function update($variable, array $params)
     {
-        $expr = $this->expr->update($variable, $params, $references);
+        $expr = $this->expr->update($variable, $params);
         $this->sequence[] = $expr;
 
         return $this;

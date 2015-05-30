@@ -37,13 +37,12 @@ class Builder
      *
      * @param string $variable Variable name to be used in the cypher query
      * @param array $params Data to update for the given variable
-     * @param array $references
      *
      * @return UpdateExpression
      */
-    public function update($variable, array $params, array $references = null)
+    public function update($variable, array $params)
     {
-        return new UpdateExpression($variable, $params, $references);
+        return new UpdateExpression($variable, $params);
     }
 
     /**
