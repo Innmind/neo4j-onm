@@ -4,6 +4,11 @@ namespace Innmind\Neo4j\ONM\Expression;
 
 trait MatcherTrait
 {
+    protected $variable;
+    protected $alias;
+    protected $params;
+    protected $types;
+
     /**
      * {@inheritdoc}
      */

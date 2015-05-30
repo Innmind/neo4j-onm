@@ -12,10 +12,6 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
     const DIRECTION_LEFT = 'left';
     const DIRECTION_NONE = 'none';
 
-    protected $variable;
-    protected $alias;
-    protected $params;
-    protected $types;
     protected $node;
     protected $direction = 'right';
 

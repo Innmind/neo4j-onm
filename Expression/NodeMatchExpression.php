@@ -8,10 +8,6 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
 {
     use MatcherTrait;
 
-    protected $variable;
-    protected $alias;
-    protected $params;
-    protected $types;
     protected $relation;
 
     public function __construct($variable = null, $alias = null, array $params = null, array $types = null)
