@@ -43,27 +43,27 @@ class UpdateExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHasntTypes()
+    public function testHasntReferences()
     {
         $u = new UpdateExpression('n', ['foo' => 'bar']);
 
-        $this->assertFalse($u->hasTypes());
+        $this->assertFalse($u->hasReferences());
     }
 
-    public function testHasTypes()
+    public function testHasReferences()
     {
         $u = new UpdateExpression('n', ['foo' => 'bar'], ['foo' => 'string']);
 
-        $this->assertTrue($u->hasTypes());
+        $this->assertTrue($u->hasReferences());
     }
 
-    public function testGetTypes()
+    public function testGetReferences()
     {
         $u = new UpdateExpression('n', ['foo' => 'bar'], ['foo' => 'string']);
 
         $this->assertSame(
             ['foo' => 'string'],
-            $u->getTypes()
+            $u->getReferences()
         );
     }
 

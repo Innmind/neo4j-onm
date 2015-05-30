@@ -37,7 +37,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             ['n_match_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            $this->qb->getQuery()->getReferences()
         );
         $this->assertSame(
             ['n' => 'Foo'],
@@ -78,7 +78,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             ['n_update_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            $this->qb->getQuery()->getReferences()
         );
     }
 
@@ -98,7 +98,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             ['n_create_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            $this->qb->getQuery()->getReferences()
         );
         $this->assertSame(
             ['n' => 'Foo'],
@@ -136,7 +136,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             ['where' => ['nid' => 'int']],
-            $this->qb->getQuery()->getTypes()
+            $this->qb->getQuery()->getReferences()
         );
     }
 

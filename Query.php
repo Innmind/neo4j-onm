@@ -6,7 +6,7 @@ class Query
 {
     protected $cypher;
     protected $params = [];
-    protected $types = [];
+    protected $references = [];
     protected $variables = [];
 
     public function __construct($cypher = null)
@@ -43,16 +43,16 @@ class Query
      *
      * @param string $key
      * @param mixed $params
-     * @param mixed $types Types associated to the parameters
+     * @param mixed $references References associated to the parameters
      *
      * @return Query self
      */
-    public function addParameters($key, $params, $types = null)
+    public function addParameters($key, $params, $references = null)
     {
         $this->params[(string) $key] = $params;
 
-        if ($types !== null) {
-            $this->types[(string) $key] = $types;
+        if ($references !== null) {
+            $this->references[(string) $key] = $references;
         }
 
         return $this;
@@ -124,22 +124,22 @@ class Query
     }
 
     /**
-     * Check if the query has parameters types
+     * Check if the query has parameters references
      *
      * @return bool
      */
-    public function hasTypes()
+    public function hasReferences()
     {
-        return !empty($this->types);
+        return !empty($this->references);
     }
 
     /**
-     * Return the parameters types
+     * Return the parameters references
      *
      * @return array
      */
-    public function getTypes()
+    public function getReferences()
     {
-        return $this->types;
+        return $this->references;
     }
 }

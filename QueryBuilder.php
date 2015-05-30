@@ -46,13 +46,13 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function matchNode($variable = null, $alias = null, array $params = null, array $types = null)
+    public function matchNode($variable = null, $alias = null, array $params = null, array $references = null)
     {
-        $expr = $this->expr->matchNode($variable, $alias, $params, $types);
+        $expr = $this->expr->matchNode($variable, $alias, $params, $references);
         $this->sequence[] = $expr;
 
         return $this;
@@ -77,13 +77,13 @@ class QueryBuilder
      *
      * @param string $variable
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function update($variable, array $params, array $types = null)
+    public function update($variable, array $params, array $references = null)
     {
-        $expr = $this->expr->update($variable, $params, $types);
+        $expr = $this->expr->update($variable, $params, $references);
         $this->sequence[] = $expr;
 
         return $this;
@@ -95,13 +95,13 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function create($variable, $alias, array $params, array $types = null)
+    public function create($variable, $alias, array $params, array $references = null)
     {
-        $expr = $this->expr->create($variable, $alias, $params, $types);
+        $expr = $this->expr->create($variable, $alias, $params, $references);
         $this->sequence[] = $expr;
 
         return $this;
@@ -128,13 +128,13 @@ class QueryBuilder
      * @param string $expr
      * @param string $key
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function where($expr, $key = null, array $params = null, array $types = null)
+    public function where($expr, $key = null, array $params = null, array $references = null)
     {
-        $expr = $this->expr->where($expr, $key, $params, $types);
+        $expr = $this->expr->where($expr, $key, $params, $references);
         $this->sequence[] = $expr;
 
         return $this;
@@ -208,7 +208,7 @@ class QueryBuilder
             $query->addParameters(
                 $expression->getParametersKey(),
                 $expression->getParameters(),
-                $expression->getTypes()
+                $expression->getReferences()
             );
         }
 

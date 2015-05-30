@@ -8,13 +8,13 @@ class UpdateExpression implements ParametrableExpressionInterface, ExpressionInt
 {
     protected $variable;
     protected $params;
-    protected $types;
+    protected $references;
 
-    public function __construct($variable, array $params, array $types = null)
+    public function __construct($variable, array $params, array $references = null)
     {
         $this->variable = (string) $variable;
         $this->params = $params;
-        $this->types = $types;
+        $this->references = $references;
     }
 
     /**
@@ -47,17 +47,17 @@ class UpdateExpression implements ParametrableExpressionInterface, ExpressionInt
     /**
      * {@inheritdoc}
      */
-    public function getTypes()
+    public function getReferences()
     {
-        return $this->types;
+        return $this->references;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasTypes()
+    public function hasReferences()
     {
-        return !empty($this->types);
+        return !empty($this->references);
     }
 
     /**

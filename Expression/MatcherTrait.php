@@ -7,7 +7,7 @@ trait MatcherTrait
     protected $variable;
     protected $alias;
     protected $params;
-    protected $types;
+    protected $references;
 
     /**
      * {@inheritdoc}
@@ -71,16 +71,16 @@ trait MatcherTrait
     /**
      * {@inheritdoc}
      */
-    public function getTypes()
+    public function getReferences()
     {
-        return $this->types;
+        return $this->references;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasTypes()
+    public function hasReferences()
     {
-        return !empty($this->types);
+        return !empty($this->references);
     }
 }

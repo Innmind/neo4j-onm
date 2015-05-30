@@ -47,16 +47,16 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testSetTypes()
+    public function testSetReferences()
     {
         $q = new Query;
 
-        $this->assertFalse($q->hasTypes());
+        $this->assertFalse($q->hasReferences());
         $q->addParameters('foo', 'bar', 'string');
-        $this->assertTrue($q->hasTypes());
+        $this->assertTrue($q->hasReferences());
         $this->assertSame(
             ['foo' => 'string'],
-            $q->getTypes()
+            $q->getReferences()
         );
     }
 

@@ -26,16 +26,16 @@ interface ParametrableExpressionInterface
     public function getParametersKey();
 
     /**
-     * Return the types associated to the params
+     * Return the references associated to the params
      *
      * @return array
      */
-    public function getTypes();
+    public function getReferences();
 
     /**
-     * Check if types are defined
+     * Check if references are defined
      *
      * @return bool
      */
-    public function hasTypes();
+    public function hasReferences();
 }

@@ -187,27 +187,27 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHasntTypes()
+    public function testHasntReferences()
     {
         $m = new NodeMatchExpression;
 
-        $this->assertFalse($m->hasTypes());
+        $this->assertFalse($m->hasReferences());
     }
 
-    public function testHasTypes()
+    public function testHasReferences()
     {
         $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
 
-        $this->assertTrue($m->hasTypes());
+        $this->assertTrue($m->hasReferences());
     }
 
-    public function testGetTypes()
+    public function testGetReferences()
     {
         $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
 
         $this->assertSame(
             ['foo' => 'string'],
-            $m->getTypes()
+            $m->getReferences()
         );
     }
 

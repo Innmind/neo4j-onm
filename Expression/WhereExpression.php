@@ -9,9 +9,9 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
     protected $expr;
     protected $key;
     protected $params;
-    protected $types;
+    protected $references;
 
-    public function __construct($expr, $key = null, array $params = null, array $types = null)
+    public function __construct($expr, $key = null, array $params = null, array $references = null)
     {
         if ($params !== null && empty($key)) {
             throw new \LogicException(
@@ -22,7 +22,7 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
         $this->expr = (string) $expr;
         $this->key = (string) $key;
         $this->params = $params;
-        $this->types = $types;
+        $this->references = $references;
     }
 
     /**
@@ -52,17 +52,17 @@ class WhereExpression implements ParametrableExpressionInterface, ExpressionInte
     /**
      * {@inheritdoc}
      */
-    public function getTypes()
+    public function getReferences()
     {
-        return $this->types;
+        return $this->references;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasTypes()
+    public function hasReferences()
     {
-        return !empty($this->types);
+        return !empty($this->references);
     }
 
     /**
