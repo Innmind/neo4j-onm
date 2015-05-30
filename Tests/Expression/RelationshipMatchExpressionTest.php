@@ -176,17 +176,17 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testHasReferences()
     {
-        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertTrue($m->hasReferences());
     }
 
     public function testGetReferences()
     {
-        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            ['foo' => 'string'],
+            ['foo' => 'a.foo'],
             $m->getReferences()
         );
     }

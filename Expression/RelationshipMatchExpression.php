@@ -15,7 +15,7 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
     protected $node;
     protected $direction = 'right';
 
-    public function __construct($variable = null, $alias = null, array $params = null, array $references = null)
+    public function __construct($variable = null, $alias = null, array $params = null)
     {
         if (!empty($variable) && empty($alias)) {
             throw new \LogicException(
@@ -32,7 +32,18 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
-        $this->references = $references;
+
+        if ($params !== null) {
+            $this->references = [];
+
+            foreach ($params as $key => $value) {
+                $this->references[$key] = sprintf(
+                    '%s.%s',
+                    $variable,
+                    $key
+                );
+            }
+        }
 
         $this->node = new NodeMatchExpression;
     }
