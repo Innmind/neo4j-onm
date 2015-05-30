@@ -297,7 +297,7 @@ class UnitOfWork
 
             if ($metadata->getId()->getStrategy() === Id::STRATEGY_AUTO) {
                 $search = sprintf(
-                    ' %s.%s([^A-z0-9]?)',
+                    ' %s\.%s([^A-z0-9]?)',
                     $variable,
                     $metadata->getId()->getProperty()
                 );
