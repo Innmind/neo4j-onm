@@ -3,8 +3,12 @@
 namespace Innmind\Neo4j\ONM\Tests;
 
 use Innmind\Neo4j\ONM\UnitOfWork;
+use Innmind\Neo4j\ONM\Query;
 use Innmind\Neo4j\ONM\IdentityMap;
 use Innmind\Neo4j\ONM\MetadataRegistry;
+use Innmind\Neo4j\ONM\Mapping\Id;
+use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
+use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
@@ -23,10 +27,33 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $map = new IdentityMap;
         $map->addClass('stdClass');
         $map->addAlias('s', 'stdClass');
+        $map->addAlias('b', Bar::class);
+        $registry = new MetadataRegistry;
+        $registry->addMetadata(
+            (new NodeMetadata)
+                ->setId(
+                    (new Id)
+                        ->setStrategy(Id::STRATEGY_AUTO)
+                        ->setProperty('id')
+                )
+                ->addLabel('Foo')
+                ->addLabel('Bar')
+                ->setClass('stdClass')
+        );
+        $registry->addMetadata(
+            (new RelationshipMetadata)
+                ->setId(
+                    (new Id)
+                        ->setStrategy(Id::STRATEGY_UUID)
+                        ->setProperty('id')
+                )
+                ->setType('foo')
+                ->setClass(Bar::class)
+        );
         $this->uow = new UnitOfWork(
             $conn,
             $map,
-            new MetadataRegistry,
+            $registry,
             $dispatcher
         );
         $refl = new \ReflectionObject($this->uow);
@@ -150,6 +177,19 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->uow, $this->uow->detach($e));
         $this->assertFalse($this->uow->isManaged($e));
     }
+
+    public function testBuildQuery()
+    {
+        $q = new Query('MATCH (n:stdClass)-[r:b]->() WHERE n.id = { where }.nid AND r.id = 42 RETURN n.id;');
+        $q->addVariable('n', 'stdClass');
+        $q->addVariable('r', 'b');
+
+        $this->assertSame(
+            'MATCH (n:Foo:Bar)-[r:FOO]->() WHERE id(n) = { where }.nid AND r.id = 42 RETURN id(n);',
+            $this->uow->buildQuery($q)
+        );
+    }
 }
 
 class Foo {}
+class Bar {}

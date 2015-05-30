@@ -2,6 +2,8 @@
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
+use Innmind\Neo4j\ONM\Mapping\Id;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -246,6 +248,69 @@ class UnitOfWork
     public function isScheduledForDelete($entity)
     {
         return $this->scheduledForDelete->contains($entity);
+    }
+
+    /**
+     * Take the cypher query and replace all the alias by the real
+     * labels and relationships types, as well as correct nodes id
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    public function buildQuery(Query $query)
+    {
+        $variables = $query->getVariables();
+        $cypher = $query->getCypher();
+
+        foreach ($variables as $variable => $alias) {
+            $class = $this->identityMap->getClass($alias);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+
+            if ($metadata instanceof NodeMetadata) {
+                $labels = implode(':', $metadata->getLabels());
+
+                $search = sprintf(
+                    '(%s:%s',
+                    $variable,
+                    $alias
+                );
+                $replace = sprintf(
+                    '(%s:%s',
+                    $variable,
+                    $labels
+                );
+            } else {
+                $search = sprintf(
+                    '[%s:%s',
+                    $variable,
+                    $alias
+                );
+                $replace = sprintf(
+                    '[%s:%s',
+                    $variable,
+                    $metadata->getType()
+                );
+            }
+
+            $cypher = str_replace($search, $replace, $cypher);
+
+            if ($metadata->getId()->getStrategy() === Id::STRATEGY_AUTO) {
+                $search = sprintf(
+                    ' %s.%s([^A-z0-9]?)',
+                    $variable,
+                    $metadata->getId()->getProperty()
+                );
+                $replace = sprintf(
+                    ' id(%s)$1',
+                    $variable
+                );
+
+                $cypher = preg_replace("/$search/", $replace, $cypher);
+            }
+        }
+
+        return $cypher;
     }
 
     /**
