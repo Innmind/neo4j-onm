@@ -10,7 +10,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
 
     protected $relation;
 
-    public function __construct($variable = null, $alias = null, array $params = null, array $references = null)
+    public function __construct($variable = null, $alias = null, array $params = null)
     {
         if (!empty($variable) && empty($alias)) {
             throw new \LogicException(
@@ -27,7 +27,18 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
-        $this->references = $references;
+
+        if ($params !== null) {
+            $this->references = [];
+
+            foreach ($params as $key => $value) {
+                $this->references[$key] = sprintf(
+                    '%s.%s',
+                    $variable,
+                    $key
+                );
+            }
+        }
     }
 
     /**

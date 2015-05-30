@@ -46,13 +46,12 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function matchNode($variable = null, $alias = null, array $params = null, array $references = null)
+    public function matchNode($variable = null, $alias = null, array $params = null)
     {
-        $expr = $this->expr->matchNode($variable, $alias, $params, $references);
+        $expr = $this->expr->matchNode($variable, $alias, $params);
         $this->sequence[] = $expr;
 
         return $this;

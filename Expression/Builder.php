@@ -10,13 +10,12 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity class alias (or class directly)
      * @param array $params Parameters used to match the node
-     * @param array $references
      *
      * @return NodeMatchExpression
      */
-    public function matchNode($variable = null, $alias = null, array $params = null, array $references = null)
+    public function matchNode($variable = null, $alias = null, array $params = null)
     {
-        return new NodeMatchExpression($variable, $alias, $params, $references);
+        return new NodeMatchExpression($variable, $alias, $params);
     }
 
     /**

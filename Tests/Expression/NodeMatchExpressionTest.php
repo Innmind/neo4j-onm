@@ -196,17 +196,17 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testHasReferences()
     {
-        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertTrue($m->hasReferences());
     }
 
     public function testGetReferences()
     {
-        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            ['foo' => 'string'],
+            ['foo' => 'a.foo'],
             $m->getReferences()
         );
     }
