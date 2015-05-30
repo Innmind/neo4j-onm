@@ -6,6 +6,8 @@ use Innmind\Neo4j\ONM\ExpressionInterface;
 
 class RelationshipMatchExpression implements ParametrableExpressionInterface, VariableAwareInterface, ExpressionInterface
 {
+    use MatcherTrait;
+
     const DIRECTION_RIGHT = 'right';
     const DIRECTION_LEFT = 'left';
     const DIRECTION_NONE = 'none';
@@ -114,81 +116,6 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         $string .= (string) $this->node;
 
         return $string;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getVariable()
-    {
-        return $this->variable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasVariable()
-    {
-        return !empty($this->variable);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlias()
-    {
-        return $this->alias;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasAlias()
-    {
-        return !empty($this->alias);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParameters()
-    {
-        return $this->params;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasParameters()
-    {
-        return !empty($this->params);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParametersKey()
-    {
-        return sprintf(
-            '%s_match_props',
-            $this->variable
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTypes()
-    {
-        return $this->types;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTypes()
-    {
-        return !empty($this->types);
     }
 
     /**
