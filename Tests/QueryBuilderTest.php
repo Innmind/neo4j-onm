@@ -86,7 +86,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(
             $this->qb,
-            $this->qb->create('n', 'Foo', ['foo' => 'bar'], ['foo' => 'string'])
+            $this->qb->create('n', 'Foo', ['foo' => 'bar'])
         );
         $this->assertSame(
             'CREATE (n:Foo { n_create_props });',
@@ -97,7 +97,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->getQuery()->getParameters()
         );
         $this->assertSame(
-            ['n_create_props' => ['foo' => 'string']],
+            ['n_create_props' => ['foo' => 'n.foo']],
             $this->qb->getQuery()->getReferences()
         );
         $this->assertSame(

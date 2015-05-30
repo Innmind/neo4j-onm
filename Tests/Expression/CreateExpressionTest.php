@@ -52,17 +52,17 @@ class CreateExpressionTest extends \PHPUnit_Framework_TestCase
 
     public function testHasReferences()
     {
-        $n = new CreateExpression('n', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $n = new CreateExpression('n', 'foo', ['foo' => 'bar']);
 
         $this->assertTrue($n->hasReferences());
     }
 
     public function testGetReferences()
     {
-        $n = new CreateExpression('n', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $n = new CreateExpression('n', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            ['foo' => 'string'],
+            ['foo' => 'n.foo'],
             $n->getReferences()
         );
     }

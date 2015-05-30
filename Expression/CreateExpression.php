@@ -9,14 +9,21 @@ class CreateExpression implements ParametrableExpressionInterface, VariableAware
     protected $variable;
     protected $alias;
     protected $params;
-    protected $references;
+    protected $references = [];
 
-    public function __construct($variable, $alias, array $params, array $references = null)
+    public function __construct($variable, $alias, array $params)
     {
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
-        $this->references = $references;
+
+        foreach ($params as $key => $value) {
+            $this->references[$key] = sprintf(
+                '%s.%s',
+                $variable,
+                $key
+            );
+        }
     }
 
     /**

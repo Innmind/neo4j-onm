@@ -95,13 +95,12 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function create($variable, $alias, array $params, array $references = null)
+    public function create($variable, $alias, array $params)
     {
-        $expr = $this->expr->create($variable, $alias, $params, $references);
+        $expr = $this->expr->create($variable, $alias, $params);
         $this->sequence[] = $expr;
 
         return $this;
