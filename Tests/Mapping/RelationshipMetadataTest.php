@@ -40,10 +40,16 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
         $p->setName('foo');
 
+        $this->assertFalse($m->hasProperty('foo'));
         $this->assertSame($m, $m->addProperty($p));
+        $this->assertTrue($m->hasProperty('foo'));
         $this->assertEquals(
             ['foo' => $p],
             $m->getProperties()
+        );
+        $this->assertSame(
+            $p,
+            $m->getProperty('foo')
         );
     }
 

@@ -76,6 +76,30 @@ abstract class Metadata
     }
 
     /**
+     * Check if the entity has the property defined
+     *
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function hasProperty($property)
+    {
+        return isset($this->properties[(string) $property]);
+    }
+
+    /**
+     * Return the property object for the given property name
+     *
+     * @param string $property
+     *
+     * @return Property
+     */
+    public function getProperty($property)
+    {
+        return $this->properties[(string) $property];
+    }
+
+    /**
      * Return the properties definitions
      *
      * @return array
