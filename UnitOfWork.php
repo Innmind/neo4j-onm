@@ -437,7 +437,7 @@ class UnitOfWork
      */
     protected function checkKnown($entity)
     {
-        if (!$this->identityMap->has(get_class($entity))) {
+        if (!$this->identityMap->has($this->getClass($entity))) {
             throw new UnrecognizedEntityException(sprintf(
                 'The class "%s" is not known as an entity by this manager',
                 get_class($entity)
@@ -484,5 +484,17 @@ class UnitOfWork
         }
 
         return $params;
+    }
+
+    /**
+     * Return the class of an entity
+     *
+     * @param object $entity
+     *
+     * @return string
+     */
+    protected function getClass($entity)
+    {
+        return get_class($entity);
     }
 }
