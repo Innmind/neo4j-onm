@@ -92,7 +92,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             $this->h->createEntity(
                 $m,
                 [
-                    'foo' => '2015-05-31T00:00:00+0200',
+                    'foo' => '2015-05-31',
                     'id' => '42'
                 ]
             )
@@ -106,7 +106,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             'labels' => ['Foo'],
             'properties' => [
                 'id' => 0,
-                'foo' => '2015-05-31T00:00:00+0200',
+                'foo' => '2015-05-31',
             ],
         ];
         $nodeB = [
@@ -114,7 +114,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             'labels' => ['Foo'],
             'properties' => [
                 'id' => 1,
-                'foo' => '2015-05-31T00:00:00+0200',
+                'foo' => '2015-05-31',
             ],
         ];
         $rel = [
@@ -198,7 +198,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             'labels' => ['Foo'],
             'properties' => [
                 'id' => 0,
-                'foo' => '2015-05-31T00:00:00+0200',
+                'foo' => '2015-05-31',
             ],
         ];
         $results = [
