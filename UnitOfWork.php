@@ -4,8 +4,11 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\Id;
+use Innmind\Neo4j\ONM\Mapping\Property;
+use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
+use Innmind\Neo4j\ONM\Exception\EntityNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitOfWork
@@ -19,6 +22,7 @@ class UnitOfWork
     protected $identityMap;
     protected $metadataRegistry;
     protected $dispatcher;
+    protected $hydrator;
     protected $states;
     protected $entities;
     protected $scheduledForUpdate;
@@ -35,6 +39,7 @@ class UnitOfWork
         $this->identityMap = $map;
         $this->metadataRegistry = $registry;
         $this->dispatcher = $dispatcher;
+        $this->hydrator = new Hydrator($map, $registry);
 
         $this->states = [
             self::STATE_MANAGED => new \SplObjectStorage,
@@ -58,7 +63,33 @@ class UnitOfWork
      */
     public function find($class, $id)
     {
+        $class = $this->identityMap->getClass($class);
+        $metadata = $this->metadataRegistry->getMetadata($class);
 
+        $query = new Query(sprintf(
+            'MATCH (n:%s) WHERE n.%s = {props}.id RETURN n;',
+            $class,
+            $metadata->getId()->getProperty()
+        ));
+        $query
+            ->addVariable('n', $class)
+            ->addParameters(
+                'props',
+                ['id' => $id],
+                ['id' => sprintf('n.%s', $metadata->getId()->getProperty())]
+            );
+
+        $results = $this->execute($query);
+
+        if ($results->count() === 0) {
+            throw new EntityNotFoundException(sprintf(
+                'The node "%s" with the id "%s" not found',
+                $class,
+                $id
+            ));
+        }
+
+        return $results->first();
     }
 
     /**
@@ -75,6 +106,23 @@ class UnitOfWork
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
 
+    }
+
+    /**
+     * Execute the given query
+     *
+     * @param Query $query
+     *
+     * @return ArrayCollection
+     */
+    public function execute(Query $query)
+    {
+        $cypher = $this->buildQuery($query);
+        $params = $this->cleanParameters($query);
+
+        $results = $this->conn->execute($cypher, $params);
+
+        return $this->hydrator->hydrate($results, $query);
     }
 
     /**
@@ -328,5 +376,46 @@ class UnitOfWork
                 get_class($entity)
             ));
         }
+    }
+
+    /**
+     * Clean query parameters by converting via the types defined by the properties
+     *
+     * @param Query $query
+     *
+     * @return array
+     */
+    protected function cleanParameters(Query $query)
+    {
+        $params = $query->getParameters();
+        $references = $query->getReferences();
+        $variables = $query->getVariables();
+
+        foreach ($params as $key => &$values) {
+            if (!isset($references[$key])) {
+                continue;
+            }
+
+            foreach ($values as $k => &$value) {
+                if (!isset($references[$key][$k])) {
+                    continue;
+                }
+
+                list($var, $prop) = explode('.', $references[$key][$k]);
+                $class = $this->identityMap->getClass($variables[$var]);
+                $metadata = $this->metadataRegistry->getMetadata($class);
+
+                if (!$metadata->hasProperty($prop)) {
+                    continue;
+                }
+
+                $prop = $metadata->getProperty($prop);
+
+                $value = Types::getType($prop->getType())
+                    ->convertToDatabaseValue($value, $prop);
+            }
+        }
+
+        return $params;
     }
 }

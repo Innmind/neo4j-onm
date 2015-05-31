@@ -9,6 +9,8 @@ use Innmind\Neo4j\ONM\MetadataRegistry;
 use Innmind\Neo4j\ONM\Mapping\Id;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
+use Innmind\Neo4j\ONM\Mapping\Property;
+use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
@@ -20,25 +22,56 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $dispatcher = new EventDispatcher;
-        $conn = $this
-            ->getMockBuilder('Innmind\Neo4j\DBAL\Connection')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $conn = ConnectionFactory::make([
+            'host' => 'docker',
+            'username' => 'neo4j',
+            'password' => 'bar',
+        ]);
         $map = new IdentityMap;
         $map->addClass('stdClass');
+        $map->addClass(Baz::class);
         $map->addAlias('s', 'stdClass');
         $map->addAlias('b', Bar::class);
+        $map->addAlias('f', Baz::class);
         $registry = new MetadataRegistry;
         $registry->addMetadata(
             (new NodeMetadata)
                 ->setId(
                     (new Id)
-                        ->setStrategy(Id::STRATEGY_AUTO)
+                        ->setStrategy(Id::STRATEGY_UUID)
                         ->setProperty('id')
+                        ->setType('int')
                 )
                 ->addLabel('Foo')
                 ->addLabel('Bar')
                 ->setClass('stdClass')
+                ->addProperty(
+                    (new Property)
+                        ->setName('created')
+                        ->setType('date')
+                )
+        );
+        $registry->addMetadata(
+            (new NodeMetadata)
+                ->setId(
+                    (new Id)
+                        ->setStrategy(Id::STRATEGY_UUID)
+                        ->setProperty('id')
+                        ->setType('int')
+                )
+                ->addLabel('Foo')
+                ->addLabel('Bar')
+                ->setClass(Baz::class)
+                ->addProperty(
+                    (new Property)
+                        ->setName('id')
+                        ->setType('string')
+                )
+                ->addProperty(
+                    (new Property)
+                        ->setName('name')
+                        ->setType('string')
+                )
         );
         $registry->addMetadata(
             (new RelationshipMetadata)
@@ -185,11 +218,76 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $q->addVariable('r', 'b');
 
         $this->assertSame(
-            'MATCH (n:Foo:Bar)-[r:FOO]->() WHERE id(n) = { where }.nid AND r.id = 42 RETURN id(n);',
+            'MATCH (n:Foo:Bar)-[r:FOO]->() WHERE n.id = { where }.nid AND r.id = 42 RETURN n.id;',
             $this->uow->buildQuery($q)
         );
+    }
+
+    public function testExecute()
+    {
+        $q = new Query('CREATE (n:f { props }) RETURN n;');
+        $q->addVariable('n', 'f');
+        $q->addParameters('props', ['id' => 'some-uuid', 'name' => 'myself']);
+
+        $result = $this->uow->execute($q);
+
+        $this->assertInstanceOf(
+            'Doctrine\Common\Collections\ArrayCollection',
+            $result
+        );
+        $this->assertSame(
+            1,
+            $result->count()
+        );
+        $this->assertInstanceOf(
+            Baz::class,
+            $result->first()
+        );
+        $this->assertSame(
+            'some-uuid',
+            $result->first()->id
+        );
+        $this->assertSame(
+            'myself',
+            $result->first()->name
+        );
+    }
+
+    public function testFind()
+    {
+        $q = new Query('CREATE (n:f {props}) RETURN n;');
+        $q->addVariable('n', 'f');
+        $q->addParameters('props', ['id' => 'random', 'name' => 'me']);
+        $this->uow->execute($q);
+
+        $entity = $this->uow->find('f', 'random');
+
+        $this->assertInstanceOf(
+            Baz::class,
+            $entity
+        );
+        $this->assertSame(
+            'random',
+            $entity->id
+        );
+        $this->assertSame(
+            'me',
+            $entity->name
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
+     */
+    public function testThrowWhenEntityNotFound()
+    {
+        $this->uow->find('f', 'unknown');
     }
 }
 
 class Foo {}
+class Baz {
+    public $id;
+    public $name;
+}
 class Bar {}
