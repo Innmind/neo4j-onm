@@ -11,6 +11,7 @@ use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\ONM\Mapping\Id;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class HydratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -77,7 +78,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                     )
             );
 
-        $this->h = new Hydrator($map, $this->r, new EntitySilo);
+        $this->h = new Hydrator($map, $this->r, new EntitySilo, PropertyAccess::createPropertyAccessor());
     }
 
     public function testCreateEntity()

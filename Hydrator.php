@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
-use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class Hydrator
@@ -15,12 +15,16 @@ class Hydrator
     protected $accessor;
     protected $entities;
 
-    public function __construct(IdentityMap $map, MetadataRegistry $registry, EntitySilo $entities)
-    {
+    public function __construct(
+        IdentityMap $map,
+        MetadataRegistry $registry,
+        EntitySilo $entities,
+        PropertyAccessor $accessor
+    ) {
         $this->map = $map;
         $this->registry = $registry;
         $this->entities = $entities;
-        $this->accessor = PropertyAccess::createPropertyAccessor();
+        $this->accessor = $accessor;
     }
 
     /**

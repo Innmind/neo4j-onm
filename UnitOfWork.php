@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
 use Innmind\Neo4j\ONM\Exception\EntityNotFoundException;
 use Innmind\Neo4j\ONM\Exception\UnknwonPropertyException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class UnitOfWork
 {
@@ -22,6 +23,7 @@ class UnitOfWork
     protected $metadataRegistry;
     protected $dispatcher;
     protected $hydrator;
+    protected $accessor;
     protected $states;
     protected $entities;
     protected $scheduledForUpdate;
@@ -49,8 +51,9 @@ class UnitOfWork
         $this->scheduledForUpdate = new \SplObjectStorage;
         $this->scheduledForDelete = new \SplObjectStorage;
         $this->entities = new EntitySilo;
+        $this->accessor = PropertyAccess::createPropertyAccessor();
 
-        $this->hydrator = new Hydrator($map, $registry, $this->entities);
+        $this->hydrator = new Hydrator($map, $registry, $this->entities, $this->accessor);
     }
 
     /**
