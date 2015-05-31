@@ -94,6 +94,7 @@ class FileConfiguration implements ConfigurationInterface
                         ->children()
                             ->enumNode('strategy')
                                 ->values([Id::STRATEGY_AUTO, Id::STRATEGY_UUID])
+                                ->defaultValue(Id::STRATEGY_UUID)
                             ->end()
                         ->end()
                     ->end()
