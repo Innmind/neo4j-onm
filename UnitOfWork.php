@@ -38,7 +38,6 @@ class UnitOfWork
         $this->identityMap = $map;
         $this->metadataRegistry = $registry;
         $this->dispatcher = $dispatcher;
-        $this->hydrator = new Hydrator($map, $registry);
 
         $this->states = [
             self::STATE_MANAGED => new \SplObjectStorage,
@@ -50,6 +49,8 @@ class UnitOfWork
         $this->scheduledForUpdate = new \SplObjectStorage;
         $this->scheduledForDelete = new \SplObjectStorage;
         $this->entities = new \SplObjectStorage;
+
+        $this->hydrator = new Hydrator($map, $registry, $this->entities);
     }
 
     /**

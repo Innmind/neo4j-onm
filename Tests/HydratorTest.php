@@ -76,7 +76,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                     )
             );
 
-        $this->h = new Hydrator($map, $this->r);
+        $this->h = new Hydrator($map, $this->r, new \SplObjectStorage);
     }
 
     public function testCreateEntity()
@@ -88,6 +88,30 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
         $expected->setFoo(new \DateTime('2015-05-31'));
 
         $this->assertEquals(
+            $expected,
+            $this->h->createEntity(
+                $m,
+                [
+                    'foo' => '2015-05-31',
+                    'id' => '42'
+                ]
+            )
+        );
+    }
+
+    public function testCreateEntityOnce()
+    {
+        $m = $this->r->getMetadata(FooNode::class);
+
+        $expected = $this->h->createEntity(
+            $m,
+            [
+                'foo' => '2015-05-31',
+                'id' => '42'
+            ]
+        );
+
+        $this->assertSame(
             $expected,
             $this->h->createEntity(
                 $m,

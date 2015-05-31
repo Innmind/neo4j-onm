@@ -13,11 +13,14 @@ class Hydrator
     protected $map;
     protected $registry;
     protected $accessor;
+    protected $entities;
+    protected $loaded = [];
 
-    public function __construct(IdentityMap $map, MetadataRegistry $registry)
+    public function __construct(IdentityMap $map, MetadataRegistry $registry, \SplObjectStorage $entities)
     {
         $this->map = $map;
         $this->registry = $registry;
+        $this->entities = $entities;
         $this->accessor = PropertyAccess::createPropertyAccessor();
     }
 
@@ -100,6 +103,17 @@ class Hydrator
     public function createEntity(Metadata $meta, array $properties)
     {
         $class = $meta->getClass();
+
+        if (!isset($this->loaded[$class])) {
+            $this->loaded[$class] = [];
+        }
+
+        $id = $properties[$meta->getId()->getProperty()];
+
+        if (isset($this->loaded[$class][$id])) {
+            return $this->loaded[$class][$id];
+        }
+
         $entity = new $class;
 
         foreach ($meta->getProperties() as $property) {
@@ -118,6 +132,9 @@ class Hydrator
                 )
             );
         }
+
+        $this->loaded[$class][$id] = $entity;
+        $this->entities->attach($entity);
 
         return $entity;
     }
