@@ -104,7 +104,13 @@ class YamlReader implements ReaderInterface
 
         $metadata
             ->setClass($class)
-            ->setId($id);
+            ->setId($id)
+            ->addProperty(
+                (new Property)
+                    ->setName($id->getProperty())
+                    ->setNullable(false)
+                    ->setType($id->getType())
+            );
 
         if (isset($config['repository'])) {
             $metadata->setRepositoryClass($config['repository']);

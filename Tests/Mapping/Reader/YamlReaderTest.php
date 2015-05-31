@@ -50,6 +50,10 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
             255,
             $props['url']->getOption('length')
         );
+        $this->assertEquals(
+            'string',
+            $props['uuid']->getType()
+        );
         $this->assertTrue(isset($props['referers']));
 
         $this->assertEquals(
