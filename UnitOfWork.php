@@ -2,6 +2,7 @@
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Generators;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
@@ -514,9 +515,8 @@ class UnitOfWork
         $class = $this->getClass($entity);
         $metadata = $this->metadataRegistry->getMetadata($class);
 
-        //@todo: use strategy in metadata to generate id
-
-        $id = uniqid($class, true);
+        $id = Generators::getGenerator($metadata->getId()->getStrategy())
+            ->generate($this, $entity);
 
         $this->accessor->setValue(
             $entity,
