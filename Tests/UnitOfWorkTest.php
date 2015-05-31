@@ -38,7 +38,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             (new NodeMetadata)
                 ->setId(
                     (new Id)
-                        ->setStrategy(Id::STRATEGY_UUID)
+                        ->setStrategy('UUID')
                         ->setProperty('id')
                         ->setType('int')
                 )
@@ -55,7 +55,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             (new NodeMetadata)
                 ->setId(
                     (new Id)
-                        ->setStrategy(Id::STRATEGY_UUID)
+                        ->setStrategy('UUID')
                         ->setProperty('id')
                         ->setType('int')
                 )
@@ -83,7 +83,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             (new RelationshipMetadata)
                 ->setId(
                     (new Id)
-                        ->setStrategy(Id::STRATEGY_UUID)
+                        ->setStrategy('UUID')
                         ->setProperty('id')
                 )
                 ->setType('FOO')

@@ -2,6 +2,7 @@
 
 namespace Innmind\Neo4j\ONM\Mapping\Reader;
 
+use Innmind\Neo4j\ONM\Generators;
 use Innmind\Neo4j\ONM\Mapping\Id;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -93,8 +94,8 @@ class FileConfiguration implements ConfigurationInterface
                     ->arrayNode('generator')
                         ->children()
                             ->enumNode('strategy')
-                                ->values([Id::STRATEGY_AUTO, Id::STRATEGY_UUID])
-                                ->defaultValue(Id::STRATEGY_UUID)
+                                ->values(Generators::getStrategies())
+                                ->defaultValue('UUID')
                             ->end()
                         ->end()
                     ->end()

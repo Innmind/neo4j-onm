@@ -4,9 +4,6 @@ namespace Innmind\Neo4j\ONM\Mapping;
 
 class Id
 {
-    const STRATEGY_AUTO = 'AUTO';
-    const STRATEGY_UUID = 'UUID';
-
     protected $property;
     protected $type;
     protected $strategy;
