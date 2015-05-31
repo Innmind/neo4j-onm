@@ -43,7 +43,6 @@ class Hydrator
 
             foreach ($values as $value) {
                 $entity = $this->createEntity($metadata, $value);
-                $realId = null;
 
                 if ($metadata instanceof NodeMetadata) {
                     foreach ($results['nodes'] as $id => $node) {
