@@ -72,6 +72,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                         ->setName('name')
                         ->setType('string')
                 )
+                ->addProperty(
+                    (new Property)
+                        ->setName('rel')
+                        ->setType('relationship')
+                        ->addOption('rel_type', 'FOO')
+                )
         );
         $registry->addMetadata(
             (new RelationshipMetadata)
@@ -80,8 +86,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                         ->setStrategy(Id::STRATEGY_UUID)
                         ->setProperty('id')
                 )
-                ->setType('foo')
+                ->setType('FOO')
                 ->setClass(Bar::class)
+                ->addProperty(
+                    (new Property)
+                        ->setName('id')
+                        ->setType('string')
+                )
         );
         $this->uow = new UnitOfWork(
             $conn,
@@ -283,11 +294,32 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     {
         $this->uow->find('f', 'unknown');
     }
+
+    public function testFindBy()
+    {
+        $q = new Query('CREATE (n:f {prop})-[r:b]->(b);');
+        $q->addVariable('n', 'f');
+        $q->addVariable('r', 'b');
+        $q->addParameters('prop', ['id' => 'random', 'name' => 'me']);
+        $this->uow->execute($q);
+
+        $result = $this->uow->findBy('f', ['name' => 'me'], ['id', 'ASC'], 1, 1);
+
+        $this->assertSame(
+            1,
+            $result->count()
+        );
+        $this->assertInstanceOf(
+            Baz::class,
+            $result->first()
+        );
+    }
 }
 
 class Foo {}
 class Baz {
     public $id;
     public $name;
+    public $rel;
 }
 class Bar {}

@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
 use Innmind\Neo4j\ONM\Exception\EntityNotFoundException;
+use Innmind\Neo4j\ONM\Exception\UnknwonPropertyException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitOfWork
@@ -103,7 +104,88 @@ class UnitOfWork
      */
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
+        if (empty($criteria)) {
+            throw new \LogicException(
+                'You can\'t search for nodes without specifying any criteria'
+            );
+        }
 
+        $class = $this->identityMap->getClass($class);
+        $metadata = $this->metadataRegistry->getMetadata($class);
+        $references = [];
+        $search = [];
+
+        foreach ($criteria as $key => $value) {
+            if (!$metadata->hasProperty($key)) {
+                throw new UnknwonPropertyException(sprintf(
+                    'Unknown property "%s" for the entity "%s"',
+                    $key,
+                    $class
+                ));
+            }
+
+            $search[] = sprintf(
+                '%s: {props}.%s',
+                $key,
+                $key
+            );
+
+            $references[] = sprintf(
+                'n.%s',
+                $key
+            );
+        }
+
+        $query = new Query;
+
+        if ($orderBy !== null) {
+            if (!$metadata->hasProperty($orderBy[0])) {
+                throw new UnknwonPropertyException(sprintf(
+                    'Unknown property "%s" for the entity "%s"',
+                    $key,
+                    $class
+                ));
+            }
+
+            $orderBy = sprintf(
+                'ORDER BY n.%s %s',
+                $orderBy[0],
+                $orderBy[1] === 'DESC' ? 'DESC' : 'ASC'
+            );
+        } else {
+            $orderBy = '';
+        }
+
+        if ($skip !== null) {
+            $skip = sprintf(
+                'SKIP %s',
+                (int) $skip
+            );
+        } else {
+            $skip = '';
+        }
+
+        if ($limit !== null) {
+            $limit = sprintf(
+                'LIMIT %s',
+                (int) $limit
+            );
+        } else {
+            $limit = '';
+        }
+
+        $query->setCypher(sprintf(
+            'MATCH (n:%s {%s}) RETURN n %s %s %s;',
+            $class,
+            implode(', ', $search),
+            $orderBy,
+            $skip,
+            $limit
+        ));
+        $query->addVariable('n', $class);
+        $query->addParameters('props', $criteria, $references);
+
+        return $this->execute($query);
     }
 
     /**
