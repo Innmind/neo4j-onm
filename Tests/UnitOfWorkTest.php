@@ -23,9 +23,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new EventDispatcher;
         $conn = ConnectionFactory::make([
-            'host' => 'docker',
+            'host' => getenv('CI') ? 'localhost' : 'docker',
             'username' => 'neo4j',
-            'password' => 'bar',
+            'password' => 'ci',
         ]);
         $map = new IdentityMap;
         $map->addClass('stdClass');
