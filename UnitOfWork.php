@@ -342,20 +342,6 @@ class UnitOfWork
             }
 
             $cypher = str_replace($search, $replace, $cypher);
-
-            if ($metadata->getId()->getStrategy() === Id::STRATEGY_AUTO) {
-                $search = sprintf(
-                    ' %s\.%s([^A-z0-9]?)',
-                    $variable,
-                    $metadata->getId()->getProperty()
-                );
-                $replace = sprintf(
-                    ' id(%s)$1',
-                    $variable
-                );
-
-                $cypher = preg_replace("/$search/", $replace, $cypher);
-            }
         }
 
         return $cypher;
