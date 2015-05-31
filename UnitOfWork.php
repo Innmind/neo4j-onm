@@ -111,7 +111,7 @@ class UnitOfWork
      *
      * @param Query $query
      *
-     * @return ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function execute(Query $query)
     {
