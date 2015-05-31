@@ -314,6 +314,22 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             $result->first()
         );
     }
+
+    public function testPersist()
+    {
+        $n = new Baz;
+
+        $this->assertFalse($this->uow->isManaged($n));
+        $this->assertSame(
+            $this->uow,
+            $this->uow->persist($n)
+        );
+        $this->assertTrue($this->uow->isManaged($n));
+        $this->assertTrue($this->uow->isScheduledForInsert($n));
+        $this->uow->persist($n);
+        $this->assertTrue($this->uow->isScheduledForInsert($n));
+        $this->assertFalse($this->uow->isScheduledForUpdate($n));
+    }
 }
 
 class Foo {}

@@ -223,7 +223,7 @@ class UnitOfWork
         if (!$this->entities->contains($entity)) {
             $this->states[self::STATE_NEW]->attach($entity);
             $this->scheduledForInsert->attach($entity);
-        } else {
+        } else if (!$this->states[self::STATE_NEW]->contains($entity)) {
             $this->states[self::STATE_MANAGED]->attach($entity);
             $this->scheduledForUpdate->attach($entity);
         }
