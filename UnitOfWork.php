@@ -516,6 +516,14 @@ class UnitOfWork
 
         //@todo: use strategy in metadata to generate id
 
-        return uniqid($class, true);
+        $id = uniqid($class, true);
+
+        $this->accessor->setValue(
+            $entity,
+            $metadata->getId()->getProperty(),
+            $id
+        );
+
+        return $id;
     }
 }
