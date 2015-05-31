@@ -109,7 +109,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     public function testScheduledForInsert()
     {
-        $e = new \stdClass;
+        $e = new Baz;
 
         $this->assertFalse($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->persist($e));
