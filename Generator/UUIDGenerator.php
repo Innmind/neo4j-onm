@@ -4,7 +4,6 @@ namespace Innmind\Neo4j\ONM\Generator;
 
 use Innmind\Neo4j\ONM\UnitOfWork;
 use Innmind\Neo4j\ONM\GeneratorInterface;
-use Innmind\Neo4j\ONM\Mapping\Id;
 use Rhumsaa\Uuid\Uuid;
 
 class UUIDGenerator implements GeneratorInterface

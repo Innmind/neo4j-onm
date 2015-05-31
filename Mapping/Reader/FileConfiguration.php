@@ -3,7 +3,6 @@
 namespace Innmind\Neo4j\ONM\Mapping\Reader;
 
 use Innmind\Neo4j\ONM\Generators;
-use Innmind\Neo4j\ONM\Mapping\Id;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
