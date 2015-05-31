@@ -6,6 +6,7 @@ use Innmind\Neo4j\ONM\Hydrator;
 use Innmind\Neo4j\ONM\Query;
 use Innmind\Neo4j\ONM\IdentityMap;
 use Innmind\Neo4j\ONM\MetadataRegistry;
+use Innmind\Neo4j\ONM\EntitySilo;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
@@ -76,7 +77,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                     )
             );
 
-        $this->h = new Hydrator($map, $this->r, new \SplObjectStorage);
+        $this->h = new Hydrator($map, $this->r, new EntitySilo);
     }
 
     public function testCreateEntity()

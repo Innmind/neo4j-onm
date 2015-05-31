@@ -125,7 +125,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_MANAGED]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->add($e, 'stdClass', uniqid());
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->persist($e));
@@ -189,7 +189,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->add($e, 'stdClass', uniqid());
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear());
@@ -202,7 +202,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->add($e, 'stdClass', uniqid());
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear('s'));
@@ -215,7 +215,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->add($e, 'stdClass', uniqid());
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->detach($e));

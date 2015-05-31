@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM;
 /**
  * Holds all the entities loaded by the manager
  */
-class EntitySilo
+class EntitySilo implements \Countable, \Iterator, \ArrayAccess
 {
     protected $entities;
     protected $loaded = [];
@@ -76,5 +76,85 @@ class EntitySilo
     public function contains($entity)
     {
         return $this->entities->contains($entity);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return $this->entities->count();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function current()
+    {
+        return $this->entities->current();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function key()
+    {
+        return $this->entities->key();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function next()
+    {
+        return $this->entities->next();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind()
+    {
+        return $this->entities->rewind();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function valid()
+    {
+        return $this->entities->valid();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+        return $this->entities->offsetExists($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->entities->offsetGet($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        return $this->entities->offsetSet($offset, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        return $this->entities->offsetUnset($offset);
     }
 }

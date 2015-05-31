@@ -48,7 +48,7 @@ class UnitOfWork
         $this->scheduledForInsert = new \SplObjectStorage;
         $this->scheduledForUpdate = new \SplObjectStorage;
         $this->scheduledForDelete = new \SplObjectStorage;
-        $this->entities = new \SplObjectStorage;
+        $this->entities = new EntitySilo;
 
         $this->hydrator = new Hydrator($map, $registry, $this->entities);
     }
@@ -223,12 +223,13 @@ class UnitOfWork
         if (!$this->entities->contains($entity)) {
             $this->states[self::STATE_NEW]->attach($entity);
             $this->scheduledForInsert->attach($entity);
+
+            $id = $this->generateId($entity);
+            $this->entities->add($entity, $this->getClass($entity), $id);
         } else if (!$this->states[self::STATE_NEW]->contains($entity)) {
             $this->states[self::STATE_MANAGED]->attach($entity);
             $this->scheduledForUpdate->attach($entity);
         }
-
-        $this->entities->attach($entity);
 
         return $this;
     }
@@ -496,5 +497,22 @@ class UnitOfWork
     protected function getClass($entity)
     {
         return get_class($entity);
+    }
+
+    /**
+     * Generate an id for the given entity
+     *
+     * @param object $entity
+     *
+     * @return mixed
+     */
+    protected function generateId($entity)
+    {
+        $class = $this->getClass($entity);
+        $metadata = $this->metadataRegistry->getMetadata($class);
+
+        //@todo: use strategy in metadata to generate id
+
+        return uniqid($class, true);
     }
 }
