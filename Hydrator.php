@@ -4,7 +4,6 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
-use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Doctrine\Common\Collections\ArrayCollection;

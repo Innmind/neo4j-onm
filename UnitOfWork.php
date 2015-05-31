@@ -3,8 +3,6 @@
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
-use Innmind\Neo4j\ONM\Mapping\Id;
-use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
