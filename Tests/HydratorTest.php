@@ -23,6 +23,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
         $map = new IdentityMap;
         $map->addClass(FooNode::class);
         $map->addClass(FooRel::class);
+        $map->addClass('stdClass');
 
         $this->r = new MetadataRegistry;
         $this->r
@@ -65,11 +66,13 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                         (new Property)
                             ->setName('start')
                             ->setType('startNode')
+                            ->addOption('node', FooNode::class)
                     )
                     ->addProperty(
                         (new Property)
                             ->setName('end')
                             ->setType('endNode')
+                            ->addOption('node', FooNode::class)
                     )
                     ->setStartNode('start')
                     ->setEndNode('end')
@@ -258,6 +261,62 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             new \DateTime('2015-05-31'),
             $node->getFoo()
         );
+    }
+
+    /**
+     * @expectedException LogicException
+     * @exoectedExceptionMessage The relationship "Innmind\Neo4j\ONM\Tests\FooRel" property "end" is expecting a "Innmind\Neo4j\ONM\Tests\FooNode" node (got "stdClass")
+     */
+    public function testThrowWhenTryingToAssociateWrongClasses()
+    {
+        $this->r
+            ->getMetadata(FooRel::class)
+            ->getProperty('end')
+            ->addOption('node', 'stdClass');
+
+        $nodeA = [
+            'id' => 0,
+            'labels' => ['Foo'],
+            'properties' => [
+                'id' => 0,
+                'foo' => '2015-05-31',
+            ],
+        ];
+        $nodeB = [
+            'id' => 1,
+            'labels' => ['Foo'],
+            'properties' => [
+                'id' => 1,
+                'foo' => '2015-05-31',
+            ],
+        ];
+        $rel = [
+            'id' => 0,
+            'type' => 'FOO',
+            'startNode' => 0,
+            'endNode' => 1,
+            'properties' => [
+                'id' => 0,
+            ],
+        ];
+        $results = [
+            'nodes' => [
+                0 => $nodeA,
+                1 => $nodeB,
+            ],
+            'relationships' => [
+                0 => $rel,
+            ],
+            'rows' => [
+                'n' => [$nodeA['properties'], $nodeB['properties']],
+                'r' => [$rel['properties']],
+            ],
+        ];
+        $q = new Query;
+        $q->addVariable('n', FooNode::class);
+        $q->addVariable('r', FooRel::class);
+
+        $this->h->hydrate($results, $q);
     }
 }
 

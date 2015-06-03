@@ -204,7 +204,7 @@ class Hydrator
      *
      * @param object $relationship
      * @param RelationshipMetadata $relMeta
-     * @param Property $property
+     * @param Property $property Relationship property
      * @param object $node
      * @param NodeMetadata $meta
      *
@@ -212,6 +212,20 @@ class Hydrator
      */
     protected function bind($relationship, RelationshipMetadata $relMeta, Property $property, $node, NodeMetadata $meta)
     {
+        if ($property->hasOption('node')) {
+            $expectedNodeClass = $this->map->getClass($property->getOption('node'));
+
+            if ($expectedNodeClass !== $meta->getClass()) {
+                throw new \LogicException(sprintf(
+                    'The relationship "%s" property "%s" is expecting a "%s" node (got "%s")',
+                    $relMeta->getClass(),
+                    $property->getName(),
+                    $expectedNodeClass,
+                    $meta->getClass()
+                ));
+            }
+        }
+
         $this->accessor->setValue(
             $relationship,
             $property->getName(),
