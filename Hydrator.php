@@ -192,6 +192,10 @@ class Hydrator
             }
         }
 
+        if (empty($data)) {
+            return $nodes;
+        }
+
         return $data;
     }
 
