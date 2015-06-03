@@ -42,7 +42,9 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
                     ->setProperty('id')
                     ->setType('int')
                     ->setStrategy('AUTO')
-            );
+            )
+            ->setStartNode('foo')
+            ->setEndNode('bar');
         $relationship->setType('FOO');
         $registry->addMetadata($relationship);
         $expected = <<<EOF
@@ -82,6 +84,8 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
             ->setStrategy('AUTO')
     );
 \$meta->setType('FOO');
+\$meta->setStartNode('foo');
+\$meta->setEndNode('bar');
 \$registry->addMetadata(\$meta);
 return \$registry;
 EOF;

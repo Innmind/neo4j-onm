@@ -79,4 +79,24 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($m, $m->setType('Foo'));
         $this->assertEquals('FOO', $m->getType());
     }
+
+    public function testSetStartNode()
+    {
+        $m = new RelationshipMetadata;
+
+        $this->assertFalse($m->hasStartNode());
+        $this->assertSame($m, $m->setStartNode('foo'));
+        $this->assertTrue($m->hasStartNode());
+        $this->assertSame('foo', $m->getStartNode());
+    }
+
+    public function testSetEndNode()
+    {
+        $m = new RelationshipMetadata;
+
+        $this->assertFalse($m->hasEndNode());
+        $this->assertSame($m, $m->setEndNode('foo'));
+        $this->assertTrue($m->hasEndNode());
+        $this->assertSame('foo', $m->getEndNode());
+    }
 }

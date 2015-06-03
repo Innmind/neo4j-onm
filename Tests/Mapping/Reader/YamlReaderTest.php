@@ -63,6 +63,10 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('RF', $rel->getAlias());
         $this->assertEquals('uuid', $rel->getId()->getProperty());
         $this->assertEquals('REFER', $rel->getType());
+        $this->assertTrue($rel->hasStartNode());
+        $this->assertTrue($rel->hasEndNode());
+        $this->assertSame('referer', $rel->getStartNode());
+        $this->assertSame('resource', $rel->getEndNode());
 
         $props = $rel->getProperties();
 

@@ -97,6 +97,24 @@ EOF;
 
 \$meta->setType('$type');
 EOF;
+
+            if ($meta->hasStartNode()) {
+                $startNode = $meta->getStartNode();
+
+                $code .= <<<EOF
+
+\$meta->setStartNode('$startNode');
+EOF;
+            }
+
+            if ($meta->hasEndNode()) {
+                $endNode = $meta->getEndNode();
+
+                $code .= <<<EOF
+
+\$meta->setEndNode('$endNode');
+EOF;
+            }
         }
 
         foreach ($meta->getProperties() as $prop) {

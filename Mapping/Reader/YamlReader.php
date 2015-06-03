@@ -156,6 +156,16 @@ class YamlReader implements ReaderInterface
     protected function configureRelationship(RelationshipMetadata $meta, array $config)
     {
         $meta->setType($config['rel_type']);
+
+        $properties = $config['properties'];
+
+        foreach ($properties as $property => $values) {
+            if ($values['type'] === 'startNode') {
+                $meta->setStartNode($property);
+            } else if ($values['type'] === 'endNode') {
+                $meta->setEndNode($property);
+            }
+        }
     }
 
     /**
