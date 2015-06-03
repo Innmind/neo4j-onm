@@ -71,6 +71,8 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                             ->setName('end')
                             ->setType('endNode')
                     )
+                    ->setStartNode('start')
+                    ->setEndNode('end')
                     ->setId(
                         (new Id)
                             ->setProperty('id')

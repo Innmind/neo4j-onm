@@ -5,6 +5,8 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
+use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
+use Innmind\Neo4j\ONM\Mapping\Property;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -160,47 +162,73 @@ class Hydrator
             $endNodeId = $results['relationships'][$id]['endNode'];
 
             $meta = $relMetas[$id];
-            $properties = $meta->getProperties();
 
-            foreach ($properties as $property) {
-                if (!in_array($property->getType(), ['startNode', 'endNode'], true)) {
-                    continue;
-                }
+            if (!$meta->hasStartNode() && !$meta->hasEndNode()) {
+                continue;
+            }
 
-                if ($property->getType() === 'startNode') {
-                    $node = $nodes[$startNodeId];
-                    $nodeMeta = $nodeMetas[$startNodeId];
-                    $data[$startNodeId] = $node;
-                } else {
-                    $node = $nodes[$endNodeId];
-                    $nodeMeta = $nodeMetas[$endNodeId];
-                    $data[$endNodeId] = $node;
-                }
+            if ($meta->hasStartNode() && isset($nodes[$startNodeId])) {
+                $data[$startNodeId] = $nodes[$startNodeId];
 
-                $this->accessor->setValue(
+                $this->bind(
                     $rel,
-                    $property->getName(),
-                    $node
+                    $meta,
+                    $meta->getProperty($meta->getStartNode()),
+                    $nodes[$startNodeId],
+                    $nodeMetas[$startNodeId]
                 );
+            }
 
-                $nodeProperties = $nodeMeta->getProperties();
-                foreach ($nodeProperties as $nodeProperty) {
-                    if (
-                        $nodeProperty->getType() !== 'relationship' ||
-                        $nodeProperty->getOption('rel_type') !== $meta->getType()
-                    ) {
-                        continue;
-                    }
+            if ($meta->hasEndNode() && isset($nodes[$endNodeId])) {
+                $data[$endNodeId] = $nodes[$endNodeId];
 
-                    $this->accessor->setValue(
-                        $node,
-                        $nodeProperty->getName(),
-                        $rel
-                    );
-                }
+                $this->bind(
+                    $rel,
+                    $meta,
+                    $meta->getProperty($meta->getEndNode()),
+                    $nodes[$endNodeId],
+                    $nodeMetas[$endNodeId]
+                );
             }
         }
 
         return $data;
+    }
+
+    /**
+     * Associate a node to the relationship and vice versa
+     *
+     * @param object $relationship
+     * @param RelationshipMetadata $relMeta
+     * @param Property $property
+     * @param object $node
+     * @param NodeMetadata $meta
+     *
+     * @return void
+     */
+    protected function bind($relationship, RelationshipMetadata $relMeta, Property $property, $node, NodeMetadata $meta)
+    {
+        $this->accessor->setValue(
+            $relationship,
+            $property->getName(),
+            $node
+        );
+
+        $properties = $meta->getProperties();
+
+        foreach ($properties as $property) {
+            if (
+                $property->getType() !== 'relationship' ||
+                $property->getOption('rel_type') !== $relMeta->getType()
+            ) {
+                continue;
+            }
+
+            $this->accessor->setValue(
+                $node,
+                $property->getName(),
+                $relationship
+            );
+        }
     }
 }
