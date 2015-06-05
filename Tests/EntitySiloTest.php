@@ -84,4 +84,17 @@ class EntitySiloTest extends \PHPUnit_Framework_TestCase
             $this->s->getInfo($n)
         );
     }
+
+    public function testFindByInfo()
+    {
+        $n = new \stdClass;
+        $n2 = clone $n;
+        $this->s->add($n, 'stdClass', 42, ['foo' => 'bar']);
+        $this->s->add($n2, 'stdClass', 42, ['bar' => 'foo']);
+
+        $this->assertSame(
+            [$n],
+            $this->s->findByInfo('foo', 'bar')
+        );
+    }
 }

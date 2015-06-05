@@ -137,6 +137,30 @@ class EntitySilo implements \Countable, \Iterator, \ArrayAccess
     }
 
     /**
+     * Return all entities that the given info match the given value
+     *
+     * @param string $info
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function findByInfo($info, $value)
+    {
+        $entities = [];
+
+        foreach ($this->entities as $entity) {
+            if (
+                isset($this->entities[$entity]['data'][$info]) &&
+                $this->entities[$entity]['data'][$info] === $value
+            ) {
+                $entities[] = $entity;
+            }
+        }
+
+        return $entities;
+    }
+
+    /**
      * Return the entity for the given class and id
      *
      * @param string $class
