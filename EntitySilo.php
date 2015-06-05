@@ -9,6 +9,7 @@ class EntitySilo implements \Countable, \Iterator, \ArrayAccess
 {
     protected $entities;
     protected $loaded = [];
+    protected $data = [];
 
     public function __construct()
     {
@@ -38,19 +39,101 @@ class EntitySilo implements \Countable, \Iterator, \ArrayAccess
      * @param object $entity
      * @param string $class
      * @param int|string $id
+     * @param array $data Usually used to store entity properties
      *
      * @return EntityRepository self
      */
-    public function add($entity, $class, $id)
+    public function add($entity, $class, $id, array $data = [])
     {
         if (!isset($this->loaded[(string) $class])) {
             $this->loaded[(string) $class] = [];
+            $this->data[(string) $class] = [];
         }
 
         $this->loaded[(string) $class][$id] = $entity;
-        $this->entities->attach($entity, ['class' => (string) $class, 'id' => $id]);
+        $this->data[(string) $class][$id] = $data;
+        $this->entities->attach(
+            $entity,
+            [
+                'class' => (string) $class,
+                'id' => $id,
+                'data' => $data,
+            ]
+        );
 
         return $this;
+    }
+
+    /**
+     * Add info for the given entitiy
+     *
+     * @param object $entity
+     * @param array $data
+     *
+     * @return EntitySilo self
+     */
+    public function addInfo($entity, array $data)
+    {
+        if ($this->contains($entity)) {
+            $orig = $this->entities[$entity];
+            $orig['data'] = array_merge($orig['data'], $data);
+
+            $this->entities[$entity] = $orig;
+            $this->data[$orig['class']][$orig['id']] = array_merge(
+                $this->data[$orig['class']][$orig['id']],
+                $data
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get data associated for the given object
+     *
+     * @param object $entity
+     *
+     * @return array
+     */
+    public function getInfo($entity)
+    {
+        if (!$this->contains($entity)) {
+            return [];
+        }
+
+        return $this->entities[$entity]['data'];
+    }
+
+    /**
+     * Return the class associated to the entity
+     *
+     * @param object $entity
+     *
+     * @return string
+     */
+    public function getClass($entity)
+    {
+        if (!$this->contains($entity)) {
+            return '';
+        }
+
+        return $this->entities[$entity]['class'];
+    }
+
+    /**
+     * Return the id associated to the entity
+     *
+     * @param object $entity
+     *
+     * @return string|int
+     */
+    public function getId($entity)
+    {
+        if (!$this->contains($entity)) {
+            return '';
+        }
+
+        return $this->entities[$entity]['id'];
     }
 
     /**
