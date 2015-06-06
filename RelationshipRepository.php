@@ -27,7 +27,7 @@ class RelationshipRepository extends Repository
             )
             ->toReturn('r');
 
-        if ($orderBy != null) {
+        if ($orderBy !== null) {
             $qb->orderBy(
                 sprintf('r.%s', $orderBy[0]),
                 $orderBy[1]

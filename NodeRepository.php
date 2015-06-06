@@ -14,7 +14,7 @@ class NodeRepository extends Repository
             ->matchNode('n', $this->entityClass, $criteria)
             ->toReturn('n');
 
-        if ($orderBy != null) {
+        if ($orderBy !== null) {
             $qb->orderBy(
                 sprintf('n.%s', $orderBy[0]),
                 $orderBy[1]
