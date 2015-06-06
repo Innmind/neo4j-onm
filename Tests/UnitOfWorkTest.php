@@ -308,6 +308,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
+     * @expectedExceptionMessage The entity "Innmind\Neo4j\ONM\Tests\Baz" with the id "unknown" not found
      */
     public function testThrowWhenEntityNotFound()
     {
