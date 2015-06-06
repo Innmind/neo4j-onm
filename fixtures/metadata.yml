@@ -14,7 +14,7 @@ Resource:
         referers:
             type: relationship
             collection: true
-            rel_type: REFER
+            relationship: Referer
 
 Referer:
     type: relationship
