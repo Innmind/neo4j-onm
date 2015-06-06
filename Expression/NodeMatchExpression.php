@@ -100,7 +100,7 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
             }
 
             $string .= implode(', ', $match);
-            $string.= '}';
+            $string .= '}';
         }
 
         $string .= ')';

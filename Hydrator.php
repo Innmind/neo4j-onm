@@ -116,7 +116,7 @@ class Hydrator
 
         $entity = $this->proxyFactory->createProxy(
             $class,
-            function (LazyLoadingInterface $proxy, $method, array $parameters, &$initializer) {
+            function(LazyLoadingInterface $proxy, $method, array $parameters, &$initializer) {
                 $this->lazyLoad($proxy, $method, $parameters, $initializer);
             }
         );
