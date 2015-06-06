@@ -161,7 +161,6 @@ class Hydrator
                     }
                 } else if (in_array($property->getType(), ['startNode', 'endNode'])) {
                     $node = $this->getRelationshipNode(
-                        $metadata,
                         $property,
                         $info
                     );
@@ -247,16 +246,14 @@ class Hydrator
     /**
      * Find the nodes related to the relationship
      *
-     * @param RelationshipMetadata $metadata
      * @param Property $property
      * @param array $info
      *
      * @return object
      */
-    protected function getRelationshipNode(RelationshipMetadata $metadata, Property $property, array $info)
+    protected function getRelationshipNode(Property $property, array $info)
     {
         $nodeClass = $this->map->getClass($property->getOption('node'));
-        $nodeMeta = $this->registry->getMetadata($nodeClass);
 
         foreach ($this->entities as $entity) {
             if (!$entity instanceof $nodeClass) {

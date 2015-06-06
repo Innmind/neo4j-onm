@@ -252,7 +252,7 @@ class UnitOfWork
             $this->states[self::STATE_NEW]->attach($entity);
             $this->scheduledForInsert->attach($entity);
 
-            $id = $this->generateId($entity);
+            $this->generateId($entity);
             $this->entities->attach($entity);
         } else if (!$this->states[self::STATE_NEW]->contains($entity)) {
             $this->states[self::STATE_MANAGED]->attach($entity);
