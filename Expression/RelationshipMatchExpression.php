@@ -106,10 +106,20 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         }
 
         if ($this->hasParameters()) {
-            $match .= sprintf(
-                ' { %s }',
-                $this->getParametersKey()
-            );
+            $match .= ' {';
+            $props = [];
+
+            foreach ($this->params as $key => $value) {
+                $props[] = sprintf(
+                    '%s: {%s}.%s',
+                    $key,
+                    $this->getParametersKey(),
+                    $key
+                );
+            }
+
+            $match .= implode(', ', $props);
+            $match .= '}';
         }
 
         if (!empty($match)) {

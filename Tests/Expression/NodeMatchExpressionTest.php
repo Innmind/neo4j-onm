@@ -42,7 +42,7 @@ class NodeMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '(a:foo { a_match_props })',
+            '(a:foo {foo: {a_match_props}.foo})',
             (string) $m
         );
     }

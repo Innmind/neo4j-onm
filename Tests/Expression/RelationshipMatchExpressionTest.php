@@ -41,7 +41,7 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $r = new RelationshipMatchExpression('r', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '-[r:foo { r_match_props }]->()',
+            '-[r:foo {foo: {r_match_props}.foo}]->()',
             (string) $r
         );
     }

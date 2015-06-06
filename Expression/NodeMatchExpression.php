@@ -82,7 +82,20 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
         }
 
         if ($this->hasParameters()) {
-            $string .= sprintf(' { %s }', $this->getParametersKey());
+            $string .= ' {';
+            $match = [];
+
+            foreach ($this->params as $key => $value) {
+                $match[] = sprintf(
+                    '%s: {%s}.%s',
+                    $key,
+                    $this->getParametersKey(),
+                    $key
+                );
+            }
+
+            $string .= implode(', ', $match);
+            $string.= '}';
         }
 
         $string .= ')';
