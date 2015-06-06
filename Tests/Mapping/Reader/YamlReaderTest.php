@@ -88,7 +88,7 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
     {
         $r = new YamlReader;
 
-        $metas = $r->load('fixtures/relationship-error.yml');
+        $r->load('fixtures/relationship-error.yml');
     }
 
     /**
@@ -99,7 +99,7 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
     {
         $r = new YamlReader;
 
-        $metas = $r->load('fixtures/node-startNode-error.yml');
+        $r->load('fixtures/node-startNode-error.yml');
     }
 
     /**
@@ -110,7 +110,7 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
     {
         $r = new YamlReader;
 
-        $metas = $r->load('fixtures/node-endNode-error.yml');
+        $r->load('fixtures/node-endNode-error.yml');
     }
 
     /**
@@ -121,7 +121,7 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
     {
         $r = new YamlReader;
 
-        $metas = $r->load('fixtures/option-relationship-error.yml');
+        $r->load('fixtures/option-relationship-error.yml');
     }
 
     /**
@@ -132,6 +132,6 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
     {
         $r = new YamlReader;
 
-        $metas = $r->load('fixtures/option-node-error.yml');
+        $r->load('fixtures/option-node-error.yml');
     }
 }
