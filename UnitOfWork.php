@@ -87,10 +87,20 @@ class UnitOfWork
      * @param string $class
      * @param mixed $id
      *
+     * @throws InvalidArgumentException If the class name is not recognized
+     * @throws EntityNotFoundException If the entity is not found
+     *
      * @return object
      */
     public function find($class, $id)
     {
+        if (!$this->identityMap->has($class)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The entity "%s" is not handled by this manager',
+                $class
+            ));
+        }
+
         $class = $this->identityMap->getClass($class);
         $metadata = $this->metadataRegistry->getMetadata($class);
 
