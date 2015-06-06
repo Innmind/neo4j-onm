@@ -151,7 +151,7 @@ class UnitOfWork
      * @param int $limit
      * @param int $skip
      *
-     * @return array
+     * @return ArrayCollection
      */
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
@@ -163,8 +163,6 @@ class UnitOfWork
 
         $class = $this->identityMap->getClass($class);
         $metadata = $this->metadataRegistry->getMetadata($class);
-        $references = [];
-        $search = [];
 
         foreach ($criteria as $key => $value) {
             if (!$metadata->hasProperty($key)) {
@@ -174,20 +172,26 @@ class UnitOfWork
                     $class
                 ));
             }
+        }
 
-            $search[] = sprintf(
-                '%s: {props}.%s',
-                $key,
-                $key
-            );
+        $qb = new QueryBuilder;
 
-            $references[] = sprintf(
-                'n.%s',
-                $key
+        if ($metadata instanceof NodeMetadata) {
+            $qb->matchNode('e', $class, $criteria);
+        } else {
+            $qb->addExpr(
+                $qb
+                    ->expr()
+                    ->matchNode()
+                    ->relatedTo(
+                        $qb
+                            ->expr()
+                            ->matchRelationship('e', $class, $criteria)
+                    )
             );
         }
 
-        $query = new Query;
+        $qb->toReturn('e');
 
         if ($orderBy !== null) {
             if (!$metadata->hasProperty($orderBy[0])) {
@@ -198,45 +202,21 @@ class UnitOfWork
                 ));
             }
 
-            $orderBy = sprintf(
-                'ORDER BY n.%s %s',
-                $orderBy[0],
-                $orderBy[1] === 'DESC' ? 'DESC' : 'ASC'
+            $qb->orderBy(
+                sprintf('e.%s', $orderBy[0]),
+                $orderBy[1]
             );
-        } else {
-            $orderBy = '';
         }
 
         if ($skip !== null) {
-            $skip = sprintf(
-                'SKIP %s',
-                (int) $skip
-            );
-        } else {
-            $skip = '';
+            $qb->skip($skip);
         }
 
         if ($limit !== null) {
-            $limit = sprintf(
-                'LIMIT %s',
-                (int) $limit
-            );
-        } else {
-            $limit = '';
+            $qb->limit($limit);
         }
 
-        $query->setCypher(sprintf(
-            'MATCH (n:%s {%s}) RETURN n %s %s %s;',
-            $class,
-            implode(', ', $search),
-            $orderBy,
-            $skip,
-            $limit
-        ));
-        $query->addVariable('n', $class);
-        $query->addParameters('props', $criteria, $references);
-
-        return $this->execute($query);
+        return $this->execute($qb->getQuery());
     }
 
     /**
