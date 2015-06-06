@@ -23,7 +23,7 @@ interface RepositoryInterface
     /**
      * Find all the nodes
      *
-     * @return ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function findAll();
 
@@ -45,7 +45,7 @@ interface RepositoryInterface
      * @param int $limit
      * @param int $skip
      *
-     * @return ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $skip = null);
 }

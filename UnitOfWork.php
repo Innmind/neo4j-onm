@@ -151,7 +151,7 @@ class UnitOfWork
      * @param int $limit
      * @param int $skip
      *
-     * @return ArrayCollection
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
