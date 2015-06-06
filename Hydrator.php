@@ -18,6 +18,7 @@ class Hydrator
     protected $registry;
     protected $accessor;
     protected $entities;
+    protected $proxyFactory;
 
     public function __construct(
         UnitOfWork $uow,
