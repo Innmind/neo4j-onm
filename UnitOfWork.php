@@ -94,24 +94,36 @@ class UnitOfWork
         $class = $this->identityMap->getClass($class);
         $metadata = $this->metadataRegistry->getMetadata($class);
 
+        if ($metadata instanceof NodeMetadata) {
+            $format = sprintf(
+                '(e:%s)',
+                $class
+            );
+        } else {
+            $format = sprintf(
+                '()-[e:%s]-()',
+                $class
+            );
+        }
+
         $query = new Query(sprintf(
-            'MATCH (n:%s) WHERE n.%s = {props}.id RETURN n;',
-            $class,
+            'MATCH %s WHERE e.%s = {props}.id RETURN e;',
+            $format,
             $metadata->getId()->getProperty()
         ));
         $query
-            ->addVariable('n', $class)
+            ->addVariable('e', $class)
             ->addParameters(
                 'props',
                 ['id' => $id],
-                ['id' => sprintf('n.%s', $metadata->getId()->getProperty())]
+                ['id' => sprintf('e.%s', $metadata->getId()->getProperty())]
             );
 
         $results = $this->execute($query);
 
         if ($results->count() === 0) {
             throw new EntityNotFoundException(sprintf(
-                'The node "%s" with the id "%s" not found',
+                'The entity "%s" with the id "%s" not found',
                 $class,
                 $id
             ));

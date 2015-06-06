@@ -287,6 +287,25 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testFindRelationship()
+    {
+        $q = new Query('CREATE (a)-[r:b {props}]->(b) RETURN r;');
+        $q->addVariable('r', 'b');
+        $q->addParameters('props', ['id' => 'some-rel-uuid']);
+        $this->uow->execute($q);
+
+        $entity = $this->uow->find('b', 'some-rel-uuid');
+
+        $this->assertInstanceOf(
+            Bar::class,
+            $entity
+        );
+        $this->assertSame(
+            'some-rel-uuid',
+            $entity->id
+        );
+    }
+
     /**
      * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
      */
@@ -338,4 +357,6 @@ class Baz {
     public $name;
     public $rel;
 }
-class Bar {}
+class Bar {
+    public $id;
+}
