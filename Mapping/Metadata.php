@@ -8,7 +8,7 @@ namespace Innmind\Neo4j\ONM\Mapping;
 abstract class Metadata
 {
     protected $class;
-    protected $repository;
+    protected $repository = 'Innmind\\Neo4j\\ONM\\Repository';
     protected $properties = [];
     protected $id;
     protected $alias;

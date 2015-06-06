@@ -4,7 +4,6 @@ namespace Innmind\Neo4j\ONM\Mapping;
 
 class NodeMetadata extends Metadata
 {
-    protected $repository = 'Innmind\\Neo4j\\ONM\\NodeRepository';
     protected $labels = [];
 
     /**

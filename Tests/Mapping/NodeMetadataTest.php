@@ -21,7 +21,7 @@ class NodeMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMetadata;
 
         $this->assertEquals(
-            'Innmind\\Neo4j\\ONM\\NodeRepository',
+            'Innmind\\Neo4j\\ONM\\Repository',
             $m->getRepositoryClass()
         );
     }

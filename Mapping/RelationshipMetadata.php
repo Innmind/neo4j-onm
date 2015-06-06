@@ -4,7 +4,6 @@ namespace Innmind\Neo4j\ONM\Mapping;
 
 class RelationshipMetadata extends Metadata
 {
-    protected $repository = 'Innmind\\Neo4j\\ONM\\RelationshipRepository';
     protected $type;
     protected $startNode;
     protected $endNode;

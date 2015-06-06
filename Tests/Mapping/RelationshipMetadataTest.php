@@ -21,7 +21,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMetadata;
 
         $this->assertEquals(
-            'Innmind\\Neo4j\\ONM\\RelationshipRepository',
+            'Innmind\\Neo4j\\ONM\\Repository',
             $m->getRepositoryClass()
         );
     }

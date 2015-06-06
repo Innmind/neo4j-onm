@@ -76,7 +76,7 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
 \$meta = new Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 \$meta
     ->setClass('Referer')
-    ->setRepositoryClass('Innmind\\\Neo4j\\\ONM\\\RelationshipRepository')
+    ->setRepositoryClass('Innmind\\\Neo4j\\\ONM\\\Repository')
     ->setId(
         (new Innmind\Neo4j\ONM\Mapping\Id)
             ->setProperty('id')

@@ -26,7 +26,6 @@ class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
         $this->metadata->addMetadata(
             (new NodeMetadata)
                 ->setClass('stdClass')
-                ->setRepositoryClass('Innmind\Neo4j\ONM\NodeRepository')
                 ->addLabel('foo')
         );
         $this->em = $this->getMockBuilder('Innmind\Neo4j\ONM\EntityManager')
@@ -37,7 +36,7 @@ class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
     public function testMakeDefaultRepository()
     {
         $this->assertInstanceOf(
-            'Innmind\Neo4j\ONM\NodeRepository',
+            'Innmind\Neo4j\ONM\Repository',
             $this->factory->make('stdClass', $this->em)
         );
     }
