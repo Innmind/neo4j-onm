@@ -112,4 +112,26 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
 
         $metas = $r->load('fixtures/node-endNode-error.yml');
     }
+
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage Missing option "relationship" for the property "referers" on "Resource"
+     */
+    public function testThrowWhenMissingOptionRelationship()
+    {
+        $r = new YamlReader;
+
+        $metas = $r->load('fixtures/option-relationship-error.yml');
+    }
+
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage Missing option "node" for the property "referer" on "Referer"
+     */
+    public function testThrowWhenMissingOptionNode()
+    {
+        $r = new YamlReader;
+
+        $metas = $r->load('fixtures/option-node-error.yml');
+    }
 }

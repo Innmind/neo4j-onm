@@ -131,6 +131,14 @@ class YamlReader implements ReaderInterface
                                 $prop
                             ));
                         }
+
+                        if (!isset($conf['relationship'])) {
+                            throw new \LogicException(sprintf(
+                                'Missing option "relationship" for the property "%s" on "%s"',
+                                $prop,
+                                $class
+                            ));
+                        }
                         break;
                     case 'startNode':
                     case 'endNode':
@@ -140,6 +148,14 @@ class YamlReader implements ReaderInterface
                                 $class,
                                 $prop,
                                 $conf['type']
+                            ));
+                        }
+
+                        if (!isset($conf['node'])) {
+                            throw new \LogicException(sprintf(
+                                'Missing option "node" for the property "%s" on "%s"',
+                                $prop,
+                                $class
                             ));
                         }
                         break;
