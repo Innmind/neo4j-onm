@@ -152,4 +152,52 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             (string) $this->qb->getQuery()
         );
     }
+
+    public function testOrderBy()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->orderBy('foo', 'DESC')
+        );
+        $this->assertSame(
+            'ORDER BY foo DESC;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testOrderByASCByDefault()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->orderBy('foo', 'foo')
+        );
+        $this->assertSame(
+            'ORDER BY foo ASC;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testSkip()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->skip(42)
+        );
+        $this->assertSame(
+            'SKIP 42;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testLimit()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->limit(42)
+        );
+        $this->assertSame(
+            'LIMIT 42;',
+            (string) $this->qb->getQuery()
+        );
+    }
 }

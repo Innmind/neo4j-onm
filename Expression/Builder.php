@@ -87,6 +87,43 @@ class Builder
     }
 
     /**
+     * Return an OrderByExpression
+     *
+     * @param string $property
+     * @param string $direction
+     *
+     * @return OrderByExpression
+     */
+    public function orderBy($property, $direction = 'ASC')
+    {
+        return new OrderByExpression($property, $direction);
+    }
+
+    /**
+     * Return a SkipExpression
+     *
+     * @param int $value
+     *
+     * @return SkipExpression
+     */
+    public function skip($value)
+    {
+        return new SkipExpression($value);
+    }
+
+    /**
+     * Return a LimitExpression
+     *
+     * @param int $value
+     *
+     * @return LimitExpression
+     */
+    public function limit($value)
+    {
+        return new LimitExpression($value);
+    }
+
+    /**
      * Create a ReturnExpression
      *
      * @param string $return

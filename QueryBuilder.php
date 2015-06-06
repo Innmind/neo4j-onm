@@ -22,6 +22,9 @@ class QueryBuilder
         'Innmind\Neo4j\ONM\Expression\ReturnExpression' => 'setReturn',
         'Innmind\Neo4j\ONM\Expression\UpdateExpression' => 'set',
         'Innmind\Neo4j\ONM\Expression\WhereExpression' => 'where',
+        'Innmind\Neo4j\ONM\Expression\OrderByExpression' => 'orderBy',
+        'Innmind\Neo4j\ONM\Expression\SkipExpression' => 'skip',
+        'Innmind\Neo4j\ONM\Expression\LimitExpression' => 'limit',
     ];
 
     public function __construct()
@@ -147,6 +150,52 @@ class QueryBuilder
     public function toReturn($return)
     {
         $expr = $this->expr->returnExpr($return);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create an order by expression which is added to the cypher sequence
+     *
+     * @param string $property
+     * @param string $direction
+     *
+     * @return QueryBuilder self
+     */
+    public function orderBy($property, $direction = 'ASC')
+    {
+        $expr = $this->expr->orderBy($property, $direction);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create a skip expression which is added to the cypher sequence
+     *
+     * @param int $value
+     *
+     * @return QueryBuilder
+     */
+    public function skip($value)
+    {
+        $expr = $this->expr->skip($value);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create a limit expression which is added to the cypher sequence
+     *
+     * @param int $value
+     *
+     * @return QueryBuilder
+     */
+    public function limit($value)
+    {
+        $expr = $this->expr->limit($value);
         $this->sequence[] = $expr;
 
         return $this;
