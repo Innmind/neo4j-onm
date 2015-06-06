@@ -79,4 +79,37 @@ class YamlReaderTest extends \PHPUnit_Framework_TestCase
             $props['referer']->getOption('node')
         );
     }
+
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage The relationship "Referer" can't have a relationship property on "referer"
+     */
+    public function testThrowWhenSettingRelationshipOnRelationship()
+    {
+        $r = new YamlReader;
+
+        $metas = $r->load('fixtures/relationship-error.yml');
+    }
+
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage The node "Resource" can't have the property "referer" type set to "startNode"
+     */
+    public function testThrowWhenSettingStartNodeOnNode()
+    {
+        $r = new YamlReader;
+
+        $metas = $r->load('fixtures/node-startNode-error.yml');
+    }
+
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage The node "Resource" can't have the property "referer" type set to "endNode"
+     */
+    public function testThrowWhenSettingEndNodeOnNode()
+    {
+        $r = new YamlReader;
+
+        $metas = $r->load('fixtures/node-endNode-error.yml');
+    }
 }

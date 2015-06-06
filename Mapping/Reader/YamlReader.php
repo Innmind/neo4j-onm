@@ -122,6 +122,29 @@ class YamlReader implements ReaderInterface
 
         if (isset($config['properties'])) {
             foreach ($config['properties'] as $prop => $conf) {
+                switch ($conf['type']) {
+                    case 'relationship':
+                        if ($config['type'] === 'relationship') {
+                            throw new \LogicException(sprintf(
+                                'The relationship "%s" can\'t have a relationship property on "%s"',
+                                $class,
+                                $prop
+                            ));
+                        }
+                        break;
+                    case 'startNode':
+                    case 'endNode':
+                        if ($config['type'] === 'node') {
+                            throw new \LogicException(sprintf(
+                                'The node "%s" can\'t have the property "%s" type set to "%s"',
+                                $class,
+                                $prop,
+                                $conf['type']
+                            ));
+                        }
+                        break;
+                }
+
                 $property = new Property;
                 $property
                     ->setName($prop)
