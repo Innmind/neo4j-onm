@@ -10,6 +10,11 @@ class NodeMatchExpression implements ParametrableExpressionInterface, VariableAw
 
     protected $relation;
 
+    /**
+     * @param string $variable
+     * @param string $alias
+     * @param array $params
+     */
     public function __construct($variable = null, $alias = null, array $params = null)
     {
         if (!empty($variable) && empty($alias)) {
