@@ -51,10 +51,34 @@ class UnitOfWork
         $this->scheduledForInsert = new \SplObjectStorage;
         $this->scheduledForUpdate = new \SplObjectStorage;
         $this->scheduledForDelete = new \SplObjectStorage;
-        $this->entities = new EntitySilo;
+        $this->entities = new \SplObjectStorage;
         $this->accessor = PropertyAccess::createPropertyAccessor();
 
-        $this->hydrator = new Hydrator($map, $registry, $this->entities, $this->accessor);
+        $this->hydrator = new Hydrator($this, $this->accessor);
+    }
+
+    /**
+     * Return the identity map
+     *
+     * This method should NEVER be used by the end developer
+     *
+     * @return IdentityMap
+     */
+    public function getIdentityMap()
+    {
+        return $this->identityMap;
+    }
+
+    /**
+     * Return the metadata registry
+     *
+     * This method should NEVER be used by the end developer
+     *
+     * @return MetadataRegistry
+     */
+    public function getMetadataRegistry()
+    {
+        return $this->metadataRegistry;
     }
 
     /**
@@ -229,7 +253,7 @@ class UnitOfWork
             $this->scheduledForInsert->attach($entity);
 
             $id = $this->generateId($entity);
-            $this->entities->add($entity, $this->getClass($entity), $id);
+            $this->entities->attach($entity);
         } else if (!$this->states[self::STATE_NEW]->contains($entity)) {
             $this->states[self::STATE_MANAGED]->attach($entity);
             $this->scheduledForUpdate->attach($entity);

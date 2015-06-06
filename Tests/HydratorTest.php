@@ -7,11 +7,14 @@ use Innmind\Neo4j\ONM\Query;
 use Innmind\Neo4j\ONM\IdentityMap;
 use Innmind\Neo4j\ONM\MetadataRegistry;
 use Innmind\Neo4j\ONM\EntitySilo;
+use Innmind\Neo4j\ONM\UnitOfWork;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\ONM\Mapping\Id;
+use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class HydratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -45,7 +48,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                         (new Property)
                             ->setName('rel')
                             ->setType('relationship')
-                            ->addOption('rel_type', 'FOO')
+                            ->addOption('relationship', FooRel::class)
                     )
                     ->setId(
                         (new Id)
@@ -82,51 +85,49 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
                             ->setType('int')
                     )
             );
-
-        $this->h = new Hydrator($map, $this->r, new EntitySilo, PropertyAccess::createPropertyAccessor());
-    }
-
-    public function testCreateEntity()
-    {
-        $m = $this->r->getMetadata(FooNode::class);
-
-        $expected = new FooNode;
-        $expected->setId(42);
-        $expected->setFoo(new \DateTime('2015-05-31'));
-
-        $this->assertEquals(
-            $expected,
-            $this->h->createEntity(
-                $m,
-                [
-                    'foo' => '2015-05-31',
-                    'id' => '42'
-                ]
-            )
+        $conn = ConnectionFactory::make([
+            'host' => getenv('CI') ? 'localhost' : 'docker',
+            'username' => 'neo4j',
+            'password' => 'ci',
+        ]);
+        $uow = new UnitOfWork(
+            $conn,
+            $map,
+            $this->r,
+            new EventDispatcher
         );
+
+        $this->h = new Hydrator($uow, PropertyAccess::createPropertyAccessor());
     }
 
     public function testCreateEntityOnce()
     {
-        $m = $this->r->getMetadata(FooNode::class);
-
-        $expected = $this->h->createEntity(
-            $m,
-            [
+        $node = [
+            'id' => 0,
+            'labels' => ['Foo'],
+            'properties' => [
+                'id' => 0,
                 'foo' => '2015-05-31',
-                'id' => '42'
-            ]
-        );
+            ],
+        ];
+        $results = [
+            'nodes' => [
+                0 => $node,
+            ],
+            'relationships' => [],
+            'rows' => [
+                'n' => [$node['properties']],
+            ],
+        ];
+        $q = new Query;
+        $q->addVariable('n', FooNode::class);
+
+        $result = $this->h->hydrate($results, $q);
+        $resultBis = $this->h->hydrate($results, $q);
 
         $this->assertSame(
-            $expected,
-            $this->h->createEntity(
-                $m,
-                [
-                    'foo' => '2015-05-31',
-                    'id' => '42'
-                ]
-            )
+            $result->first(),
+            $resultBis->first()
         );
     }
 
@@ -180,9 +181,9 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             'Doctrine\Common\Collections\ArrayCollection',
             $result
         );
-        $this->assertSame(2, $result->count());
+        $this->assertSame(3, $result->count());
         $node = $result->first();
-        $nodeB = $result->last();
+        $rel = $result->last();
 
         $this->assertSame(
             0,
@@ -193,32 +194,24 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             $node->getFoo()
         );
         $this->assertSame(
-            1,
-            $nodeB->getId()
-        );
-        $this->assertEquals(
-            new \DateTime('2015-05-31'),
-            $nodeB->getFoo()
+            0,
+            $rel->getId()
         );
         $this->assertInstanceOf(
             FooRel::class,
             $node->getRel()
         );
         $this->assertSame(
-            $node->getRel(),
-            $nodeB->getRel()
+            $rel,
+            $node->getRel()
         );
         $this->assertSame(
             $node,
-            $node->getRel()->getStart()
+            $rel->getStart()
         );
         $this->assertSame(
-            $nodeB,
-            $node->getRel()->getEnd()
-        );
-        $this->assertSame(
-            0,
-            $node->getRel()->getId()
+            $result[1],
+            $rel->getEnd()
         );
     }
 
@@ -261,62 +254,6 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             new \DateTime('2015-05-31'),
             $node->getFoo()
         );
-    }
-
-    /**
-     * @expectedException LogicException
-     * @exoectedExceptionMessage The relationship "Innmind\Neo4j\ONM\Tests\FooRel" property "end" is expecting a "Innmind\Neo4j\ONM\Tests\FooNode" node (got "stdClass")
-     */
-    public function testThrowWhenTryingToAssociateWrongClasses()
-    {
-        $this->r
-            ->getMetadata(FooRel::class)
-            ->getProperty('end')
-            ->addOption('node', 'stdClass');
-
-        $nodeA = [
-            'id' => 0,
-            'labels' => ['Foo'],
-            'properties' => [
-                'id' => 0,
-                'foo' => '2015-05-31',
-            ],
-        ];
-        $nodeB = [
-            'id' => 1,
-            'labels' => ['Foo'],
-            'properties' => [
-                'id' => 1,
-                'foo' => '2015-05-31',
-            ],
-        ];
-        $rel = [
-            'id' => 0,
-            'type' => 'FOO',
-            'startNode' => 0,
-            'endNode' => 1,
-            'properties' => [
-                'id' => 0,
-            ],
-        ];
-        $results = [
-            'nodes' => [
-                0 => $nodeA,
-                1 => $nodeB,
-            ],
-            'relationships' => [
-                0 => $rel,
-            ],
-            'rows' => [
-                'n' => [$nodeA['properties'], $nodeB['properties']],
-                'r' => [$rel['properties']],
-            ],
-        ];
-        $q = new Query;
-        $q->addVariable('n', FooNode::class);
-        $q->addVariable('r', FooRel::class);
-
-        $this->h->hydrate($results, $q);
     }
 }
 

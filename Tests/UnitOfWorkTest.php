@@ -76,7 +76,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                     (new Property)
                         ->setName('rel')
                         ->setType('relationship')
-                        ->addOption('rel_type', 'FOO')
+                        ->addOption('relationship', Bar::class)
                 )
         );
         $registry->addMetadata(
@@ -125,7 +125,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_MANAGED]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->add($e, 'stdClass', uniqid());
+        $entities->attach($e);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->persist($e));
@@ -189,7 +189,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->add($e, 'stdClass', uniqid());
+        $entities->attach($e);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear());
@@ -202,7 +202,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->add($e, 'stdClass', uniqid());
+        $entities->attach($e);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear('s'));
@@ -215,7 +215,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $states = $this->states->getValue($this->uow);
         $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->add($e, 'stdClass', uniqid());
+        $entities->attach($e);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->detach($e));
@@ -268,17 +268,17 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     {
         $q = new Query('CREATE (n:f {props}) RETURN n;');
         $q->addVariable('n', 'f');
-        $q->addParameters('props', ['id' => 'random', 'name' => 'me']);
+        $q->addParameters('props', ['id' => 'foo-bar-baz', 'name' => 'me']);
         $this->uow->execute($q);
 
-        $entity = $this->uow->find('f', 'random');
+        $entity = $this->uow->find('f', 'foo-bar-baz');
 
         $this->assertInstanceOf(
             Baz::class,
             $entity
         );
         $this->assertSame(
-            'random',
+            'foo-bar-baz',
             $entity->id
         );
         $this->assertSame(

@@ -9,24 +9,27 @@ use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Doctrine\Common\Collections\ArrayCollection;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
+use ProxyManager\Proxy\LazyLoadingInterface;
 
 class Hydrator
 {
+    protected $uow;
     protected $map;
     protected $registry;
     protected $accessor;
     protected $entities;
 
     public function __construct(
-        IdentityMap $map,
-        MetadataRegistry $registry,
-        EntitySilo $entities,
+        UnitOfWork $uow,
         PropertyAccessor $accessor
     ) {
-        $this->map = $map;
-        $this->registry = $registry;
-        $this->entities = $entities;
+        $this->uow = $uow;
+        $this->map = $uow->getIdentityMap();
+        $this->registry = $uow->getMetadataRegistry();
+        $this->entities = new EntitySilo;
         $this->accessor = $accessor;
+        $this->proxyFactory = new LazyLoadingGhostFactory;
     }
 
     /**
@@ -39,10 +42,7 @@ class Hydrator
      */
     public function hydrate(array $results, Query $query)
     {
-        $nodes = [];
-        $rels = [];
-        $nodeMetas = [];
-        $relMetas = [];
+        $entities = [];
         $variables = $query->getVariables();
 
         foreach ($results['rows'] as $variable => $values) {
@@ -66,9 +66,7 @@ class Hydrator
                             continue;
                         }
 
-                        $realId = $node['id'];
-                        $nodes[$realId] = $entity;
-                        $nodeMetas[$realId] = $metadata;
+                        $this->entities->addInfo($entity, ['realId' => $node['id']]);
                         break;
                     }
                 } else {
@@ -83,18 +81,20 @@ class Hydrator
                             continue;
                         }
 
-                        $realId = $rel['id'];
-                        $rels[$realId] = $entity;
-                        $relMetas[$realId] = $metadata;
+                        $this->entities->addInfo($entity, [
+                            'realId' => $rel['id'],
+                            'startNode' => $rel['startNode'],
+                            'endNode' => $rel['endNode'],
+                        ]);
                         break;
                     }
                 }
+
+                $entities[] = $entity;
             }
         }
 
-        $entities = $this->associate($nodes, $rels, $results, $nodeMetas, $relMetas);
-
-        return new ArrayCollection(array_values($entities));
+        return new ArrayCollection($entities);
     }
 
     /**
@@ -105,7 +105,7 @@ class Hydrator
      *
      * @return object
      */
-    public function createEntity(Metadata $meta, array $properties)
+    protected function createEntity(Metadata $meta, array $properties)
     {
         $class = $meta->getClass();
         $id = $properties[$meta->getId()->getProperty()];
@@ -114,139 +114,169 @@ class Hydrator
             return $this->entities->get($class, $id);
         }
 
-        $entity = new $class;
-
-        foreach ($meta->getProperties() as $property) {
-            if (!isset($properties[$property->getName()])) {
-                continue;
+        $entity = $this->proxyFactory->createProxy(
+            $class,
+            function (LazyLoadingInterface $proxy, $method, array $parameters, &$initializer) {
+                $this->lazyLoad($proxy, $method, $parameters, $initializer);
             }
+        );
 
-            $type = Types::getType($property->getType());
-
-            $this->accessor->setValue(
-                $entity,
-                $property->getName(),
-                $type->convertToPHPValue(
-                    $properties[$property->getName()],
-                    $property
-                )
-            );
-        }
-
-        $this->entities->add($entity, $class, $id);
+        $this->entities->add($entity, $class, $id, ['properties' => $properties]);
 
         return $entity;
     }
 
     /**
-     * Inject the relationships into nodes and vice versa
+     * Lazy load an entity
      *
-     * @param array $nodes
-     * @param array $rels
-     * @param array $results
-     * @param array $nodeMetas
-     * @param array $relMetas
+     * @param LazyLoadingInterface $proxy Entity proxy
+     * @param string $method Method that triggered the lazy loading
+     * @param array $parameters Parameters of the method that triggered the lazy loading
+     * @param Closure $initializer The closure used to load the given entity
      *
-     * @return void
+     * @return bool
      */
-    protected function associate(array $nodes, array $rels, array $results, array $nodeMetas, array $relMetas)
-    {
-        $data = [];
+    protected function lazyLoad(LazyLoadingInterface $proxy, $method, array $parameters, &$initializer) {
+        $initializer = null;
 
-        if (empty($rels)) {
-            return $nodes;
-        }
+        $info = $this->entities->getInfo($proxy);
+        $class = $this->entities->getClass($proxy);
+        $metadata = $this->registry->getMetadata($class);
 
-        foreach ($rels as $id => $rel) {
-            $startNodeId = $results['relationships'][$id]['startNode'];
-            $endNodeId = $results['relationships'][$id]['endNode'];
+        foreach ($metadata->getProperties() as $property) {
+            if (!isset($info['properties'][$property->getName()])) {
+                if ($property->getType() === 'relationship') {
+                    $relationships = $this->getNodeRelationships(
+                        $metadata,
+                        $property,
+                        $info
+                    );
 
-            $meta = $relMetas[$id];
+                    foreach ($relationships as $relationship) {
+                        $this->accessor->setValue(
+                            $proxy,
+                            $property->getName(),
+                            $relationship
+                        );
+                    }
+                } else if (in_array($property->getType(), ['startNode', 'endNode'])) {
+                    $node = $this->getRelationshipNode(
+                        $metadata,
+                        $property,
+                        $info
+                    );
 
-            if (!$meta->hasStartNode() && !$meta->hasEndNode()) {
-                continue;
-            }
+                    $this->accessor->setValue(
+                        $proxy,
+                        $property->getName(),
+                        $node
+                    );
+                }
 
-            if ($meta->hasStartNode() && isset($nodes[$startNodeId])) {
-                $data[$startNodeId] = $nodes[$startNodeId];
-
-                $this->bind(
-                    $rel,
-                    $meta,
-                    $meta->getProperty($meta->getStartNode()),
-                    $nodes[$startNodeId],
-                    $nodeMetas[$startNodeId]
-                );
-            }
-
-            if ($meta->hasEndNode() && isset($nodes[$endNodeId])) {
-                $data[$endNodeId] = $nodes[$endNodeId];
-
-                $this->bind(
-                    $rel,
-                    $meta,
-                    $meta->getProperty($meta->getEndNode()),
-                    $nodes[$endNodeId],
-                    $nodeMetas[$endNodeId]
-                );
-            }
-        }
-
-        if (empty($data)) {
-            return $nodes;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Associate a node to the relationship and vice versa
-     *
-     * @param object $relationship
-     * @param RelationshipMetadata $relMeta
-     * @param Property $property Relationship property
-     * @param object $node
-     * @param NodeMetadata $meta
-     *
-     * @return void
-     */
-    protected function bind($relationship, RelationshipMetadata $relMeta, Property $property, $node, NodeMetadata $meta)
-    {
-        if ($property->hasOption('node')) {
-            $expectedNodeClass = $this->map->getClass($property->getOption('node'));
-
-            if ($expectedNodeClass !== $meta->getClass()) {
-                throw new \LogicException(sprintf(
-                    'The relationship "%s" property "%s" is expecting a "%s" node (got "%s")',
-                    $relMeta->getClass(),
-                    $property->getName(),
-                    $expectedNodeClass,
-                    $meta->getClass()
-                ));
-            }
-        }
-
-        $this->accessor->setValue(
-            $relationship,
-            $property->getName(),
-            $node
-        );
-
-        $properties = $meta->getProperties();
-
-        foreach ($properties as $property) {
-            if (
-                $property->getType() !== 'relationship' ||
-                $property->getOption('rel_type') !== $relMeta->getType()
-            ) {
                 continue;
             }
 
             $this->accessor->setValue(
-                $node,
+                $proxy,
                 $property->getName(),
-                $relationship
+                Types::getType($property->getType())->convertToPHPValue(
+                    $info['properties'][$property->getName()],
+                    $property
+                )
             );
         }
+
+        return true;
+    }
+
+    /**
+     * Find the relationships for the given node property
+     *
+     * @param NodeMetadata $metadata
+     * @param Property $property
+     * @param array $info
+     *
+     * @return array
+     */
+    protected function getNodeRelationships(NodeMetadata $metadata, Property $property, array $info)
+    {
+        $relationships = [];
+        $relClass = $this->map->getClass($property->getOption('relationship'));
+
+        foreach ($this->entities as $entity) {
+            if (!$entity instanceof $relClass) {
+                continue;
+            }
+
+            $relInfo = $this->entities->getInfo($entity);
+
+            if (in_array($info['realId'], [$relInfo['startNode'], $relInfo['endNode']], true)) {
+                $relationships[] = $entity;
+            }
+        }
+
+        if (!empty($relationships)) {
+            return $relationships;
+        }
+
+        $idProp = $metadata->getId()->getProperty();
+
+        $qb = new QueryBuilder;
+        $qb
+            ->addExpr(
+                $qb
+                    ->expr()
+                    ->matchNode(
+                        'n',
+                        $metadata->getClass(),
+                        [
+                            $idProp => $info['properties'][$idProp]
+                        ]
+                    )
+                    ->relatedTo(
+                        $qb
+                            ->expr()
+                            ->matchRelationship('r', $relClass)
+                    )
+            )
+            ->toReturn('r');
+
+        return $this->uow->execute($qb->getQuery())->toArray();
+    }
+
+    /**
+     * Find the nodes related to the relationship
+     *
+     * @param RelationshipMetadata $metadata
+     * @param Property $property
+     * @param array $info
+     *
+     * @return object
+     */
+    protected function getRelationshipNode(RelationshipMetadata $metadata, Property $property, array $info)
+    {
+        $nodeClass = $this->map->getClass($property->getOption('node'));
+        $nodeMeta = $this->registry->getMetadata($nodeClass);
+
+        foreach ($this->entities as $entity) {
+            if (!$entity instanceof $nodeClass) {
+                continue;
+            }
+
+            $nodeInfo = $this->entities->getInfo($entity);
+
+            if ($nodeInfo['realId'] === $info[$property->getType()]) {
+                return $entity;
+            }
+        }
+
+        $query = new Query(sprintf(
+            'MATCH (n:%s) WHERE id(n) = {where}.id RETURN n;',
+            $nodeClass
+        ));
+        $query->addVariable('n', $nodeClass);
+        $query->addParameters('where', ['id' => $info[$property->getType()]]);
+
+        return $this->uow->execute($query)->first();
     }
 }
