@@ -6,7 +6,6 @@ use Innmind\Neo4j\ONM\Hydrator;
 use Innmind\Neo4j\ONM\Query;
 use Innmind\Neo4j\ONM\IdentityMap;
 use Innmind\Neo4j\ONM\MetadataRegistry;
-use Innmind\Neo4j\ONM\EntitySilo;
 use Innmind\Neo4j\ONM\UnitOfWork;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
