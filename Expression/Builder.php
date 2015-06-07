@@ -60,6 +60,22 @@ class Builder
     }
 
     /**
+     * Return a CreateRelationshipExpression
+     *
+     * @param string $startVariable The matched node variable used in as start node for the relationship
+     * @param string $endVariable The matched node variable used in as end node for the relationship
+     * @param string $variable Variable name to be used in the cypher query
+     * @param string $alias Entity alias for the node
+     * @param array $params Data to set in the new node
+     *
+     * @return CreateRelationshipExpression
+     */
+    public function createRelationship($startVariable, $endVariable, $variable, $alias, array $params)
+    {
+        return new CreateRelationshipExpression($startVariable, $endVariable, $variable, $alias, $params);
+    }
+
+    /**
      * Return a RemoveExpression
      *
      * @param string $variable Variable name to be used in the cypher query

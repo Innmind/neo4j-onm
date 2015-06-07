@@ -16,6 +16,7 @@ class QueryBuilder
     protected $sequence = [];
     protected static $builderMethods = [
         'Innmind\Neo4j\ONM\Expression\CreateExpression' => 'create',
+        'Innmind\Neo4j\ONM\Expression\CreateRelationshipExpression' => 'create',
         'Innmind\Neo4j\ONM\Expression\NodeMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RelationshipMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RemoveExpression' => 'remove',
@@ -102,6 +103,31 @@ class QueryBuilder
     public function create($variable, $alias, array $params)
     {
         $expr = $this->expr->create($variable, $alias, $params);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Return a create relationship expression which is added to the cypher sequence
+     *
+     * @param string $startVariable
+     * @param string $endVariable
+     * @param string $variable
+     * @param string $alias
+     * @param array $params
+     *
+     * @return QueryBuilder self
+     */
+    public function createRelationship($startVariable, $endVariable, $variable, $alias, array $params)
+    {
+        $expr = $this->expr->createRelationship(
+            $startVariable,
+            $endVariable,
+            $variable,
+            $alias,
+            $params
+        );
         $this->sequence[] = $expr;
 
         return $this;

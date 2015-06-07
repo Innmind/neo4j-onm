@@ -200,4 +200,22 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             (string) $this->qb->getQuery()
         );
     }
+
+    public function testCreateRelationship()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->createRelationship(
+                's',
+                'e',
+                'r',
+                'TYPE',
+                ['foo' => 'bar']
+            )
+        );
+        $this->assertSame(
+            'CREATE (s)-[r:TYPE { r_create_props }]->(e);',
+            (string) $this->qb->getQuery()
+        );
+    }
 }
