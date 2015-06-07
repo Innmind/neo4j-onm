@@ -233,7 +233,16 @@ class UnitOfWork
 
         $results = $this->conn->execute($cypher, $params);
 
-        return $this->hydrator->hydrate($results, $query);
+        $entities = $this->hydrator->hydrate($results, $query);
+
+        $entities->forAll(function ($idx, $entity) {
+            $this->entities->attach($entity);
+            $this->states[self::STATE_MANAGED]->attach($entity);
+
+            return true;
+        });
+
+        return $entities;
     }
 
     /**
