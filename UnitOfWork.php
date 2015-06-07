@@ -30,6 +30,7 @@ class UnitOfWork
     protected $scheduledForUpdate;
     protected $scheduledForInsert;
     protected $scheduledForDelete;
+    protected $entitySilo;
 
     public function __construct(
         ConnectionInterface $conn,
@@ -53,8 +54,9 @@ class UnitOfWork
         $this->scheduledForDelete = new \SplObjectStorage;
         $this->entities = new \SplObjectStorage;
         $this->accessor = PropertyAccess::createPropertyAccessor();
+        $this->entitySilo = new EntitySilo;
 
-        $this->hydrator = new Hydrator($this, $this->accessor);
+        $this->hydrator = new Hydrator($this, $this->entitySilo, $this->accessor);
     }
 
     /**
@@ -535,7 +537,7 @@ class UnitOfWork
      */
     protected function getClass($entity)
     {
-        return get_class($entity);
+        return $this->entitySilo->getClass($entity) ?: get_class($entity);
     }
 
     /**

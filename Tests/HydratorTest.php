@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\Query;
 use Innmind\Neo4j\ONM\IdentityMap;
 use Innmind\Neo4j\ONM\MetadataRegistry;
 use Innmind\Neo4j\ONM\UnitOfWork;
+use Innmind\Neo4j\ONM\EntitySilo;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
@@ -96,7 +97,7 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             new EventDispatcher
         );
 
-        $this->h = new Hydrator($uow, PropertyAccess::createPropertyAccessor());
+        $this->h = new Hydrator($uow, new EntitySilo, PropertyAccess::createPropertyAccessor());
     }
 
     public function testCreateEntityOnce()
