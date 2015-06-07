@@ -93,6 +93,20 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                         ->setName('id')
                         ->setType('string')
                 )
+                ->addProperty(
+                    (new Property)
+                        ->setName('start')
+                        ->setType('startNode')
+                        ->addOption('node', Baz::class)
+                )
+                ->addProperty(
+                    (new Property)
+                        ->setName('end')
+                        ->setType('endNode')
+                        ->addOption('node', Baz::class)
+                )
+                ->setStartNode('start')
+                ->setEndNode('end')
         );
         $this->uow = new UnitOfWork(
             $conn,
@@ -350,6 +364,20 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->uow->isScheduledForInsert($n));
         $this->assertFalse($this->uow->isScheduledForUpdate($n));
     }
+
+    public function testCommit()
+    {
+        $n = new Baz;
+        $n2 = new Baz;
+        $r = new Bar;
+        $n->rel = $r;
+        $n2->rel = $r;
+        $r->start = $n;
+        $r->end = $n2;
+
+        $this->uow->persist($r);
+        $this->uow->commit();
+    }
 }
 
 class Foo {}
@@ -360,4 +388,6 @@ class Baz {
 }
 class Bar {
     public $id;
+    public $start;
+    public $end;
 }

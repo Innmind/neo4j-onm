@@ -4,6 +4,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Generators;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
+use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Neo4j\ONM\Exception\UnrecognizedEntityException;
@@ -368,7 +369,29 @@ class UnitOfWork
      */
     public function commit()
     {
+        $this->execute($this->computeInsertQuery());
 
+        foreach ($this->scheduledForInsert as $entity) {
+            $this->states[self::STATE_NEW]->detach($entity);
+            $this->states[self::STATE_MANAGED]->attach($entity);
+            $this->scheduledForInsert->detach($entity);
+        }
+
+        $this->execute($this->computeUpdateQuery());
+
+        foreach ($this->scheduledForUpdate as $entity) {
+            $this->scheduledForUpdate->detach($entity);
+        }
+
+        $this->execute($this->computeDeleteQuery());
+
+        foreach ($this->scheduledForDelete as $entity) {
+            $this->states[self::STATE_MANAGED]->detach($entity);
+            $this->states[self::STATE_REMOVED]->attach($entity);
+            $this->scheduledForDelete->detach($entity);
+        }
+
+        return $this;
     }
 
     /**
@@ -594,30 +617,302 @@ class UnitOfWork
         $metadata = $this->metadataRegistry->getMetadata($class);
 
         foreach ($metadata->getProperties() as $property) {
-            if (
-                in_array(
-                    $property->getType(),
-                    ['relationship', 'startNode', 'endNode'],
-                    true
-                )
-            ) {
-                $extracted = $this->accessor->getValue(
-                    $entity,
-                    $property->getName()
-                );
+            if (!$metadata->isReference($property)) {
+                continue;
+            }
 
-                if (empty($extracted)) {
-                    continue;
-                }
+            $extracted = $this->accessor->getValue(
+                $entity,
+                $property->getName()
+            );
 
-                if ($property->hasOption('collection') && $property->getOption('collection') === true) {
-                    foreach ($extracted as $subEntity) {
-                        $this->persist($subEntity);
-                    }
-                } else {
-                    $this->persist($extracted);
+            if (empty($extracted)) {
+                continue;
+            }
+
+            if ($property->hasOption('collection') && $property->getOption('collection') === true) {
+                foreach ($extracted as $subEntity) {
+                    $this->persist($subEntity);
                 }
+            } else {
+                $this->persist($extracted);
             }
         }
+    }
+
+    /**
+     * Create all queries to insert al new entities
+     *
+     * @return Query
+     */
+    protected function computeInsertQuery()
+    {
+        $nodes = new \SplObjectStorage;
+        $rels = new \SplObjectStorage;
+        $qb = new QueryBuilder;
+        $nodeIndex = 0;
+        $relIndex = 0;
+
+        foreach ($this->scheduledForInsert as $entity) {
+            $class = $this->getClass($entity);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+
+            if ($metadata instanceof NodeMetadata) {
+                $nodes->attach($entity, $nodeIndex);
+                $nodeIndex++;
+            } else {
+                $rels->attach($entity, $relIndex);
+                $relIndex++;
+            }
+        }
+
+        $idx = 0;
+
+        foreach ($nodes as $node) {
+            $class = $this->getClass($node);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+            $data = $this->getEntityData($node, $metadata);
+
+            $qb->create('n'.$idx, $class, $data);
+
+            $idx++;
+        }
+
+        $matchNodeIdx = 0;
+        $idx = 0;
+
+        foreach ($rels as $rel) {
+            $class = $this->getClass($rel);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+
+            $startNode = $this->accessor->getValue(
+                $rel,
+                $metadata->getStartNode()
+            );
+            $endNode = $this->accessor->getValue(
+                $rel,
+                $metadata->getEndNode()
+            );
+
+            if (!$nodes->contains($startNode)) {
+                $startNodeClass = $this->getClass($startNode);
+                $startNodeMeta = $this->metadataRegistry->getMetada($startNodeClass);
+                $startNodeIdProp = $startNodeMeta->getId()->getProperty();
+                $startNodeId = $this->accessor->getValue(
+                    $startNode,
+                    $startNodeIdProp
+                );
+                $startVar = 'mn'.$matchNodeIdx;
+                $matchNodeIdx++;
+
+                $qb->matchNode(
+                    $startVar,
+                    $startNodeClass,
+                    [
+                        $startNodeIdProp => $startNodeId
+                    ]
+                );
+            } else {
+                $startVar = 'n'.$nodes[$startNode];
+            }
+
+            if (!$nodes->contains($endNode)) {
+                $endNodeClass = $this->getClass($endNode);
+                $endNodeMeta = $this->metadataRegistry->getMetada($endNodeClass);
+                $endNodeIdProp = $endNodeMeta->getId()->getProperty();
+                $endNodeId = $this->accessor->getValue(
+                    $endNode,
+                    $endNodeIdProp
+                );
+                $endVar = 'mn' . (string) $matchNodeIdx;
+                $matchNodeIdx++;
+
+                $qb->matchNode(
+                    $endVar,
+                    $endNodeClass,
+                    [
+                        $endNodeIdProp => $endNodeId
+                    ]
+                );
+            } else {
+                $endVar = 'n' . (string) $nodes[$endNode];
+            }
+
+            $data = $this->getEntityData($rel, $metadata);
+
+            $qb->createRelationship(
+                $startVar,
+                $endVar,
+                'r' . (string) $idx,
+                $metadata->getType(),
+                $data
+            );
+
+            $idx++;
+        }
+
+        return $qb->getQuery();
+    }
+
+    /**
+     * Compute the query to update all the entities
+     *
+     * @return Query
+     */
+    protected function computeUpdateQuery()
+    {
+        $qb = new QueryBuilder;
+        $toUpdate = [];
+        $idx = 0;
+
+        foreach ($this->scheduledForUpdate as $entity) {
+            $class = $this->getClass($entity);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+            $data = $this->computeChangeset($entity, $metadata);
+
+            if (empty($data)) {
+                continue;
+            }
+
+            $idProp = $metadata->getId()->getProperty();
+            $id = $this->accessor->getValue(
+                $entity,
+                $idProp
+            );
+            $var = 'e' . (string) $idx;
+
+            if ($entity instanceof NodeMetadata) {
+                $qb->matchNode($var, $class, [$idProp => $id]);
+            } else {
+                $qb->addExpr(
+                    $qb
+                        ->expr()
+                        ->matchNode()
+                        ->relatedTo(
+                            $var,
+                            $class,
+                            [$idProp => $id]
+                        )
+                );
+            }
+
+            $toUpdate[$var] = $data;
+            $idx++;
+        }
+
+        foreach ($toUpdate as $var => $value) {
+            $qb->update($var, $value);
+        }
+
+        return $qb->getQuery();
+    }
+
+    /**
+     * Compute the query to delete all entities wished to be removed
+     *
+     * @return Query
+     */
+    protected function computeDeleteQuery()
+    {
+        $qb = new QueryBuilder;
+        $variables = [];
+        $idx = 0;
+
+        foreach ($this->scheduledForDelete as $entity) {
+            $class = $this->getClass($entity);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+            $var = 'e' . (string) $idx;
+            $idProp = $metadata->getId()->getProperty();
+            $id = $this->accessor->getValue(
+                $entity,
+                $idProp
+            );
+
+            if ($metadata instanceof NodeMetadata) {
+                $qb->matchNode($var, $class, [$idProp => $id]);
+            } else {
+                $qb->addExpr(
+                    $qb
+                        ->expr()
+                        ->matchNode()
+                        ->relatedTo(
+                            $var,
+                            $class,
+                            [$idProp => $id]
+                        )
+                );
+            }
+
+            $variables[] = $var;
+
+            $idx++;
+        }
+
+        foreach ($variables as $var) {
+            $qb->remove($var);
+        }
+
+        return $qb->getQuery();
+    }
+
+    /**
+     * Extract entity data
+     *
+     * @param object $entity
+     * @param Metadata $metadata
+     *
+     * @return array
+     */
+    protected function getEntityData($entity, Metadata $metadata)
+    {
+        $data = [];
+
+        foreach ($metadata->getProperties() as $property) {
+            if ($metadata->isReference($property)) {
+                continue;
+            }
+
+            $data[$property->getName()] = $this->accessor->getValue(
+                $entity,
+                $property->getName()
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * Try to find what changed in an entity between first retrieval and now
+     *
+     * @param object $entity
+     * @param Metadata $metadata
+     *
+     * @return array
+     */
+    protected function computeChangeset($entity, Metadata $metadata)
+    {
+        $orig = $this->entitySilo->getInfo($entity)['properties'];
+        $data = $this->getEntityData($entity, $metadata);
+        $changeset = [];
+
+        foreach ($data as $key => $value) {
+            if (
+                !isset($orig[$key]) ||
+                $value !== $orig[$key]
+            ) {
+                $changeset[$key] = $value;
+            }
+        }
+
+        $id = $metadata->geId()->getProperty();
+
+        if (isset($changeset[$id])) {
+            throw new \LogicException(sprintf(
+                'You can\'t change the id for "%s"',
+                $metadata->getClass()
+            ));
+        }
+
+        return $changeset;
     }
 }
