@@ -99,4 +99,12 @@ class RelationshipMetadata extends Metadata
     {
         return $this->endNode;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isReference(Property $property)
+    {
+        return in_array($property->getType(), ['startNode', 'endNode'], true);
+    }
 }

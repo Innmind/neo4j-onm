@@ -166,4 +166,15 @@ abstract class Metadata
     {
         return $this->alias;
     }
+
+    /**
+     * Check if the given property is a reference to an entity
+     *
+     * Otherwise it means it's an entity property
+     *
+     * @param Property $property
+     *
+     * @return bool
+     */
+    abstract public function isReference(Property $property);
 }

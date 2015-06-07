@@ -29,4 +29,12 @@ class NodeMetadata extends Metadata
     {
         return $this->labels;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isReference(Property $property)
+    {
+        return $property->getType() === 'relationship';
+    }
 }

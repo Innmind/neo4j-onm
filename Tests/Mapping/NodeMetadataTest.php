@@ -79,4 +79,14 @@ class NodeMetadataTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($m, $m->addLabel('Foo'));
         $this->assertEquals(['Foo'], $m->getLabels());
     }
+
+    public function testIsReference()
+    {
+        $m = new NodeMetadata;
+        $p = new Property;
+
+        $this->assertFalse($m->isReference($p));
+        $p->setType('relationship');
+        $this->assertTrue($m->isReference($p));
+    }
 }
