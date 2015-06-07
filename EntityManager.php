@@ -144,6 +144,8 @@ class EntityManager implements EntityManagerInterface
     public function flush()
     {
         $this->uow->commit();
+
+        return $this;
     }
 
     /**
