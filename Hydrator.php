@@ -122,7 +122,15 @@ class Hydrator
             }
         );
 
-        $this->entities->add($entity, $class, $id, ['properties' => $properties]);
+        $data = [];
+
+        foreach ($properties as $property => $value) {
+            $property = $meta->getProperty($property);
+            $data[$property->getName()] = Types::getType($property->getType())
+                ->convertToPHPValue($value, $property);
+        }
+
+        $this->entities->add($entity, $class, $id, ['properties' => $data]);
 
         return $entity;
     }
@@ -179,10 +187,7 @@ class Hydrator
             $this->accessor->setValue(
                 $proxy,
                 $property->getName(),
-                Types::getType($property->getType())->convertToPHPValue(
-                    $info['properties'][$property->getName()],
-                    $property
-                )
+                $info['properties'][$property->getName()]
             );
         }
 
