@@ -272,6 +272,8 @@ class UnitOfWork
             $this->scheduledForUpdate->attach($entity);
         }
 
+        $this->cascadePersist($entity);
+
         return $this;
     }
 
@@ -562,5 +564,45 @@ class UnitOfWork
         );
 
         return $id;
+    }
+
+    /**
+     * Look at all the entities set in each managed entity and persist them
+     *
+     * @param object $entity
+     *
+     * @return void
+     */
+    protected function cascadePersist($entity)
+    {
+        $class = $this->getClass($entity);
+        $metadata = $this->metadataRegistry->getMetadata($class);
+
+        foreach ($metadata->getProperties() as $property) {
+            if (
+                in_array(
+                    $property->getType(),
+                    ['relationship', 'startNode', 'endNode'],
+                    true
+                )
+            ) {
+                $extracted = $this->accessor->getValue(
+                    $entity,
+                    $property->getName()
+                );
+
+                if (empty($extracted)) {
+                    continue;
+                }
+
+                if ($property->hasOption('collection') && $property->getOption('collection') === true) {
+                    foreach ($extracted as $subEntity) {
+                        $this->persist($subEntity);
+                    }
+                } else {
+                    $this->persist($extracted);
+                }
+            }
+        }
     }
 }
