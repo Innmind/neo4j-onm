@@ -31,6 +31,7 @@ class UnitOfWork
     protected $scheduledForInsert;
     protected $scheduledForDelete;
     protected $entitySilo;
+    protected $persistSequence;
 
     public function __construct(
         ConnectionInterface $conn,
@@ -55,6 +56,7 @@ class UnitOfWork
         $this->entities = new \SplObjectStorage;
         $this->accessor = PropertyAccess::createPropertyAccessor();
         $this->entitySilo = new EntitySilo;
+        $this->persistSequence = new \SplObjectStorage;
 
         $this->hydrator = new Hydrator($this, $this->entitySilo, $this->accessor);
     }
@@ -258,6 +260,12 @@ class UnitOfWork
     {
         $this->checkKnown($entity);
 
+        if ($this->persistSequence->contains($entity)) {
+            return $this;
+        }
+
+        $this->persistSequence->attach($entity);
+
         $this->states[self::STATE_DETACHED]->detach($entity);
         $this->states[self::STATE_REMOVED]->detach($entity);
 
@@ -273,6 +281,8 @@ class UnitOfWork
         }
 
         $this->cascadePersist($entity);
+
+        $this->persistSequence->detach($entity);
 
         return $this;
     }
