@@ -2,6 +2,8 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
+use Innmind\Neo4j\DBAL\WhereExpr;
+
 class Builder
 {
     /**
@@ -149,5 +151,15 @@ class Builder
     public function returnExpr($return)
     {
         return new ReturnExpression($return);
+    }
+
+    /**
+     * Return a where expression builder
+     *
+     * @return CypgerBuilder
+     */
+    public function whereBuilder()
+    {
+        return new WhereExpr;
     }
 }
