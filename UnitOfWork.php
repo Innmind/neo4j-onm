@@ -106,6 +106,11 @@ class UnitOfWork
         }
 
         $class = $this->identityMap->getClass($class);
+
+        if ($this->entitySilo->has($class, $id)) {
+            return $this->entitySilo->get($class, $id);
+        }
+
         $metadata = $this->metadataRegistry->getMetadata($class);
 
         if ($metadata instanceof NodeMetadata) {
