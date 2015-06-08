@@ -766,7 +766,7 @@ class UnitOfWork
             );
             $var = 'e' . (string) $idx;
 
-            if ($entity instanceof NodeMetadata) {
+            if ($metadata instanceof NodeMetadata) {
                 $qb->matchNode($var, $class, [$idProp => $id]);
             } else {
                 $qb->addExpr(
@@ -774,9 +774,13 @@ class UnitOfWork
                         ->expr()
                         ->matchNode()
                         ->relatedTo(
-                            $var,
-                            $class,
-                            [$idProp => $id]
+                            $qb
+                                ->expr()
+                                ->matchRelationship(
+                                    $var,
+                                    $class,
+                                    [$idProp => $id]
+                                )
                         )
                 );
             }
@@ -821,9 +825,13 @@ class UnitOfWork
                         ->expr()
                         ->matchNode()
                         ->relatedTo(
-                            $var,
-                            $class,
-                            [$idProp => $id]
+                            $qb
+                                ->expr()
+                                ->matchRelationship(
+                                    $var,
+                                    $class,
+                                    [$idProp => $id]
+                                )
                         )
                 );
             }
@@ -889,7 +897,7 @@ class UnitOfWork
             }
         }
 
-        $id = $metadata->geId()->getProperty();
+        $id = $metadata->getId()->getProperty();
 
         if (isset($changeset[$id])) {
             throw new \LogicException(sprintf(
