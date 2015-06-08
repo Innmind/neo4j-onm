@@ -26,9 +26,7 @@ class UnitOfWork
     protected $dispatcher;
     protected $hydrator;
     protected $accessor;
-    protected $states;
     protected $entities;
-    protected $scheduledForUpdate;
     protected $scheduledForInsert;
     protected $scheduledForDelete;
     protected $entitySilo;
@@ -45,14 +43,7 @@ class UnitOfWork
         $this->metadataRegistry = $registry;
         $this->dispatcher = $dispatcher;
 
-        $this->states = [
-            self::STATE_MANAGED => new \SplObjectStorage,
-            self::STATE_NEW => new \SplObjectStorage,
-            self::STATE_DETACHED => new \SplObjectStorage,
-            self::STATE_REMOVED => new \SplObjectStorage,
-        ];
         $this->scheduledForInsert = new \SplObjectStorage;
-        $this->scheduledForUpdate = new \SplObjectStorage;
         $this->scheduledForDelete = new \SplObjectStorage;
         $this->entities = new \SplObjectStorage;
         $this->accessor = PropertyAccess::createPropertyAccessor();
@@ -246,8 +237,7 @@ class UnitOfWork
         $entities = $this->hydrator->hydrate($results, $query);
 
         $entities->forAll(function ($idx, $entity) {
-            $this->entities->attach($entity);
-            $this->states[self::STATE_MANAGED]->attach($entity);
+            $this->entities->attach($entity, self::STATE_MANAGED);
 
             return true;
         });
@@ -272,18 +262,12 @@ class UnitOfWork
 
         $this->persistSequence->attach($entity);
 
-        $this->states[self::STATE_DETACHED]->detach($entity);
-        $this->states[self::STATE_REMOVED]->detach($entity);
-
         if (!$this->entities->contains($entity)) {
-            $this->states[self::STATE_NEW]->attach($entity);
+            $this->entities->attach($entity, self::STATE_NEW);
             $this->scheduledForInsert->attach($entity);
-
             $this->generateId($entity);
-            $this->entities->attach($entity);
-        } else if (!$this->states[self::STATE_NEW]->contains($entity)) {
-            $this->states[self::STATE_MANAGED]->attach($entity);
-            $this->scheduledForUpdate->attach($entity);
+        } else {
+            $this->entities->attach($entity, self::STATE_MANAGED);
         }
 
         $this->cascadePersist($entity);
@@ -305,12 +289,10 @@ class UnitOfWork
         $this->checkKnown($entity);
 
         $this->scheduledForInsert->detach($entity);
-        $this->scheduledForUpdate->detach($entity);
         $this->scheduledForDelete->attach($entity);
 
-        if ($this->states[self::STATE_NEW]->contains($entity)) {
-            $this->states[self::STATE_NEW]->detach($entity);
-            $this->states[self::STATE_REMOVED]->attach($entity);
+        if ($this->entities[$entity] === self::STATE_NEW) {
+            $this->entities[$entity] = self::STATE_REMOVED;
             $this->scheduledForDelete->detach($entity);
         }
 
@@ -350,13 +332,11 @@ class UnitOfWork
      */
     public function detach($entity)
     {
-        $this->states[self::STATE_NEW]->detach($entity);
-        $this->states[self::STATE_MANAGED]->detach($entity);
-        $this->states[self::STATE_REMOVED]->detach($entity);
-        $this->states[self::STATE_DETACHED]->attach($entity);
+        if ($this->entities->contains($entity)) {
+            $this->entities[$entity] = self::STATE_DETACHED;
+        }
 
         $this->scheduledForInsert->detach($entity);
-        $this->scheduledForUpdate->detach($entity);
         $this->scheduledForDelete->detach($entity);
 
         return $this;
@@ -403,8 +383,15 @@ class UnitOfWork
      */
     public function isManaged($entity)
     {
-        return $this->states[self::STATE_MANAGED]->contains($entity) ||
-            $this->states[self::STATE_NEW]->contains($entity);
+        if (!$this->entities->contains($entity)) {
+            return false;
+        }
+
+        return in_array(
+            $this->entities[$entity],
+            [self::STATE_NEW, self::STATE_MANAGED],
+            true
+        );
     }
 
     /**
@@ -416,10 +403,8 @@ class UnitOfWork
      */
     public function getEntityState($entity)
     {
-        foreach ($this->states as $state => $entities) {
-            if ($entities->contains($entity)) {
-                return $state;
-            }
+        if ($this->entities->contains($entity)) {
+            return $this->entities[$entity];
         }
 
         return self::STATE_DETACHED;
@@ -435,18 +420,6 @@ class UnitOfWork
     public function isScheduledForInsert($entity)
     {
         return $this->scheduledForInsert->contains($entity);
-    }
-
-    /**
-     * Check if the entity is scheduled for update
-     *
-     * @param object $entity
-     *
-     * @return bool
-     */
-    public function isScheduledForUpdate($entity)
-    {
-        return $this->scheduledForUpdate->contains($entity);
     }
 
     /**
@@ -765,7 +738,11 @@ class UnitOfWork
         $toUpdate = [];
         $idx = 0;
 
-        foreach ($this->scheduledForUpdate as $entity) {
+        foreach ($this->entities as $entity) {
+            if ($this->entities[$entity] !== self::STATE_MANAGED) {
+                continue;
+            }
+
             $class = $this->getClass($entity);
             $metadata = $this->metadataRegistry->getMetadata($class);
             $data = $this->computeChangeset($entity, $metadata);

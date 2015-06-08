@@ -16,7 +16,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
     protected $uow;
-    protected $states;
     protected $entities;
 
     public function setUp()
@@ -115,8 +114,6 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             $dispatcher
         );
         $refl = new \ReflectionObject($this->uow);
-        $this->states = $refl->getProperty('states');
-        $this->states->setAccessible(true);
         $this->entities = $refl->getProperty('entities');
         $this->entities->setAccessible(true);
     }
@@ -129,51 +126,32 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->uow, $this->uow->persist($e));
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertTrue($this->uow->isScheduledForInsert($e));
-        $this->assertFalse($this->uow->isScheduledForUpdate($e));
-        $this->assertFalse($this->uow->isScheduledForDelete($e));
-    }
-
-    public function testScheduledForUpdate()
-    {
-        $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_MANAGED]->attach($e);
-        $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
-
-        $this->assertTrue($this->uow->isManaged($e));
-        $this->assertSame($this->uow, $this->uow->persist($e));
-        $this->assertTrue($this->uow->isManaged($e));
-        $this->assertFalse($this->uow->isScheduledForInsert($e));
-        $this->assertTrue($this->uow->isScheduledForUpdate($e));
         $this->assertFalse($this->uow->isScheduledForDelete($e));
     }
 
     public function testScheduledForDelete()
     {
         $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_MANAGED]->attach($e);
+        $entities = $this->entities->getValue($this->uow);
+        $entities->attach($e, UnitOfWork::STATE_MANAGED);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->remove($e));
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertFalse($this->uow->isScheduledForInsert($e));
-        $this->assertFalse($this->uow->isScheduledForUpdate($e));
         $this->assertTrue($this->uow->isScheduledForDelete($e));
     }
 
     public function testNotScheduledForDeleteIfNotInserted()
     {
         $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_NEW]->attach($e);
+        $entities = $this->entities->getValue($this->uow);
+        $entities->attach($e, UnitOfWork::STATE_NEW);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->remove($e));
         $this->assertFalse($this->uow->isManaged($e));
         $this->assertFalse($this->uow->isScheduledForInsert($e));
-        $this->assertFalse($this->uow->isScheduledForUpdate($e));
         $this->assertFalse($this->uow->isScheduledForDelete($e));
     }
 
@@ -200,10 +178,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testClearAll()
     {
         $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->attach($e, UnitOfWork::STATE_NEW);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear());
@@ -213,10 +189,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testClear()
     {
         $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->attach($e, UnitOfWork::STATE_NEW);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->clear('s'));
@@ -226,10 +200,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     public function testDetach()
     {
         $e = new \stdClass;
-        $states = $this->states->getValue($this->uow);
-        $states[UnitOfWork::STATE_NEW]->attach($e);
         $entities = $this->entities->getValue($this->uow);
-        $entities->attach($e);
+        $entities->attach($e, UnitOfWork::STATE_NEW);
 
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertSame($this->uow, $this->uow->detach($e));
@@ -362,7 +334,6 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->uow->isScheduledForInsert($n));
         $this->uow->persist($n);
         $this->assertTrue($this->uow->isScheduledForInsert($n));
-        $this->assertFalse($this->uow->isScheduledForUpdate($n));
     }
 
     public function testCommit()
