@@ -687,7 +687,7 @@ class UnitOfWork
 
             if (!$nodes->contains($startNode)) {
                 $startNodeClass = $this->getClass($startNode);
-                $startNodeMeta = $this->metadataRegistry->getMetada($startNodeClass);
+                $startNodeMeta = $this->metadataRegistry->getMetadata($startNodeClass);
                 $startNodeIdProp = $startNodeMeta->getId()->getProperty();
                 $startNodeId = $this->accessor->getValue(
                     $startNode,
@@ -709,7 +709,7 @@ class UnitOfWork
 
             if (!$nodes->contains($endNode)) {
                 $endNodeClass = $this->getClass($endNode);
-                $endNodeMeta = $this->metadataRegistry->getMetada($endNodeClass);
+                $endNodeMeta = $this->metadataRegistry->getMetadata($endNodeClass);
                 $endNodeIdProp = $endNodeMeta->getId()->getProperty();
                 $endNodeId = $this->accessor->getValue(
                     $endNode,
