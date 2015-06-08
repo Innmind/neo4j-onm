@@ -90,6 +90,18 @@ class Builder
     }
 
     /**
+     * Return a DeleteExpression
+     *
+     * @param string $variable Variable name to be used in the cypher query
+     *
+     * @return DeleteExpression
+     */
+    public function delete($variable)
+    {
+        return new DeleteExpression($variable);
+    }
+
+    /**
      * Return a WhereExpression
      *
      * @param string $expr The where expression

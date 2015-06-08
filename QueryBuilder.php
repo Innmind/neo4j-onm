@@ -20,6 +20,7 @@ class QueryBuilder
         'Innmind\Neo4j\ONM\Expression\NodeMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RelationshipMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RemoveExpression' => 'remove',
+        'Innmind\Neo4j\ONM\Expression\DeleteExpression' => 'delete',
         'Innmind\Neo4j\ONM\Expression\ReturnExpression' => 'setReturn',
         'Innmind\Neo4j\ONM\Expression\UpdateExpression' => 'set',
         'Innmind\Neo4j\ONM\Expression\WhereExpression' => 'where',
@@ -143,6 +144,21 @@ class QueryBuilder
     public function remove($variable)
     {
         $expr = $this->expr->remove($variable);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Return a delete expression which is added to the cypher sequence
+     *
+     * @param string $variable
+     *
+     * @return QueryBuilder self
+     */
+    public function delete($variable)
+    {
+        $expr = $this->expr->delete($variable);
         $this->sequence[] = $expr;
 
         return $this;
