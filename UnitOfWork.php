@@ -503,7 +503,7 @@ class UnitOfWork
         if (!$this->identityMap->has($this->getClass($entity))) {
             throw new UnrecognizedEntityException(sprintf(
                 'The class "%s" is not known as an entity by this manager',
-                get_class($entity)
+                $this->getClass($entity)
             ));
         }
     }
