@@ -236,7 +236,7 @@ class UnitOfWork
 
         $entities = $this->hydrator->hydrate($results, $query);
 
-        $entities->forAll(function ($idx, $entity) {
+        $entities->forAll(function($idx, $entity) {
             $this->entities->attach($entity, self::STATE_MANAGED);
 
             return true;
@@ -664,7 +664,7 @@ class UnitOfWork
             $metadata = $this->metadataRegistry->getMetadata($class);
             $data = $this->getEntityData($node, $metadata);
 
-            $qb->create('n'.$idx, $class, $data);
+            $qb->create('n' . (string) $idx, $class, $data);
 
             $idx++;
         }
@@ -693,7 +693,7 @@ class UnitOfWork
                     $startNode,
                     $startNodeIdProp
                 );
-                $startVar = 'mn'.$matchNodeIdx;
+                $startVar = 'mn' . (string) $matchNodeIdx;
                 $matchNodeIdx++;
 
                 $qb->matchNode(
@@ -704,7 +704,7 @@ class UnitOfWork
                     ]
                 );
             } else {
-                $startVar = 'n'.$nodes[$startNode];
+                $startVar = 'n' . (string) $nodes[$startNode];
             }
 
             if (!$nodes->contains($endNode)) {
