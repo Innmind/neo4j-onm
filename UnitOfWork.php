@@ -349,26 +349,34 @@ class UnitOfWork
      */
     public function commit()
     {
-        $this->execute($this->computeInsertQuery());
+        $toInsert = $this->computeInsertQuery();
+        $toUpdate = $this->computeUpdateQuery();
+        $toDelete = $this->computeDeleteQuery();
 
-        foreach ($this->scheduledForInsert as $entity) {
-            $this->states[self::STATE_NEW]->detach($entity);
-            $this->states[self::STATE_MANAGED]->attach($entity);
-            $this->scheduledForInsert->detach($entity);
+        if ($toInsert->hasVariables()) {
+            $this->execute($toInsert);
+
+            foreach ($this->scheduledForInsert as $entity) {
+                $this->entities[$entity] = self::STATE_MANAGED;
+                $this->scheduledForInsert->detach($entity);
+            }
         }
 
-        $this->execute($this->computeUpdateQuery());
+        if ($toUpdate->hasVariables()) {
+            $this->execute($toUpdate);
 
-        foreach ($this->scheduledForUpdate as $entity) {
-            $this->scheduledForUpdate->detach($entity);
+            foreach ($this->scheduledForUpdate as $entity) {
+                $this->scheduledForUpdate->detach($entity);
+            }
         }
 
-        $this->execute($this->computeDeleteQuery());
+        if ($toDelete->hasVariables()) {
+            $this->execute($toDelete);
 
-        foreach ($this->scheduledForDelete as $entity) {
-            $this->states[self::STATE_MANAGED]->detach($entity);
-            $this->states[self::STATE_REMOVED]->attach($entity);
-            $this->scheduledForDelete->detach($entity);
+            foreach ($this->scheduledForDelete as $entity) {
+                $this->entities[$entity] = self::STATE_REMOVED;
+                $this->scheduledForDelete->detach($entity);
+            }
         }
 
         return $this;
@@ -717,7 +725,7 @@ class UnitOfWork
                 $startVar,
                 $endVar,
                 'r' . (string) $idx,
-                $metadata->getType(),
+                $metadata->getClass(),
                 $data
             );
 
