@@ -2,6 +2,7 @@
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Event\FlushEvent;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -143,7 +144,19 @@ class EntityManager implements EntityManagerInterface
      */
     public function flush()
     {
+        $this->dispatcher->dispatch(
+            Events::PRE_FLUSH,
+            new FlushEvent($this)
+        );
+
         $this->uow->commit();
+
+        $this->dispatcher->dispatch(
+            Events::POST_FLUSH,
+            new FlushEvent($this)
+        );
+
+        return $this;
     }
 
     /**

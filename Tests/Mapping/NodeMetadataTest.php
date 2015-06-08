@@ -21,7 +21,7 @@ class NodeMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new NodeMetadata;
 
         $this->assertEquals(
-            'Innmind\\Neo4j\\ONM\\NodeRepository',
+            'Innmind\\Neo4j\\ONM\\Repository',
             $m->getRepositoryClass()
         );
     }
@@ -40,10 +40,16 @@ class NodeMetadataTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
         $p->setName('foo');
 
+        $this->assertFalse($m->hasProperty('foo'));
         $this->assertSame($m, $m->addProperty($p));
+        $this->assertTrue($m->hasProperty('foo'));
         $this->assertEquals(
             ['foo' => $p],
             $m->getProperties()
+        );
+        $this->assertSame(
+            $p,
+            $m->getProperty('foo')
         );
     }
 
@@ -72,5 +78,15 @@ class NodeMetadataTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($m, $m->addLabel('Foo'));
         $this->assertEquals(['Foo'], $m->getLabels());
+    }
+
+    public function testIsReference()
+    {
+        $m = new NodeMetadata;
+        $p = new Property;
+
+        $this->assertFalse($m->isReference($p));
+        $p->setType('relationship');
+        $this->assertTrue($m->isReference($p));
     }
 }

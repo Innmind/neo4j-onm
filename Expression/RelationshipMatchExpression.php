@@ -15,7 +15,12 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
     protected $node;
     protected $direction = 'right';
 
-    public function __construct($variable = null, $alias = null, array $params = null, array $types = null)
+    /**
+     * @param string $variable
+     * @param string $alias
+     * @param array $params
+     */
+    public function __construct($variable = null, $alias = null, array $params = null)
     {
         if (!empty($variable) && empty($alias)) {
             throw new \LogicException(
@@ -32,7 +37,18 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         $this->variable = (string) $variable;
         $this->alias = (string) $alias;
         $this->params = $params;
-        $this->types = $types;
+
+        if ($params !== null) {
+            $this->references = [];
+
+            foreach ($params as $key => $value) {
+                $this->references[$key] = sprintf(
+                    '%s.%s',
+                    $variable,
+                    $key
+                );
+            }
+        }
 
         $this->node = new NodeMatchExpression;
     }
@@ -95,10 +111,20 @@ class RelationshipMatchExpression implements ParametrableExpressionInterface, Va
         }
 
         if ($this->hasParameters()) {
-            $match .= sprintf(
-                ' { %s }',
-                $this->getParametersKey()
-            );
+            $match .= ' {';
+            $props = [];
+
+            foreach ($this->params as $key => $value) {
+                $props[] = sprintf(
+                    '%s: {%s}.%s',
+                    $key,
+                    $this->getParametersKey(),
+                    $key
+                );
+            }
+
+            $match .= implode(', ', $props);
+            $match .= '}';
         }
 
         if (!empty($match)) {

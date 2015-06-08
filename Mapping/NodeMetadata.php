@@ -4,7 +4,6 @@ namespace Innmind\Neo4j\ONM\Mapping;
 
 class NodeMetadata extends Metadata
 {
-    protected $repository = 'Innmind\\Neo4j\\ONM\\NodeRepository';
     protected $labels = [];
 
     /**
@@ -29,5 +28,13 @@ class NodeMetadata extends Metadata
     public function getLabels()
     {
         return $this->labels;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isReference(Property $property)
+    {
+        return $property->getType() === 'relationship';
     }
 }

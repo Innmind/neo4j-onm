@@ -41,7 +41,7 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         $r = new RelationshipMatchExpression('r', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            '-[r:foo { r_match_props }]->()',
+            '-[r:foo {foo: {r_match_props}.foo}]->()',
             (string) $r
         );
     }
@@ -167,27 +167,27 @@ class RelationshipMatchExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHasntTypes()
+    public function testHasntReferences()
     {
         $m = new RelationshipMatchExpression;
 
-        $this->assertFalse($m->hasTypes());
+        $this->assertFalse($m->hasReferences());
     }
 
-    public function testHasTypes()
+    public function testHasReferences()
     {
-        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
 
-        $this->assertTrue($m->hasTypes());
+        $this->assertTrue($m->hasReferences());
     }
 
-    public function testGetTypes()
+    public function testGetReferences()
     {
-        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $m = new RelationshipMatchExpression('a', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            ['foo' => 'string'],
-            $m->getTypes()
+            ['foo' => 'a.foo'],
+            $m->getReferences()
         );
     }
 

@@ -42,7 +42,9 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
                     ->setProperty('id')
                     ->setType('int')
                     ->setStrategy('AUTO')
-            );
+            )
+            ->setStartNode('foo')
+            ->setEndNode('bar');
         $relationship->setType('FOO');
         $registry->addMetadata($relationship);
         $expected = <<<EOF
@@ -74,7 +76,7 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
 \$meta = new Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 \$meta
     ->setClass('Referer')
-    ->setRepositoryClass('Innmind\\\Neo4j\\\ONM\\\RelationshipRepository')
+    ->setRepositoryClass('Innmind\\\Neo4j\\\ONM\\\Repository')
     ->setId(
         (new Innmind\Neo4j\ONM\Mapping\Id)
             ->setProperty('id')
@@ -82,6 +84,8 @@ class MetadataRegistryCacheBuilderTest extends \PHPUnit_Framework_TestCase
             ->setStrategy('AUTO')
     );
 \$meta->setType('FOO');
+\$meta->setStartNode('foo');
+\$meta->setEndNode('bar');
 \$registry->addMetadata(\$meta);
 return \$registry;
 EOF;

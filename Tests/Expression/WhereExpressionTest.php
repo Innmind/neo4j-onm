@@ -49,27 +49,27 @@ class WhereExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHasntTypes()
+    public function testHasntReferences()
     {
         $w = new WhereExpression('foo');
 
-        $this->assertFalse($w->hasTypes());
+        $this->assertFalse($w->hasReferences());
     }
 
-    public function testHasTypes()
+    public function testHasReferences()
     {
         $w = new WhereExpression('foo', null, null, ['foo' => 'string']);
 
-        $this->assertTrue($w->hasTypes());
+        $this->assertTrue($w->hasReferences());
     }
 
-    public function testGetTypes()
+    public function testGetReferences()
     {
         $w = new WhereExpression('foo', null, null, ['foo' => 'string']);
 
         $this->assertSame(
             ['foo' => 'string'],
-            $w->getTypes()
+            $w->getReferences()
         );
     }
 

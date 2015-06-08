@@ -15,6 +15,7 @@ class Types
         'integer' => 'Innmind\\Neo4j\\ONM\\Mapping\\Type\\IntType',
         'json' => 'Innmind\\Neo4j\\ONM\\Mapping\\Type\\JsonType',
         'string' => 'Innmind\\Neo4j\\ONM\\Mapping\\Type\\StringType',
+        'date' => 'Innmind\\Neo4j\\ONM\\Mapping\\Type\\DateType',
     ];
     protected static $interface = 'Innmind\\Neo4j\\ONM\\Mapping\\TypeInterface';
 

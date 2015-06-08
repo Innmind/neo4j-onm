@@ -2,7 +2,7 @@
 
 namespace Innmind\Neo4j\ONM;
 
-abstract class Repository implements RepositoryInterface
+class Repository implements RepositoryInterface
 {
     protected $em;
     protected $entityClass;
@@ -46,7 +46,23 @@ abstract class Repository implements RepositoryInterface
     {
         $results = $this->findBy($criteria, $orderBy, 1);
 
-        return isset($results[0]) ? $results[0] : null;
+        return $results->count() === 1 ? $results->first() : null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $skip = null)
+    {
+        return $this->em
+            ->getUnitOfWork()
+            ->findBy(
+                $this->entityClass,
+                $criteria,
+                $orderBy,
+                $limit,
+                $skip
+            );
     }
 
     /**

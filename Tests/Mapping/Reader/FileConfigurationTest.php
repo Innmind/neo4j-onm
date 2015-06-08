@@ -132,7 +132,6 @@ class FileConfigurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value "foo" is not allowed for path "neo4j_entity_mapping.Entity.id.uuid.generator.strategy". Permissible values: "AUTO", "UUID"
      */
     public function testThrowIfInvalidIdStrategy()
     {

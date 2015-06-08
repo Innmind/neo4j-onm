@@ -43,27 +43,27 @@ class CreateExpressionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHasntTypes()
+    public function testHasntReferences()
     {
         $n = new CreateExpression('n', 'foo', []);
 
-        $this->assertFalse($n->hasTypes());
+        $this->assertFalse($n->hasReferences());
     }
 
-    public function testHasTypes()
+    public function testHasReferences()
     {
-        $n = new CreateExpression('n', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $n = new CreateExpression('n', 'foo', ['foo' => 'bar']);
 
-        $this->assertTrue($n->hasTypes());
+        $this->assertTrue($n->hasReferences());
     }
 
-    public function testGetTypes()
+    public function testGetReferences()
     {
-        $n = new CreateExpression('n', 'foo', ['foo' => 'bar'], ['foo' => 'string']);
+        $n = new CreateExpression('n', 'foo', ['foo' => 'bar']);
 
         $this->assertSame(
-            ['foo' => 'string'],
-            $n->getTypes()
+            ['foo' => 'n.foo'],
+            $n->getReferences()
         );
     }
 

@@ -104,7 +104,13 @@ class YamlReader implements ReaderInterface
 
         $metadata
             ->setClass($class)
-            ->setId($id);
+            ->setId($id)
+            ->addProperty(
+                (new Property)
+                    ->setName($id->getProperty())
+                    ->setNullable(false)
+                    ->setType($id->getType())
+            );
 
         if (isset($config['repository'])) {
             $metadata->setRepositoryClass($config['repository']);
@@ -116,6 +122,45 @@ class YamlReader implements ReaderInterface
 
         if (isset($config['properties'])) {
             foreach ($config['properties'] as $prop => $conf) {
+                switch ($conf['type']) {
+                    case 'relationship':
+                        if ($config['type'] === 'relationship') {
+                            throw new \LogicException(sprintf(
+                                'The relationship "%s" can\'t have a relationship property on "%s"',
+                                $class,
+                                $prop
+                            ));
+                        }
+
+                        if (!isset($conf['relationship'])) {
+                            throw new \LogicException(sprintf(
+                                'Missing option "relationship" for the property "%s" on "%s"',
+                                $prop,
+                                $class
+                            ));
+                        }
+                        break;
+                    case 'startNode':
+                    case 'endNode':
+                        if ($config['type'] === 'node') {
+                            throw new \LogicException(sprintf(
+                                'The node "%s" can\'t have the property "%s" type set to "%s"',
+                                $class,
+                                $prop,
+                                $conf['type']
+                            ));
+                        }
+
+                        if (!isset($conf['node'])) {
+                            throw new \LogicException(sprintf(
+                                'Missing option "node" for the property "%s" on "%s"',
+                                $prop,
+                                $class
+                            ));
+                        }
+                        break;
+                }
+
                 $property = new Property;
                 $property
                     ->setName($prop)
@@ -150,6 +195,16 @@ class YamlReader implements ReaderInterface
     protected function configureRelationship(RelationshipMetadata $meta, array $config)
     {
         $meta->setType($config['rel_type']);
+
+        $properties = $config['properties'];
+
+        foreach ($properties as $property => $values) {
+            if ($values['type'] === 'startNode') {
+                $meta->setStartNode($property);
+            } else if ($values['type'] === 'endNode') {
+                $meta->setEndNode($property);
+            }
+        }
     }
 
     /**

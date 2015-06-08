@@ -8,7 +8,7 @@ namespace Innmind\Neo4j\ONM\Mapping;
 abstract class Metadata
 {
     protected $class;
-    protected $repository;
+    protected $repository = 'Innmind\\Neo4j\\ONM\\Repository';
     protected $properties = [];
     protected $id;
     protected $alias;
@@ -73,6 +73,30 @@ abstract class Metadata
         $this->properties[$prop->getName()] = $prop;
 
         return $this;
+    }
+
+    /**
+     * Check if the entity has the property defined
+     *
+     * @param string $property
+     *
+     * @return bool
+     */
+    public function hasProperty($property)
+    {
+        return isset($this->properties[(string) $property]);
+    }
+
+    /**
+     * Return the property object for the given property name
+     *
+     * @param string $property
+     *
+     * @return Property
+     */
+    public function getProperty($property)
+    {
+        return $this->properties[(string) $property];
     }
 
     /**
@@ -142,4 +166,15 @@ abstract class Metadata
     {
         return $this->alias;
     }
+
+    /**
+     * Check if the given property is a reference to an entity
+     *
+     * Otherwise it means it's an entity property
+     *
+     * @param Property $property
+     *
+     * @return bool
+     */
+    abstract public function isReference(Property $property);
 }

@@ -2,6 +2,8 @@
 
 namespace Innmind\Neo4j\ONM\Expression;
 
+use Innmind\Neo4j\DBAL\WhereExpr;
+
 class Builder
 {
     /**
@@ -10,13 +12,12 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity class alias (or class directly)
      * @param array $params Parameters used to match the node
-     * @param array $types
      *
      * @return NodeMatchExpression
      */
-    public function matchNode($variable = null, $alias = null, array $params = null, array $types = null)
+    public function matchNode($variable = null, $alias = null, array $params = null)
     {
-        return new NodeMatchExpression($variable, $alias, $params, $types);
+        return new NodeMatchExpression($variable, $alias, $params);
     }
 
     /**
@@ -25,13 +26,12 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity class alias (or class directly)
      * @param array $params Parameters used to match the relationship
-     * @param array $types
      *
      * @return RelationshipMatchExpression
      */
-    public function matchRelationship($variable = null, $alias = null, array $params = null, array $types = null)
+    public function matchRelationship($variable = null, $alias = null, array $params = null)
     {
-        return new RelationshipMatchExpression($variable, $alias, $params, $types);
+        return new RelationshipMatchExpression($variable, $alias, $params);
     }
 
     /**
@@ -39,13 +39,12 @@ class Builder
      *
      * @param string $variable Variable name to be used in the cypher query
      * @param array $params Data to update for the given variable
-     * @param array $types
      *
      * @return UpdateExpression
      */
-    public function update($variable, array $params, array $types = null)
+    public function update($variable, array $params)
     {
-        return new UpdateExpression($variable, $params, $types);
+        return new UpdateExpression($variable, $params);
     }
 
     /**
@@ -54,13 +53,28 @@ class Builder
      * @param string $variable Variable name to be used in the cypher query
      * @param string $alias Entity alias for the node
      * @param array $params Data to set in the new node
-     * @param array $types
      *
      * @return CreateExpression
      */
-    public function create($variable, $alias, array $params, array $types = null)
+    public function create($variable, $alias, array $params)
     {
-        return new CreateExpression($variable, $alias, $params, $types);
+        return new CreateExpression($variable, $alias, $params);
+    }
+
+    /**
+     * Return a CreateRelationshipExpression
+     *
+     * @param string $startVariable The matched node variable used in as start node for the relationship
+     * @param string $endVariable The matched node variable used in as end node for the relationship
+     * @param string $variable Variable name to be used in the cypher query
+     * @param string $alias Entity alias for the node
+     * @param array $params Data to set in the new node
+     *
+     * @return CreateRelationshipExpression
+     */
+    public function createRelationship($startVariable, $endVariable, $variable, $alias, array $params)
+    {
+        return new CreateRelationshipExpression($startVariable, $endVariable, $variable, $alias, $params);
     }
 
     /**
@@ -76,18 +90,67 @@ class Builder
     }
 
     /**
+     * Return a DeleteExpression
+     *
+     * @param string $variable Variable name to be used in the cypher query
+     *
+     * @return DeleteExpression
+     */
+    public function delete($variable)
+    {
+        return new DeleteExpression($variable);
+    }
+
+    /**
      * Return a WhereExpression
      *
      * @param string $expr The where expression
      * @param string $key Parameters key used in the cypher query
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return WhereExpression
      */
-    public function where($expr, $key = null, array $params = null, array $types = null)
+    public function where($expr, $key = null, array $params = null, array $references = null)
     {
-        return new WhereExpression($expr, $key, $params, $types);
+        return new WhereExpression($expr, $key, $params, $references);
+    }
+
+    /**
+     * Return an OrderByExpression
+     *
+     * @param string $property
+     * @param string $direction
+     *
+     * @return OrderByExpression
+     */
+    public function orderBy($property, $direction = 'ASC')
+    {
+        return new OrderByExpression($property, $direction);
+    }
+
+    /**
+     * Return a SkipExpression
+     *
+     * @param int $value
+     *
+     * @return SkipExpression
+     */
+    public function skip($value)
+    {
+        return new SkipExpression($value);
+    }
+
+    /**
+     * Return a LimitExpression
+     *
+     * @param int $value
+     *
+     * @return LimitExpression
+     */
+    public function limit($value)
+    {
+        return new LimitExpression($value);
     }
 
     /**
@@ -100,5 +163,15 @@ class Builder
     public function returnExpr($return)
     {
         return new ReturnExpression($return);
+    }
+
+    /**
+     * Return a where expression builder
+     *
+     * @return CypgerBuilder
+     */
+    public function whereBuilder()
+    {
+        return new WhereExpr;
     }
 }

@@ -25,10 +25,10 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(
             $this->qb,
-            $this->qb->matchNode('n', 'Foo', ['foo' => 'bar'], ['foo' => 'string'])
+            $this->qb->matchNode('n', 'Foo', ['foo' => 'bar'])
         );
         $this->assertSame(
-            'MATCH (n:Foo { n_match_props });',
+            'MATCH (n:Foo {foo: {n_match_props}.foo});',
             (string) $this->qb->getQuery()
         );
         $this->assertSame(
@@ -36,8 +36,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->getQuery()->getParameters()
         );
         $this->assertSame(
-            ['n_match_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            ['n_match_props' => ['foo' => 'n.foo']],
+            $this->qb->getQuery()->getReferences()
         );
         $this->assertSame(
             ['n' => 'Foo'],
@@ -66,7 +66,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->qb->matchNode('n', 'Foo');
         $this->assertSame(
             $this->qb,
-            $this->qb->update('n', ['foo' => 'bar'], ['foo' => 'string'])
+            $this->qb->update('n', ['foo' => 'bar'])
         );
         $this->assertSame(
             'MATCH (n:Foo)' . "\n" . 'SET n += { n_update_props };',
@@ -77,8 +77,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->getQuery()->getParameters()
         );
         $this->assertSame(
-            ['n_update_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            ['n_update_props' => ['foo' => 'n.foo']],
+            $this->qb->getQuery()->getReferences()
         );
     }
 
@@ -86,7 +86,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(
             $this->qb,
-            $this->qb->create('n', 'Foo', ['foo' => 'bar'], ['foo' => 'string'])
+            $this->qb->create('n', 'Foo', ['foo' => 'bar'])
         );
         $this->assertSame(
             'CREATE (n:Foo { n_create_props });',
@@ -97,8 +97,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->getQuery()->getParameters()
         );
         $this->assertSame(
-            ['n_create_props' => ['foo' => 'string']],
-            $this->qb->getQuery()->getTypes()
+            ['n_create_props' => ['foo' => 'n.foo']],
+            $this->qb->getQuery()->getReferences()
         );
         $this->assertSame(
             ['n' => 'Foo'],
@@ -136,7 +136,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             ['where' => ['nid' => 'int']],
-            $this->qb->getQuery()->getTypes()
+            $this->qb->getQuery()->getReferences()
         );
     }
 
@@ -149,6 +149,72 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             'MATCH (n:Foo)' . "\n" . 'RETURN n;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testOrderBy()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->orderBy('foo', 'DESC')
+        );
+        $this->assertSame(
+            'ORDER BY foo DESC;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testOrderByASCByDefault()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->orderBy('foo', 'foo')
+        );
+        $this->assertSame(
+            'ORDER BY foo ASC;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testSkip()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->skip(42)
+        );
+        $this->assertSame(
+            'SKIP 42;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testLimit()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->limit(42)
+        );
+        $this->assertSame(
+            'LIMIT 42;',
+            (string) $this->qb->getQuery()
+        );
+    }
+
+    public function testCreateRelationship()
+    {
+        $this->assertSame(
+            $this->qb,
+            $this->qb->createRelationship(
+                's',
+                'e',
+                'r',
+                'TYPE',
+                ['foo' => 'bar']
+            )
+        );
+        $this->assertSame(
+            'CREATE (s)-[r:TYPE { r_create_props }]->(e);',
             (string) $this->qb->getQuery()
         );
     }

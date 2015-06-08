@@ -21,7 +21,7 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $m = new RelationshipMetadata;
 
         $this->assertEquals(
-            'Innmind\\Neo4j\\ONM\\RelationshipRepository',
+            'Innmind\\Neo4j\\ONM\\Repository',
             $m->getRepositoryClass()
         );
     }
@@ -40,10 +40,16 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
         $p = new Property;
         $p->setName('foo');
 
+        $this->assertFalse($m->hasProperty('foo'));
         $this->assertSame($m, $m->addProperty($p));
+        $this->assertTrue($m->hasProperty('foo'));
         $this->assertEquals(
             ['foo' => $p],
             $m->getProperties()
+        );
+        $this->assertSame(
+            $p,
+            $m->getProperty('foo')
         );
     }
 
@@ -72,5 +78,37 @@ class RelationshipMetadataTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($m, $m->setType('Foo'));
         $this->assertEquals('FOO', $m->getType());
+    }
+
+    public function testSetStartNode()
+    {
+        $m = new RelationshipMetadata;
+
+        $this->assertFalse($m->hasStartNode());
+        $this->assertSame($m, $m->setStartNode('foo'));
+        $this->assertTrue($m->hasStartNode());
+        $this->assertSame('foo', $m->getStartNode());
+    }
+
+    public function testSetEndNode()
+    {
+        $m = new RelationshipMetadata;
+
+        $this->assertFalse($m->hasEndNode());
+        $this->assertSame($m, $m->setEndNode('foo'));
+        $this->assertTrue($m->hasEndNode());
+        $this->assertSame('foo', $m->getEndNode());
+    }
+
+    public function testIsReference()
+    {
+        $m = new RelationshipMetadata;
+        $p = new Property;
+
+        $this->assertFalse($m->isReference($p));
+        $p->setType('endNode');
+        $this->assertTrue($m->isReference($p));
+        $p->setType('startNode');
+        $this->assertTrue($m->isReference($p));
     }
 }

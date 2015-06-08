@@ -12,7 +12,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             [
                 'cache' => 'cache',
                 'reader' => 'yaml',
-                'locations' => ['fixtures']
+                'locations' => ['fixtures/metadata.yml']
             ],
             true
         );

@@ -16,12 +16,17 @@ class QueryBuilder
     protected $sequence = [];
     protected static $builderMethods = [
         'Innmind\Neo4j\ONM\Expression\CreateExpression' => 'create',
+        'Innmind\Neo4j\ONM\Expression\CreateRelationshipExpression' => 'create',
         'Innmind\Neo4j\ONM\Expression\NodeMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RelationshipMatchExpression' => 'match',
         'Innmind\Neo4j\ONM\Expression\RemoveExpression' => 'remove',
+        'Innmind\Neo4j\ONM\Expression\DeleteExpression' => 'delete',
         'Innmind\Neo4j\ONM\Expression\ReturnExpression' => 'setReturn',
         'Innmind\Neo4j\ONM\Expression\UpdateExpression' => 'set',
         'Innmind\Neo4j\ONM\Expression\WhereExpression' => 'where',
+        'Innmind\Neo4j\ONM\Expression\OrderByExpression' => 'orderBy',
+        'Innmind\Neo4j\ONM\Expression\SkipExpression' => 'skip',
+        'Innmind\Neo4j\ONM\Expression\LimitExpression' => 'limit',
     ];
 
     public function __construct()
@@ -46,13 +51,12 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $types
      *
      * @return QueryBuilder self
      */
-    public function matchNode($variable = null, $alias = null, array $params = null, array $types = null)
+    public function matchNode($variable = null, $alias = null, array $params = null)
     {
-        $expr = $this->expr->matchNode($variable, $alias, $params, $types);
+        $expr = $this->expr->matchNode($variable, $alias, $params);
         $this->sequence[] = $expr;
 
         return $this;
@@ -77,13 +81,12 @@ class QueryBuilder
      *
      * @param string $variable
      * @param array $params
-     * @param array $types
      *
      * @return QueryBuilder self
      */
-    public function update($variable, array $params, array $types = null)
+    public function update($variable, array $params)
     {
-        $expr = $this->expr->update($variable, $params, $types);
+        $expr = $this->expr->update($variable, $params);
         $this->sequence[] = $expr;
 
         return $this;
@@ -95,13 +98,37 @@ class QueryBuilder
      * @param string $variable
      * @param string $alias
      * @param array $params
-     * @param array $types
      *
      * @return QueryBuilder self
      */
-    public function create($variable, $alias, array $params, array $types = null)
+    public function create($variable, $alias, array $params)
     {
-        $expr = $this->expr->create($variable, $alias, $params, $types);
+        $expr = $this->expr->create($variable, $alias, $params);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Return a create relationship expression which is added to the cypher sequence
+     *
+     * @param string $startVariable
+     * @param string $endVariable
+     * @param string $variable
+     * @param string $alias
+     * @param array $params
+     *
+     * @return QueryBuilder self
+     */
+    public function createRelationship($startVariable, $endVariable, $variable, $alias, array $params)
+    {
+        $expr = $this->expr->createRelationship(
+            $startVariable,
+            $endVariable,
+            $variable,
+            $alias,
+            $params
+        );
         $this->sequence[] = $expr;
 
         return $this;
@@ -123,18 +150,33 @@ class QueryBuilder
     }
 
     /**
+     * Return a delete expression which is added to the cypher sequence
+     *
+     * @param string $variable
+     *
+     * @return QueryBuilder self
+     */
+    public function delete($variable)
+    {
+        $expr = $this->expr->delete($variable);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
      * Return a where expression which is added to the cypher sequence
      *
      * @param string $expr
      * @param string $key
      * @param array $params
-     * @param array $types
+     * @param array $references
      *
      * @return QueryBuilder self
      */
-    public function where($expr, $key = null, array $params = null, array $types = null)
+    public function where($expr, $key = null, array $params = null, array $references = null)
     {
-        $expr = $this->expr->where($expr, $key, $params, $types);
+        $expr = $this->expr->where($expr, $key, $params, $references);
         $this->sequence[] = $expr;
 
         return $this;
@@ -150,6 +192,52 @@ class QueryBuilder
     public function toReturn($return)
     {
         $expr = $this->expr->returnExpr($return);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create an order by expression which is added to the cypher sequence
+     *
+     * @param string $property
+     * @param string $direction
+     *
+     * @return QueryBuilder self
+     */
+    public function orderBy($property, $direction = 'ASC')
+    {
+        $expr = $this->expr->orderBy($property, $direction);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create a skip expression which is added to the cypher sequence
+     *
+     * @param int $value
+     *
+     * @return QueryBuilder
+     */
+    public function skip($value)
+    {
+        $expr = $this->expr->skip($value);
+        $this->sequence[] = $expr;
+
+        return $this;
+    }
+
+    /**
+     * Create a limit expression which is added to the cypher sequence
+     *
+     * @param int $value
+     *
+     * @return QueryBuilder
+     */
+    public function limit($value)
+    {
+        $expr = $this->expr->limit($value);
         $this->sequence[] = $expr;
 
         return $this;
@@ -208,7 +296,7 @@ class QueryBuilder
             $query->addParameters(
                 $expression->getParametersKey(),
                 $expression->getParameters(),
-                $expression->getTypes()
+                $expression->getReferences()
             );
         }
 
