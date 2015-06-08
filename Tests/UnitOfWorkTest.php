@@ -346,8 +346,51 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $r->start = $n;
         $r->end = $n2;
 
+        $this->assertFalse($this->uow->isManaged($n));
+        $this->assertFalse($this->uow->isManaged($n2));
+        $this->assertFalse($this->uow->isManaged($r));
+
         $this->uow->persist($r);
+
+        $this->assertTrue($this->uow->isManaged($n));
+        $this->assertTrue($this->uow->isManaged($n2));
+        $this->assertTrue($this->uow->isManaged($r));
+        $this->assertSame(
+            UnitOfWork::STATE_NEW,
+            $this->uow->getEntityState($n)
+        );
+        $this->assertSame(
+            UnitOfWork::STATE_NEW,
+            $this->uow->getEntityState($n2)
+        );
+        $this->assertSame(
+            UnitOfWork::STATE_NEW,
+            $this->uow->getEntityState($r)
+        );
+        $this->assertSame(
+            $this->uow,
+            $this->uow->commit()
+        );
+        $this->assertSame(
+            UnitOfWork::STATE_MANAGED,
+            $this->uow->getEntityState($n)
+        );
+        $this->assertSame(
+            UnitOfWork::STATE_MANAGED,
+            $this->uow->getEntityState($n2)
+        );
+        $this->assertSame(
+            UnitOfWork::STATE_MANAGED,
+            $this->uow->getEntityState($r)
+        );
+
+        $this->uow->remove($r);
         $this->uow->commit();
+
+        $this->assertSame(
+            UnitOfWork::STATE_REMOVED,
+            $this->uow->getEntityState($r)
+        );
     }
 }
 

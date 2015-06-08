@@ -265,7 +265,19 @@ class UnitOfWork
         if (!$this->entities->contains($entity)) {
             $this->entities->attach($entity, self::STATE_NEW);
             $this->scheduledForInsert->attach($entity);
-            $this->generateId($entity);
+            $id = $this->generateId($entity);
+            $class = $this->getClass($entity);
+            $this->entitySilo->add(
+                $entity,
+                $class,
+                $id,
+                [
+                    'properties' => $this->getEntityData(
+                        $entity,
+                        $this->metadataRegistry->getMetadata($class)
+                    ),
+                ]
+            );
         } else {
             $this->entities->attach($entity, self::STATE_MANAGED);
         }
@@ -358,16 +370,13 @@ class UnitOfWork
 
             foreach ($this->scheduledForInsert as $entity) {
                 $this->entities[$entity] = self::STATE_MANAGED;
-                $this->scheduledForInsert->detach($entity);
             }
+
+            $this->scheduledForInsert = new \SplObjectStorage;
         }
 
         if ($toUpdate->hasVariables()) {
             $this->execute($toUpdate);
-
-            foreach ($this->scheduledForUpdate as $entity) {
-                $this->scheduledForUpdate->detach($entity);
-            }
         }
 
         if ($toDelete->hasVariables()) {
@@ -375,8 +384,9 @@ class UnitOfWork
 
             foreach ($this->scheduledForDelete as $entity) {
                 $this->entities[$entity] = self::STATE_REMOVED;
-                $this->scheduledForDelete->detach($entity);
             }
+
+            $this->scheduledForDelete = new \SplObjectStorage;
         }
 
         return $this;
@@ -842,7 +852,7 @@ class UnitOfWork
         }
 
         foreach ($variables as $var) {
-            $qb->remove($var);
+            $qb->delete($var);
         }
 
         return $qb->getQuery();
@@ -890,7 +900,7 @@ class UnitOfWork
 
         foreach ($data as $key => $value) {
             if (
-                !isset($orig[$key]) ||
+                !array_key_exists($key, $orig) ||
                 $value !== $orig[$key]
             ) {
                 $changeset[$key] = $value;
