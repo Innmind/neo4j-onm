@@ -139,8 +139,6 @@ class Hydrator
      * Lazy load an entity
      *
      * @param LazyLoadingInterface $proxy Entity proxy
-     * @param string $method Method that triggered the lazy loading
-     * @param array $parameters Parameters of the method that triggered the lazy loading
      * @param Closure $initializer The closure used to load the given entity
      *
      * @return bool
