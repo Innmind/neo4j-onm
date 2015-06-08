@@ -363,11 +363,9 @@ class UnitOfWork
      */
     public function commit()
     {
-        $toInsert = $this->computeInsertQuery();
         $toUpdate = $this->findEntitiesToUpdate();
-        $toDelete = $this->computeDeleteQuery();
 
-        if ($toInsert->hasVariables()) {
+        if ($this->scheduledForInsert->count() > 0) {
             foreach ($this->scheduledForInsert as $entity) {
                 $this->dispatcher->dispatch(
                     Events::PRE_PERSIST,
@@ -375,7 +373,7 @@ class UnitOfWork
                 );
             }
 
-            $this->execute($toInsert);
+            $this->execute($this->computeInsertQuery());
 
             foreach ($this->scheduledForInsert as $entity) {
                 $this->entities[$entity] = self::STATE_MANAGED;
@@ -406,7 +404,7 @@ class UnitOfWork
             }
         }
 
-        if ($toDelete->hasVariables()) {
+        if ($this->scheduledForDelete->count() > 0) {
             foreach ($this->scheduledForDelete as $entity) {
                 $this->dispatcher->dispatch(
                     Events::PRE_REMOVE,
@@ -414,7 +412,7 @@ class UnitOfWork
                 );
             }
 
-            $this->execute($toDelete);
+            $this->execute($this->computeDeleteQuery());
 
             foreach ($this->scheduledForDelete as $entity) {
                 $this->entities[$entity] = self::STATE_REMOVED;
