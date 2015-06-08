@@ -3,6 +3,8 @@
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Generators;
+use Innmind\Neo4j\ONM\Events;
+use Innmind\Neo4j\ONM\Event\LifeCycleEvent;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
@@ -362,28 +364,64 @@ class UnitOfWork
     public function commit()
     {
         $toInsert = $this->computeInsertQuery();
-        $toUpdate = $this->computeUpdateQuery();
+        $toUpdate = $this->findEntitiesToUpdate();
         $toDelete = $this->computeDeleteQuery();
 
         if ($toInsert->hasVariables()) {
+            foreach ($this->scheduledForInsert as $entity) {
+                $this->dispatcher->dispatch(
+                    Events::PRE_PERSIST,
+                    new LifeCycleEvent($entity)
+                );
+            }
+
             $this->execute($toInsert);
 
             foreach ($this->scheduledForInsert as $entity) {
                 $this->entities[$entity] = self::STATE_MANAGED;
+                $this->dispatcher->dispatch(
+                    Events::POST_PERSIST,
+                    new LifeCycleEvent($entity)
+                );
             }
 
             $this->scheduledForInsert = new \SplObjectStorage;
         }
 
-        if ($toUpdate->hasVariables()) {
-            $this->execute($toUpdate);
+        if ($toUpdate->count() > 0) {
+            foreach ($toUpdate as $entity) {
+                $this->dispatcher->dispatch(
+                    Events::PRE_UPDATE,
+                    new LifeCycleEvent($entity)
+                );
+            }
+
+            $this->execute($this->computeUpdateQuery($toUpdate));
+
+            foreach ($toUpdate as $entity) {
+                $this->dispatcher->dispatch(
+                    Events::POST_UPDATE,
+                    new LifeCycleEvent($entity)
+                );
+            }
         }
 
         if ($toDelete->hasVariables()) {
+            foreach ($this->scheduledForDelete as $entity) {
+                $this->dispatcher->dispatch(
+                    Events::PRE_REMOVE,
+                    new LifeCycleEvent($entity)
+                );
+            }
+
             $this->execute($toDelete);
 
             foreach ($this->scheduledForDelete as $entity) {
                 $this->entities[$entity] = self::STATE_REMOVED;
+                $this->dispatcher->dispatch(
+                    Events::POST_REMOVE,
+                    new LifeCycleEvent($entity)
+                );
             }
 
             $this->scheduledForDelete = new \SplObjectStorage;
@@ -748,26 +786,20 @@ class UnitOfWork
     /**
      * Compute the query to update all the entities
      *
+     * @param SplObjectStorage $entities Entities that need to be updated
+     *
      * @return Query
      */
-    protected function computeUpdateQuery()
+    protected function computeUpdateQuery(\SplObjectStorage $entities)
     {
         $qb = new QueryBuilder;
         $toUpdate = [];
         $idx = 0;
 
-        foreach ($this->entities as $entity) {
-            if ($this->entities[$entity] !== self::STATE_MANAGED) {
-                continue;
-            }
-
+        foreach ($entities as $entity) {
             $class = $this->getClass($entity);
             $metadata = $this->metadataRegistry->getMetadata($class);
-            $data = $this->computeChangeset($entity, $metadata);
-
-            if (empty($data)) {
-                continue;
-            }
+            $data = $entities[$entity];
 
             $idProp = $metadata->getId()->getProperty();
             $id = $this->accessor->getValue(
@@ -917,5 +949,31 @@ class UnitOfWork
         }
 
         return $changeset;
+    }
+
+    /**
+     * Find all the entities that need to be updated
+     *
+     * @return SplObjectStorage
+     */
+    protected function findEntitiesToUpdate()
+    {
+        $entities = new \SplObjectStorage;
+
+        foreach ($this->entities as $entity) {
+            if ($this->entities[$entity] !== self::STATE_MANAGED) {
+                continue;
+            }
+
+            $class = $this->getClass($entity);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+            $data = $this->computeChangeset($entity, $metadata);
+
+            if (!empty($data)) {
+                $entities->attach($entity, $data);
+            }
+        }
+
+        return $entities;
     }
 }
