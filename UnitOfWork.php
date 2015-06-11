@@ -154,7 +154,7 @@ class UnitOfWork
      * @param int $limit
      * @param int $skip
      *
-     * @return SplObjectStorage
+     * @return \SplObjectStorage
      */
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
@@ -227,7 +227,7 @@ class UnitOfWork
      *
      * @param Query $query
      *
-     * @return SplObjectStorage
+     * @return \SplObjectStorage
      */
     public function execute(Query $query)
     {
@@ -957,7 +957,7 @@ class UnitOfWork
     /**
      * Find all the entities that need to be updated
      *
-     * @return SplObjectStorage
+     * @return \SplObjectStorage
      */
     protected function findEntitiesToUpdate()
     {

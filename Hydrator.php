@@ -38,7 +38,7 @@ class Hydrator
      * @param array $results
      * @param Query $query
      *
-     * @return SplObjectStorage
+     * @return \SplObjectStorage
      */
     public function hydrate(array $results, Query $query)
     {
