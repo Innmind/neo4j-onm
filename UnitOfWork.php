@@ -397,6 +397,12 @@ class UnitOfWork
             $this->execute($this->computeUpdateQuery($toUpdate));
 
             foreach ($toUpdate as $entity) {
+                $this->entitySilo->addInfo(
+                    $entity,
+                    [
+                        'properties' => $toUpdate[$entity],
+                    ]
+                );
                 $this->dispatcher->dispatch(
                     Events::POST_UPDATE,
                     new LifeCycleEvent($entity)
