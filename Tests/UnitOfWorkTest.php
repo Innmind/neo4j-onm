@@ -229,24 +229,25 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $result = $this->uow->execute($q);
 
         $this->assertInstanceOf(
-            'Doctrine\Common\Collections\ArrayCollection',
+            'SplObjectStorage',
             $result
         );
         $this->assertSame(
             1,
             $result->count()
         );
+        $result->rewind();
         $this->assertInstanceOf(
             Baz::class,
-            $result->first()
+            $result->current()
         );
         $this->assertSame(
             'some-uuid',
-            $result->first()->id
+            $result->current()->id
         );
         $this->assertSame(
             'myself',
-            $result->first()->name
+            $result->current()->name
         );
     }
 
@@ -315,9 +316,10 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             1,
             $result->count()
         );
+        $result->rewind();
         $this->assertInstanceOf(
             Baz::class,
-            $result->first()
+            $result->current()
         );
     }
 

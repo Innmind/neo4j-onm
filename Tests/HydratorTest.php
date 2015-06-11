@@ -126,8 +126,8 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
         $resultBis = $this->h->hydrate($results, $q);
 
         $this->assertSame(
-            $result->first(),
-            $resultBis->first()
+            $result->current(),
+            $resultBis->current()
         );
     }
 
@@ -178,12 +178,14 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
         $result = $this->h->hydrate($results, $q);
 
         $this->assertInstanceOf(
-            'Doctrine\Common\Collections\ArrayCollection',
+            'SplObjectStorage',
             $result
         );
         $this->assertSame(3, $result->count());
-        $node = $result->first();
-        $rel = $result->last();
+        $node = $result->current();
+        $result->next();
+        $result->next();
+        $rel = $result->current();
 
         $this->assertSame(
             0,
@@ -209,8 +211,10 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             $node,
             $rel->getStart()
         );
+        $result->rewind();
+        $result->next();
         $this->assertSame(
-            $result[1],
+            $result->current(),
             $rel->getEnd()
         );
     }
@@ -240,11 +244,11 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
         $result = $this->h->hydrate($results, $q);
 
         $this->assertInstanceOf(
-            'Doctrine\Common\Collections\ArrayCollection',
+            'SplObjectStorage',
             $result
         );
         $this->assertSame(1, $result->count());
-        $node = $result->first();
+        $node = $result->current();
 
         $this->assertSame(
             0,

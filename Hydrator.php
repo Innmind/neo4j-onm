@@ -7,7 +7,6 @@ use Innmind\Neo4j\ONM\Mapping\Types;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Doctrine\Common\Collections\ArrayCollection;
 use ProxyManager\Factory\LazyLoadingGhostFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 
@@ -39,11 +38,11 @@ class Hydrator
      * @param array $results
      * @param Query $query
      *
-     * @return ArrayCollection
+     * @return SplObjectStorage
      */
     public function hydrate(array $results, Query $query)
     {
-        $entities = [];
+        $entities = new \SplObjectStorage;
         $variables = $query->getVariables();
 
         foreach ($results['rows'] as $variable => $values) {
@@ -91,11 +90,13 @@ class Hydrator
                     }
                 }
 
-                $entities[] = $entity;
+                $entities->attach($entity);
             }
         }
 
-        return new ArrayCollection($entities);
+        $entities->rewind();
+
+        return $entities;
     }
 
     /**
@@ -244,7 +245,7 @@ class Hydrator
             )
             ->toReturn('r');
 
-        return $this->uow->execute($qb->getQuery())->toArray();
+        return $this->uow->execute($qb->getQuery());
     }
 
     /**
@@ -278,6 +279,6 @@ class Hydrator
         $query->addVariable('n', $nodeClass);
         $query->addParameters('where', ['id' => $info[$property->getType()]]);
 
-        return $this->uow->execute($query)->first();
+        return $this->uow->execute($query)->current();
     }
 }

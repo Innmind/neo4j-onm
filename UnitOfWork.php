@@ -154,7 +154,7 @@ class UnitOfWork
      * @param int $limit
      * @param int $skip
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return SplObjectStorage
      */
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
@@ -227,7 +227,7 @@ class UnitOfWork
      *
      * @param Query $query
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return SplObjectStorage
      */
     public function execute(Query $query)
     {
@@ -238,11 +238,9 @@ class UnitOfWork
 
         $entities = $this->hydrator->hydrate($results, $query);
 
-        $entities->forAll(function($idx, $entity) {
+        foreach ($entities as $entity) {
             $this->entities->attach($entity, self::STATE_MANAGED);
-
-            return true;
-        });
+        };
 
         return $entities;
     }
