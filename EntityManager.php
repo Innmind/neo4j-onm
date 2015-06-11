@@ -134,14 +134,6 @@ class EntityManager implements EntityManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function refresh($entity)
-    {
-
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function flush()
     {
         $this->dispatcher->dispatch(

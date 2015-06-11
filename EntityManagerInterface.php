@@ -98,16 +98,6 @@ interface EntityManagerInterface
     public function detach($entity);
 
     /**
-     * Reload all properties for the given entity from the database
-     * overriding non saved data
-     *
-     * @param object $entity
-     *
-     * @return EntityManagerInterface self
-     */
-    public function refresh($entity);
-
-    /**
      * Commit all the changes to the database
      *
      * @return EntityManagerInterface self
