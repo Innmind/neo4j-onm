@@ -621,12 +621,13 @@ class UnitOfWork
 
         $id = Generators::getGenerator($metadata->getId()->getStrategy())
             ->generate($this, $entity);
+        $idProp = $metadata->getId()->getProperty();
 
-        $this->accessor->setValue(
-            $entity,
-            $metadata->getId()->getProperty(),
-            $id
-        );
+        $refl = new \ReflectionObject($entity);
+        $refl = $refl->getProperty($idProp);
+        $refl->setAccessible(true);
+        $refl->setValue($entity, $id);
+        $refl->setAccessible(false);
 
         return $id;
     }
