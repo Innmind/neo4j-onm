@@ -267,19 +267,6 @@ class UnitOfWork
         if (!$this->entities->contains($entity)) {
             $this->entities->attach($entity, self::STATE_NEW);
             $this->scheduledForInsert->attach($entity);
-            $id = $this->generateId($entity);
-            $class = $this->getClass($entity);
-            $this->entitySilo->add(
-                $entity,
-                $class,
-                $id,
-                [
-                    'properties' => $this->getEntityData(
-                        $entity,
-                        $this->metadataRegistry->getMetadata($class)
-                    ),
-                ]
-            );
         } else {
             $this->entities->attach($entity, self::STATE_MANAGED);
         }
@@ -370,6 +357,19 @@ class UnitOfWork
                 $this->dispatcher->dispatch(
                     Events::PRE_PERSIST,
                     new LifeCycleEvent($entity)
+                );
+                $id = $this->generateId($entity);
+                $class = $this->getClass($entity);
+                $this->entitySilo->add(
+                    $entity,
+                    $class,
+                    $id,
+                    [
+                        'properties' => $this->getEntityData(
+                            $entity,
+                            $this->metadataRegistry->getMetadata($class)
+                        ),
+                    ]
                 );
             }
 
