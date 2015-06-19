@@ -69,7 +69,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->update('n', ['foo' => 'bar'])
         );
         $this->assertSame(
-            'MATCH (n:Foo)' . "\n" . 'SET n += { n_update_props };',
+            'MATCH (n:Foo) SET n += { n_update_props };',
             (string) $this->qb->getQuery()
         );
         $this->assertSame(
@@ -114,7 +114,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->remove('n')
         );
         $this->assertSame(
-            'MATCH (n:Foo)' . "\n" . 'REMOVE n;',
+            'MATCH (n:Foo) REMOVE n;',
             (string) $this->qb->getQuery()
         );
     }
@@ -127,7 +127,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->where('n.id = { where }.nid', 'where', ['nid' => 42], ['nid' => 'int'])
         );
         $this->assertSame(
-            'MATCH (n:Foo)' . "\n" . 'WHERE n.id = { where }.nid;',
+            'MATCH (n:Foo) WHERE n.id = { where }.nid;',
             (string) $this->qb->getQuery()
         );
         $this->assertSame(
@@ -148,7 +148,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             $this->qb->toReturn('n')
         );
         $this->assertSame(
-            'MATCH (n:Foo)' . "\n" . 'RETURN n;',
+            'MATCH (n:Foo) RETURN n;',
             (string) $this->qb->getQuery()
         );
     }

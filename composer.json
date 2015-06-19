@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=5.4",
-        "innmind/neo4j-dbal": "~0.1",
+        "innmind/neo4j-dbal": "~1.0",
         "symfony/event-dispatcher": "~2.7",
         "symfony/options-resolver": "~2.7",
         "symfony/finder": "~2.7",
