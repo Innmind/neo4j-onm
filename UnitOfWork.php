@@ -5,6 +5,8 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Generators;
 use Innmind\Neo4j\ONM\Events;
 use Innmind\Neo4j\ONM\Event\LifeCycleEvent;
+use Innmind\Neo4j\ONM\Event\PreQueryEvent;
+use Innmind\Neo4j\ONM\Event\PostQueryEvent;
 use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
 use Innmind\Neo4j\ONM\Mapping\Metadata;
 use Innmind\Neo4j\ONM\Mapping\Types;
@@ -231,6 +233,11 @@ class UnitOfWork
      */
     public function execute(Query $query)
     {
+        $this->dispatcher->dispatch(
+            Events::PRE_QUERY,
+            new PreQueryEvent($query)
+        );
+
         $cypher = $this->buildQuery($query);
         $params = $this->cleanParameters($query);
 
@@ -241,6 +248,11 @@ class UnitOfWork
         foreach ($entities as $entity) {
             $this->entities->attach($entity, self::STATE_MANAGED);
         };
+
+        $this->dispatcher->dispatch(
+            Events::POST_QUERY,
+            new PostQueryEvent($query, $entities)
+        );
 
         return $entities;
     }

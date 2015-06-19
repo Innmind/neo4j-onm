@@ -12,4 +12,6 @@ class Events
     const POST_REMOVE = 'innmind.neo4j.onm.post.remove';
     const PRE_FLUSH = 'innmind.neo4j.onm.pre.flush';
     const POST_FLUSH = 'innmind.neo4j.onm.post.flush';
+    const PRE_QUERY = 'innmind.neo4j.onm.pre.query';
+    const POST_QUERY = 'innmind.neo4j.onm.post.query';
 }
