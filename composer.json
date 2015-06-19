@@ -25,7 +25,8 @@
         "symfony/property-access": "~2.7",
         "ramsey/uuid": "^2.8",
         "moontoast/math": "^1.1",
-        "ocramius/proxy-manager": "~1.0"
+        "ocramius/proxy-manager": "~1.0",
+        "symfony/filesystem": "~2.7"
     },
     "autoload": {
         "psr-0": {

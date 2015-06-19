@@ -29,5 +29,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'RF',
             $conf->getIdentityMap()->getAlias('Referer')
         );
+        $this->assertInstanceof(
+            'ProxyManager\\Factory\\LazyLoadingGhostFactory',
+            $conf->getProxyFactory()
+        );
     }
 }

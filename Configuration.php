@@ -6,14 +6,19 @@ use Innmind\Neo4j\ONM\Mapping\Readers;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Filesystem\Filesystem;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
+use ProxyManager\Configuration as ProxyConfig;
 
 class Configuration
 {
     const METADATA_CACHE_FILE = '/neo4jMetadataRegistry.php';
+    const PROXIES_DIRECTORY = '/proxies';
 
     protected $identityMap;
     protected $metadataRegistry;
     protected $repositoryFactory;
+    protected $proxyFactory;
 
     /**
      * Create a new configuration
@@ -40,9 +45,24 @@ class Configuration
             }
         }
 
+        $proxyConfig = new ProxyConfig;
+
+        if ($devMode === true) {
+            $path = $config['cache'] . self::PROXIES_DIRECTORY;
+            $filesystem = new Filesystem;
+
+            if (!$filesystem->exists($path)) {
+                $filesystem->mkdir($path);
+            }
+
+            $proxyConfig->setProxiesTargetDir($path);
+            spl_autoload_register($proxyConfig->getProxyAutoloader());
+        }
+
         $conf
             ->setIdentityMap($map)
-            ->setMetadataRegistry($metadataRegistry);
+            ->setMetadataRegistry($metadataRegistry)
+            ->setProxyFactory(new LazyLoadingGhostFactory($proxyConfig));
 
         return $conf;
     }
@@ -117,6 +137,31 @@ class Configuration
     public function getRepositoryFactory()
     {
         return $this->repositoryFactory;
+    }
+
+    /**
+     * Set the lazy loading factory
+     *
+     * @param LazyLoadingGhostFactory $proxyFactory
+     *
+     * @return Configuration self
+     */
+    protected function setProxyFactory(
+        LazyLoadingGhostFactory $proxyFactory
+    ) {
+        $this->proxyFactory = $proxyFactory;
+
+        return $this;
+    }
+
+    /**
+     * Return the lazy loading factory
+     *
+     * @return LazyLoadingGhostFactory
+     */
+    public function getProxyFactory()
+    {
+        return $this->proxyFactory;
     }
 
     /**
