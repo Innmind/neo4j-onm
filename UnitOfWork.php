@@ -481,6 +481,22 @@ class UnitOfWork
     }
 
     /**
+     * Check if an entity will be updated at next commit
+     *
+     * @param object $entity
+     *
+     * @return bool
+     */
+    public function isScheduledForUpdate($entity)
+    {
+        $class = $this->getClass($entity);
+        $metadata = $this->metadataRegistry->getMetadata($class);
+        $changeset = $this->computeChangeset($entity, $metadata);
+
+        return !empty($changeset);
+    }
+
+    /**
      * Check if the entity is scheduled for removal
      *
      * @param object $entity

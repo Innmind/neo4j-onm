@@ -129,6 +129,29 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->uow->isScheduledForDelete($e));
     }
 
+    public function testScheduledForUpdate()
+    {
+        $refl = new \ReflectionObject($this->uow);
+        $refl = $refl->getProperty('entitySilo');
+        $refl->setAccessible(true);
+        $silo = $refl->getValue($this->uow);
+        $entity = new Baz;
+        $entity->id = 42;
+        $entity->name = 'foo';
+        $silo->add($entity, Baz::class, 42, ['properties' => [
+            'id' => 42,
+            'name' => 'foo',
+        ]]);
+
+        $this->assertFalse(
+            $this->uow->isScheduledForUpdate($entity)
+        );
+        $entity->name = 'bar';
+        $this->assertTrue(
+            $this->uow->isScheduledForUpdate($entity)
+        );
+    }
+
     public function testScheduledForDelete()
     {
         $e = new \stdClass;
