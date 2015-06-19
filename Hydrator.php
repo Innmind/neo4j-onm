@@ -22,14 +22,15 @@ class Hydrator
     public function __construct(
         UnitOfWork $uow,
         EntitySilo $entities,
-        PropertyAccessor $accessor
+        PropertyAccessor $accessor,
+        LazyLoadingGhostFactory $proxyFactory
     ) {
         $this->uow = $uow;
         $this->map = $uow->getIdentityMap();
         $this->registry = $uow->getMetadataRegistry();
         $this->entities = $entities;
         $this->accessor = $accessor;
-        $this->proxyFactory = new LazyLoadingGhostFactory;
+        $this->proxyFactory = $proxyFactory;
     }
 
     /**

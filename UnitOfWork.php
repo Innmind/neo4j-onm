@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\Exception\EntityNotFoundException;
 use Innmind\Neo4j\ONM\Exception\UnknwonPropertyException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 class UnitOfWork
 {
@@ -40,6 +41,7 @@ class UnitOfWork
         ConnectionInterface $conn,
         IdentityMap $map,
         MetadataRegistry $registry,
+        LazyLoadingGhostFactory $proxyFactory,
         EventDispatcherInterface $dispatcher
     ) {
         $this->conn = $conn;
@@ -54,7 +56,12 @@ class UnitOfWork
         $this->entitySilo = new EntitySilo;
         $this->persistSequence = new \SplObjectStorage;
 
-        $this->hydrator = new Hydrator($this, $this->entitySilo, $this->accessor);
+        $this->hydrator = new Hydrator(
+            $this,
+            $this->entitySilo,
+            $this->accessor,
+            $proxyFactory
+        );
     }
 
     /**

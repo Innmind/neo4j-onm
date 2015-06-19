@@ -12,6 +12,7 @@ use Innmind\Neo4j\ONM\Mapping\RelationshipMetadata;
 use Innmind\Neo4j\ONM\Mapping\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 {
@@ -111,6 +112,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             $conn,
             $map,
             $registry,
+            new LazyLoadingGhostFactory,
             $dispatcher
         );
         $refl = new \ReflectionObject($this->uow);

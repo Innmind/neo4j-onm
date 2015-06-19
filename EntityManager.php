@@ -25,6 +25,7 @@ class EntityManager implements EntityManagerInterface
             $this->conn,
             $config->getIdentityMap(),
             $config->getMetadataRegistry(),
+            $config->getProxyFactory(),
             $dispatcher
         );
     }

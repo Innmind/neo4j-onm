@@ -15,6 +15,7 @@ use Innmind\Neo4j\ONM\Mapping\Id;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use ProxyManager\Factory\LazyLoadingGhostFactory;
 
 class HydratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -94,10 +95,16 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             $conn,
             $map,
             $this->r,
+            new LazyLoadingGhostFactory,
             new EventDispatcher
         );
 
-        $this->h = new Hydrator($uow, new EntitySilo, PropertyAccess::createPropertyAccessor());
+        $this->h = new Hydrator(
+            $uow,
+            new EntitySilo,
+            PropertyAccess::createPropertyAccessor(),
+            new LazyLoadingGhostFactory
+        );
     }
 
     public function testCreateEntityOnce()
