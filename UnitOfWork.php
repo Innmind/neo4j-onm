@@ -253,6 +253,10 @@ class UnitOfWork
         $entities = $this->hydrator->hydrate($results, $query);
 
         foreach ($entities as $entity) {
+            if ($this->entities->contains($entity)) {
+                continue;
+            }
+
             $this->entities->attach($entity, self::STATE_MANAGED);
         };
 
