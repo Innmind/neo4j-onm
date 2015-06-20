@@ -216,6 +216,9 @@ class Configuration
         $resolver->setAllowedTypes('cache', 'string');
         $resolver->setAllowedTypes('reader', 'string');
         $resolver->setAllowedTypes('locations', 'array');
+        $resolver->setNormalizer('cache', function($options, $value) {
+            return rtrim($value, '/');
+        });
 
         return $resolver;
     }
