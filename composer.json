@@ -1,0 +1,37 @@
+{
+    "name": "innmind/neo4j-onm",
+    "type": "library",
+    "description": "Object Node Mapping for Neo4j",
+    "keywords": ["neo4j", "node", "mapping"],
+    "homepage": "http://github.com/Innmind/neo4j-onm",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Baptiste Langlade",
+            "email": "langlade.baptiste@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/Innmind/neo4j-onm/issues"
+    },
+    "require": {
+        "php": ">=5.4",
+        "innmind/neo4j-dbal": "~1.0",
+        "symfony/event-dispatcher": "~2.7",
+        "symfony/options-resolver": "~2.7",
+        "symfony/finder": "~2.7",
+        "symfony/yaml": "~2.7",
+        "symfony/config": "~2.7",
+        "symfony/property-access": "~2.7",
+        "ramsey/uuid": "^2.8",
+        "moontoast/math": "^1.1",
+        "ocramius/proxy-manager": "~1.0",
+        "symfony/filesystem": "~2.7"
+    },
+    "autoload": {
+        "psr-0": {
+            "Innmind\\Neo4j\\ONM": ""
+        }
+    },
+    "target-dir": "Innmind/Neo4j/ONM"
+}

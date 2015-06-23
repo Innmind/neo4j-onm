@@ -1,0 +1,21 @@
+machine:
+    php:
+        version: 5.5.21
+    services:
+        - docker
+
+dependencies:
+    pre:
+        - sed -i 's/^;//' ~/.phpenv/versions/$(phpenv global)/etc/conf.d/xdebug.ini
+    override:
+        - curl -sS https://getcomposer.org/installer | php
+        - php composer.phar install --no-dev --prefer-source
+        - 'HASH=$(docker run -d -p 7474:7474 tpires/neo4j); READY="Remote interface ready and available at"; docker logs $HASH | grep "$READY"; RETURN=$?; while [ "$RETURN" -ne "0" ]; do sleep 1; docker logs $HASH | grep "$READY"; RETURN=$?; done'
+        - 'curl http://localhost:7474/user/neo4j/password -X POST -H "Content-Type: application/json" -H "Accept: application/json; charset=UTF-8" -H "Authorization: Basic bmVvNGo6bmVvNGo=" -d "{\"password\":\"ci\"}"'
+
+test:
+    override:
+        - phpunit --coverage-clover=coverage.clover
+    post:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
