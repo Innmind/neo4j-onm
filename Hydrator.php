@@ -127,6 +127,10 @@ class Hydrator
         $data = [];
 
         foreach ($properties as $property => $value) {
+            if (!$meta->hasProperty($property)) {
+                continue;
+            }
+
             $property = $meta->getProperty($property);
             $data[$property->getName()] = Types::getType($property->getType())
                 ->convertToPHPValue($value, $property);

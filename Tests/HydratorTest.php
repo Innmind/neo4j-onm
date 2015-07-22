@@ -266,6 +266,37 @@ class HydratorTest extends \PHPUnit_Framework_TestCase
             $node->getFoo()
         );
     }
+
+    public function testHydrateEvenWhenNonMappedProperty()
+    {
+        $node = [
+            'id' => 0,
+            'labels' => ['Foo'],
+            'properties' => [
+                'id' => 0,
+                'foo' => '2015-05-31',
+                'bar' => 'baz',
+            ],
+        ];
+        $results = [
+            'nodes' => [
+                0 => $node,
+            ],
+            'relationships' => [],
+            'rows' => [
+                'n' => [$node['properties']],
+            ],
+        ];
+        $q = new Query;
+        $q->addVariable('n', FooNode::class);
+
+        $result = $this->h->hydrate($results, $q);
+
+        $this->assertInstanceOf(
+            FooNode::class,
+            $result->current()
+        );
+    }
 }
 
 class FooNode
