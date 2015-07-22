@@ -174,13 +174,15 @@ class UnitOfWork
         $class = $this->identityMap->getClass($class);
         $metadata = $this->metadataRegistry->getMetadata($class);
 
-        foreach ($criteria as $key => $value) {
-            if (!$metadata->hasProperty($key)) {
-                throw new UnknwonPropertyException(sprintf(
-                    'Unknown property "%s" for the entity "%s"',
-                    $key,
-                    $class
-                ));
+        if ($criteria) {
+            foreach ($criteria as $key => $value) {
+                if (!$metadata->hasProperty($key)) {
+                    throw new UnknwonPropertyException(sprintf(
+                        'Unknown property "%s" for the entity "%s"',
+                        $key,
+                        $class
+                    ));
+                }
             }
         }
 
