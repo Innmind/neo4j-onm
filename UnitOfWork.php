@@ -151,7 +151,7 @@ class UnitOfWork
             ));
         }
 
-        return $results->first();
+        return $results->current();
     }
 
     /**

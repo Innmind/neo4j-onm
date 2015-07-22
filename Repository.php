@@ -46,7 +46,7 @@ class Repository implements RepositoryInterface
     {
         $results = $this->findBy($criteria, $orderBy, 1);
 
-        return $results->count() === 1 ? $results->first() : null;
+        return $results->count() === 1 ? $results->current() : null;
     }
 
     /**
