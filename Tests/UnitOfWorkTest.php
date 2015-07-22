@@ -128,7 +128,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->uow, $this->uow->persist($e));
         $this->assertTrue($this->uow->isManaged($e));
         $this->assertTrue($this->uow->isScheduledForInsert($e));
+        $this->assertFalse($this->uow->isScheduledForUpdate($e));
         $this->assertFalse($this->uow->isScheduledForDelete($e));
+        $this->uow->persist($e);
+        $this->assertTrue($this->uow->isScheduledForInsert($e));
+        $this->assertFalse($this->uow->isScheduledForUpdate($e));
     }
 
     public function testScheduledForUpdate()
