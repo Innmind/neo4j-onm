@@ -265,6 +265,8 @@ class UnitOfWork
             new PostQueryEvent($query, $entities)
         );
 
+        $entities->rewind();
+
         return $entities;
     }
 
