@@ -290,8 +290,6 @@ class UnitOfWork
         if (!$this->entities->contains($entity)) {
             $this->entities->attach($entity, self::STATE_NEW);
             $this->scheduledForInsert->attach($entity);
-        } else {
-            $this->entities->attach($entity, self::STATE_MANAGED);
         }
 
         $this->cascadePersist($entity);
@@ -514,6 +512,13 @@ class UnitOfWork
      */
     public function isScheduledForUpdate($entity)
     {
+        if (
+            $this->entities->contains($entity) &&
+            $this->entities[$entity] !== self::STATE_MANAGED
+        ) {
+            return false;
+        }
+
         $class = $this->getClass($entity);
         $metadata = $this->metadataRegistry->getMetadata($class);
         $changeset = $this->computeChangeset($entity, $metadata);
