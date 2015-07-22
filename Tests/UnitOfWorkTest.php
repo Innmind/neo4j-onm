@@ -346,6 +346,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             Baz::class,
             $result->current()
         );
+
+        $result = $this->uow->findBy('f', []);
+        $this->assertSame(
+            3,
+            $result->count()
+        );
     }
 
     public function testPersist()
