@@ -168,9 +168,7 @@ class UnitOfWork
     public function findBy($class, array $criteria, array $orderBy = null, $limit = null, $skip = null)
     {
         if (empty($criteria)) {
-            throw new \LogicException(
-                'You can\'t search for nodes without specifying any criteria'
-            );
+            $criteria = null;
         }
 
         $class = $this->identityMap->getClass($class);
