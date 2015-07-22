@@ -744,15 +744,8 @@ class UnitOfWork
             }
         }
 
-        foreach ($nodes as $node) {
-            $class = $this->getClass($node);
-            $metadata = $this->metadataRegistry->getMetadata($class);
-            $data = $this->getEntityData($node, $metadata);
-
-            $qb->create('n' . (string) $nodes[$node], $class, $data);
-        }
-
         $matchNodeIdx = 0;
+        $relsToCreate = [];
 
         foreach ($rels as $rel) {
             $class = $this->getClass($rel);
@@ -813,12 +806,30 @@ class UnitOfWork
 
             $data = $this->getEntityData($rel, $metadata);
 
+            $relsToCreate[] = [
+                'startVar' => $startVar,
+                'endVar' => $endVar,
+                'var' => 'r' . (string) $rels[$rel],
+                'class' => $metadata->getClass(),
+                'data' => $data,
+            ];
+        }
+
+        foreach ($nodes as $node) {
+            $class = $this->getClass($node);
+            $metadata = $this->metadataRegistry->getMetadata($class);
+            $data = $this->getEntityData($node, $metadata);
+
+            $qb->create('n' . (string) $nodes[$node], $class, $data);
+        }
+
+        foreach ($relsToCreate as $rel) {
             $qb->createRelationship(
-                $startVar,
-                $endVar,
-                'r' . (string) $rels[$rel],
-                $metadata->getClass(),
-                $data
+                $rel['startVar'],
+                $rel['endVar'],
+                $rel['var'],
+                $rel['class'],
+                $rel['data']
             );
         }
 
