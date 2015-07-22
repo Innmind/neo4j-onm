@@ -305,11 +305,6 @@ class FooNode
     protected $foo;
     protected $rel;
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
     public function getId()
     {
         return $this->id;
@@ -341,11 +336,6 @@ class FooRel
     protected $id;
     protected $start;
     protected $end;
-
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
 
     public function getId()
     {

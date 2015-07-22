@@ -188,11 +188,22 @@ class Hydrator
                 continue;
             }
 
-            $this->accessor->setValue(
-                $proxy,
-                $property->getName(),
-                $info['properties'][$property->getName()]
-            );
+            if ($metadata->getId()->getProperty() === $property->getName()) {
+                $refl = new \ReflectionClass($metadata->getClass());
+                $refl = $refl->getProperty($property->getName());
+                $refl->setAccessible(true);
+                $refl->setValue(
+                    $proxy,
+                    $info['properties'][$property->getName()]
+                );
+                $refl->setAccessible(false);
+            } else {
+                $this->accessor->setValue(
+                    $proxy,
+                    $property->getName(),
+                    $info['properties'][$property->getName()]
+                );
+            }
         }
 
         return true;
