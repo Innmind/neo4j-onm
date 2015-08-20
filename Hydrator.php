@@ -67,7 +67,7 @@ class Hydrator
                             continue;
                         }
 
-                        $this->entities->addInfo($entity, ['realId' => $node['id']]);
+                        $this->entities->addInfo($entity, ['realId' => (int) $node['id']]);
                         break;
                     }
                 } else {
@@ -83,9 +83,9 @@ class Hydrator
                         }
 
                         $this->entities->addInfo($entity, [
-                            'realId' => $rel['id'],
-                            'startNode' => $rel['startNode'],
-                            'endNode' => $rel['endNode'],
+                            'realId' => (int) $rel['id'],
+                            'startNode' => (int) $rel['startNode'],
+                            'endNode' => (int) $rel['endNode'],
                         ]);
                         break;
                     }
