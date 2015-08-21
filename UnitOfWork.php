@@ -637,6 +637,11 @@ class UnitOfWork
 
                 $prop = $metadata->getProperty($prop);
 
+                if ($prop->isNullable() && $value === null) {
+                    unset($values[$k]);
+                    continue;
+                }
+
                 $value = Types::getType($prop->getType())
                     ->convertToDatabaseValue($value, $prop);
             }
