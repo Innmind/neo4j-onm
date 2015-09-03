@@ -637,11 +637,6 @@ class UnitOfWork
 
                 $prop = $metadata->getProperty($prop);
 
-                if ($prop->isNullable() && $value === null) {
-                    unset($values[$k]);
-                    continue;
-                }
-
                 $value = Types::getType($prop->getType())
                     ->convertToDatabaseValue($value, $prop);
             }
@@ -965,10 +960,16 @@ class UnitOfWork
                 continue;
             }
 
-            $data[$property->getName()] = $this->accessor->getValue(
+            $value = $this->accessor->getValue(
                 $entity,
                 $property->getName()
             );
+
+            if ($property->isNullable() && $value === null) {
+                continue;
+            }
+
+            $data[$property->getName()] = $value;
         }
 
         return $data;
@@ -993,6 +994,13 @@ class UnitOfWork
                 !array_key_exists($key, $orig) ||
                 $value !== $orig[$key]
             ) {
+                if (
+                    $metadata->getProperty($key)->isNullable() &&
+                    $value === null
+                ) {
+                    continue;
+                }
+
                 $changeset[$key] = $value;
             }
         }

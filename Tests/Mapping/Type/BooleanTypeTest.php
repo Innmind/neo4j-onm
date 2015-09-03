@@ -28,4 +28,21 @@ class BooleanTypeTest extends \PHPUnit_Framework_TestCase
             $t->convertToPHPValue(1, $p)
         );
     }
+
+    public function testNullable()
+    {
+        $t = new BooleanType;
+        $p = new Property;
+
+        $this->assertEquals(
+            null,
+            $t->convertToDatabaseValue(null, $p)
+        );
+
+        $p->setNullable(false);
+        $this->assertSame(
+            false,
+            $t->convertToDatabaseValue(null, $p)
+        );
+    }
 }

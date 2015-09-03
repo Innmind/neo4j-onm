@@ -63,4 +63,21 @@ class JsonTypeTest extends \PHPUnit_Framework_TestCase
             $t->convertToPHPValue('{"foo":"bar"}', $p)
         );
     }
+
+    public function testNullable()
+    {
+        $t = new JsonType;
+        $p = new Property;
+
+        $this->assertSame(
+            null,
+            $t->convertToDatabaseValue(null, $p)
+        );
+
+        $p->setNullable(false);
+        $this->assertSame(
+            'null',
+            $t->convertToDatabaseValue(null, $p)
+        );
+    }
 }

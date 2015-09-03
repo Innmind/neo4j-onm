@@ -14,6 +14,10 @@ class ArrayType implements TypeInterface
      */
     public function convertToDatabaseValue($value, Property $property)
     {
+        if ($property->isNullable() && $value === null) {
+            return $value;
+        }
+
         return $this->convert($value, $property, 'convertToDatabaseValue');
     }
 

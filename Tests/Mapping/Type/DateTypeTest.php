@@ -44,4 +44,27 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
 
         $t->convertToDatabaseValue([], $p);
     }
+
+    public function testNullable()
+    {
+        $t = new DateType;
+        $p = new Property;
+
+        $this->assertSame(
+            null,
+            $t->convertToDatabaseValue(null, $p)
+        );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testThrowIfNotNUllableAndNotADate()
+    {
+        $t = new DateType;
+        $p = new Property;
+        $p->setNullable(false);
+
+        $t->convertToDatabaseValue(null, $p);
+    }
 }
