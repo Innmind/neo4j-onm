@@ -53,4 +53,21 @@ class ArrayTypeTest extends \PHPUnit_Framework_TestCase
 
         $a->convertToPHPValue([42], $p);
     }
+
+    public function testNullable()
+    {
+        $a = new ArrayType;
+        $p = new Property;
+        $p->addOption('inner_type', 'string');
+        $this->assertSame(
+            null,
+            $a->convertToDatabaseValue(null, $p)
+        );
+
+        $p->setNullable(false);
+        $this->assertSame(
+            [],
+            $a->convertToDatabaseValue(null, $p)
+        );
+    }
 }

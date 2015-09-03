@@ -12,6 +12,10 @@ class JsonType implements TypeInterface
      */
     public function convertToDatabaseValue($value, Property $property)
     {
+        if ($property->isNullable() && $value === null) {
+            return $value;
+        }
+
         return json_encode($value);
     }
 

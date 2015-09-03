@@ -12,6 +12,10 @@ class DateType implements TypeInterface
      */
     public function convertToDatabaseValue($value, Property $property)
     {
+        if ($property->isNullable() && $value === null) {
+            return $value;
+        }
+
         if (is_string($value)) {
             $value = new \DateTime($value);
         }
