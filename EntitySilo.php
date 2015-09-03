@@ -76,7 +76,7 @@ class EntitySilo implements \Countable, \Iterator, \ArrayAccess
     {
         if ($this->contains($entity)) {
             $orig = $this->entities[$entity];
-            $orig['data'] = array_merge($orig['data'], $data);
+            $orig['data'] = array_merge_recursive($orig['data'], $data);
 
             $this->entities[$entity] = $orig;
             $this->data[$orig['class']][$orig['id']] = array_merge(
