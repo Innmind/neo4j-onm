@@ -24,7 +24,6 @@
         "symfony/config": "~2.7|~3.0",
         "symfony/property-access": "~2.7|~3.0",
         "ramsey/uuid": "^2.8",
-        "moontoast/math": "^1.1",
         "ocramius/proxy-manager": "~1.0",
         "symfony/filesystem": "~2.7|~3.0"
     },
