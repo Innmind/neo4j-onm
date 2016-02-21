@@ -15,17 +15,8 @@
         "issues": "http://github.com/Innmind/neo4j-onm/issues"
     },
     "require": {
-        "php": ">=5.4",
-        "innmind/neo4j-dbal": "~1.0",
-        "symfony/event-dispatcher": "~2.7|~3.0",
-        "symfony/options-resolver": "~2.7|~3.0",
-        "symfony/finder": "~2.7|~3.0",
-        "symfony/yaml": "~2.7|~3.0",
-        "symfony/config": "~2.7|~3.0",
-        "symfony/property-access": "~2.7|~3.0",
-        "ramsey/uuid": "^2.8",
-        "ocramius/proxy-manager": "~1.0",
-        "symfony/filesystem": "~2.7|~3.0"
+        "php": ">=7.0",
+        "innmind/neo4j-dbal": "~2.0"
     },
     "autoload": {
         "psr-0": {
