@@ -36,7 +36,7 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(CollectionInterface::class, $ar->labels());
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());
         $this->assertInstanceOf(TypedCollectionInterface::class, $ar->children());
-        $this->assertSame(ValueObject::class, $ar->children()->getType());
+        $this->assertSame(ValueObject::class, $ar->children()->type());
         $this->assertSame(0, $ar->children()->count());
 
         $ar2 = $ar->withChild(

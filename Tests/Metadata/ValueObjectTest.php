@@ -29,7 +29,7 @@ class ValueObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['LabelA', 'LabelB'], $vo->labels()->toPrimitive());
         $this->assertSame($vor, $vo->relationship());
         $this->assertInstanceOf(TypedCollectionInterface::class, $vo->properties());
-        $this->assertSame(Property::class, $vo->properties()->getType());
+        $this->assertSame(Property::class, $vo->properties()->type());
         $this->assertSame(0, $vo->properties()->count());
 
         $vo2 = $vo->withProperty('foo', $this->getMock(TypeInterface::class));
