@@ -4,7 +4,9 @@ Image:
     repository: ImageRepository
     factory: ImageFactory # will be instanciated without constructor
     labels: [Image]
-    identity: uuid
+    identity:
+        property: uuid
+        type: UUID
     properties:
         url:
             type: string
@@ -30,7 +32,9 @@ SomeRelationship:
     repository: SRRepository
     factory: SRFactory
     rel_type: SOME_RELATIONSHIP
-    identity: uuid
+    identity:
+        property: uuid
+        type: UUID
     startNode: startProperty # must be an EntityIdentifierInterface
     endNode: endProperty
     properties:
