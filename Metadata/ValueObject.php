@@ -5,9 +5,9 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\TypeInterface;
 use Innmind\Immutable\{
-    Collection,
+    Set,
     Map,
-    CollectionInterface,
+    SetInterface,
     MapInterface
 };
 
@@ -24,9 +24,13 @@ class ValueObject
         ValueObjectRelationship $relationship
     ) {
         $this->class = $class;
-        $this->labels = new Collection($labels);
+        $this->labels = new Set('string');
         $this->relationship = $relationship;
         $this->properties = new Map('string', Property::class);
+
+        foreach ($labels as $label) {
+            $this->labels = $this->labels->add($label);
+        }
     }
 
     public function class(): ClassName
@@ -39,7 +43,7 @@ class ValueObject
         return $this->relationship;
     }
 
-    public function labels(): CollectionInterface
+    public function labels(): SetInterface
     {
         return $this->labels;
     }

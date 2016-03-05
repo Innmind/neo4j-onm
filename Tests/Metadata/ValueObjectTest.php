@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
     TypeInterface
 };
 use Innmind\Immutable\{
-    CollectionInterface,
+    SetInterface,
     MapInterface
 };
 
@@ -29,7 +29,8 @@ class ValueObjectTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($cn, $vo->class());
-        $this->assertInstanceOf(CollectionInterface::class, $vo->labels());
+        $this->assertInstanceOf(SetInterface::class, $vo->labels());
+        $this->assertSame('string', (string) $vo->labels()->type());
         $this->assertSame(['LabelA', 'LabelB'], $vo->labels()->toPrimitive());
         $this->assertSame($vor, $vo->relationship());
         $this->assertInstanceOf(MapInterface::class, $vo->properties());
