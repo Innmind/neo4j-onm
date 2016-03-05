@@ -22,6 +22,11 @@ class Identity
         return $this->type;
     }
 
+    public function property(): string
+    {
+        return $this->property;
+    }
+
     public function __toString(): string
     {
         return $this->property;

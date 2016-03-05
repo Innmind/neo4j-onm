@@ -12,6 +12,7 @@ class IdentityTest extends \PHPUnit_Framework_TestCase
         $i = new Identity('uuid', 'UUID');
 
         $this->assertSame('uuid', (string) $i);
+        $this->assertSame('uuid', $i->property());
         $this->assertSame('UUID', $i->type());
     }
 }
