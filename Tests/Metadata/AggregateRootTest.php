@@ -3,15 +3,16 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\{
-    AggregateRoot,
-    ClassName,
-    Identity,
-    Repository,
-    Factory,
-    Alias,
-    EntityInterface,
-    ValueObject
+use Innmind\Neo4j\ONM\{
+    Metadata\AggregateRoot,
+    Metadata\ClassName,
+    Metadata\Identity,
+    Metadata\Repository,
+    Metadata\Factory,
+    Metadata\Alias,
+    Metadata\EntityInterface,
+    Metadata\ValueObject,
+    TypeInterface
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -57,6 +58,15 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, $ar->children()->count());
         $this->assertSame(1, $ar2->children()->count());
         $this->assertSame($vo, $ar2->children()->first()->value());
+
+        $ar2 = $ar->withProperty(
+            'foo',
+            $this->getMock(TypeInterface::class)
+        );
+        $this->assertNotSame($ar, $ar2);
+        $this->assertSame(0, $ar->properties()->count());
+        $this->assertSame(1, $ar2->properties()->count());
+        $this->assertTrue($ar2->properties()->contains('foo'));
     }
 }
 

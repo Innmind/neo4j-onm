@@ -3,16 +3,17 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\{
-    Relationship,
-    ClassName,
-    Identity,
-    Repository,
-    Factory,
-    Alias,
-    EntityInterface,
-    ValueObject,
-    RelationshipType
+use Innmind\Neo4j\ONM\{
+    Metadata\Relationship,
+    Metadata\ClassName,
+    Metadata\Identity,
+    Metadata\Repository,
+    Metadata\Factory,
+    Metadata\Alias,
+    Metadata\EntityInterface,
+    Metadata\ValueObject,
+    Metadata\RelationshipType,
+    TypeInterface
 };
 
 class RelationshipTest extends \PHPUnit_Framework_TestCase
@@ -39,6 +40,15 @@ class RelationshipTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($t, $r->type());
         $this->assertSame($s, $r->startNode());
         $this->assertSame($e, $r->endNode());
+
+        $r2 = $r->withProperty(
+            'foo',
+            $this->getMock(TypeInterface::class)
+        );
+        $this->assertNotSame($r, $r2);
+        $this->assertSame(0, $r->properties()->count());
+        $this->assertSame(1, $r2->properties()->count());
+        $this->assertTrue($r2->properties()->contains('foo'));
     }
 }
 
