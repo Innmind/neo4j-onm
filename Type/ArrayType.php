@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     TypeInterface,
     Exception\TypeDeclarationException,
-    Exception\RecursiveArrayTypeDeclarationException
+    Exception\RecursiveTypeDeclarationException
 };
 use Innmind\Immutable\{
     CollectionInterface,
@@ -32,7 +32,7 @@ class ArrayType implements TypeInterface
         }
 
         if (self::identifiers()->contains($config->get('inner'))) {
-            throw new RecursiveArrayTypeDeclarationException;
+            throw new RecursiveTypeDeclarationException;
         }
 
         $type->inner = $config

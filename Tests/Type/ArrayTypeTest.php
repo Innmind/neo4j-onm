@@ -36,7 +36,7 @@ class ArrayTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveArrayTypeDeclarationException
+     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclarationException
      */
     public function testThrowWhenInnerTypeIsArray()
     {
