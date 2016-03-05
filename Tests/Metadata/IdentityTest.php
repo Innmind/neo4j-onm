@@ -9,8 +9,9 @@ class IdentityTest extends \PHPUnit_Framework_TestCase
 {
     public function testInterface()
     {
-        $i = new Identity('uuid');
+        $i = new Identity('uuid', 'UUID');
 
         $this->assertSame('uuid', (string) $i);
+        $this->assertSame('UUID', $i->type());
     }
 }

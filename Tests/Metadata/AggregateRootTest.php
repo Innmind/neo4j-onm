@@ -24,7 +24,7 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
     {
         $ar = new AggregateRoot(
             $cn = new ClassName('foo'),
-            $i = new Identity('uuid'),
+            $i = new Identity('uuid', 'UUID'),
             $r = new Repository('Class'),
             $f = new Factory('AnotherClass'),
             $a = new Alias('CanBeClassName'),

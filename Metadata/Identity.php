@@ -9,10 +9,17 @@ namespace Innmind\Neo4j\ONM\Metadata;
 class Identity
 {
     private $property;
+    private $type;
 
-    public function __construct(string $property)
+    public function __construct(string $property, string $type)
     {
         $this->property = $property;
+        $this->type = $type;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
     }
 
     public function __toString(): string

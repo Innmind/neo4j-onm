@@ -21,13 +21,13 @@ class RelationshipTest extends \PHPUnit_Framework_TestCase
     {
         $r = new Relationship(
             $cn = new ClassName('foo'),
-            $i = new Identity('uuid'),
+            $i = new Identity('uuid', 'UUID'),
             $repo = new Repository('Class'),
             $f = new Factory('AnotherClass'),
             $a = new Alias('CanBeClassName'),
             $t = new RelationshipType('foo'),
-            $s = new Identity('start'),
-            $e = new Identity('end')
+            $s = new Identity('start', 'UUID'),
+            $e = new Identity('end', 'UUID')
         );
 
         $this->assertInstanceOf(EntityInterface::class, $r);
