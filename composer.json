@@ -17,7 +17,7 @@
     "require": {
         "php": ">=7.0",
         "innmind/neo4j-dbal": "~2.0",
-        "innmind/immutable": "~1.4"
+        "innmind/immutable": "~1.5"
     },
     "autoload": {
         "psr-0": {
