@@ -3,8 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Immutable\TypedCollection;
-use Innmind\Immutable\TypedCollectionInterface;
+use Innmind\Immutable\Map;
+use Innmind\Immutable\MapInterface;
 
 abstract class Entity
 {
@@ -27,7 +27,7 @@ abstract class Entity
         $this->repository = $repository;
         $this->factory = $factory;
         $this->alias = $alias;
-        $this->properties = new TypedCollection(Property::class, []);
+        $this->properties = new Map('string', Property::class);
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class Entity
     /**
      * {@inheritdoc}
      */
-    public function properties(): TypedCollectionInterface
+    public function properties(): MapInterface
     {
         return $this->properties;
     }
@@ -89,7 +89,7 @@ abstract class Entity
     public function withProperty(string $name, TypeInterface $type): EntityInterface
     {
         $entity = clone $this;
-        $entity->properties = $this->properties->set(
+        $entity->properties = $this->properties->put(
             $name,
             new Property($name, $type)
         );

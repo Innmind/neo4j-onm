@@ -12,7 +12,7 @@ use Innmind\Neo4j\ONM\Metadata\Alias;
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
 use Innmind\Neo4j\ONM\Metadata\ValueObject;
 use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\TypedCollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 class AggregateRootTest extends \PHPUnit_Framework_TestCase
 {
@@ -35,8 +35,9 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($a, $ar->alias());
         $this->assertInstanceOf(CollectionInterface::class, $ar->labels());
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());
-        $this->assertInstanceOf(TypedCollectionInterface::class, $ar->children());
-        $this->assertSame(ValueObject::class, $ar->children()->type());
+        $this->assertInstanceOf(MapInterface::class, $ar->children());
+        $this->assertSame('string', (string) $ar->children()->keyType());
+        $this->assertSame(ValueObject::class, (string) $ar->children()->valueType());
         $this->assertSame(0, $ar->children()->count());
 
         $ar2 = $ar->withChild(
@@ -50,7 +51,7 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(AggregateRoot::class, $ar2);
         $this->assertSame(0, $ar->children()->count());
         $this->assertSame(1, $ar2->children()->count());
-        $this->assertSame($vo, $ar2->children()->first());
+        $this->assertSame($vo, $ar2->children()->first()->value());
     }
 }
 

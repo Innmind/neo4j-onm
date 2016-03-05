@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Immutable\Collection;
-use Innmind\Immutable\TypedCollection;
+use Innmind\Immutable\Map;
 use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\TypedCollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 class AggregateRoot extends Entity implements EntityInterface
 {
@@ -24,7 +24,7 @@ class AggregateRoot extends Entity implements EntityInterface
         parent::__construct($class, $id, $repository, $factory, $alias);
 
         $this->labels = new Collection($labels);
-        $this->children = new TypedCollection(ValueObject::class, []);
+        $this->children = new Map('string', ValueObject::class);
     }
 
     public function labels(): CollectionInterface
@@ -32,7 +32,7 @@ class AggregateRoot extends Entity implements EntityInterface
         return $this->labels;
     }
 
-    public function children(): TypedCollectionInterface
+    public function children(): MapInterface
     {
         return $this->children;
     }
@@ -47,8 +47,8 @@ class AggregateRoot extends Entity implements EntityInterface
     public function withChild(ValueObject $child): self
     {
         $aggregate = clone $this;
-        $aggregate->children = $this->children->set(
-            (string) $child->relationship()->property(),
+        $aggregate->children = $this->children->put(
+            $child->relationship()->property(),
             $child
         );
 

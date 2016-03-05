@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\TypedCollection;
-use Innmind\Immutable\TypedCollectionInterface;
+use Innmind\Immutable\Map;
+use Innmind\Immutable\MapInterface;
 
 class ValueObjectRelationship
 {
@@ -26,7 +26,7 @@ class ValueObjectRelationship
         $this->type = $type;
         $this->property = $property;
         $this->childProperty = $childProperty;
-        $this->properties = new TypedCollection(Property::class, []);
+        $this->properties = new Map('string', Property::class);
     }
 
     public function class(): ClassName
@@ -54,7 +54,7 @@ class ValueObjectRelationship
         return $this->childProperty;
     }
 
-    public function properties(): TypedCollectionInterface
+    public function properties(): MapInterface
     {
         return $this->properties;
     }
@@ -70,7 +70,7 @@ class ValueObjectRelationship
     public function withProperty(string $name, TypeInterface $type): self
     {
         $valueObject = clone $this;
-        $valueObject->properties = $this->properties->set(
+        $valueObject->properties = $this->properties->put(
             $name,
             new Property($name, $type)
         );

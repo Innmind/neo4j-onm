@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\Metadata\ClassName;
 use Innmind\Neo4j\ONM\Metadata\Property;
 use Innmind\Neo4j\ONM\TypeInterface;
 use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\TypedCollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 class ValueObjectTest extends \PHPUnit_Framework_TestCase
 {
@@ -28,8 +28,9 @@ class ValueObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(CollectionInterface::class, $vo->labels());
         $this->assertSame(['LabelA', 'LabelB'], $vo->labels()->toPrimitive());
         $this->assertSame($vor, $vo->relationship());
-        $this->assertInstanceOf(TypedCollectionInterface::class, $vo->properties());
-        $this->assertSame(Property::class, $vo->properties()->type());
+        $this->assertInstanceOf(MapInterface::class, $vo->properties());
+        $this->assertSame('string', (string) $vo->properties()->keyType());
+        $this->assertSame(Property::class, (string) $vo->properties()->valueType());
         $this->assertSame(0, $vo->properties()->count());
 
         $vo2 = $vo->withProperty('foo', $this->getMock(TypeInterface::class));
@@ -38,6 +39,6 @@ class ValueObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(ValueObject::class, $vo2);
         $this->assertSame(0, $vo->properties()->count());
         $this->assertSame(1, $vo2->properties()->count());
-        $this->assertTrue($vo2->properties()->hasKey('foo'));
+        $this->assertTrue($vo2->properties()->contains('foo'));
     }
 }
