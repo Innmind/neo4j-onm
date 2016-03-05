@@ -88,9 +88,7 @@ class Types
      */
     public function build(string $type, CollectionInterface $config): TypeInterface
     {
-        if (ArrayType::identifiers()->contains($type)) {
-            $config = $config->set('_types', $this);
-        }
+        $config = $config->set('_types', $this);
 
         return call_user_func(
             [$this->types->get($type), 'fromConfig'],
