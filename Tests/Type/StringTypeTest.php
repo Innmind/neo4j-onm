@@ -27,6 +27,7 @@ class StringTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(SetInterface::class, StringType::identifiers());
         $this->assertSame('string', (string) StringType::identifiers()->type());
         $this->assertSame(StringType::identifiers(), StringType::identifiers());
+        $this->assertSame(['string'], StringType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
