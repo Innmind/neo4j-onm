@@ -5,6 +5,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Type\ArrayType,
+    Type\SetType,
     Type\BooleanType,
     Type\DateType,
     Type\FloatType,
@@ -26,6 +27,7 @@ class Types
     {
         $defaults = [
             ArrayType::class,
+            SetType::class,
             BooleanType::class,
             DateType::class,
             FloatType::class,

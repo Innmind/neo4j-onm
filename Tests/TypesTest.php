@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Types,
     TypeInterface,
     Type\ArrayType,
+    Type\SetType,
     Type\BooleanType,
     Type\DateType,
     Type\FloatType,
@@ -27,6 +28,7 @@ class TypesTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             [
                 'array',
+                'set',
                 'bool',
                 'boolean',
                 'date',
@@ -41,6 +43,7 @@ class TypesTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             [
                 ArrayType::class,
+                SetType::class,
                 BooleanType::class,
                 BooleanType::class,
                 DateType::class,
