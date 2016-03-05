@@ -20,13 +20,15 @@ class ValueObjectRelationshipTest extends \PHPUnit_Framework_TestCase
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
-            'node'
+            'node',
+            false
         );
 
         $this->assertSame($cn, $vor->class());
         $this->assertSame($rt, $vor->type());
         $this->assertSame('relationship', $vor->property());
         $this->assertSame('node', $vor->childProperty());
+        $this->assertFalse($vor->isCollection());
         $this->assertInstanceOf(MapInterface::class, $vor->properties());
         $this->assertSame('string', (string) $vor->properties()->keyType());
         $this->assertSame(Property::class, (string) $vor->properties()->valueType());

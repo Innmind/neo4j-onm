@@ -15,19 +15,21 @@ class ValueObjectRelationship
     private $type;
     private $property;
     private $childProperty;
-    private $collection = false;
+    private $collection;
     private $properties;
 
     public function __construct(
         ClassName $class,
         RelationshipType $type,
         string $property,
-        string $childProperty
+        string $childProperty,
+        bool $collection
     ) {
         $this->class = $class;
         $this->type = $type;
         $this->property = $property;
         $this->childProperty = $childProperty;
+        $this->collection = $collection;
         $this->properties = new Map('string', Property::class);
     }
 
@@ -54,6 +56,11 @@ class ValueObjectRelationship
     public function childProperty(): string
     {
         return $this->childProperty;
+    }
+
+    public function isCollection(): bool
+    {
+        return $this->collection;
     }
 
     public function properties(): MapInterface
