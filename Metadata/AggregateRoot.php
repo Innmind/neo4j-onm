@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Set;
 use Innmind\Immutable\Map;
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\SetInterface;
 use Innmind\Immutable\MapInterface;
 
 class AggregateRoot extends Entity implements EntityInterface
@@ -23,11 +23,16 @@ class AggregateRoot extends Entity implements EntityInterface
     ) {
         parent::__construct($class, $id, $repository, $factory, $alias);
 
-        $this->labels = new Collection($labels);
+        $this->labels = new Set('string');
+
+        foreach ($labels as $label) {
+            $this->labels = $this->labels->add($label);
+        }
+
         $this->children = new Map('string', ValueObject::class);
     }
 
-    public function labels(): CollectionInterface
+    public function labels(): SetInterface
     {
         return $this->labels;
     }

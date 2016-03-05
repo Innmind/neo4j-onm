@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\Metadata\Factory;
 use Innmind\Neo4j\ONM\Metadata\Alias;
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
 use Innmind\Neo4j\ONM\Metadata\ValueObject;
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\SetInterface;
 use Innmind\Immutable\MapInterface;
 
 class AggregateRootTest extends \PHPUnit_Framework_TestCase
@@ -33,7 +33,8 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($r, $ar->repository());
         $this->assertSame($f, $ar->factory());
         $this->assertSame($a, $ar->alias());
-        $this->assertInstanceOf(CollectionInterface::class, $ar->labels());
+        $this->assertInstanceOf(SetInterface::class, $ar->labels());
+        $this->assertSame('string', (string) $ar->labels()->type());
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());
         $this->assertInstanceOf(MapInterface::class, $ar->children());
         $this->assertSame('string', (string) $ar->children()->keyType());
