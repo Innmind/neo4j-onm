@@ -35,8 +35,12 @@ SomeRelationship:
     identity:
         property: uuid
         type: UUID
-    startNode: startProperty # must be an EntityIdentifierInterface
-    endNode: endProperty
+    startNode:
+        property: startProperty # must be an EntityIdentifierInterface
+        type: UUID
+    endNode:
+        property: endProperty
+        type: UUID
     properties:
         created:
             type: date
