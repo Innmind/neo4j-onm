@@ -4,9 +4,11 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\SetInterface;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\{
+    CollectionInterface,
+    SetInterface,
+    Set
+};
 
 class StringType implements TypeInterface
 {

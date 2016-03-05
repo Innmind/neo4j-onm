@@ -3,10 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Immutable\Set;
-use Innmind\Immutable\Map;
-use Innmind\Immutable\SetInterface;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\{
+    Set,
+    Map,
+    SetInterface,
+    MapInterface
+};
 
 class AggregateRoot extends Entity implements EntityInterface
 {

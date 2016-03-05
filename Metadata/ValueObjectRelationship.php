@@ -4,8 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\Map;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\{
+    Map,
+    MapInterface
+};
 
 class ValueObjectRelationship
 {

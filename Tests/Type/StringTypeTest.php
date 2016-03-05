@@ -3,10 +3,14 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Type;
 
-use Innmind\Neo4j\ONM\Type\StringType;
-use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\SetInterface;
-use Innmind\Immutable\Collection;
+use Innmind\Neo4j\ONM\{
+    Type\StringType,
+    TypeInterface
+};
+use Innmind\Immutable\{
+    SetInterface,
+    Collection
+};
 
 class StringTypeTest extends \PHPUnit_Framework_TestCase
 {

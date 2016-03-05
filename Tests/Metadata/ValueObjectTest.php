@@ -3,13 +3,17 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\ValueObject;
-use Innmind\Neo4j\ONM\Metadata\ValueObjectRelationship;
-use Innmind\Neo4j\ONM\Metadata\ClassName;
-use Innmind\Neo4j\ONM\Metadata\Property;
-use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\MapInterface;
+use Innmind\Neo4j\ONM\{
+    Metadata\ValueObject,
+    Metadata\ValueObjectRelationship,
+    Metadata\ClassName,
+    Metadata\Property,
+    TypeInterface
+};
+use Innmind\Immutable\{
+    CollectionInterface,
+    MapInterface
+};
 
 class ValueObjectTest extends \PHPUnit_Framework_TestCase
 {

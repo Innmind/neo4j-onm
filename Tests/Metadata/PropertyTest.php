@@ -3,8 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\Property;
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    Metadata\Property,
+    TypeInterface
+};
 
 class PropertyTest extends \PHPUnit_Framework_TestCase
 {

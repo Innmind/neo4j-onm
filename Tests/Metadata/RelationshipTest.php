@@ -3,15 +3,17 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\Relationship;
-use Innmind\Neo4j\ONM\Metadata\ClassName;
-use Innmind\Neo4j\ONM\Metadata\Identity;
-use Innmind\Neo4j\ONM\Metadata\Repository;
-use Innmind\Neo4j\ONM\Metadata\Factory;
-use Innmind\Neo4j\ONM\Metadata\Alias;
-use Innmind\Neo4j\ONM\Metadata\EntityInterface;
-use Innmind\Neo4j\ONM\Metadata\ValueObject;
-use Innmind\Neo4j\ONM\Metadata\RelationshipType;
+use Innmind\Neo4j\ONM\Metadata\{
+    Relationship,
+    ClassName,
+    Identity,
+    Repository,
+    Factory,
+    Alias,
+    EntityInterface,
+    ValueObject,
+    RelationshipType
+};
 
 class RelationshipTest extends \PHPUnit_Framework_TestCase
 {

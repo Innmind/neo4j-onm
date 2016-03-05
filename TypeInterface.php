@@ -3,8 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Immutable\CollectionInterface;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\{
+    CollectionInterface,
+    SetInterface
+};
 
 interface TypeInterface
 {
