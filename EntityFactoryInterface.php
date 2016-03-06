@@ -3,10 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\{
-    ONM\Metadata\EntityInterface,
-    DBAL\ResultInterface
-};
+use Innmind\Neo4j\ONM\Metadata\EntityInterface;
+use Innmind\Immutable\CollectionInterface;
 
 interface EntityFactoryInterface
 {
@@ -15,13 +13,13 @@ interface EntityFactoryInterface
      *
      * @param IdentityInterface $identity
      * @param EntityInterface $meta
-     * @param ResultInterface $data
+     * @param CollectionInterface $data
      *
      * @return object
      */
     public function make(
         IdentityInterface $identity,
         EntityInterface $meta,
-        ResultInterface $data
+        CollectionInterface $data
     );
 }
