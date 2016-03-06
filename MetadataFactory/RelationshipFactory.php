@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\RelationshipType,
     Repository as EntityRepository,
-    EntityFactory,
+    EntityFactory\RelationshipFactory as EntityFactory,
     Types
 };
 use Innmind\Immutable\{
