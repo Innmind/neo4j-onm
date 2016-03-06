@@ -24,5 +24,8 @@
             "Innmind\\Neo4j\\ONM": ""
         }
     },
-    "target-dir": "Innmind/Neo4j/ONM"
+    "target-dir": "Innmind/Neo4j/ONM",
+    "require-dev": {
+        "symfony/yaml": "~2.7|~3.0"
+    }
 }
