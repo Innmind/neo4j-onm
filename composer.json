@@ -18,7 +18,8 @@
         "php": ">=7.0",
         "innmind/neo4j-dbal": "~2.0",
         "innmind/immutable": "~1.5",
-        "symfony/config": "~2.7|~3.0"
+        "symfony/config": "~2.7|~3.0",
+        "ramsey/uuid": "^3.2"
     },
     "autoload": {
         "psr-0": {
