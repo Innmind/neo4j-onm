@@ -77,6 +77,14 @@ class DateType implements TypeInterface
     /**
      * {@inheritdoc}
      */
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function identifiers(): SetInterface
     {
         if (self::$identifiers === null) {

@@ -38,6 +38,13 @@ interface TypeInterface
     public function fromDatabase($value);
 
     /**
+     * Check if the property value can be null
+     *
+     * @return bool
+     */
+    public function isNullable(): bool;
+
+    /**
      * Return the identifiers that can be used to reference the type class
      *
      * @return SetInterface<string>

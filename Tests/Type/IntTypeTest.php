@@ -22,6 +22,20 @@ class IntTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            IntType::fromConfig(new Collection([]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            IntType::fromConfig(new Collection([
+                'nullable' => null,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, IntType::identifiers());

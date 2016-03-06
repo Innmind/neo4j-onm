@@ -43,6 +43,25 @@ class ArrayTypeTest extends \PHPUnit_Framework_TestCase
         ArrayType::fromConfig(new Collection(['inner' => 'array']));
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            ArrayType::fromConfig(new Collection([
+                'inner' => 'string',
+                '_types' => new Types,
+            ]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            ArrayType::fromConfig(new Collection([
+                'nullable' => null,
+                'inner' => 'string',
+                '_types' => new Types,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, ArrayType::identifiers());

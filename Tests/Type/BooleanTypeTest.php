@@ -22,6 +22,20 @@ class BooleanTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            BooleanType::fromConfig(new Collection([]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            BooleanType::fromConfig(new Collection([
+                'nullable' => null,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, BooleanType::identifiers());

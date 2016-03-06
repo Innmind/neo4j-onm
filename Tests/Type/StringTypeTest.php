@@ -22,6 +22,20 @@ class StringTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            StringType::fromConfig(new Collection([]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            StringType::fromConfig(new Collection([
+                'nullable' => null,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, StringType::identifiers());

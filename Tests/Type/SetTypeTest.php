@@ -44,6 +44,25 @@ class SetTypeTest extends \PHPUnit_Framework_TestCase
         SetType::fromConfig(new Collection(['inner' => 'set']));
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            SetType::fromConfig(new Collection([
+                'inner' => 'string',
+                '_types' => new Types,
+            ]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            SetType::fromConfig(new Collection([
+                'nullable' => null,
+                'inner' => 'string',
+                '_types' => new Types,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, SetType::identifiers());

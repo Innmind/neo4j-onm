@@ -22,6 +22,20 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            DateType::fromConfig(new Collection([]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            DateType::fromConfig(new Collection([
+                'nullable' => null,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, DateType::identifiers());

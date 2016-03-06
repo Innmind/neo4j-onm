@@ -22,6 +22,20 @@ class FloatTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testIsNullable()
+    {
+        $this->assertFalse(
+            FloatType::fromConfig(new Collection([]))
+                ->isNullable()
+        );
+        $this->assertTrue(
+            FloatType::fromConfig(new Collection([
+                'nullable' => null,
+            ]))
+                ->isNullable()
+        );
+    }
+
     public function testIdentifiers()
     {
         $this->assertInstanceOf(SetInterface::class, FloatType::identifiers());
