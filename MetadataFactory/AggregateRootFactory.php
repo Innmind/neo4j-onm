@@ -16,7 +16,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Repository as EntityRepository,
-    EntityFactory,
+    EntityFactory\AggregateRootFactory as EntityFactory,
     Types
 };
 use Innmind\Immutable\{
