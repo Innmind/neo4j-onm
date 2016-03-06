@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
-    MetadataFactory\NodeFactory,
+    MetadataFactory\AggregateRootFactory,
     MetadataFactoryInterface,
     Metadata\AggregateRoot,
     Type\StringType,
@@ -13,13 +13,13 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\Collection;
 
-class NodeFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
 {
     private $f;
 
     public function setUp()
     {
-        $this->f = new NodeFactory(new Types);
+        $this->f = new AggregateRootFactory(new Types);
     }
 
     public function testInterface()

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
-    MetadataFactory\NodeFactory,
+    MetadataFactory\AggregateRootFactory,
     MetadataFactory\RelationshipFactory
 };
 use Innmind\Immutable\{
@@ -33,7 +33,7 @@ class MetadataBuilder
         $this->metadatas = new Metadatas;
         $this->types = $types;
         $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
-            ->put('node', new NodeFactory($types))
+            ->put('node', new AggregateRootFactory($types))
             ->put('relationship', new RelationshipFactory($types));
         $this->config = $config ?? new Configuration;
         $this->processor = new Processor;

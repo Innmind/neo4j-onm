@@ -24,7 +24,7 @@ use Innmind\Immutable\{
     Collection
 };
 
-class NodeFactory implements MetadataFactoryInterface
+class AggregateRootFactory implements MetadataFactoryInterface
 {
     private $types;
 
