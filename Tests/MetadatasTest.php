@@ -16,6 +16,7 @@ class MetadatasTest extends \PHPUnit_Framework_TestCase
     {
         $m = new Metadatas;
 
+        $this->assertSame(0, $m->all()->size());
         $e = $this->getMock(EntityInterface::class);
         $e
             ->method('alias')
@@ -27,5 +28,6 @@ class MetadatasTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($m, $m->add($e));
         $this->assertSame($e, $m->get('foo'));
         $this->assertSame($e, $m->get('bar'));
+        $this->assertSame(1, $m->all()->size());
     }
 }

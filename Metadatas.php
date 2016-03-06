@@ -4,7 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    MapInterface
+};
 
 class Metadatas
 {
@@ -49,5 +52,15 @@ class Metadatas
         }
 
         return $this->mapping->get($name);
+    }
+
+    /**
+     * Return all metadatas
+     *
+     * @return MapInterface<string, EntityInterface>
+     */
+    public function all(): MapInterface
+    {
+        return $this->mapping;
     }
 }
