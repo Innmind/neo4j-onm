@@ -60,4 +60,13 @@ class MetadataBuilderTest extends \PHPUnit_Framework_TestCase
             $this->b->container()->get('SR')
         );
     }
+
+    /**
+     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The child node "type" at path "neo4j_entity_mapping.foo" must be configured.
+     */
+    public function testThrowWhenConfigurationFormatNotRespected()
+    {
+        $this->b->inject(['foo' => []]);
+    }
 }

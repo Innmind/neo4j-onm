@@ -12,20 +12,31 @@ use Innmind\Immutable\{
     Collection,
     Map
 };
+use Symfony\Component\Config\Definition\{
+    ConfigurationInterface,
+    Processor
+};
 
 class MetadataBuilder
 {
     private $metadatas;
     private $types;
     private $factories;
+    private $config;
+    private $processor;
 
-    public function __construct(Types $types, Map $factories = null)
-    {
+    public function __construct(
+        Types $types,
+        Map $factories = null,
+        ConfigurationInterface $config = null
+    ) {
         $this->metadatas = new Metadatas;
         $this->types = $types;
         $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
             ->put('node', new NodeFactory($types))
             ->put('relationship', new RelationshipFactory($types));
+        $this->config = $config ?? new Configuration;
+        $this->processor = new Processor;
     }
 
     /**
@@ -47,6 +58,11 @@ class MetadataBuilder
      */
     public function inject(array $metas): self
     {
+        $metas = $this->processor->processConfiguration(
+            $this->config,
+            [$metas]
+        );
+
         foreach ($metas as $class => $meta) {
             $this->metadatas->add(
                 $this->build($class, $meta)
