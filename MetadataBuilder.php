@@ -20,7 +20,6 @@ use Symfony\Component\Config\Definition\{
 class MetadataBuilder
 {
     private $metadatas;
-    private $types;
     private $factories;
     private $config;
     private $processor;
@@ -31,7 +30,6 @@ class MetadataBuilder
         ConfigurationInterface $config = null
     ) {
         $this->metadatas = new Metadatas;
-        $this->types = $types;
         $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
             ->put('node', new AggregateRootFactory($types))
             ->put('relationship', new RelationshipFactory($types));
