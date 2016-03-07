@@ -36,14 +36,43 @@ class AggregateRootTranslator implements EntityTranslatorInterface
         }
 
         $row = $result->rows()->get($variable);
+
+        if (isset($row->value()[0])) { // means collections of nodes
+            $data = new Collection([]);
+
+            foreach ($row->value() as $node) {
+                $data = $data->push(
+                    $this->translateNode(
+                        $node[$meta->identity()->property()],
+                        $meta,
+                        $result
+                    )
+                );
+            }
+
+            return $data;
+        }
+
+        return $this->translateNode(
+            $row->value()[$meta->identity()->property()],
+            $meta,
+            $result
+        );
+    }
+
+    private function translateNode(
+        $identity,
+        EntityInterface $meta,
+        ResultInterface $result
+    ): CollectionInterface {
         $node = $result
             ->nodes()
-            ->filter(function(NodeInterface $node) use ($row, $meta) {
+            ->filter(function(NodeInterface $node) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $node->properties();
 
                 return $properties->hasKey($id) &&
-                    $properties->get($id) === $row->value()[$id];
+                    $properties->get($id) === $identity;
             })
             ->first();
         $data = (new Collection([]))

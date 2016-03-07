@@ -33,14 +33,43 @@ class RelationshipTranslator implements EntityTranslatorInterface
         }
 
         $row = $result->rows()->get($variable);
+
+        if (isset($row->value()[0])) { // means collections of relationships
+            $data = new Collection([]);
+
+            foreach ($row->value() as $relationship) {
+                $data = $data->push(
+                    $this->translateRelationship(
+                        $relationship[$meta->identity()->property()],
+                        $meta,
+                        $result
+                    )
+                );
+            }
+
+            return $data;
+        }
+
+        return $this->translateRelationship(
+            $row->value()[$meta->identity()->property()],
+            $meta,
+            $result
+        );
+    }
+
+    private function translateRelationship(
+        $identity,
+        EntityInterface $meta,
+        ResultInterface $result
+    ): CollectionInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(RelationshipInterface $relationship) use ($row, $meta) {
+            ->filter(function(RelationshipInterface $relationship) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 
                 return $properties->hasKey($id) &&
-                    $properties->get($id) === $row->value()[$id];
+                    $properties->get($id) === $identity;
             })
             ->first();
         $data = (new Collection([]))

@@ -259,6 +259,82 @@ class AggregateRootTranslatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testTranslateMultipleNodes()
+    {
+        $m = new AggregateRoot(
+            new ClassName('FQCN'),
+            new Identity('id', 'foo'),
+            new Repository('foo'),
+            new Factory('foo'),
+            new Alias('foo'),
+            ['Label']
+        );
+        $m = $m
+            ->withProperty('created', new DateType)
+            ->withProperty(
+                'empty',
+                StringType::fromConfig(
+                    new Collection(['nullable' => null])
+                )
+            );
+
+        $data = $this->t->translate(
+            'n',
+            $m,
+            Result::fromRaw([
+                'columns' => ['n'],
+                'data' => [[
+                    'row' => [[
+                        [
+                            'id' => 42,
+                            'created' => '2016-01-01T00:00:00+0200',
+                        ],
+                        [
+                            'id' => 43,
+                            'created' => '2016-01-01T00:00:00+0200',
+                        ],
+                    ]],
+                    'graph' => [
+                        'nodes' => [
+                            [
+                                'id' => 1,
+                                'labels' => ['Node'],
+                                'properties' => [
+                                    'id' => 42,
+                                    'created' => '2016-01-01T00:00:00+0200',
+                                ],
+                            ],
+                            [
+                                'id' => 2,
+                                'labels' => ['Node'],
+                                'properties' => [
+                                    'id' => 43,
+                                    'created' => '2016-01-02T00:00:00+0200',
+                                ],
+                            ],
+                        ],
+                        'relationships' => [],
+                    ],
+                ]],
+            ])
+        );
+
+        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertSame(2, $data->count());
+        $this->assertSame(
+            ['id', 'created'],
+            $data->get(0)->keys()->toPrimitive()
+        );
+        $this->assertSame(42, $data->get(0)->get('id'));
+        $this->assertSame('2016-01-01T00:00:00+0200', $data->get(0)->get('created'));
+        $this->assertSame(
+            ['id', 'created'],
+            $data->get(1)->keys()->toPrimitive()
+        );
+        $this->assertSame(43, $data->get(1)->get('id'));
+        $this->assertSame('2016-01-02T00:00:00+0200', $data->get(1)->get('created'));
+    }
+
     /**
      * @expectedException Innmind\Neo4j\ONM\Exception\MoreThanOneRelationshipFoundException
      * @expectedExceptionMessage More than one relationship found on "FQCN::rel2"
