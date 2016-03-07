@@ -62,4 +62,19 @@ class UuidGenerator implements GeneratorInterface
 
         return $this;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function for($value): IdentityInterface
+    {
+        if ($this->knows($value)) {
+            return $this->get($value);
+        }
+
+        $uuid = new Uuid($value);
+        $this->add($uuid);
+
+        return $uuid;
+    }
 }

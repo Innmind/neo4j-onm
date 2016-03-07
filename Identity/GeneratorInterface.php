@@ -35,4 +35,16 @@ interface GeneratorInterface
      * @return self
      */
     public function add(IdentityInterface $identity): self;
+
+    /**
+     * Return an identity instance with the given value
+     *
+     * The difference with `get` is that it will create a new instance if none
+     * known yet
+     *
+     * @param mixed $value
+     *
+     * @return IdentityInterface
+     */
+    public function for($value): IdentityInterface;
 }

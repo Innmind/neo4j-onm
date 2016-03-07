@@ -33,4 +33,16 @@ class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($g, $g->add($u));
         $this->assertTrue($g->knows($s));
     }
+
+    public function testFor()
+    {
+        $g = new UuidGenerator;
+        $s = '11111111-1111-1111-1111-111111111111';
+
+        $this->assertFalse($g->knows($s));
+        $this->assertInstanceof(Uuid::class, $u = $g->for($s));
+        $this->assertSame($s, $u->value());
+        $this->assertTrue($g->knows($s));
+        $this->assertSame($u, $g->for($s));
+    }
 }
