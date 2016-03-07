@@ -115,4 +115,14 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
                 ->format('d/m/Y')
         );
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The value "42" must be an instance of DateTimeInterface
+     */
+    public function testThrowWhenInvalidDate()
+    {
+        DateType::fromConfig(new Collection([]))
+            ->forDatabase(42);
+    }
 }

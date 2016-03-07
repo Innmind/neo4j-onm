@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Type;
 
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    TypeInterface,
+    Exception\InvalidArgumentException
+};
 use Innmind\Immutable\{
     CollectionInterface,
     Set,
@@ -53,7 +56,7 @@ class DateType implements TypeInterface
         }
 
         if (!$value instanceof \DateTimeInterface) {
-            throw new InvalidTypeException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The value "%s" must be an instance of DateTimeInterface',
                 $value
             ));
