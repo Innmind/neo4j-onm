@@ -19,6 +19,7 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
+    Identity\Generators,
     IdentityInterface
 };
 use Innmind\Immutable\{
@@ -30,7 +31,7 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testMake()
     {
-        $f = new RelationshipFactory;
+        $f = new RelationshipFactory(new Generators);
 
         $entity = new class {
             public $uuid;
@@ -46,8 +47,8 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             new Factory('foo'),
             new Alias('foo'),
             new RelationshipType('type'),
-            new RelationshipEdge('start', 'foo', 'target'),
-            new RelationshipEdge('end', 'foo', 'target')
+            new RelationshipEdge('start', Uuid::class, 'target'),
+            new RelationshipEdge('end', Uuid::class, 'target')
         );
         $meta = $meta
             ->withProperty('created', new DateType)
@@ -64,8 +65,8 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             new Collection([
                 'uuid' => 24,
                 'created' => '2016-01-01T00:00:00+0200',
-                'start' => $start = new Uuid('11111111-1111-1111-1111-111111111111'),
-                'end' => $end = new Uuid('11111111-1111-1111-1111-111111111111'),
+                'start' => $start = '11111111-1111-1111-1111-111111111111',
+                'end' => $end = '11111111-1111-1111-1111-111111111111',
             ])
         );
 
@@ -80,8 +81,10 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             $rel->created->format('c')
         );
         $this->assertSame(null, $rel->empty);
-        $this->assertSame($start, $rel->start);
-        $this->assertSame($end, $rel->end);
+        $this->assertInstanceOf(Uuid::class, $rel->start);
+        $this->assertInstanceOf(Uuid::class, $rel->end);
+        $this->assertSame($start, $rel->start->value());
+        $this->assertSame($end, $rel->end->value());
     }
 
     /**
@@ -89,7 +92,7 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenTryingToBuildNonRelationship()
     {
-        (new RelationshipFactory)->make(
+        (new RelationshipFactory(new Generators))->make(
             $this->getMock(IdentityInterface::class),
             $this->getMock(EntityInterface::class),
             new Collection([])

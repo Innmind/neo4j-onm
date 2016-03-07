@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\Relationship,
     Metadata\Property,
+    Identity\Generators,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\CollectionInterface;
@@ -16,6 +17,13 @@ use Innmind\Reflection\ReflectionClass;
 
 class RelationshipFactory implements EntityFactoryInterface
 {
+    private $generators;
+
+    public function __construct(Generators $generators)
+    {
+        $this->generators = $generators;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -35,11 +43,21 @@ class RelationshipFactory implements EntityFactoryInterface
             )
             ->withProperty(
                 $meta->startNode()->property(),
-                $data->get($meta->startNode()->property())
+                $this
+                    ->generators
+                    ->get($meta->startNode()->type())
+                    ->for(
+                        $data->get($meta->startNode()->property())
+                    )
             )
             ->withProperty(
                 $meta->endNode()->property(),
-                $data->get($meta->endNode()->property())
+                $this
+                    ->generators
+                    ->get($meta->endNode()->type())
+                    ->for(
+                        $data->get($meta->endNode()->property())
+                    )
             );
 
         $meta
