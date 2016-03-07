@@ -16,8 +16,8 @@ class Relationship extends Entity implements EntityInterface
         Factory $factory,
         Alias $alias,
         RelationshipType $type,
-        Identity $startNode,
-        Identity $endNode
+        RelationshipEdge $startNode,
+        RelationshipEdge $endNode
     ) {
         parent::__construct($class, $id, $repository, $factory, $alias);
 
@@ -31,12 +31,12 @@ class Relationship extends Entity implements EntityInterface
         return $this->type;
     }
 
-    public function startNode(): Identity
+    public function startNode(): RelationshipEdge
     {
         return $this->startNode;
     }
 
-    public function endNode(): Identity
+    public function endNode(): RelationshipEdge
     {
         return $this->endNode;
     }

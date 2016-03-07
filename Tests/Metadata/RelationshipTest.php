@@ -13,6 +13,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\ValueObject,
     Metadata\RelationshipType,
+    Metadata\RelationshipEdge,
     TypeInterface
 };
 
@@ -27,8 +28,8 @@ class RelationshipTest extends \PHPUnit_Framework_TestCase
             $f = new Factory('AnotherClass'),
             $a = new Alias('CanBeClassName'),
             $t = new RelationshipType('foo'),
-            $s = new Identity('start', 'UUID'),
-            $e = new Identity('end', 'UUID')
+            $s = new RelationshipEdge('start', 'UUID', 'target'),
+            $e = new RelationshipEdge('end', 'UUID', 'target')
         );
 
         $this->assertInstanceOf(EntityInterface::class, $r);

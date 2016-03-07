@@ -13,6 +13,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Metadata\RelationshipType,
+    Metadata\RelationshipEdge,
     Repository as EntityRepository,
     EntityFactory\RelationshipFactory as EntityFactory,
     Types
@@ -55,13 +56,15 @@ class RelationshipFactory implements MetadataFactoryInterface
                     $config->get('alias') : $config->get('class')
             ),
             new RelationshipType($config->get('rel_type')),
-            new Identity(
+            new RelationshipEdge(
                 $config->get('startNode')['property'],
-                $config->get('startNode')['type']
+                $config->get('startNode')['type'],
+                $config->get('startNode')['target']
             ),
-            new Identity(
+            new RelationshipEdge(
                 $config->get('endNode')['property'],
-                $config->get('endNode')['type']
+                $config->get('endNode')['type'],
+                $config->get('endNode')['target']
             )
         );
 

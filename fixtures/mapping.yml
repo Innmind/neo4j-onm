@@ -38,9 +38,11 @@ SomeRelationship:
     startNode:
         property: startProperty # must be an EntityIdentifierInterface
         type: UUID
+        target: uuid # the node property where to look for the identity
     endNode:
         property: endProperty
         type: UUID
+        target: uuid
     properties:
         created:
             type: date

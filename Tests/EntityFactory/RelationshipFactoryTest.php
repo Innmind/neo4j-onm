@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM\Tests\EntityFactory;
 use Innmind\Neo4j\ONM\{
     EntityFactory\RelationshipFactory,
     Metadata\Relationship,
+    Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -45,8 +46,8 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             new Factory('foo'),
             new Alias('foo'),
             new RelationshipType('type'),
-            new Identity('start', 'foo'),
-            new Identity('end', 'foo')
+            new RelationshipEdge('start', 'foo', 'target'),
+            new RelationshipEdge('end', 'foo', 'target')
         );
         $meta = $meta
             ->withProperty('created', new DateType)

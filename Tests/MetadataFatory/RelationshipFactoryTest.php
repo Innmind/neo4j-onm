@@ -44,10 +44,12 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             'startNode' => [
                 'property' => 'startProperty',
                 'type' => 'UUID',
+                'target' => 'target',
             ],
             'endNode' => [
                 'property' => 'endProperty',
                 'type' => 'UUID',
+                'target' => 'target',
             ],
             'properties' => [
                 'created' => [
@@ -66,8 +68,10 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('UUID', $ar->identity()->type());
         $this->assertSame('startProperty', $ar->startNode()->property());
         $this->assertSame('UUID', $ar->startNode()->type());
+        $this->assertSame('target', $ar->startNode()->target());
         $this->assertSame('endProperty', $ar->endNode()->property());
         $this->assertSame('UUID', $ar->endNode()->type());
+        $this->assertSame('target', $ar->endNode()->target());
         $this->assertInstanceOf(
             DateType::class,
             $ar->properties()->get('created')->type()
