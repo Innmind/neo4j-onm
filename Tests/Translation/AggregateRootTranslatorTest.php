@@ -14,10 +14,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
+    Metadata\EntityInterface,
     Type\DateType,
     Type\StringType
 };
-use Innmind\Neo4j\DBAL\Result;
+use Innmind\Neo4j\DBAL\{
+    Result,
+    ResultInterface
+};
 use Innmind\Immutable\{
     Collection,
     CollectionInterface
@@ -335,6 +339,18 @@ class AggregateRootTranslatorTest extends \PHPUnit_Framework_TestCase
                     ],
                 ]],
             ])
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenTranslatingNonSupportedEntity()
+    {
+        (new AggregateRootTranslator)->translate(
+            'r',
+            $this->getMock(EntityInterface::class),
+            $this->getMock(ResultInterface::class)
         );
     }
 }
