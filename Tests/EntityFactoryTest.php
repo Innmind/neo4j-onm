@@ -24,7 +24,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\EntityInterface,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Entity\Container
 };
 use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
@@ -43,7 +44,8 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
             new ResultTranslator,
             $g = new Generators,
             (new Resolver)
-                ->add(new RelationshipFactory($g))
+                ->add(new RelationshipFactory($g)),
+            new Container
         );
     }
 

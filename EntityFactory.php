@@ -7,7 +7,8 @@ use Innmind\Neo4j\ONM\{
     Translation\ResultTranslator,
     Identity\Generators,
     EntityFactory\Resolver,
-    Metadata\EntityInterface
+    Metadata\EntityInterface,
+    Entity\Container
 };
 use Innmind\Neo4j\DBAL\ResultInterface;
 use Innmind\Immutable\{
@@ -23,17 +24,18 @@ class EntityFactory
     private $translator;
     private $generators;
     private $resolver;
+    private $entities;
 
     public function __construct(
         ResultTranslator $translator,
         Generators $generators,
-        Resolver $resolver
-        // inject entities "silo" to share the awareness of objects
+        Resolver $resolver,
+        Container $entities
     ) {
         $this->translator = $translator;
         $this->generators = $generators;
         $this->resolver = $resolver;
-        $this->entities = new Map(IdentityInterface::class, 'object');
+        $this->entities = $entities;
     }
 
     /**
@@ -105,9 +107,10 @@ class EntityFactory
             ->resolver
             ->get($meta)
             ->make($identity, $meta, $data);
-        $this->entities = $this->entities->put(
+        $this->entities = $this->entities->push(
             $identity,
-            $entity
+            $entity,
+            Container::STATE_MANAGED
         );
 
         return $entity;
