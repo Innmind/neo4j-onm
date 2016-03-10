@@ -15,6 +15,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $c = new Container;
         $i = $this->getMock(IdentityInterface::class);
 
+        $this->assertFalse($c->contains($i));
         $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
         $this->assertSame(0, $c->state(Container::STATE_NEW)->size());
         $this->assertSame(0, $c->state(Container::STATE_TO_BE_REMOVED)->size());
@@ -29,7 +30,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, $c->state(Container::STATE_REMOVED)->size());
         $this->assertSame(Container::STATE_NEW, $c->stateFor($i));
         $this->assertSame($e, $c->get($i));
+        $this->assertTrue($c->contains($i));
         $this->assertSame($c, $c->detach($i));
+        $this->assertFalse($c->contains($i));
         $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
         $this->assertSame(0, $c->state(Container::STATE_NEW)->size());
         $this->assertSame(0, $c->state(Container::STATE_TO_BE_REMOVED)->size());

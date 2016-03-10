@@ -140,4 +140,22 @@ class Container
             ->get($this->stateFor($identity))
             ->get($identity);
     }
+
+    /**
+     * Check if the given identity if known by the container
+     *
+     * @param IdentityInterface $identity
+     *
+     * @return bool
+     */
+    public function contains(IdentityInterface $identity): bool
+    {
+        try {
+            $this->stateFor($identity);
+
+            return true;
+        } catch (IdentityNotManagedException $e) {
+            return false;
+        }
+    }
 }
