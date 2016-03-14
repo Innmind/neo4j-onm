@@ -57,8 +57,7 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child',
-                        true
+                        'child'
                     ))
                         ->withProperty('created', new DateType)
                         ->withProperty(
@@ -84,8 +83,7 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
                         'rel2',
-                        'child',
-                        false
+                        'child'
                     ))
                         ->withProperty('created', new DateType)
                         ->withProperty(
@@ -195,15 +193,6 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                                 ],
                             ],
                             [
-                                'id' => 2,
-                                'type' => 'CHILD1_OF',
-                                'startNode' => 3,
-                                'endNode' => 1,
-                                'properties' => [
-                                    'created' => '2016-01-02T00:00:00+0200',
-                                ],
-                            ],
-                            [
                                 'id' => 3,
                                 'type' => 'CHILD2_OF',
                                 'startNode' => 4,
@@ -246,46 +235,25 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(42, $data->get('n')->get('id'));
         $this->assertSame('2016-01-01T00:00:00+0200', $data->get('n')->get('created'));
         $this->assertInstanceOf(CollectionInterface::class, $data->get('n')->get('rel'));
-        $this->assertSame(2, $data->get('n')->get('rel')->count());
         $this->assertSame(
             ['created', 'child'],
-            $data->get('n')->get('rel')->get(0)->keys()->toPrimitive()
+            $data->get('n')->get('rel')->keys()->toPrimitive()
         );
         $this->assertSame(
             '2016-01-01T00:00:00+0200',
-            $data->get('n')->get('rel')->get(0)->get('created')
+            $data->get('n')->get('rel')->get('created')
         );
         $this->assertInstanceOf(
             CollectionInterface::class,
-            $data->get('n')->get('rel')->get(0)->get('child')
+            $data->get('n')->get('rel')->get('child')
         );
         $this->assertSame(
             ['content'],
-            $data->get('n')->get('rel')->get(0)->get('child')->keys()->toPrimitive()
+            $data->get('n')->get('rel')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame(
             'foo',
-            $data->get('n')->get('rel')->get(0)->get('child')->get('content')
-        );
-        $this->assertSame(
-            ['created', 'child'],
-            $data->get('n')->get('rel')->get(1)->keys()->toPrimitive()
-        );
-        $this->assertSame(
-            '2016-01-02T00:00:00+0200',
-            $data->get('n')->get('rel')->get(1)->get('created')
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $data->get('n')->get('rel')->get(1)->get('child')
-        );
-        $this->assertSame(
-            ['content'],
-            $data->get('n')->get('rel')->get(1)->get('child')->keys()->toPrimitive()
-        );
-        $this->assertSame(
-            'bar',
-            $data->get('n')->get('rel')->get(1)->get('child')->get('content')
+            $data->get('n')->get('rel')->get('child')->get('content')
         );
         $this->assertInstanceOf(CollectionInterface::class, $data->get('n')->get('rel2'));
         $this->assertSame(2, $data->get('n')->get('rel2')->count());

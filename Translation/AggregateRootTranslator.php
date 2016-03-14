@@ -140,34 +140,8 @@ class AggregateRootTranslator implements EntityTranslatorInterface
                     $relationship->endNode()->value() === $node->id()->value();
             });
 
-        if (
-            !$relMeta->isCollection() &&
-            $relationships->count() > 1
-        ) {
+        if ($relationships->count() > 1) {
             throw MoreThanOneRelationshipFoundException::for($meta);
-        }
-
-        if ($relMeta->isCollection()) {
-            $data = new Collection([]);
-
-            $relationships->each(function(
-                int $index,
-                RelationshipInterface $relationship
-            ) use (
-                &$data,
-                $meta,
-                $result
-            ) {
-                $data = $data->push(
-                    $this->translateRelationship(
-                        $meta,
-                        $result,
-                        $relationship
-                    )
-                );
-            });
-
-            return $data;
         }
 
         return $this->translateRelationship(

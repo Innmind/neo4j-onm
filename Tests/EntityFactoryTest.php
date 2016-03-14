@@ -206,15 +206,6 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
                             ],
                         ],
                         [
-                            'id' => 2,
-                            'type' => 'CHILD1_OF',
-                            'startNode' => 3,
-                            'endNode' => 1,
-                            'properties' => [
-                                'created' => '2016-01-02T00:00:00+0200',
-                            ],
-                        ],
-                        [
                             'id' => 3,
                             'type' => 'CHILD2_OF',
                             'startNode' => 4,
@@ -274,42 +265,25 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
             $ar->created->format('c')
         );
         $this->assertSame(null, $ar->empty);
-        $this->assertInstanceOf(SetInterface::class, $ar->rel);
-        $this->assertSame(
+        $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->relationship()->class(),
-            (string) $ar->rel->type()
+            $ar->rel
         );
-        $this->assertSame(2, $ar->rel->size());
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->rel->toPrimitive()[0]->created
+            $ar->rel->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->rel->toPrimitive()[0]->created->format('c')
+            $ar->rel->created->format('c')
         );
-        $this->assertSame(null, $ar->rel->toPrimitive()[0]->empty);
+        $this->assertSame(null, $ar->rel->empty);
         $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->class(),
-            $ar->rel->toPrimitive()[0]->child
+            $ar->rel->child
         );
-        $this->assertSame('foo', $ar->rel->toPrimitive()[0]->child->content);
-        $this->assertSame(null, $ar->rel->toPrimitive()[0]->child->empty);
-        $this->assertInstanceOf(
-            \DateTimeImmutable::class,
-            $ar->rel->toPrimitive()[1]->created
-        );
-        $this->assertSame(
-            '2016-01-02T00:00:00+02:00',
-            $ar->rel->toPrimitive()[1]->created->format('c')
-        );
-        $this->assertSame(null, $ar->rel->toPrimitive()[1]->empty);
-        $this->assertInstanceOf(
-            (string) $aggregate->children()->get('rel')->class(),
-            $ar->rel->toPrimitive()[1]->child
-        );
-        $this->assertSame('bar', $ar->rel->toPrimitive()[1]->child->content);
-        $this->assertSame(null, $ar->rel->toPrimitive()[1]->child->empty);
+        $this->assertSame('foo', $ar->rel->child->content);
+        $this->assertSame(null, $ar->rel->child->empty);
         $rel = $entities->toPrimitive()[1];
         $this->assertInstanceOf((string) $relationship->class(), $rel);
         $this->assertInstanceOf(Uuid::class, $rel->uuid);

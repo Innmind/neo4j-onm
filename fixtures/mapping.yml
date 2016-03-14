@@ -14,7 +14,6 @@ Image:
         rel:
             class: DescriptionOf
             type: DESCRIPTION_OF # direction flows from value object to aggregate root
-            collection: true
             properties:
                 created:
                     type: date

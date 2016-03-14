@@ -85,25 +85,7 @@ class AggregateRootFactory implements EntityFactoryInterface
         $relationship = $meta->relationship();
         $data = $data->get($relationship->property());
 
-        if ($relationship->isCollection()) {
-            $set = new Set((string) $relationship->class());
-
-            $data->each(function(
-                $key,
-                CollectionInterface $value
-            ) use (
-                &$set,
-                $meta
-            ) {
-                $set = $set->add(
-                    $this->buildRelationship($meta, $value)
-                );
-            });
-
-            return $set;
-        }
-
-        return $this->buildRelationship($relationship, $data);
+        return $this->buildRelationship($meta, $data);
     }
 
     private function buildRelationship(

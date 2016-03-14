@@ -70,8 +70,7 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',
-                        'child',
-                        true
+                        'child'
                     ))
                         ->withProperty('created', new DateType)
                         ->withProperty(
@@ -97,17 +96,9 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
                 'uuid' => 24,
                 'created' => '2016-01-01T00:00:00+0200',
                 'rel' => new Collection([
-                    new Collection([
-                        'created' => '2016-01-01T00:00:00+0200',
-                        'child' => new Collection([
-                            'content' => 'foo',
-                        ]),
-                    ]),
-                    new Collection([
-                        'created' => '2016-01-02T00:00:00+0200',
-                        'child' => new Collection([
-                            'content' => 'bar',
-                        ]),
+                    'created' => '2016-01-01T00:00:00+0200',
+                    'child' => new Collection([
+                        'content' => 'foo',
                     ]),
                 ]),
             ])
@@ -124,39 +115,21 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
             $ar->created->format('c')
         );
         $this->assertSame(null, $ar->empty);
-        $this->assertInstanceOf(SetInterface::class, $ar->rel);
-        $this->assertSame(get_class($rel), (string) $ar->rel->type());
-        $this->assertSame(2, $ar->rel->size());
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->rel->toPrimitive()[0]->created
+            $ar->rel->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->rel->toPrimitive()[0]->created->format('c')
+            $ar->rel->created->format('c')
         );
-        $this->assertSame(null, $ar->rel->toPrimitive()[0]->empty);
+        $this->assertSame(null, $ar->rel->empty);
         $this->assertInstanceOf(
             get_class($child),
-            $ar->rel->toPrimitive()[0]->child
+            $ar->rel->child
         );
-        $this->assertSame('foo', $ar->rel->toPrimitive()[0]->child->content);
-        $this->assertSame(null, $ar->rel->toPrimitive()[0]->child->empty);
-        $this->assertInstanceOf(
-            \DateTimeImmutable::class,
-            $ar->rel->toPrimitive()[1]->created
-        );
-        $this->assertSame(
-            '2016-01-02T00:00:00+02:00',
-            $ar->rel->toPrimitive()[1]->created->format('c')
-        );
-        $this->assertSame(null, $ar->rel->toPrimitive()[1]->empty);
-        $this->assertInstanceOf(
-            get_class($child),
-            $ar->rel->toPrimitive()[1]->child
-        );
-        $this->assertSame('bar', $ar->rel->toPrimitive()[1]->child->content);
-        $this->assertSame(null, $ar->rel->toPrimitive()[1]->child->empty);
+        $this->assertSame('foo', $ar->rel->child->content);
+        $this->assertSame(null, $ar->rel->child->empty);
     }
 
     /**

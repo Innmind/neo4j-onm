@@ -51,7 +51,6 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
                 'rel' => [
                     'class' => 'DescriptionOf',
                     'type' => 'DESCRIPTION_OF',
-                    'collection' => true,
                     'properties' => [
                         'created' => [
                             'type' => 'date',
@@ -96,7 +95,6 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('rel', $rel->property());
         $this->assertSame('DescriptionOf', (string) $rel->class());
         $this->assertSame('DESCRIPTION_OF', (string) $rel->type());
-        $this->assertTrue($rel->isCollection());
         $this->assertInstanceOf(
             DateType::class,
             $rel->properties()->get('created')->type()
