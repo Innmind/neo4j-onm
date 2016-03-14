@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\Translation;
 
 use Innmind\Neo4j\ONM\{
-    Translation\AggregateRootTranslator,
-    Metadata\AggregateRoot,
+    Translation\AggregateTranslator,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -27,15 +27,15 @@ use Innmind\Immutable\{
     CollectionInterface
 };
 
-class AggregateRootTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
 {
     private $t;
     private $m;
 
     public function setUp()
     {
-        $this->t = new AggregateRootTranslator;
-        $this->m = new AggregateRoot(
+        $this->t = new AggregateTranslator;
+        $this->m = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
@@ -229,7 +229,7 @@ class AggregateRootTranslatorTest extends \PHPUnit_Framework_TestCase
 
     public function testTranslateMultipleNodes()
     {
-        $m = new AggregateRoot(
+        $m = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
@@ -391,7 +391,7 @@ class AggregateRootTranslatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
-        (new AggregateRootTranslator)->translate(
+        (new AggregateTranslator)->translate(
             'r',
             $this->getMock(EntityInterface::class),
             $this->getMock(ResultInterface::class)

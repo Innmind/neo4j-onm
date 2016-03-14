@@ -4,22 +4,22 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
-    MetadataFactory\AggregateRootFactory,
+    MetadataFactory\AggregateFactory,
     MetadataFactoryInterface,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Type\StringType,
     Type\DateType,
     Types
 };
 use Innmind\Immutable\Collection;
 
-class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
 {
     private $f;
 
     public function setUp()
     {
-        $this->f = new AggregateRootFactory(new Types);
+        $this->f = new AggregateFactory(new Types);
     }
 
     public function testInterface()
@@ -70,7 +70,7 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]));
 
-        $this->assertInstanceOf(AggregateRoot::class, $ar);
+        $this->assertInstanceOf(Aggregate::class, $ar);
         $this->assertSame('Image', (string) $ar->class());
         $this->assertSame('I', (string) $ar->alias());
         $this->assertSame('ImageRepository', (string) $ar->repository());

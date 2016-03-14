@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -19,11 +19,11 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class AggregateRootTest extends \PHPUnit_Framework_TestCase
+class AggregateTest extends \PHPUnit_Framework_TestCase
 {
     public function testInterface()
     {
-        $ar = new AggregateRoot(
+        $ar = new Aggregate(
             $cn = new ClassName('foo'),
             $i = new Identity('uuid', 'UUID'),
             $r = new Repository('Class'),
@@ -54,7 +54,7 @@ class AggregateRootTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertNotSame($ar, $ar2);
-        $this->assertInstanceOf(AggregateRoot::class, $ar2);
+        $this->assertInstanceOf(Aggregate::class, $ar2);
         $this->assertSame(0, $ar->children()->count());
         $this->assertSame(1, $ar2->children()->count());
         $this->assertSame($vo, $ar2->children()->first()->value());

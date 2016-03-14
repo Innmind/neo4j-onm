@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     MetadataBuilder,
     Types,
     Metadatas,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\Relationship
 };
 use Symfony\Component\Yaml\Yaml;
@@ -44,11 +44,11 @@ class MetadataBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(2, $this->b->container()->all()->size());
         $this->assertInstanceOf(
-            AggregateRoot::class,
+            Aggregate::class,
             $this->b->container()->get('Image')
         );
         $this->assertInstanceOf(
-            AggregateRoot::class,
+            Aggregate::class,
             $this->b->container()->get('I')
         );
         $this->assertInstanceOf(

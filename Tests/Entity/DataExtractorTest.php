@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Tests\Entity;
 
 use Innmind\Neo4j\ONM\{
     Entity\DataExtractor,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Metadata\ClassName,
@@ -54,7 +54,7 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
         $m = new Metadatas;
         $m
             ->add(
-                (new AggregateRoot(
+                (new Aggregate(
                     new ClassName($this->arClass),
                     new Identity('uuid', 'foo'),
                     new Repository('foo'),

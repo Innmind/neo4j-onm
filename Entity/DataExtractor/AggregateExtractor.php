@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Entity\DataExtractor;
 use Innmind\Neo4j\ONM\{
     Entity\DataExtractorInterface,
     Metadata\EntityInterface,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Property,
     Exception\InvalidArgumentException
@@ -18,14 +18,14 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\ReflectionObject;
 
-class AggregateRootExtractor implements DataExtractorInterface
+class AggregateExtractor implements DataExtractorInterface
 {
     /**
      * {@inheritdoc}
      */
     public function extract($entity, EntityInterface $meta): CollectionInterface
     {
-        if (!$meta instanceof AggregateRoot) {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

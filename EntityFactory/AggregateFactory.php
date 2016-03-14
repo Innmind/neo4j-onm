@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactoryInterface,
     IdentityInterface,
     Metadata\EntityInterface,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\Property,
     Metadata\ValueObject,
     Exception\InvalidArgumentException
@@ -18,7 +18,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\ReflectionClass;
 
-class AggregateRootFactory implements EntityFactoryInterface
+class AggregateFactory implements EntityFactoryInterface
 {
     /**
      * {@inheritdoc}
@@ -28,7 +28,7 @@ class AggregateRootFactory implements EntityFactoryInterface
         EntityInterface $meta,
         CollectionInterface $data
     ) {
-        if (!$meta instanceof AggregateRoot) {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

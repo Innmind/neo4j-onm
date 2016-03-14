@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\Entity\DataExtractor;
 
 use Innmind\Neo4j\ONM\{
-    Entity\DataExtractor\AggregateRootExtractor,
+    Entity\DataExtractor\AggregateExtractor,
     Entity\DataExtractorInterface,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -25,15 +25,15 @@ use Innmind\Immutable\{
     Collection
 };
 
-class AggregateRootExtractorTest extends \PHPUnit_Framework_TestCase
+class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
 {
     private $e;
     private $m;
 
     public function setUp()
     {
-        $this->e = new AggregateRootExtractor;
-        $this->m = new AggregateRoot(
+        $this->e = new AggregateExtractor;
+        $this->m = new Aggregate(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new Repository('foo'),

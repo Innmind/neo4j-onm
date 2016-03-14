@@ -10,8 +10,8 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
-    EntityFactory\AggregateRootFactory,
-    Metadata\AggregateRoot,
+    EntityFactory\AggregateFactory,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -66,11 +66,11 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
             public $content;
             public $empty;
         };
-        $aggregate = new AggregateRoot(
+        $aggregate = new Aggregate(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new Repository('foo'),
-            new Factory(AggregateRootFactory::class),
+            new Factory(AggregateFactory::class),
             new Alias('foo'),
             ['Label']
         );

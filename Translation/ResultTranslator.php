@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\Metadata\{
     EntityInterface,
-    AggregateRoot,
+    Aggregate,
     Relationship
 };
 use Innmind\Neo4j\DBAL\ResultInterface;
@@ -22,7 +22,7 @@ class ResultTranslator
     public function __construct(MapInterface $translators = null)
     {
         $this->translators = $translators ?? (new Map('string', EntityTranslatorInterface::class))
-            ->put(AggregateRoot::class, new AggregateRootTranslator)
+            ->put(Aggregate::class, new AggregateTranslator)
             ->put(Relationship::class, new RelationshipTranslator);
     }
 

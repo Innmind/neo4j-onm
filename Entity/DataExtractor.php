@@ -5,9 +5,9 @@ namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Metadatas,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\Relationship,
-    Entity\DataExtractor\AggregateRootExtractor,
+    Entity\DataExtractor\AggregateExtractor,
     Entity\DataExtractor\RelationshipExtractor
 };
 use Innmind\Immutable\{
@@ -26,7 +26,7 @@ class DataExtractor
     ) {
         $this->metadatas = $metadatas;
         $this->extractors = (new Map('string', DataExtractorInterface::class))
-            ->put(AggregateRoot::class, new AggregateRootExtractor)
+            ->put(Aggregate::class, new AggregateExtractor)
             ->put(Relationship::class, new RelationshipExtractor);
     }
 

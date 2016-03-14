@@ -11,12 +11,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\Repository,
     Metadata\Factory,
     Metadata\Alias,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Repository as EntityRepository,
-    EntityFactory\AggregateRootFactory as EntityFactory,
+    EntityFactory\AggregateFactory as EntityFactory,
     Types
 };
 use Innmind\Immutable\{
@@ -24,7 +24,7 @@ use Innmind\Immutable\{
     Collection
 };
 
-class AggregateRootFactory implements MetadataFactoryInterface
+class AggregateFactory implements MetadataFactoryInterface
 {
     private $types;
 
@@ -38,7 +38,7 @@ class AggregateRootFactory implements MetadataFactoryInterface
      */
     public function make(CollectionInterface $config): EntityInterface
     {
-        $entity = new AggregateRoot(
+        $entity = new Aggregate(
             new ClassName($config->get('class')),
             new Identity(
                 $config->get('identity')['property'],
@@ -94,9 +94,9 @@ class AggregateRootFactory implements MetadataFactoryInterface
     }
 
     private function appendChildren(
-        AggregateRoot $entity,
+        Aggregate $entity,
         CollectionInterface $children
-    ): AggregateRoot {
+    ): Aggregate {
         $children->each(function(string $name, array $config) use (&$entity) {
             $config = new Collection($config);
             $rel = new ValueObjectRelationship(

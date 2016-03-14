@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Property,
     Exception\InvalidArgumentException,
@@ -21,7 +21,7 @@ use Innmind\Immutable\{
     Collection
 };
 
-class AggregateRootTranslator implements EntityTranslatorInterface
+class AggregateTranslator implements EntityTranslatorInterface
 {
     /**
      * {@inheritdoc}
@@ -31,7 +31,7 @@ class AggregateRootTranslator implements EntityTranslatorInterface
         EntityInterface $meta,
         ResultInterface $result
     ): CollectionInterface {
-        if (!$meta instanceof AggregateRoot) {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

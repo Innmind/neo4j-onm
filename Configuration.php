@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->children()
                     ->enumNode('type')
                         ->isRequired()
-                        ->values(['node', 'relationship'])
+                        ->values(['aggregate', 'relationship'])
                     ->end()
                     ->scalarNode('alias')
                         ->cannotBeEmpty()

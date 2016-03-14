@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Tests\Translation;
 
 use Innmind\Neo4j\ONM\{
     Translation\ResultTranslator,
-    Metadata\AggregateRoot,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -33,7 +33,7 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
     public function testTranslate()
     {
         $t = new ResultTranslator;
-        $aggregate = new AggregateRoot(
+        $aggregate = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),

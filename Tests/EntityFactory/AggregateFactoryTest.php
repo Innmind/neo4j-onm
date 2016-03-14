@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactory\AggregateRootFactory,
-    Metadata\AggregateRoot,
+    EntityFactory\AggregateFactory,
+    Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -25,11 +25,11 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testMake()
     {
-        $f = new AggregateRootFactory;
+        $f = new AggregateFactory;
 
         $entity = new class {
             public $uuid;
@@ -46,7 +46,7 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
             public $content;
             public $empty;
         };
-        $meta = new AggregateRoot(
+        $meta = new Aggregate(
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
@@ -135,9 +135,9 @@ class AggregateRootFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException Innmind\neo4j\ONM\Exception\InvalidArgumentException
      */
-    public function testThrowWhenTryingToBuildNonAggregateRoot()
+    public function testThrowWhenTryingToBuildNonAggregate()
     {
-        (new AggregateRootFactory)->make(
+        (new AggregateFactory)->make(
             $this->getMock(IdentityInterface::class),
             $this->getMock(EntityInterface::class),
             new Collection([])

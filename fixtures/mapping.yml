@@ -1,5 +1,5 @@
 Image:
-    type: node
+    type: aggregate
     alias: I
     repository: ImageRepository
     factory: ImageFactory # will be instanciated without constructor
