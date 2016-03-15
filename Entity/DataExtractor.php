@@ -25,7 +25,7 @@ class DataExtractor
         MapInterface $extractors = null
     ) {
         $this->metadatas = $metadatas;
-        $this->extractors = (new Map('string', DataExtractorInterface::class))
+        $this->extractors = $extractors ?? (new Map('string', DataExtractorInterface::class))
             ->put(Aggregate::class, new AggregateExtractor)
             ->put(Relationship::class, new RelationshipExtractor);
     }
