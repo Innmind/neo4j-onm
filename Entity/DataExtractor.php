@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship,
     Entity\DataExtractor\AggregateExtractor,
-    Entity\DataExtractor\RelationshipExtractor
+    Entity\DataExtractor\RelationshipExtractor,
+    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -28,6 +29,13 @@ class DataExtractor
         $this->extractors = $extractors ?? (new Map('string', DataExtractorInterface::class))
             ->put(Aggregate::class, new AggregateExtractor)
             ->put(Relationship::class, new RelationshipExtractor);
+
+        if (
+            (string) $this->extractors->keyType() !== 'string' ||
+            (string) $this->extractors->valueType() !== DataExtractorInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
     }
 
     /**

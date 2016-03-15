@@ -3,10 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Translation;
 
-use Innmind\Neo4j\ONM\Metadata\{
-    EntityInterface,
-    Aggregate,
-    Relationship
+use Innmind\Neo4j\ONM\{
+    Metadata\EntityInterface,
+    Metadata\Aggregate,
+    Metadata\Relationship,
+    Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\ResultInterface;
 use Innmind\Immutable\{
@@ -24,6 +25,13 @@ class ResultTranslator
         $this->translators = $translators ?? (new Map('string', EntityTranslatorInterface::class))
             ->put(Aggregate::class, new AggregateTranslator)
             ->put(Relationship::class, new RelationshipTranslator);
+
+        if (
+            (string) $this->translators->keyType() !== 'string' ||
+            (string) $this->translators->valueType() !== EntityTranslatorInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
     }
 
     /**

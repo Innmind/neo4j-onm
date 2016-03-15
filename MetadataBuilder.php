@@ -6,7 +6,8 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     MetadataFactory\AggregateFactory,
-    MetadataFactory\RelationshipFactory
+    MetadataFactory\RelationshipFactory,
+    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
     Collection,
@@ -35,6 +36,13 @@ class MetadataBuilder
             ->put('relationship', new RelationshipFactory($types));
         $this->config = $config ?? new Configuration;
         $this->processor = new Processor;
+
+        if (
+            (string) $this->factories->keyType() !== 'string' ||
+            (string) $this->factories->valueType() !== MetadataFactoryInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
     }
 
     /**
