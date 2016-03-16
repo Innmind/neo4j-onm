@@ -20,7 +20,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
@@ -34,7 +33,6 @@ use Innmind\Neo4j\DBAL\{
     Query\Parameter
 };
 use Innmind\Immutable\{
-    CollectionInterface,
     Collection
 };
 use Symfony\Component\EventDispatcher\EventDispatcher;
