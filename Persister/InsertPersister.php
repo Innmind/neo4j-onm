@@ -91,7 +91,7 @@ class InsertPersister implements PersisterInterface
     /**
      * Build the whole cypher query to insert at once all new nodes and relationships
      *
-     * @param MapInterface $entities
+     * @param MapInterface<IdentityInterface, object> $entities
      *
      * @return QueryInterface
      */
@@ -251,7 +251,7 @@ class InsertPersister implements PersisterInterface
     /**
      * Build the collection of properties to be injected in the query
      *
-     * @param MapInterface $properties
+     * @param MapInterface<string, Property> $properties
      * @param Str $name
      *
      * @return CollectionInterface
