@@ -61,6 +61,10 @@ class InsertPersister implements PersisterInterface
     {
         $entities = $container->state(Container::STATE_NEW);
 
+        if ($entities->size() === 0) {
+            return;
+        }
+
         $entities->foreach(function(IdentityInterface $identity, $entity) {
             $this->dispatcher->dispatch(
                 Events::PRE_PERSIST,
