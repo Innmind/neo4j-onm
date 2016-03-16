@@ -81,6 +81,13 @@ class RemovePersister implements PersisterInterface
         });
     }
 
+    /**
+     * Build the query to delete all entities at once
+     *
+     * @param MapInterface<IdentityInterface, object> $entities
+     *
+     * @return QueryInterface
+     */
     private function queryFor(MapInterface $entities): QueryInterface
     {
         $query = new Query;
@@ -113,6 +120,14 @@ class RemovePersister implements PersisterInterface
         return $query;
     }
 
+    /**
+     * Add clause to match the relationship we want to delete
+     *
+     * @param $object $entity
+     * @param Query  $query
+     *
+     * @return Query
+     */
     private function matchRelationship($entity, Query $query): Query
     {
         $meta = $this->metadatas->get(get_class($entity));
@@ -139,6 +154,14 @@ class RemovePersister implements PersisterInterface
             );
     }
 
+    /**
+     * Add clause to match the node we want to delete and all of its children
+     *
+     * @param object $entity
+     * @param Query  $query
+     *
+     * @return Query
+     */
     private function matchAggregate($entity, Query $query): Query
     {
         $meta = $this->metadatas->get(get_class($entity));
@@ -195,6 +218,13 @@ class RemovePersister implements PersisterInterface
         return $query;
     }
 
+    /**
+     * Extract the identity of the given entity
+     *
+     * @param object $entity
+     *
+     * @return IdentityInterface
+     */
     private function extractIdentity($entity): IdentityInterface
     {
         $id = $this
