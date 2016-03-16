@@ -246,5 +246,13 @@ class InsertPersisterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(1, $count);
         $this->assertSame(2, $preCount);
         $this->assertSame(2, $postCount);
+        $this->assertSame(
+            Container::STATE_MANAGED,
+            $container->stateFor($aggregate->uuid)
+        );
+        $this->assertSame(
+            Container::STATE_MANAGED,
+            $container->stateFor($relationship->uuid)
+        );
     }
 }
