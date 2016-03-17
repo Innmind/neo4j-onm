@@ -92,23 +92,34 @@ class RemovePersister implements PersisterInterface
     {
         $query = new Query;
         $this->variables = new Set('string');
-        $partitions = $entities
-            ->values()
-            ->partition(function($entity) {
-                $meta = $this->metadatas->get(get_class($entity));
+        $partitions = $entities->partition(function(
+            IdentityInterface $identity,
+            $entity
+        ) {
+            $meta = $this->metadatas->get(get_class($entity));
 
-                return $meta instanceof Relationship;
-            });
+            return $meta instanceof Relationship;
+        });
 
         $partitions
-            ->get(0)
-            ->foreach(function($entity) use (&$query) {
-                $query = $this->matchRelationship($entity, $query);
+            ->get(true)
+            ->foreach(function(
+                IdentityInterface $identity,
+                $entity
+            ) use (
+                &$query
+            ) {
+                $query = $this->matchRelationship($identity, $entity, $query);
             });
         $partitions
-            ->get(1)
-            ->foreach(function($entity) use (&$query) {
-                $query = $this->matchAggregate($entity, $query);
+            ->get(false)
+            ->foreach(function(
+                IdentityInterface $identity,
+                $entity
+            ) use (
+                &$query
+            ) {
+                $query = $this->matchAggregate($identity, $entity, $query);
             });
         $this
             ->variables
@@ -123,15 +134,18 @@ class RemovePersister implements PersisterInterface
     /**
      * Add clause to match the relationship we want to delete
      *
+     * @param IdentityInterface $identity
      * @param $object $entity
      * @param Query  $query
      *
      * @return Query
      */
-    private function matchRelationship($entity, Query $query): Query
-    {
+    private function matchRelationship(
+        IdentityInterface $identity,
+        $entity,
+        Query $query
+    ): Query {
         $meta = $this->metadatas->get(get_class($entity));
-        $identity = $this->extractIdentity($entity);
         $name = $this->name->sprintf(md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
@@ -157,15 +171,18 @@ class RemovePersister implements PersisterInterface
     /**
      * Add clause to match the node we want to delete and all of its children
      *
+     * @param IdentityInterface $identity
      * @param object $entity
      * @param Query  $query
      *
      * @return Query
      */
-    private function matchAggregate($entity, Query $query): Query
-    {
+    private function matchAggregate(
+        IdentityInterface $identity,
+        $entity,
+        Query $query
+    ): Query {
         $meta = $this->metadatas->get(get_class($entity));
-        $identity = $this->extractIdentity($entity);
         $name = $this->name->sprintf(md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
@@ -216,25 +233,5 @@ class RemovePersister implements PersisterInterface
             });
 
         return $query;
-    }
-
-    /**
-     * Extract the identity of the given entity
-     *
-     * @param object $entity
-     *
-     * @return IdentityInterface
-     */
-    private function extractIdentity($entity): IdentityInterface
-    {
-        $id = $this
-            ->metadatas
-            ->get(get_class($entity))
-            ->identity()
-            ->property();
-
-        return (new ReflectionObject($entity))
-            ->extract([$id])
-            ->get($id);
     }
 }

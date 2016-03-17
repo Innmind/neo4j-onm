@@ -104,22 +104,33 @@ class InsertPersister implements PersisterInterface
         $query = new Query;
         $this->variables = new Set('string');
 
-        $partitions = $entities
-            ->values()
-            ->partition(function($entity) {
-                $meta = $this->metadatas->get(get_class($entity));
+        $partitions = $entities->partition(function(
+            IdentityInterface $identity,
+            $entity
+        ) {
+            $meta = $this->metadatas->get(get_class($entity));
 
-                return $meta instanceof Aggregate;
+            return $meta instanceof Aggregate;
+        });
+        $partitions
+            ->get(true)
+            ->foreach(function(
+                IdentityInterface $identity,
+                $entity
+            ) use (
+                &$query
+            ) {
+                $query = $this->createAggregate($identity, $entity, $query);
             });
         $partitions
-            ->get(0)
-            ->foreach(function($entity) use (&$query) {
-                $query = $this->createAggregate($entity, $query);
-            });
-        $partitions
-            ->get(1)
-            ->foreach(function($entity) use (&$query) {
-                $query = $this->createRelationship($entity, $query);
+            ->get(false)
+            ->foreach(function(
+                IdentityInterface $identity,
+                $entity
+            ) use (
+                &$query
+            ) {
+                $query = $this->createRelationship($identity, $entity, $query);
             });
         $this->variables = null;
 
@@ -129,17 +140,20 @@ class InsertPersister implements PersisterInterface
     /**
      * Add the cypher clause to create the node corresponding to the root of the aggregate
      *
+     * @param IdentityInterface $identity
      * @param object $entity
      * @param Query  $query
      *
      * @return Query
      */
-    private function createAggregate($entity, Query $query): Query
-    {
+    private function createAggregate(
+        IdentityInterface $identity,
+        $entity,
+        Query $query
+    ): Query {
         $meta = $this->metadatas->get(get_class($entity));
         $data = $this->extractor->extract($entity);
-        $identity = $data->get($meta->identity()->property());
-        $varName = $this->name->sprintf(md5($identity));
+        $varName = $this->name->sprintf(md5($identity->value()));
 
         $query = $query->create(
             (string) $varName,
@@ -163,7 +177,7 @@ class InsertPersister implements PersisterInterface
             ->withParameters([
                 (string) $paramKey => $data
                     ->keyIntersect($properties)
-                    ->set($meta->identity()->property(), $identity)
+                    ->set($meta->identity()->property(), $identity->value())
                     ->toPrimitive()
             ]);
 
@@ -280,19 +294,22 @@ class InsertPersister implements PersisterInterface
     /**
      * Add the clause to create a relationship between nodes
      *
+     * @param IdentityInterface $identity
      * @param object $entity
      * @param Query $query
      *
      * @return Query
      */
-    private function createRelationship($entity, Query $query): Query
-    {
+    private function createRelationship(
+        IdentityInterface $identity,
+        $entity,
+        Query $query
+    ): Query {
         $meta = $this->metadatas->get(get_class($entity));
         $data = $this->extractor->extract($entity);
-        $identity = $data->get($meta->identity()->property());
         $start = $data->get($meta->startNode()->property());
         $end = $data->get($meta->endNode()->property());
-        $varName = $this->name->sprintf(md5($identity));
+        $varName = $this->name->sprintf(md5($identity->value()));
         $startName = $this->name->sprintf(md5($start));
         $endName = $this->name->sprintf(md5($end));
 
@@ -329,7 +346,7 @@ class InsertPersister implements PersisterInterface
             ->withParameters([
                 (string) $paramKey => $data
                     ->keyIntersect($properties)
-                    ->set($meta->identity()->property(), $identity)
+                    ->set($meta->identity()->property(), $identity->value())
                     ->toPrimitive()
             ]);
     }
