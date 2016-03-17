@@ -34,6 +34,7 @@ class RemovePersister implements PersisterInterface
     private $dispatcher;
     private $metadatas;
     private $name;
+    private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
