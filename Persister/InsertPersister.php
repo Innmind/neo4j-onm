@@ -313,8 +313,8 @@ class InsertPersister implements PersisterInterface
         $startName = $this->name->sprintf(md5($start));
         $endName = $this->name->sprintf(md5($end));
 
-        $properties = $this->buildProperties($meta->properties(), $varName);
         $paramKey = $varName->append('_props');
+        $properties = $this->buildProperties($meta->properties(), $paramKey);
 
         return $this
             ->matchEdge(
