@@ -158,10 +158,10 @@ class InsertPersisterTest extends \PHPUnit_Framework_TestCase
         $child->content = 'foo';
         $container->push($aggregate->uuid, $aggregate, Container::STATE_NEW);
         $relationship = new $this->rClass;
-        $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
+        $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->created = new \DateTimeImmutable('2016-01-01');
-        $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111112');
-        $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111113');
+        $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
+        $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
         $container->push($relationship->uuid, $relationship, Container::STATE_NEW);
         $count = $preCount = $postCount = 0;
 
@@ -169,7 +169,7 @@ class InsertPersisterTest extends \PHPUnit_Framework_TestCase
             ->method('execute')
             ->will($this->returnCallback(function($query) use (&$count) {
                 $this->assertSame(
-                    'CREATE (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_props}.uuid, created: {e38c6cbd28bf165070d070980dd1fb595_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_props}.empty }), (e38c6cbd28bf165070d070980dd1fb595)<-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO { created: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.empty }]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel { content: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.content, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.empty }) MATCH (e50ead852f3361489a400ab5c70f6c5cf { uuid: {e50ead852f3361489a400ab5c70f6c5cf_props}.uuid }), (e3c0eb72d56d7c664157fe196fa61f653 { uuid: {e3c0eb72d56d7c664157fe196fa61f653_props}.uuid }) CREATE (e50ead852f3361489a400ab5c70f6c5cf)-[e38c6cbd28bf165070d070980dd1fb595:type { uuid: {e38c6cbd28bf165070d070980dd1fb595_props}.uuid, created: {e38c6cbd28bf165070d070980dd1fb595_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_props}.empty }]->(e3c0eb72d56d7c664157fe196fa61f653)',
+                    'CREATE (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_props}.uuid, created: {e38c6cbd28bf165070d070980dd1fb595_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_props}.empty }), (e38c6cbd28bf165070d070980dd1fb595)<-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO { created: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.empty }]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel { content: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.content, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.empty }) MATCH (e3c0eb72d56d7c664157fe196fa61f653 { uuid: {e3c0eb72d56d7c664157fe196fa61f653_props}.uuid }), (e4519d9310a314e2fce041e833b6553a9 { uuid: {e4519d9310a314e2fce041e833b6553a9_props}.uuid }) CREATE (e3c0eb72d56d7c664157fe196fa61f653)-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_props}.uuid, created: {e50ead852f3361489a400ab5c70f6c5cf_props}.created, empty: {e50ead852f3361489a400ab5c70f6c5cf_props}.empty }]->(e4519d9310a314e2fce041e833b6553a9)',
                     $query->cypher()
                 );
                 $this->assertSame(6, $query->parameters()->count());
@@ -190,16 +190,16 @@ class InsertPersisterTest extends \PHPUnit_Framework_TestCase
                                 'content' => 'foo',
                                 'empty' => null,
                             ],
-                            'e50ead852f3361489a400ab5c70f6c5cf_props' => [
-                                'uuid' => '11111111-1111-1111-1111-111111111112',
+                            'e4519d9310a314e2fce041e833b6553a9_props' => [
+                                'uuid' => '11111111-1111-1111-1111-111111111114',
                             ],
                             'e3c0eb72d56d7c664157fe196fa61f653_props' => [
                                 'uuid' => '11111111-1111-1111-1111-111111111113',
                             ],
-                            'e38c6cbd28bf165070d070980dd1fb595_props' => [
+                            'e50ead852f3361489a400ab5c70f6c5cf_props' => [
                                 'created' => '2016-01-01T00:00:00+0000',
                                 'empty' => null,
-                                'uuid' => '11111111-1111-1111-1111-111111111111',
+                                'uuid' => '11111111-1111-1111-1111-111111111112',
                             ],
                         ];
 
