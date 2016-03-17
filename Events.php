@@ -9,4 +9,6 @@ class Events
     const POST_PERSIST = 'innmind.neo4j.onm.post.persist';
     const PRE_REMOVE = 'innmind.neo4j.onm.pre.remove';
     const POST_REMOVE = 'innmind.neo4j.onm.post.remove';
+    const PRE_UPDATE = 'innmind.neo4j.onm.pre.update';
+    const POST_UPDATE = 'innmind.neo4j.onm.post.update';
 }
