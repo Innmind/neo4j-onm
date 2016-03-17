@@ -113,6 +113,13 @@ class ChangesetComputer
                 )
             );
         });
+        $changeset = $changeset->filter(function($value) {
+            if (!$value instanceof CollectionInterface) {
+                return true;
+            }
+
+            return $value->count() !== 0;
+        });
 
         return $changeset;
     }

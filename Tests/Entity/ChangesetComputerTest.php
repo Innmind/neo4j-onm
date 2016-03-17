@@ -58,6 +58,12 @@ class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
                             'extra' => 'content',
                         ]),
                     ]),
+                    'rel2' => new Collection([
+                        'foo' => 'bar',
+                        'child' => new Collection([
+                            'content' => 'baz',
+                        ]),
+                    ]),
                 ])
             )
         );
@@ -72,6 +78,12 @@ class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
                 'rel' => new Collection([
                     'child' => new Collection([
                         'content' => 'bar',
+                    ]),
+                ]),
+                'rel2' => new Collection([
+                    'foo' => 'bar',
+                    'child' => new Collection([
+                        'content' => 'baz',
                     ]),
                 ]),
             ])
