@@ -18,16 +18,13 @@ class DelegationPersister implements PersisterInterface
 {
     private $persisters;
 
-    public function __construct(SetInterface $persisters = null)
+    public function __construct(SetInterface $persisters)
     {
-        $this->persisters = $persisters ?? (new Set(PersisterInterface::class))
-            ->add(new InsertPersister)
-            ->add(new UpdatePersister)
-            ->add(new RemovePersister);
-
-        if ((string) $this->persisters->type() !== PersisterInterface::class) {
+        if ((string) $persisters->type() !== PersisterInterface::class) {
             throw new InvalidArgumentException;
         }
+
+        $this->persisters = $persisters;
     }
 
     /**
