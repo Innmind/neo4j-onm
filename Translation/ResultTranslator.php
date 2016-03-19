@@ -55,6 +55,10 @@ class ResultTranslator
             &$mapped,
             $result
         ) {
+            if (!$result->rows()->hasKey($variable)) {
+                return;
+            }
+
             $translator = $this->translators->get(get_class($meta));
             $mapped = $mapped->put(
                 $variable,

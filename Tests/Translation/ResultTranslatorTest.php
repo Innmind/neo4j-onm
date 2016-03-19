@@ -286,4 +286,44 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(66, $data->get('r')->get('end'));
         $this->assertSame('2016-01-03T00:00:00+0200', $data->get('r')->get('created'));
     }
+
+    public function testTranslateWithoutExpectedVariable()
+    {
+        $t = new ResultTranslator;
+        $aggregate = new Aggregate(
+            new ClassName('FQCN'),
+            new Identity('id', 'foo'),
+            new Repository('foo'),
+            new Factory('foo'),
+            new Alias('foo'),
+            ['Label']
+        );
+        $relationship = new Relationship(
+            new ClassName('foo'),
+            new Identity('id', 'foo'),
+            new Repository('foo'),
+            new Factory('foo'),
+            new Alias('foo'),
+            new RelationshipType('type'),
+            new RelationshipEdge('start', 'foo', 'id'),
+            new RelationshipEdge('end', 'foo', 'id')
+        );
+        $data = $t->translate(
+            Result::fromRaw([
+                'columns' => [],
+                'data' => [[
+                    'row' => [],
+                    'graph' => [
+                        'nodes' => [],
+                        'relationships' => [],
+                    ],
+                ]],
+            ]),
+            (new Map('string', EntityInterface::class))
+                ->put('n', $aggregate)
+                ->put('r', $relationship)
+        );
+
+        $this->assertSame(0, $data->size());
+    }
 }
