@@ -315,4 +315,54 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
             $this->f->make($result, $variables)->equals($entities)
         );
     }
+
+    public function testMakeWhenEntityNotFound()
+    {
+        $entity = new class {
+            public $uuid;
+        };
+        $aggregate = new Aggregate(
+            new ClassName(get_class($entity)),
+            new Identity('uuid', Uuid::class),
+            new Repository('foo'),
+            new Factory(AggregateFactory::class),
+            new Alias('foo'),
+            ['Label']
+        );
+        $entity = new class {
+            public $uuid;
+            public $start;
+            public $end;
+        };
+        $relationship = new Relationship(
+            new ClassName(get_class($entity)),
+            new Identity('uuid', Uuid::class),
+            new Repository('foo'),
+            new Factory(RelationshipFactory::class),
+            new Alias('foo'),
+            new RelationshipType('type'),
+            new RelationshipEdge('start', Uuid::class, 'uuid'),
+            new RelationshipEdge('end', Uuid::class, 'uuid')
+        );
+        $result = Result::fromRaw([
+            'columns' => [],
+            'data' => [[
+                'row' => [],
+                'graph' => [
+                    'nodes' => [],
+                    'relationships' => [],
+                ],
+            ]],
+        ]);
+        $variables = (new Map('string', EntityInterface::class))
+            ->put('n', $aggregate)
+            ->put('r', $relationship);
+
+        $entities = $this->f->make(
+            $result,
+            $variables
+        );
+
+        $this->assertSame(0, $entities->size());
+    }
 }

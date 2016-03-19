@@ -60,6 +60,10 @@ class EntityFactory
             &$entities,
             $structuredData
         ) {
+            if (!$structuredData->contains($variable)) {
+                return;
+            }
+
             $data = $structuredData->get($variable);
 
             if ($data->hasKey(0)) { // means collection
