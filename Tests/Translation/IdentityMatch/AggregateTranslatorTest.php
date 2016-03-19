@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Tests\Translation;
+namespace Innmind\Neo4j\ONM\Tests\Translation\IdentityMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\AggregateMatchTranslator,
+    Translation\IdentityMatch\AggregateTranslator,
     Translation\IdentityMatchTranslatorInterface,
     Metadata\Aggregate,
     Metadata\ClassName,
@@ -26,11 +26,11 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class AggregateMatchTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
 {
     public function testTranslate()
     {
-        $t = new AggregateMatchTranslator;
+        $t = new AggregateTranslator;
         $this->assertInstanceOf(
             IdentityMatchTranslatorInterface::class,
             $t

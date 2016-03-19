@@ -1,9 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Translation;
+namespace Innmind\Neo4j\ONM\Translation\IdentityMatch;
 
 use Innmind\Neo4j\ONM\{
+    Translation\IdentityMatchTranslatorInterface,
     IdentityInterface,
     Metadata\EntityInterface,
     Metadata\ValueObject,
@@ -18,7 +19,7 @@ use Innmind\Immutable\{
     StringPrimitive as Str
 };
 
-class AggregateMatchTranslator implements IdentityMatchTranslatorInterface
+class AggregateTranslator implements IdentityMatchTranslatorInterface
 {
     /**
      * {@inheritdoc}
