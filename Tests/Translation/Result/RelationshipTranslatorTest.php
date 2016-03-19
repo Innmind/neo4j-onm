@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Tests\Translation;
 
 use Innmind\Neo4j\ONM\{
-    Translation\RelationshipTranslator,
+    Translation\Result\RelationshipTranslator,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,

@@ -4,6 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\{
+    Translation\Result\AggregateTranslator,
+    Translation\Result\RelationshipTranslator,
     Metadata\EntityInterface,
     Metadata\Aggregate,
     Metadata\Relationship,

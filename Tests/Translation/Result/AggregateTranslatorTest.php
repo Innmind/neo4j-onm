@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Tests\Translation;
+namespace Innmind\Neo4j\ONM\Tests\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
-    Translation\AggregateTranslator,
+    Translation\Result\AggregateTranslator,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Translation;
+namespace Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
+    Translation\EntityTranslatorInterface,
     Metadata\EntityInterface,
     Metadata\Aggregate,
     Metadata\ValueObject,
