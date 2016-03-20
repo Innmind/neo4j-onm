@@ -16,7 +16,8 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    StringPrimitive as Str
+    StringPrimitive as Str,
+    Set
 };
 
 class AggregateTranslator implements IdentityMatchTranslatorInterface
@@ -40,33 +41,40 @@ class AggregateTranslator implements IdentityMatchTranslatorInterface
             ->withParameter('entity_identity', $identity->value())
             ->with('entity');
 
+        $variables = new Set('string');
         $meta
             ->children()
             ->foreach(function(
                 string $property,
                 ValueObject $child
             ) use (
-                &$query
+                &$query,
+                &$variables
             ) {
-                $name = (new Str('entity_'))->append($property);
+                $relName = (new Str('entity_'))->append($property);
+                $childName = $relName
+                    ->append('_')
+                    ->append($child->relationship()->childProperty());
+                $variables = $variables
+                    ->add((string) $relName)
+                    ->add((string) $childName);
+
                 $query = $query
                     ->match('entity')
                     ->linkedTo(
-                        (string) $name
-                            ->append('_')
-                            ->append($child->relationship()->childProperty()),
+                        (string) $childName,
                         $child->labels()->toPrimitive()
                     )
                     ->through(
                         (string) $child->relationship()->type(),
-                        (string) $name,
+                        (string) $relName,
                         Relationship::LEFT
                     );
             });
 
 
         return new IdentityMatch(
-            $query->return('entity'),
+            $query->return('entity', ...$variables->toPrimitive()),
             (new Map('string', EntityInterface::class))
                 ->put('entity', $meta)
         );

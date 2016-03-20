@@ -81,7 +81,7 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
-            'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity',
+            'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $im->query()->cypher()
         );
         $this->assertSame(0, $im->query()->parameters()->count());
