@@ -25,7 +25,6 @@ use Innmind\Immutable\{
     Set,
     MapInterface
 };
-use Innmind\Reflection\ReflectionObject;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RemovePersister implements PersisterInterface
