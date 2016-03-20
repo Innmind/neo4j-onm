@@ -9,7 +9,7 @@ use Innmind\Immutable\MapInterface;
 interface PropertyMatchVisitorInterface
 {
     /**
-     * Return a sequence composed of the property map and the associated parameters
+     * Return a map composed of the property map and the associated parameters
      *
      * @param SpecificationInterface $specification
      *
