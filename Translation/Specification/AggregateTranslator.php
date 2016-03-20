@@ -9,7 +9,8 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
     Metadata\ValueObject,
     Metadata\EntityInterface,
-    IdentityMatch
+    IdentityMatch,
+    Exception\SpecificationNotApplicableAsPropertyMatchException
 };
 use Innmind\Neo4j\DBAL\{
     Query,
@@ -32,6 +33,8 @@ class AggregateTranslator implements SpecificationTranslatorInterface
         EntityInterface $meta,
         SpecificationInterface $specification
     ): IdentityMatch {
+        $variables = new Set('string');
+
         try {
             $mapping = (new AggregatePropertyMatchVisitor($meta))->visit(
                 $specification
@@ -48,7 +51,6 @@ class AggregateTranslator implements SpecificationTranslatorInterface
                 )
                 ->with('entity');
 
-            $variables = new Set('string');
             $meta
                 ->children()
                 ->foreach(function(
@@ -102,26 +104,35 @@ class AggregateTranslator implements SpecificationTranslatorInterface
                     string $property,
                     ValueObject $child
                 ) use (
-                    &$query
+                    &$query,
+                    &$variables
                 ) {
-                    $name = (new Str('entity_'))->append($property);
+                    $relName = (new Str('entity_'))->append($property);
+                    $childName = $relName
+                        ->append('_')
+                        ->append($child->relationship()->childProperty());
+                    $variables = $variables
+                        ->add((string) $relName)
+                        ->add((string) $childName);
+
                     $query = $query
                         ->match('entity')
                         ->linkedTo(
-                            (string) $name
-                                ->append('_')
-                                ->append($child->relationship()->childProperty()),
+                            (string) $childName,
                             $child->labels()->toPrimitive()
                         )
                         ->through(
                             (string) $child->relationship()->type(),
-                            (string) $name,
+                            (string) $relName,
                             Relationship::LEFT
                         );
                 });
-            $query = $query->where(
-                (new AggregateCypherVisitor($meta))->visit($specification)
+            $condition = (new AggregateCypherVisitor($meta))->visit(
+                $specification
             );
+            $query = $query
+                ->where($condition->get(0))
+                ->withParameters($condition->get(1)->toPrimitive());
         }
 
         return new IdentityMatch(
