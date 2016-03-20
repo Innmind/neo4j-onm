@@ -20,7 +20,8 @@
         "innmind/immutable": "~1.5",
         "symfony/config": "~2.7|~3.0",
         "ramsey/uuid": "^3.2",
-        "innmind/reflection": "^1.1"
+        "innmind/reflection": "^1.1",
+        "innmind/specification": "^1.0"
     },
     "autoload": {
         "psr-0": {
