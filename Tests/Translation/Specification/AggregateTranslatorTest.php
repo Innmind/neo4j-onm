@@ -21,12 +21,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch
 };
 use Innmind\Neo4j\DBAL\Query\Parameter;
-use Innmind\Immutable\{
-    Collection,
-    MapInterface,
-    SequenceInterface,
-    CollectionInterface
-};
+use Innmind\Immutable\Collection;
 
 class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
 {
