@@ -150,13 +150,13 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->uow->contains($entity->uuid));
         $this->assertSame(
             Container::STATE_NEW,
-            $this->container->stateFor($entity->uuid)
+            $this->uow->stateFor($entity->uuid)
         );
         $this->assertTrue(
             $this->generators->get(Uuid::class)->knows($entity->uuid->value())
         );
 
-        return [$this->uow, $entity, $this->container];
+        return [$this->uow, $entity];
     }
 
     /**
@@ -164,7 +164,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommit(array $args)
     {
-        list($uow, $entity, $container) = $args;
+        list($uow, $entity) = $args;
 
         $this->assertSame(
             $uow,
@@ -172,7 +172,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             Container::STATE_MANAGED,
-            $container->stateFor($entity->uuid)
+            $uow->stateFor($entity->uuid)
         );
 
         return $args;
@@ -210,7 +210,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecute(array $args)
     {
-        list($uow, $expectedEntity, $container) = $args;
+        list($uow, $expectedEntity) = $args;
 
         $data = $uow->execute(
             (new Query)
@@ -235,7 +235,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->uow, $this->uow->remove($entity));
         $this->assertSame(
             Container::STATE_REMOVED,
-            $this->container->stateFor($entity->uuid)
+            $this->uow->stateFor($entity->uuid)
         );
     }
 
@@ -244,7 +244,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemoveManagedEntity(array $args)
     {
-        list($uow, $entity, $container) = $args;
+        list($uow, $entity) = $args;
 
         $this->assertSame(
             $uow,
@@ -252,7 +252,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             Container::STATE_TO_BE_REMOVED,
-            $container->stateFor($entity->uuid)
+            $uow->stateFor($entity->uuid)
         );
     }
 
@@ -264,7 +264,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->uow, $this->uow->remove($entity));
 
         $this->setExpectedException(IdentityNotManagedException::class);
-        $this->container->stateFor($entity->uuid);
+        $this->uow->stateFor($entity->uuid);
     }
 
     /**
@@ -272,7 +272,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
      */
     public function testDetach(array $args)
     {
-        list($uow, $entity, $container) = $args;
+        list($uow, $entity) = $args;
 
         $this->assertSame(
             $uow,
@@ -280,7 +280,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertFalse($uow->contains($entity->uuid));
         $this->setExpectedException(IdentityNotManagedException::class);
-        $container->stateFor($entity->uuid);
+        $uow->stateFor($entity->uuid);
     }
 
     public function testDetachUnmanagedEntity()

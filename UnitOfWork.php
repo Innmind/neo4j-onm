@@ -98,6 +98,18 @@ class UnitOfWork
     }
 
     /**
+     * Return the state for the given identity
+     *
+     * @param IdentityInterface $identity
+     *
+     * @return int
+     */
+    public function stateFor(IdentityInterface $identity): int
+    {
+        return $this->container->stateFor($identity);
+    }
+
+    /**
      * Return the entity with the given identifier
      *
      * @param string $class
