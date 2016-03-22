@@ -254,6 +254,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             Container::STATE_TO_BE_REMOVED,
             $uow->stateFor($entity->uuid)
         );
+        $uow->commit();
     }
 
     public function testRemoveUnmanagedEntity()
