@@ -97,6 +97,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertInstanceOf(CollectionInterface::class, $data);
+        $data = $data->get(0);
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
             $data->keys()->toPrimitive()
@@ -134,60 +135,104 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
             $meta,
             Result::fromRaw([
                 'columns' => ['r'],
-                'data' => [[
-                    'row' => [[
-                        [
+                'data' => [
+                    [
+                        'row' => [[
                             'id' => 42,
                             'created' => '2016-01-03T00:00:00+0200',
-                        ],
-                        [
-                            'id' => 43,
-                            'created' => '2016-01-04T00:00:00+0200',
-                        ],
-                    ]],
-                    'graph' => [
-                        'nodes' => [
-                            [
-                                'id' => 1,
-                                'labels' => ['Node'],
-                                'properties' => [
-                                    'id' => 66,
-                                    'created' => '2016-01-01T00:00:00+0200',
+                        ]],
+                        'graph' => [
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 66,
+                                        'created' => '2016-01-01T00:00:00+0200',
+                                    ],
+                                ],
+                                [
+                                    'id' => 2,
+                                    'labels' => ['Child'],
+                                    'properties' => [
+                                        'id' => 24,
+                                        'created' => '2016-01-02T00:00:00+0200',
+                                    ],
                                 ],
                             ],
-                            [
-                                'id' => 2,
-                                'labels' => ['Child'],
-                                'properties' => [
-                                    'id' => 24,
-                                    'created' => '2016-01-02T00:00:00+0200',
+                            'relationships' => [
+                                [
+                                    'id' => 1,
+                                    'type' => 'CHILD1_OF',
+                                    'startNode' => 2,
+                                    'endNode' => 1,
+                                    'properties' => [
+                                        'id' => 42,
+                                        'created' => '2016-01-03T00:00:00+0200',
+                                    ],
                                 ],
-                            ],
-                        ],
-                        'relationships' => [
-                            [
-                                'id' => 1,
-                                'type' => 'CHILD1_OF',
-                                'startNode' => 2,
-                                'endNode' => 1,
-                                'properties' => [
-                                    'id' => 42,
-                                    'created' => '2016-01-03T00:00:00+0200',
-                                ],
-                            ],
-                            [
-                                'id' => 2,
-                                'type' => 'CHILD1_OF',
-                                'startNode' => 2,
-                                'endNode' => 1,
-                                'properties' => [
-                                    'id' => 43,
-                                    'created' => '2016-01-04T00:00:00+0200',
+                                [
+                                    'id' => 2,
+                                    'type' => 'CHILD1_OF',
+                                    'startNode' => 2,
+                                    'endNode' => 1,
+                                    'properties' => [
+                                        'id' => 43,
+                                        'created' => '2016-01-04T00:00:00+0200',
+                                    ],
                                 ],
                             ],
                         ],
                     ],
-                ]],
+                    [
+                        'row' => [[
+                            'id' => 43,
+                            'created' => '2016-01-04T00:00:00+0200',
+                        ]],
+                        'graph' => [
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 66,
+                                        'created' => '2016-01-01T00:00:00+0200',
+                                    ],
+                                ],
+                                [
+                                    'id' => 2,
+                                    'labels' => ['Child'],
+                                    'properties' => [
+                                        'id' => 24,
+                                        'created' => '2016-01-02T00:00:00+0200',
+                                    ],
+                                ],
+                            ],
+                            'relationships' => [
+                                [
+                                    'id' => 1,
+                                    'type' => 'CHILD1_OF',
+                                    'startNode' => 2,
+                                    'endNode' => 1,
+                                    'properties' => [
+                                        'id' => 42,
+                                        'created' => '2016-01-03T00:00:00+0200',
+                                    ],
+                                ],
+                                [
+                                    'id' => 2,
+                                    'type' => 'CHILD1_OF',
+                                    'startNode' => 2,
+                                    'endNode' => 1,
+                                    'properties' => [
+                                        'id' => 43,
+                                        'created' => '2016-01-04T00:00:00+0200',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]
+                ],
             ])
         );
 

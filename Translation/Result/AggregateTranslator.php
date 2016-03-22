@@ -15,7 +15,8 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Neo4j\DBAL\{
     ResultInterface,
     Result\NodeInterface,
-    Result\RelationshipInterface
+    Result\RelationshipInterface,
+    Result\RowInterface
 };
 use Innmind\Immutable\{
     CollectionInterface,
@@ -36,29 +37,24 @@ class AggregateTranslator implements EntityTranslatorInterface
             throw new InvalidArgumentException;
         }
 
-        $row = $result->rows()->get($variable);
+        $rows = $result
+            ->rows()
+            ->filter(function(RowInterface $row) use ($variable) {
+                return $row->column() === $variable;
+            });
+        $data = new Collection([]);
 
-        if (isset($row->value()[0])) { // means collections of nodes
-            $data = new Collection([]);
-
-            foreach ($row->value() as $node) {
-                $data = $data->push(
-                    $this->translateNode(
-                        $node[$meta->identity()->property()],
-                        $meta,
-                        $result
-                    )
-                );
-            }
-
-            return $data;
+        foreach ($rows as $row) {
+            $data = $data->push(
+                $this->translateNode(
+                    $row->value()[$meta->identity()->property()],
+                    $meta,
+                    $result
+                )
+            );
         }
 
-        return $this->translateNode(
-            $row->value()[$meta->identity()->property()],
-            $meta,
-            $result
-        );
+        return $data;
     }
 
     private function translateNode(

@@ -12,7 +12,8 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\{
     ResultInterface,
-    Result\RelationshipInterface
+    Result\RelationshipInterface,
+    Result\RowInterface
 };
 use Innmind\Immutable\{
     CollectionInterface,
@@ -33,29 +34,24 @@ class RelationshipTranslator implements EntityTranslatorInterface
             throw new InvalidArgumentException;
         }
 
-        $row = $result->rows()->get($variable);
+        $rows = $result
+            ->rows()
+            ->filter(function(RowInterface $row) use ($variable) {
+                return $row->column() === $variable;
+            });
+        $data = new Collection([]);
 
-        if (isset($row->value()[0])) { // means collections of relationships
-            $data = new Collection([]);
-
-            foreach ($row->value() as $relationship) {
-                $data = $data->push(
-                    $this->translateRelationship(
-                        $relationship[$meta->identity()->property()],
-                        $meta,
-                        $result
-                    )
-                );
-            }
-
-            return $data;
+        foreach ($rows as $relationship) {
+            $data = $data->push(
+                $this->translateRelationship(
+                    $relationship->value()[$meta->identity()->property()],
+                    $meta,
+                    $result
+                )
+            );
         }
 
-        return $this->translateRelationship(
-            $row->value()[$meta->identity()->property()],
-            $meta,
-            $result
-        );
+        return $data;
     }
 
     private function translateRelationship(

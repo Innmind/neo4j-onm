@@ -175,6 +175,7 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertInstanceOf(CollectionInterface::class, $data);
+        $data = $data->get(0);
         $this->assertSame(4, $data->count());
         $this->assertSame(
             ['id', 'created', 'rel', 'rel2'],
@@ -251,39 +252,62 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
             $m,
             Result::fromRaw([
                 'columns' => ['n'],
-                'data' => [[
-                    'row' => [[
-                        [
+                'data' => [
+                    [
+                        'row' => [[
                             'id' => 42,
                             'created' => '2016-01-01T00:00:00+0200',
+                        ]],
+                        'graph' => [
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 42,
+                                        'created' => '2016-01-01T00:00:00+0200',
+                                    ],
+                                ],
+                                [
+                                    'id' => 2,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 43,
+                                        'created' => '2016-01-02T00:00:00+0200',
+                                    ],
+                                ],
+                            ],
+                            'relationships' => [],
                         ],
-                        [
+                    ],
+                    [
+                        'row' => [[
                             'id' => 43,
                             'created' => '2016-01-01T00:00:00+0200',
-                        ],
-                    ]],
-                    'graph' => [
-                        'nodes' => [
-                            [
-                                'id' => 1,
-                                'labels' => ['Node'],
-                                'properties' => [
-                                    'id' => 42,
-                                    'created' => '2016-01-01T00:00:00+0200',
+                        ]],
+                        'graph' => [
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 42,
+                                        'created' => '2016-01-01T00:00:00+0200',
+                                    ],
+                                ],
+                                [
+                                    'id' => 2,
+                                    'labels' => ['Node'],
+                                    'properties' => [
+                                        'id' => 43,
+                                        'created' => '2016-01-02T00:00:00+0200',
+                                    ],
                                 ],
                             ],
-                            [
-                                'id' => 2,
-                                'labels' => ['Node'],
-                                'properties' => [
-                                    'id' => 43,
-                                    'created' => '2016-01-02T00:00:00+0200',
-                                ],
-                            ],
+                            'relationships' => [],
                         ],
-                        'relationships' => [],
-                    ],
-                ]],
+                    ]
+                ],
             ])
         );
 
