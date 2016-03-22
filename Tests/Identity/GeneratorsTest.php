@@ -27,7 +27,7 @@ class GeneratorsTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             $g,
-            $g->add('foo', $m = $this->getMock(GeneratorInterface::class))
+            $g->register('foo', $m = $this->getMock(GeneratorInterface::class))
         );
         $this->assertSame(2, $g->all()->size());
     }

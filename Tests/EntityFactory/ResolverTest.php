@@ -30,7 +30,7 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($r->get($meta), $r->get($meta));
     }
 
-    public function testAdd()
+    public function testRegister()
     {
         $r = new Resolver;
 
@@ -41,7 +41,7 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
             ->willReturn(new Factory($class));
         $f = new $class;
 
-        $this->assertSame($r, $r->add($f));
+        $this->assertSame($r, $r->register($f));
         $this->assertSame($f, $r->get($meta));
     }
 }

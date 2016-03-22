@@ -61,9 +61,9 @@ class TypesTest extends \PHPUnit_Framework_TestCase
      * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
      * @expectedExceptionMessage The type "stdClass" must implement TypeInterface
      */
-    public function testThrowWhenAddingInvalidType()
+    public function testThrowWhenRegisteringingInvalidType()
     {
-        (new Types)->add('stdClass');
+        (new Types)->register('stdClass');
     }
 
     public function testBuild()

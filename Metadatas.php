@@ -21,13 +21,13 @@ class Metadatas
     }
 
     /**
-     * Add a new entity metadata
+     * Register a new entity metadata
      *
      * @param EntityInterface $meta
      *
      * @return self
      */
-    public function add(EntityInterface $meta): self
+    public function register(EntityInterface $meta): self
     {
         $this->aliases = $this->aliases->put(
             (string) $meta->alias(),

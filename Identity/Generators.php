@@ -26,7 +26,7 @@ class Generators
      *
      * @return self
      */
-    public function add(string $class, GeneratorInterface $generator): self
+    public function register(string $class, GeneratorInterface $generator): self
     {
         $this->mapping = $this->mapping->put($class, $generator);
 

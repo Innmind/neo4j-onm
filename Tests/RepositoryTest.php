@@ -71,7 +71,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             new ResultTranslator,
             $generators = new Generators,
             (new Resolver)
-                ->add(new RelationshipFactory($generators)),
+                ->register(new RelationshipFactory($generators)),
             $container
         );
         $metadatas = new Metadatas;
@@ -79,7 +79,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $extractor = new DataExtractor($metadatas);
         $dispatcher = new EventDispatcher;
 
-        $metadatas->add(
+        $metadatas->register(
             $meta = (new Aggregate(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),

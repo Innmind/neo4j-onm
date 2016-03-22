@@ -53,7 +53,7 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
 
         $m = new Metadatas;
         $m
-            ->add(
+            ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
                     new Identity('uuid', 'foo'),
@@ -97,7 +97,7 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
                             )
                     )
             )
-            ->add(
+            ->register(
                 (new Relationship(
                     new ClassName($this->rClass),
                     new Identity('uuid', 'foo'),

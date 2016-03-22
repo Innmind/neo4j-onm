@@ -70,7 +70,7 @@ class MetadataBuilder
         );
 
         foreach ($metas as $class => $meta) {
-            $this->metadatas->add(
+            $this->metadatas->register(
                 $this->build($class, $meta)
             );
         }

@@ -44,7 +44,7 @@ class EntityFactoryTest extends \PHPUnit_Framework_TestCase
             new ResultTranslator,
             $g = new Generators,
             (new Resolver)
-                ->add(new RelationshipFactory($g)),
+                ->register(new RelationshipFactory($g)),
             new Container
         );
     }

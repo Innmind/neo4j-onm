@@ -25,7 +25,7 @@ class MetadatasTest extends \PHPUnit_Framework_TestCase
             ->method('class')
             ->willReturn(new ClassName('bar'));
 
-        $this->assertSame($m, $m->add($e));
+        $this->assertSame($m, $m->register($e));
         $this->assertSame($e, $m->get('foo'));
         $this->assertSame($e, $m->get('bar'));
         $this->assertSame(1, $m->all()->size());

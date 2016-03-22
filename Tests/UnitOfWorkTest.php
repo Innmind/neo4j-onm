@@ -72,7 +72,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             new ResultTranslator,
             $this->generators = new Generators,
             (new Resolver)
-                ->add(new RelationshipFactory($this->generators)),
+                ->register(new RelationshipFactory($this->generators)),
             $this->container
         );
         $this->metadatas = new Metadatas;
@@ -82,7 +82,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this
             ->metadatas
-            ->add(
+            ->register(
                 new Aggregate(
                     new ClassName($this->aggregateClass),
                     new Identity('uuid', Uuid::class),

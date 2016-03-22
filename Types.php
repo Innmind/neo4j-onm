@@ -37,18 +37,18 @@ class Types
         $this->types = (new Map('string', 'string'));
 
         foreach ($defaults as $default) {
-            $this->add($default);
+            $this->register($default);
         }
     }
 
     /**
-     * Add the given type
+     * Register the given type
      *
      * @param string $type FQCN
      *
      * @return self
      */
-    public function add(string $type): self
+    public function register(string $type): self
     {
         $refl = new \ReflectionClass($type);
 

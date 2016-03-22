@@ -19,13 +19,13 @@ class Resolver
     }
 
     /**
-     * Add the given entity factory instance
+     * Register the given entity factory instance
      *
      * @param EntityFactoryInterface $factory
      *
      * @return self
      */
-    public function add(EntityFactoryInterface $factory): self
+    public function register(EntityFactoryInterface $factory): self
     {
         $this->mapping = $this->mapping->put(
             get_class($factory),
@@ -51,7 +51,7 @@ class Resolver
         }
 
         $factory = new $class;
-        $this->add($factory);
+        $this->register($factory);
 
         return $factory;
     }

@@ -54,7 +54,7 @@ class RemovePersisterTest extends \PHPUnit_Framework_TestCase
 
         $this->m = new Metadatas;
         $this->m
-            ->add(
+            ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
                     new Identity('uuid', 'foo'),
@@ -76,7 +76,7 @@ class RemovePersisterTest extends \PHPUnit_Framework_TestCase
                         )
                     )
             )
-            ->add(
+            ->register(
                 new Relationship(
                     new ClassName($this->rClass),
                     new Identity('uuid', 'foo'),
