@@ -11,7 +11,10 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Exception\InvalidArgumentException
 };
-use Innmind\Neo4j\DBAL\ResultInterface;
+use Innmind\Neo4j\DBAL\{
+    ResultInterface,
+    Result\RowInterface
+};
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -57,7 +60,13 @@ class ResultTranslator
             &$mapped,
             $result
         ) {
-            if (!$result->rows()->hasKey($variable)) {
+            $forVariable = $result
+                ->rows()
+                ->filter(function(RowInterface $row) use ($variable) {
+                    return $row->column() === $variable;
+                });
+
+            if ($forVariable->count() === 0) {
                 return;
             }
 
