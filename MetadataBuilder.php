@@ -66,7 +66,7 @@ class MetadataBuilder
     {
         $metas = $this->processor->processConfiguration(
             $this->config,
-            [$metas]
+            $metas
         );
 
         foreach ($metas as $class => $meta) {

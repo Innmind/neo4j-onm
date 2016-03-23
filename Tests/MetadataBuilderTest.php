@@ -40,7 +40,7 @@ class MetadataBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, $this->b->container()->all()->size());
         $this->assertSame(
             $this->b,
-            $this->b->inject($conf)
+            $this->b->inject([$conf])
         );
         $this->assertSame(2, $this->b->container()->all()->size());
         $this->assertInstanceOf(
@@ -67,6 +67,6 @@ class MetadataBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenConfigurationFormatNotRespected()
     {
-        $this->b->inject(['foo' => []]);
+        $this->b->inject([['foo' => []]]);
     }
 }
