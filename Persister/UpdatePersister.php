@@ -139,7 +139,7 @@ class UpdatePersister implements PersisterInterface
         $query = new Query;
         $this->variables = new Map(Str::class, CollectionInterface::class);
 
-        $partitions = $changesets->foreach(function(
+        $changesets->foreach(function(
             IdentityInterface $identity,
             CollectionInterface $changeset
         ) use (
