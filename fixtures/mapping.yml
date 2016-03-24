@@ -1,0 +1,47 @@
+Image:
+    type: aggregate
+    alias: I
+    repository: ImageRepository
+    factory: ImageFactory # will be instanciated without constructor
+    labels: [Image]
+    identity:
+        property: uuid
+        type: UUID
+    properties:
+        url:
+            type: string
+    children:
+        rel:
+            class: DescriptionOf
+            type: DESCRIPTION_OF # direction flows from value object to aggregate root
+            properties:
+                created:
+                    type: date
+            child:
+                property: description
+                class: Description
+                labels: [Description]
+                properties:
+                    content:
+                        type: string
+
+SomeRelationship:
+    type: relationship
+    alias: SR
+    repository: SRRepository
+    factory: SRFactory
+    rel_type: SOME_RELATIONSHIP
+    identity:
+        property: uuid
+        type: UUID
+    startNode:
+        property: startProperty # must be an EntityIdentifierInterface
+        type: UUID
+        target: uuid # the node property where to look for the identity
+    endNode:
+        property: endProperty
+        type: UUID
+        target: uuid
+    properties:
+        created:
+            type: date

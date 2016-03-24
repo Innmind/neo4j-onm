@@ -1,51 +1,73 @@
 <?php
+declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
+
+use Innmind\Specification\SpecificationInterface;
+use Innmind\Immutable\SetInterface;
 
 interface RepositoryInterface
 {
     /**
-     * Detach all entities of this repository
+     * Add a new entity to the repository
      *
-     * @return RepositoryInterface self
+     * @param object $entity
+     *
+     * @return self
      */
-    public function clear();
+    public function add($entity): self;
 
     /**
-     * Find a node for the specified id
+     * Check if the repository has an entity with the given id
      *
-     * @param mixed $id
+     * @param IdentityInterface $identity
+     *
+     * @return bool
+     */
+    public function has(IdentityInterface $identity): bool;
+
+    /**
+     * Return the entity with the given id
+     *
+     * @param IdentityInterface $identity
+     *
+     * @throws EntityNotFoundException
      *
      * @return object
      */
-    public function find($id);
+    public function get(IdentityInterface $identity);
 
     /**
-     * Find all the nodes
+     * Try to find the entity with the given id
      *
-     * @return \SplObjectStorage
-     */
-    public function findAll();
-
-    /**
-     * Find one node matching the specified criteria
-     *
-     * @param array $criteria
-     * @param array $orderBy
+     * @param IdentityInterface $identity
      *
      * @return object|null
      */
-    public function findOneBy(array $criteria, array $orderBy = null);
+    public function find(IdentityInterface $identity);
 
     /**
-     * Find all nodes matching the specified criteria
+     * Remove the given entity from the repository
      *
-     * @param array $criteria
-     * @param array $orderBy
-     * @param int $limit
-     * @param int $skip
+     * @param object $entity
      *
-     * @return \SplObjectStorage
+     * @return self
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $skip = null);
+    public function remove($entity): self;
+
+    /**
+     * Return all the entities from the repository
+     *
+     * @return SetInterface<object>
+     */
+    public function all(): SetInterface;
+
+    /**
+     * Return all the entities matching the given specification
+     *
+     * @param SpecificationInterface $specification
+     *
+     * @return SetInterface<object>
+     */
+    public function matching(SpecificationInterface $specification): SetInterface;
 }

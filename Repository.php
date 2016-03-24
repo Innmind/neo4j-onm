@@ -1,24 +1,50 @@
 <?php
+declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\{
+    Translation\MatchTranslator,
+    Translation\SpecificationTranslator,
+    Metadata\EntityInterface,
+    Entity\Container,
+    Exception\EntityNotFoundException
+};
+use Innmind\Immutable\{
+    SetInterface,
+    Set
+};
+use Innmind\Specification\SpecificationInterface;
+
 class Repository implements RepositoryInterface
 {
-    protected $em;
-    protected $entityClass;
+    private $unitOfWork;
+    private $matchTranslator;
+    private $specificationTranslator;
+    private $metadata;
+    private $allowedStates;
 
-    public function __construct(EntityManagerInterface $em, $entityClass)
-    {
-        $this->em = $em;
-        $this->entityClass = (string) $entityClass;
+    public function __construct(
+        UnitOfWork $unitOfWork,
+        MatchTranslator $matchTranslator,
+        SpecificationTranslator $specificationTranslator,
+        EntityInterface $metadata
+    ) {
+        $this->unitOfWork = $unitOfWork;
+        $this->matchTranslator = $matchTranslator;
+        $this->specificationTranslator = $specificationTranslator;
+        $this->metadata = $metadata;
+        $this->allowedStates = (new Set('int'))
+            ->add(Container::STATE_NEW)
+            ->add(Container::STATE_MANAGED);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function clear()
+    public function add($entity): RepositoryInterface
     {
-        $this->em->getUnitOfWork()->clear($this->entityClass);
+        $this->unitOfWork()->persist($entity);
 
         return $this;
     }
@@ -26,95 +52,107 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function find($id)
+    public function has(IdentityInterface $identity): bool
     {
-        return $this->em->getUnitOfWork()->find($this->entityClass, $id);
-    }
+        if ($this->unitOfWork()->contains($identity)) {
+            $state = $this->unitOfWork()->stateFor($identity);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findAll()
-    {
-        return $this->findBy([]);
-    }
+            if (!$this->allowedStates->contains($state)) {
+                return false;
+            }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findOneBy(array $criteria, array $orderBy = null)
-    {
-        $results = $this->findBy($criteria, $orderBy, 1);
-
-        return $results->count() === 1 ? $results->current() : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $skip = null)
-    {
-        return $this->em
-            ->getUnitOfWork()
-            ->findBy(
-                $this->entityClass,
-                $criteria,
-                $orderBy,
-                $limit,
-                $skip
-            );
-    }
-
-    /**
-     * Magic method to find one or more nodes based on one criteria
-     *
-     * @param string $method
-     * @param array $arguments
-     *
-     * @return array|object
-     */
-    public function __call($method, array $arguments)
-    {
-        switch (true) {
-            case (strpos($method, 'findBy') === 0):
-                $by = substr($method, 6);
-                $method = 'findBy';
-                break;
-            case (strpos($method, 'findOneBy') === 0):
-                $by = substr($method, 9);
-                $method = 'findOneBy';
-                break;
-            default:
-                throw new \BadMethodCallException(
-                    sprintf(
-                        'Undefined method "%s". It must start by either findBy or findOneBy',
-                        $method
-                    )
-                );
+            return true;
         }
 
-        $arguments[0] = [lcfirst($by) => $arguments[0]];
-
-        return call_user_func_array([$this, $method], $arguments);
+        return (bool) $this->find($identity);
     }
 
     /**
-     * Return the entity manager
-     *
-     * @return EntityManagerInterface
+     * {@inheritdoc}
      */
-    public function getManager()
+    public function get(IdentityInterface $identity)
     {
-        return $this->em;
+        $entity = $this->unitOfWork()->get(
+            (string) $this->metadata()->class(),
+            $identity
+        );
+        $state = $this->unitOfWork()->stateFor($identity);
+
+        if (!$this->allowedStates->contains($state)) {
+            throw new EntityNotFoundException;
+        }
+
+        return $entity;
     }
 
     /**
-     * Return a new query builder
-     *
-     * @return QueryBuilder
+     * {@inheritdoc}
      */
-    public function getQueryBuilder()
+    public function find(IdentityInterface $identity)
     {
-        return new QueryBuilder;
+        try {
+            return $this->get($identity);
+        } catch (EntityNotFoundException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove($entity): RepositoryInterface
+    {
+        $this->unitOfWork()->remove($entity);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function all(): SetInterface
+    {
+        $match = $this->matchTranslator->translate($this->metadata());
+
+        return $this->unitOfWork()->execute(
+            $match->query(),
+            $match->variables()
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function matching(SpecificationInterface $specification): SetInterface
+    {
+        $match = $this->specificationTranslator->translate(
+            $this->metadata(),
+            $specification
+        );
+
+        return $this->unitOfWork()->execute(
+            $match->query(),
+            $match->variables()
+        );
+    }
+
+    /**
+     * Return the unit of work
+     *
+     * @return UnitOfWork
+     */
+    protected function unitOfWork(): UnitOfWork
+    {
+        return $this->unitOfWork;
+    }
+
+    /**
+     * Return the entity metadata
+     *
+     * @return EntityInterface
+     */
+    protected function metadata(): EntityInterface
+    {
+        return $this->metadata;
     }
 }

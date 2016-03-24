@@ -1,56 +1,79 @@
 <?php
+declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\ONM\Exception\RepositoryException;
+use Innmind\Neo4j\ONM\{
+    Translation\MatchTranslator,
+    Translation\SpecificationTranslator,
+    Metadata\EntityInterface
+};
+use Innmind\Immutable\Map;
 
 class RepositoryFactory
 {
-    const REPOSITORY_INTERFACE = 'Innmind\Neo4j\ONM\RepositoryInterface';
+    private $unitOfWork;
+    private $matchTranslator;
+    private $specificationTranslator;
+    private $repositories;
 
-    protected $repositories = [];
-    protected $identityMap;
-    protected $metadataRegistry;
-
-    public function __construct(IdentityMap $identityMap, MetadataRegistry $metadataRegistry)
-    {
-        $this->identityMap = $identityMap;
-        $this->metadataRegistry = $metadataRegistry;
+    public function __construct(
+        UnitOfWork $unitOfWork,
+        MatchTranslator $matchTranslator,
+        SpecificationTranslator $specificationTranslator
+    ) {
+        $this->unitOfWork = $unitOfWork;
+        $this->matchTranslator = $matchTranslator;
+        $this->specificationTranslator = $specificationTranslator;
+        $this->repositories = new Map(
+            EntityInterface::class,
+            RepositoryInterface::class
+        );
     }
 
     /**
-     * Return a repository for the given alias/class
+     * Register a new repository instance
      *
-     * @param string $alias Can be the entity alias or its class name
-     * @param EntityManagerInterface $em
+     * To be used in case the repository can't be instanciated automatically
      *
-     * @return Repository
+     * @param EntityInterface $meta
+     * @param RepositoryInterface $repository
+     *
+     * @return self
      */
-    public function make($alias, EntityManagerInterface $em)
+    public function register(
+        EntityInterface $meta,
+        RepositoryInterface $repository
+    ): self {
+        $this->repositories = $this->repositories->put(
+            $meta,
+            $repository
+        );
+
+        return $this;
+    }
+
+    /**
+     * Return the instance of the given entity metadata
+     *
+     * @param EntityInterface $meta
+     *
+     * @return RepositoryInterface
+     */
+    public function make(EntityInterface $meta): RepositoryInterface
     {
-        $class = $this->identityMap->getClass($alias);
-
-        if (isset($this->repositories[$class])) {
-            return $this->repositories[$class];
+        if ($this->repositories->contains($meta)) {
+            return $this->repositories->get($meta);
         }
 
-        $metadata = $this->metadataRegistry->getMetadata($class);
-        $repoClass = $metadata->getRepositoryClass();
-        $refl = new \ReflectionClass($repoClass);
-
-        if (!$refl->implementsInterface(self::REPOSITORY_INTERFACE)) {
-            throw new RepositoryException(
-                sprintf(
-                    'The repository "%s" must implement "%s"',
-                    $class,
-                    self::REPOSITORY_INTERFACE
-                ),
-                RepositoryException::INVALID_INSTANCE
-            );
-        }
-
-        $repository = new $repoClass($em, $class);
-        $this->repositories[$class] = $repository;
+        $class = (string) $meta->repository();
+        $repository = new $class(
+            $this->unitOfWork,
+            $this->matchTranslator,
+            $this->specificationTranslator,
+            $meta
+        );
+        $this->register($meta, $repository);
 
         return $repository;
     }
