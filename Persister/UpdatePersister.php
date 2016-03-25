@@ -157,7 +157,7 @@ class UpdatePersister implements PersisterInterface
                     $changeset,
                     $query
                 );
-            } else {
+            } else if ($meta instanceof Relationship) {
                 $query = $this->matchRelationship(
                     $identity,
                     $entity,
