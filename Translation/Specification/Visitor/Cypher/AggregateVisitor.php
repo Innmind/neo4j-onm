@@ -50,7 +50,7 @@ class AggregateVisitor implements CypherVisitorInterface
 
                 return new Sequence(
                     sprintf(
-                        '%s %s %s',
+                        '(%s %s %s)',
                         $left->get(0),
                         $specification->operator(),
                         $right->get(0)

@@ -111,7 +111,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
         $this->assertSame(
-            'MATCH (start)-[entity:type]->(end) WHERE entity.created = {entity_created1} OR entity.empty = {entity_empty2} AND start.id = {start_id3} AND NOT (end.id = {end_id4}) RETURN start, end, entity',
+            'MATCH (start)-[entity:type]->(end) WHERE (((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4})) RETURN start, end, entity',
             $match->query()->cypher()
         );
         $this->assertSame(4, $match->query()->parameters()->count());

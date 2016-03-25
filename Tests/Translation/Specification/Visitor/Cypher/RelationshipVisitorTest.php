@@ -70,7 +70,7 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(SequenceInterface::class, $condition);
         $this->assertSame(2, $condition->size());
         $this->assertSame(
-            'entity.created = {entity_created1} OR entity.empty = {entity_empty2} AND start.id = {start_id3} AND NOT (end.id = {end_id4})',
+            '(((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4}))',
             $condition->get(0)
         );
         $this->assertInstanceOf(
