@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\CypherVisitorInterface,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
+    IdentityInterface,
     Exception\SpecificationNotApplicableAsPropertyMatchException
 };
 use Innmind\Specification\{
@@ -129,6 +130,11 @@ class RelationshipVisitor implements CypherVisitorInterface
             ->append('_')
             ->append($edge->target())
             ->append((string) $this->count);
+        $value = $specification->value();
+
+        if ($value instanceof IdentityInterface) {
+            $value = $value->value();
+        }
 
         return new Sequence(
             sprintf(
@@ -139,7 +145,7 @@ class RelationshipVisitor implements CypherVisitorInterface
                 $key->prepend('{')->append('}')
             ),
             new Collection([
-                (string) $key => $specification->value(),
+                (string) $key => $value,
             ])
         );
     }

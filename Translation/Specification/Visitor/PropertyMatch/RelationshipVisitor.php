@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitorInterface,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
+    IdentityInterface,
     Exception\SpecificationNotApplicableAsPropertyMatchException
 };
 use Innmind\Specification\{
@@ -115,6 +116,11 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
         $key = (new Str($side))
             ->append('_')
             ->append($edge->target());
+        $value = $specification->value();
+
+        if ($value instanceof IdentityInterface) {
+            $value = $value->value();
+        }
 
         return (new Map('string', SequenceInterface::class))
             ->put(
@@ -126,7 +132,7 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
                             ->append('}'),
                     ]),
                     new Collection([
-                        (string) $key => $specification->value()
+                        (string) $key => $value,
                     ])
                 )
             );

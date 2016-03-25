@@ -19,7 +19,8 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Tests\Fixtures\Specification\Property,
-    IdentityMatch
+    IdentityMatch,
+    Identity\Uuid
 };
 use Innmind\Neo4j\DBAL\Query\Parameter;
 use Innmind\Immutable\Collection;
@@ -66,7 +67,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
             (new Property('created', '=', 1))
                 ->and(new Property('empty', '=', 2))
                 ->and(new Property('start', '=', 'foo'))
-                ->and(new Property('end', '=', 'bar'))
+                ->and(new Property('end', '=', new Uuid('11111111-1111-1111-1111-111111111111')))
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
@@ -83,7 +84,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                     'entity_empty' => 2,
                     'entity_created' => 1,
                     'start_id' => 'foo',
-                    'end_id' => 'bar',
+                    'end_id' => '11111111-1111-1111-1111-111111111111',
                 ];
 
                 $this->assertTrue(isset($expected[$parameter->key()]));
@@ -105,7 +106,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))
                 ->and(new Property('start', '=', 'foo'))
-                ->and((new Property('end', '=', 'bar'))->not())
+                ->and((new Property('end', '=', new Uuid('11111111-1111-1111-1111-111111111111')))->not())
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
@@ -122,7 +123,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                     'entity_empty2' => 20,
                     'entity_created1' => 10,
                     'start_id3' => 'foo',
-                    'end_id4' => 'bar',
+                    'end_id4' => '11111111-1111-1111-1111-111111111111',
                 ];
 
                 $this->assertTrue(isset($expected[$parameter->key()]));
