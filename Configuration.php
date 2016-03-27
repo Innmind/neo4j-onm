@@ -1,225 +1,149 @@
 <?php
+declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\ONM\Mapping\Readers;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Filesystem\Filesystem;
-use ProxyManager\Factory\LazyLoadingGhostFactory;
-use ProxyManager\Configuration as ProxyConfig;
+use Symfony\Component\Config\Definition\{
+    ConfigurationInterface,
+    Builder\TreeBuilder,
+    Builder\NodeDefinition,
+    Exception\InvalidConfigurationException
+};
 
-class Configuration
+class Configuration implements ConfigurationInterface
 {
-    const METADATA_CACHE_FILE = '/neo4jMetadataRegistry.php';
-    const PROXIES_DIRECTORY = '/proxies';
-
-    protected $identityMap;
-    protected $metadataRegistry;
-    protected $repositoryFactory;
-    protected $proxyFactory;
-
-    /**
-     * Create a new configuration
-     *
-     * @param array $config
-     * @param bool $devMode
-     *
-     * @return Configuration
-     */
-    public static function create(array $config, $devMode = true)
+    public function getConfigTreeBuilder()
     {
-        $resolver = self::buildOptionsResolver();
-        $config = $resolver->resolve($config);
+        $builder = new TreeBuilder;
+        $root = $builder->root('neo4j_entity_mapping');
 
-        $conf = new self;
-        $map = new IdentityMap;
-        $metadataRegistry = self::buildMetadataregistry($config, $devMode);
+        $root
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+                ->children()
+                    ->enumNode('type')
+                        ->isRequired()
+                        ->values(['aggregate', 'relationship'])
+                    ->end()
+                    ->scalarNode('alias')
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('repository')
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('factory')
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->arrayNode('identity')
+                        ->isRequired()
+                        ->children()
+                            ->scalarNode('property')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('type')
+                                ->isRequired()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->arrayNode('labels')
+                        ->canBeUnset()
+                        ->prototype('scalar')->end()
+                    ->end()
+                    ->scalarNode('rel_type')->end()
+                    ->arrayNode('startNode')
+                        ->canBeUnset()
+                        ->children()
+                            ->scalarNode('property')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('type')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('target')
+                                ->isRequired()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->arrayNode('endNode')
+                        ->canBeUnset()
+                        ->children()
+                            ->scalarNode('property')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('type')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('target')
+                                ->isRequired()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->append($this->createPropertiesNode())
+                    ->arrayNode('children')
+                        ->canBeUnset()
+                        ->useAttributeAsKey('name')
+                        ->requiresAtLeastOneElement()
+                        ->prototype('array')
+                            ->children()
+                                ->scalarNode('class')
+                                    ->isRequired()
+                                ->end()
+                                ->scalarNode('type')
+                                    ->isRequired()
+                                ->end()
+                                ->append($this->createPropertiesNode())
+                                ->arrayNode('child')
+                                    ->children()
+                                        ->scalarNode('property')
+                                            ->isRequired()
+                                        ->end()
+                                        ->scalarNode('class')
+                                            ->isRequired()
+                                        ->end()
+                                        ->arrayNode('labels')
+                                            ->prototype('scalar')->end()
+                                        ->end()
+                                        ->append($this->createPropertiesNode())
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
 
-        foreach ($metadataRegistry->getMetadatas() as $meta) {
-            $map->addClass($meta->getClass());
-
-            if ($meta->hasAlias()) {
-                $map->addAlias($meta->getAlias(), $meta->getClass());
-            }
-        }
-
-        $proxyConfig = new ProxyConfig;
-
-        if ($devMode === true) {
-            $path = $config['cache'] . self::PROXIES_DIRECTORY;
-            $filesystem = new Filesystem;
-
-            if (!$filesystem->exists($path)) {
-                $filesystem->mkdir($path);
-            }
-
-            $proxyConfig->setProxiesTargetDir($path);
-            spl_autoload_register($proxyConfig->getProxyAutoloader());
-        }
-
-        $conf
-            ->setIdentityMap($map)
-            ->setMetadataRegistry($metadataRegistry)
-            ->setProxyFactory(new LazyLoadingGhostFactory($proxyConfig));
-
-        return $conf;
+        return $builder;
     }
 
-    /**
-     * Set the identity map
-     *
-     * @param IdentityMap $map
-     *
-     * @return Configuration self
-     */
-    protected function setIdentityMap(IdentityMap $map)
+    private function createPropertiesNode(): NodeDefinition
     {
-        $this->identityMap = $map;
+        $builder = new TreeBuilder;
+        $node = $builder->root('properties');
 
-        return $this;
-    }
+        $node
+            ->canBeUnset()
+            ->useAttributeAsKey('name')
+            ->requiresAtLeastOneElement()
+            ->prototype('array')
+                ->prototype('variable')->end()
+                ->beforeNormalization()
+                    ->always()
+                    ->then(function($value) {
+                        if (is_string($value)) {
+                            return ['type' => $value];
+                        }
 
-    /**
-     * Return the identity map
-     *
-     * @return IdentityMap
-     */
-    public function getIdentityMap()
-    {
-        return $this->identityMap;
-    }
+                        $type = $value['type'] ?? null;
 
-    /**
-     * Set the metadata registry
-     *
-     * @param MetadataRegistry $registry
-     *
-     * @return Configuration self
-     */
-    protected function setMetadataRegistry(MetadataRegistry $registry)
-    {
-        $this->metadataRegistry = $registry;
+                        if (empty($type)) {
+                            throw new InvalidConfigurationException;
+                        }
 
-        return $this;
-    }
+                        return $value;
+                    })
+                ->end()
+            ->end();
 
-    /**
-     * Return the metadata registry
-     *
-     * @return MetadataRegistry
-     */
-    public function getMetadataRegistry()
-    {
-        return $this->metadataRegistry;
-    }
-
-    /**
-     * Set the repository factory
-     *
-     * @param RepositoryFactory $factory
-     *
-     * @return Configuration self
-     */
-    public function setRepositoryFactory(RepositoryFactory $factory)
-    {
-        $this->repositoryFactory = $factory;
-
-        return $this;
-    }
-
-    /**
-     * Return the repository factory
-     *
-     * @return RepositoryFactory
-     */
-    public function getRepositoryFactory()
-    {
-        return $this->repositoryFactory;
-    }
-
-    /**
-     * Set the lazy loading factory
-     *
-     * @param LazyLoadingGhostFactory $proxyFactory
-     *
-     * @return Configuration self
-     */
-    protected function setProxyFactory(
-        LazyLoadingGhostFactory $proxyFactory
-    ) {
-        $this->proxyFactory = $proxyFactory;
-
-        return $this;
-    }
-
-    /**
-     * Return the lazy loading factory
-     *
-     * @return LazyLoadingGhostFactory
-     */
-    public function getProxyFactory()
-    {
-        return $this->proxyFactory;
-    }
-
-    /**
-     * Return the metadata registry either via cache or rebuilt from conf files
-     *
-     * @param array $config
-     * @param bool $devMode
-     *
-     * @return MetadataRegistry
-     */
-    protected static function buildMetadataregistry(array $config, $devMode)
-    {
-        $path = $config['cache'] . self::METADATA_CACHE_FILE;
-        $cache = new ConfigCache($path, $devMode);
-
-        if (!$cache->isFresh()) {
-            $metadataRegistry = new MetadataRegistry;
-            $reader = Readers::getReader($config['reader']);
-            $resources = [];
-
-            foreach ($config['locations'] as $location) {
-                $metas = $reader->load($location);
-
-                foreach ($metas as $meta) {
-                    $metadataRegistry->addMetadata($meta);
-                }
-
-                foreach ($reader->getResources($location) as $resource) {
-                    $resources[] = new FileResource($resource);
-                }
-            }
-
-            $code = MetadataRegistryCacheBuilder::getCode($metadataRegistry);
-
-            $cache->write($code, $resources);
-
-            return $metadataRegistry;
-        }
-
-        return require $path;
-    }
-
-    /**
-     * Return an option resolver to validate the passed config data
-     *
-     * @return OptionsResolver
-     */
-    protected static function buildOptionsResolver()
-    {
-        $resolver = new OptionsResolver;
-        $resolver->setRequired(['cache', 'reader', 'locations']);
-        $resolver->setAllowedTypes('cache', 'string');
-        $resolver->setAllowedTypes('reader', 'string');
-        $resolver->setAllowedTypes('locations', 'array');
-        $resolver->setNormalizer('cache', function($options, $value) {
-            return rtrim($value, '/');
-        });
-
-        return $resolver;
+        return $node;
     }
 }

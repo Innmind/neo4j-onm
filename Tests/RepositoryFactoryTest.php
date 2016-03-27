@@ -1,73 +1,59 @@
 <?php
+declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Tests;
 
-use Innmind\Neo4j\ONM\RepositoryFactory;
-use Innmind\Neo4j\ONM\IdentityMap;
-use Innmind\Neo4j\ONM\MetadataRegistry;
-use Innmind\Neo4j\ONM\Mapping\NodeMetadata;
+use Innmind\Neo4j\ONM\{
+    RepositoryFactory,
+    RepositoryInterface,
+    Metadata\EntityInterface,
+    Metadata\Repository,
+    UnitOfWork,
+    Translation\MatchTranslator,
+    Translation\SpecificationTranslator
+};
 
 class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 {
-    protected $factory;
-    protected $map;
-    protected $metadata;
-    protected $em;
+    private $f;
 
     public function setUp()
     {
-        $this->map = new IdentityMap;
-        $this->metadata = new MetadataRegistry;
-        $this->factory = new RepositoryFactory(
-            $this->map,
-            $this->metadata
-        );
-        $this->map->addClass('stdClass');
-        $this->metadata->addMetadata(
-            (new NodeMetadata)
-                ->setClass('stdClass')
-                ->addLabel('foo')
-        );
-        $this->em = $this->getMockBuilder('Innmind\Neo4j\ONM\EntityManager')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
-    public function testMakeDefaultRepository()
-    {
-        $this->assertInstanceOf(
-            'Innmind\Neo4j\ONM\Repository',
-            $this->factory->make('stdClass', $this->em)
+        $this->f = new RepositoryFactory(
+            $this
+                ->getMockBuilder(UnitOfWork::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this
+                ->getMockBuilder(MatchTranslator::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
+            $this
+                ->getMockBuilder(SpecificationTranslator::class)
+                ->disableOriginalConstructor()
+                ->getMock()
         );
     }
 
-    public function testRepositoryBuildOnlyOnce()
+    public function testMake()
     {
-        $repo = $this->factory->make('stdClass', $this->em);
+        $mock = $this->getMock(RepositoryInterface::class);
+        $meta = $this->getMock(EntityInterface::class);
+        $meta
+            ->method('repository')
+            ->willReturn(new Repository(get_class($mock)));
+        $repo = $this->f->make($meta);
 
-        $this->assertSame(
-            $repo,
-            $this->factory->make('stdClass', $this->em)
-        );
+        $this->assertInstanceOf(get_class($mock), $repo);
+        $this->assertSame($repo, $this->f->make($meta));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RepositoryException
-     * @expectedExceptionMessage The repository "stdClass" must implement "Innmind\Neo4j\ONM\RepositoryInterface"
-     * @expectedExceptionCode 1
-     */
-    public function testThrowWhenInvalidRepositoryInstance()
+    public function testRegister()
     {
-        $this
-            ->metadata
-            ->addMetadata(
-                (new NodeMetadata)
-                    ->setClass('stdClass')
-                    ->setRepositoryClass('stdClass')
-                    ->addLabel('foo')
-            );
-        $this->map->addClass('stdClass');
+        $meta = $this->getMock(EntityInterface::class);
+        $repo = $this->getMock(RepositoryInterface::class);
 
-        $this->factory->make('stdClass', $this->em);
+        $this->assertSame($this->f, $this->f->register($meta, $repo));
+        $this->assertSame($repo, $this->f->make($meta));
     }
 }
