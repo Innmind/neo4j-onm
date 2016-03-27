@@ -283,7 +283,8 @@ final class ManagerFactory
         return new Manager(
             $this->unitOfWork(),
             $this->metadatas(),
-            $this->repositoryFactory()
+            $this->repositoryFactory(),
+            $this->generators()
         );
     }
 

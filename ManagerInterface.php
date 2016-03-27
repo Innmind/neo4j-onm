@@ -29,4 +29,13 @@ interface ManagerInterface
      * @return self
      */
     public function flush(): self;
+
+    /**
+     * Return a new identity of the wished type
+     *
+     * @param string $class
+     *
+     * @return IdentityInterface
+     */
+    public function new(string $class): IdentityInterface;
 }

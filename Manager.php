@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Identity\Generators;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 
 class Manager implements ManagerInterface
@@ -10,15 +11,18 @@ class Manager implements ManagerInterface
     private $unitOfWork;
     private $metadatas;
     private $repositoryFactory;
+    private $generators;
 
     public function __construct(
         UnitOfWork $unitOfWork,
         Metadatas $metadatas,
-        RepositoryFactory $repositoryFactory
+        RepositoryFactory $repositoryFactory,
+        Generators $generators
     ) {
         $this->unitOfWork = $unitOfWork;
         $this->metadatas = $metadatas;
         $this->repositoryFactory = $repositoryFactory;
+        $this->generators = $generators;
     }
 
     /**
@@ -47,5 +51,16 @@ class Manager implements ManagerInterface
         $this->unitOfWork->commit();
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function new(string $class): IdentityInterface
+    {
+        return $this
+            ->generators
+            ->get($class)
+            ->new();
     }
 }

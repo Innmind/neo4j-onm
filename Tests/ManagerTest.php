@@ -14,7 +14,9 @@ use Innmind\Neo4j\ONM\{
     RepositoryInterface,
     Metadata\EntityInterface,
     Metadata\ClassName,
-    Metadata\Repository
+    Metadata\Repository,
+    Identity\Uuid,
+    Identity\Generators
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 
@@ -57,7 +59,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $m = new Manager(
             $uow,
             $metadatas,
-            $factory
+            $factory,
+            new Generators
         );
 
         $this->assertInstanceOf(ManagerInterface::class, $m);
@@ -66,5 +69,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($commited);
         $this->assertSame($m, $m->flush());
         $this->assertTrue($commited);
+        $this->assertInstanceOf(Uuid::class, $m->new(Uuid::class));
     }
 }
