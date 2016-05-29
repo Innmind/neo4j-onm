@@ -15,9 +15,9 @@ class UuidGenerator implements GeneratorInterface
 {
     private $identities;
 
-    public function __construct()
+    public function __construct(string $type = Uuid::class)
     {
-        $this->identities = new Map('string', Uuid::class);
+        $this->identities = new Map('string', $type);
     }
 
     /**
@@ -25,7 +25,8 @@ class UuidGenerator implements GeneratorInterface
      */
     public function new(): IdentityInterface
     {
-        $uuid = new Uuid((string) Generator::uuid4());
+        $class = (string) $this->identities->valueType();
+        $uuid = new $class((string) Generator::uuid4());
         $this->identities = $this->identities->put(
             $uuid->value(),
             $uuid
@@ -72,7 +73,8 @@ class UuidGenerator implements GeneratorInterface
             return $this->get($value);
         }
 
-        $uuid = new Uuid($value);
+        $class = (string) $this->identities->valueType();
+        $uuid = new $class($value);
         $this->add($uuid);
 
         return $uuid;

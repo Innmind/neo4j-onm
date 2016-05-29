@@ -16,9 +16,9 @@ class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $g = new UuidGenerator;
 
-        $this->assertInstanceof(GeneratorInterface::class, $g);
+        $this->assertInstanceOf(GeneratorInterface::class, $g);
         $u = $g->new();
-        $this->assertInstanceof(Uuid::class, $u);
+        $this->assertInstanceOf(Uuid::class, $u);
         $this->assertFalse($g->knows('11111111-1111-1111-1111-111111111111'));
         $this->assertTrue($g->knows($u->value()));
         $this->assertSame($u, $g->get($u->value()));
@@ -40,9 +40,37 @@ class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
         $s = '11111111-1111-1111-1111-111111111111';
 
         $this->assertFalse($g->knows($s));
-        $this->assertInstanceof(Uuid::class, $u = $g->for($s));
+        $this->assertInstanceOf(Uuid::class, $u = $g->for($s));
         $this->assertSame($s, $u->value());
         $this->assertTrue($g->knows($s));
         $this->assertSame($u, $g->for($s));
+    }
+
+    public function testGenerateWishedClass()
+    {
+        $uuid = new class('foo') implements IdentityInterface
+        {
+            private $value;
+
+            public function __construct(string $value)
+            {
+                $this->value = $value;
+            }
+
+            public function value()
+            {
+                return $this->value;
+            }
+
+            public function __toString(): string
+            {
+                return $this->value;
+            }
+        };
+        $g = new UuidGenerator(get_class($uuid));
+
+        $uuid2 = $g->new();
+        $this->assertInstanceOf(get_class($uuid), $uuid2);
+        $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
     }
 }
