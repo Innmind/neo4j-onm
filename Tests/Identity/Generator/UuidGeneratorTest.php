@@ -45,4 +45,32 @@ class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($g->knows($s));
         $this->assertSame($u, $g->for($s));
     }
+
+    public function testGenerateWishedClass()
+    {
+        $uuid = new class('foo') implements IdentityInterface
+        {
+            private $value;
+
+            public function __construct(string $value)
+            {
+                $this->value = $value;
+            }
+
+            public function value()
+            {
+                return $this->value;
+            }
+
+            public function __toString(): string
+            {
+                return $this->value;
+            }
+        };
+        $g = new UuidGenerator(get_class($uuid));
+
+        $uuid2 = $g->new();
+        $this->assertInstanceOf(get_class($uuid), $uuid2);
+        $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
+    }
 }
