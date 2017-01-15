@@ -61,7 +61,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->class = get_class($entity);
 
         $conn = ConnectionFactory::on(
-            getenv('CI') ? 'localhost' : 'docker',
+            'localhost',
             'http'
         )
             ->for('neo4j', 'ci')

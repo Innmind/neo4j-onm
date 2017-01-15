@@ -62,7 +62,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->aggregateClass = get_class($entity);
 
         $this->conn = ConnectionFactory::on(
-            getenv('CI') ? 'localhost' : 'docker',
+            'localhost',
             'http'
         )
             ->for('neo4j', 'ci')
