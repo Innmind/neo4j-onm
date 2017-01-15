@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Translation;
+namespace Tests\Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
     Translation\Result\RelationshipTranslator,
