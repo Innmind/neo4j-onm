@@ -122,10 +122,15 @@ class UnitOfWork
     public function get(string $class, IdentityInterface $identity)
     {
         $meta = $this->metadatas->get($class);
-        $identity = $this
+        $generator = $this
             ->generators
-            ->get($meta->identity()->type())
-            ->for($identity->value());
+            ->get($meta->identity()->type());
+
+        if ($generator->knows($identity->value())) {
+            $identity = $generator->for($identity->value());
+        } else {
+            $generator->add($identity);
+        }
 
         if ($this->container->contains($identity)) {
             return $this->container->get($identity);

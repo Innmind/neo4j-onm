@@ -194,6 +194,29 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedUuid, $entity->uuid);
     }
 
+    public function testLoadEntityFromDatabase()
+    {
+        $this->conn->execute(
+            (new Query)
+                ->create('n', ['Label'])
+                ->withProperty('uuid', '{uuid}')
+                ->withParameter('uuid', $uuid = '11111111-1111-1111-1111-111111111112')
+        );
+
+        $entity = $this->uow->get(
+            $this->aggregateClass,
+            $identity = new Uuid($uuid)
+        );
+
+        $this->assertInstanceOf($this->aggregateClass, $entity);
+        $this->assertSame($identity, $entity->uuid);
+        $this->conn->execute(
+            (new Query)
+                ->match('(n {uuid:"11111111-1111-1111-1111-111111111112"})')
+                ->delete('n')
+        );
+    }
+
     /**
      * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
      */
