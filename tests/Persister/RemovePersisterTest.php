@@ -101,7 +101,7 @@ class RemovePersisterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(PersisterInterface::class, $p);
 
         $container = new Container;
-        $conn = $this->getMock(ConnectionInterface::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $aggregate = new $this->arClass;
         $rel = new class {
             public $child;
@@ -142,7 +142,7 @@ class RemovePersisterTest extends \PHPUnit_Framework_TestCase
                     });
                 ++$count;
 
-                return $this->getMock(ResultInterface::class);
+                return $this->createMock(ResultInterface::class);
             }));
         $d->addListener(
             Events::PRE_REMOVE,

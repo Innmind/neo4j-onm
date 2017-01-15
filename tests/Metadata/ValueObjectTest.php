@@ -38,7 +38,7 @@ class ValueObjectTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Property::class, (string) $vo->properties()->valueType());
         $this->assertSame(0, $vo->properties()->count());
 
-        $vo2 = $vo->withProperty('foo', $this->getMock(TypeInterface::class));
+        $vo2 = $vo->withProperty('foo', $this->createMock(TypeInterface::class));
 
         $this->assertNotSame($vo, $vo2);
         $this->assertInstanceOf(ValueObject::class, $vo2);

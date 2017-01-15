@@ -417,8 +417,8 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
     {
         (new AggregateTranslator)->translate(
             'r',
-            $this->getMock(EntityInterface::class),
-            $this->getMock(ResultInterface::class)
+            $this->createMock(EntityInterface::class),
+            $this->createMock(ResultInterface::class)
         );
     }
 }

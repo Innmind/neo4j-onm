@@ -95,7 +95,7 @@ class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
     {
         $this->e->extract(
             new \stdClass,
-            $this->getMock(EntityInterface::class)
+            $this->createMock(EntityInterface::class)
         );
     }
 }

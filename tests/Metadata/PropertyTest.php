@@ -14,7 +14,7 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
     {
         $p = new Property(
             'foo',
-            $t = $this->getMock(TypeInterface::class)
+            $t = $this->createMock(TypeInterface::class)
         );
 
         $this->assertSame('foo', $p->name());

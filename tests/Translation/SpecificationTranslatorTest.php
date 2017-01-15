@@ -33,7 +33,7 @@ class SpecificationTranslatorTest extends \PHPUnit_Framework_TestCase
     {
         $expected = new Property('created', '=', null);
         $count = 0;
-        $m1 = $this->getMock(SpecificationTranslatorInterface::class);
+        $m1 = $this->createMock(SpecificationTranslatorInterface::class);
         $m1
             ->method('translate')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
@@ -46,7 +46,7 @@ class SpecificationTranslatorTest extends \PHPUnit_Framework_TestCase
                     ->disableOriginalConstructor()
                     ->getMock();
             }));
-        $m2 = $this->getMock(SpecificationTranslatorInterface::class);
+        $m2 = $this->createMock(SpecificationTranslatorInterface::class);
         $m2
             ->method('translate')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {

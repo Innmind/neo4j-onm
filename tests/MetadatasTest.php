@@ -17,7 +17,7 @@ class MetadatasTest extends \PHPUnit_Framework_TestCase
         $m = new Metadatas;
 
         $this->assertSame(0, $m->all()->size());
-        $e = $this->getMock(EntityInterface::class);
+        $e = $this->createMock(EntityInterface::class);
         $e
             ->method('alias')
             ->willReturn(new Alias('foo'));

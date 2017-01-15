@@ -263,8 +263,8 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
     {
         (new RelationshipTranslator)->translate(
             'r',
-            $this->getMock(EntityInterface::class),
-            $this->getMock(ResultInterface::class)
+            $this->createMock(EntityInterface::class),
+            $this->createMock(ResultInterface::class)
         );
     }
 }

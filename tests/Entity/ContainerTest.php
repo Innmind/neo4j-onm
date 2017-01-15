@@ -13,7 +13,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testInterface()
     {
         $c = new Container;
-        $i = $this->getMock(IdentityInterface::class);
+        $i = $this->createMock(IdentityInterface::class);
 
         $this->assertFalse($c->contains($i));
         $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
@@ -44,7 +44,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenGettingStateForNotManagedIdentity()
     {
-        (new Container)->stateFor($this->getMock(IdentityInterface::class));
+        (new Container)->stateFor($this->createMock(IdentityInterface::class));
     }
 
     /**
@@ -52,6 +52,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {
-        (new Container)->get($this->getMock(IdentityInterface::class));
+        (new Container)->get($this->createMock(IdentityInterface::class));
     }
 }

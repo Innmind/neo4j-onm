@@ -32,7 +32,7 @@ class ValueObjectRelationshipTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(Property::class, (string) $vor->properties()->valueType());
         $this->assertSame(0, $vor->properties()->count());
 
-        $vor2 = $vor->withProperty('foo', $this->getMock(TypeInterface::class));
+        $vor2 = $vor->withProperty('foo', $this->createMock(TypeInterface::class));
 
         $this->assertNotSame($vor, $vor2);
         $this->assertInstanceOf(ValueObjectRelationship::class, $vor2);

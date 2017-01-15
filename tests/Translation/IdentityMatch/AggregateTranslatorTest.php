@@ -78,7 +78,7 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
                         )
                     )
             );
-        $identity = $this->getMock(IdentityInterface::class);
+        $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')
             ->willReturn('foobar');

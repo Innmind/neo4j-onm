@@ -53,7 +53,7 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                     new Collection(['nullable' => null])
                 )
             );
-        $identity = $this->getMock(IdentityInterface::class);
+        $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')
             ->willReturn('foobar');

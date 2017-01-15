@@ -138,8 +138,8 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
     public function testThrowWhenTryingToBuildNonAggregate()
     {
         (new AggregateFactory)->make(
-            $this->getMock(IdentityInterface::class),
-            $this->getMock(EntityInterface::class),
+            $this->createMock(IdentityInterface::class),
+            $this->createMock(EntityInterface::class),
             new Collection([])
         );
     }

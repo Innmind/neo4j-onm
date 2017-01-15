@@ -93,8 +93,8 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
     public function testThrowWhenTryingToBuildNonRelationship()
     {
         (new RelationshipFactory(new Generators))->make(
-            $this->getMock(IdentityInterface::class),
-            $this->getMock(EntityInterface::class),
+            $this->createMock(IdentityInterface::class),
+            $this->createMock(EntityInterface::class),
             new Collection([])
         );
     }

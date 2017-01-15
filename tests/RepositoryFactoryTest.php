@@ -37,8 +37,8 @@ class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testMake()
     {
-        $mock = $this->getMock(RepositoryInterface::class);
-        $meta = $this->getMock(EntityInterface::class);
+        $mock = $this->createMock(RepositoryInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
@@ -50,8 +50,8 @@ class RepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testRegister()
     {
-        $meta = $this->getMock(EntityInterface::class);
-        $repo = $this->getMock(RepositoryInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
+        $repo = $this->createMock(RepositoryInterface::class);
 
         $this->assertSame($this->f, $this->f->register($meta, $repo));
         $this->assertSame($repo, $this->f->make($meta));

@@ -44,7 +44,7 @@ class RelationshipTest extends \PHPUnit_Framework_TestCase
 
         $r2 = $r->withProperty(
             'foo',
-            $this->getMock(TypeInterface::class)
+            $this->createMock(TypeInterface::class)
         );
         $this->assertNotSame($r, $r2);
         $this->assertSame(0, $r->properties()->count());

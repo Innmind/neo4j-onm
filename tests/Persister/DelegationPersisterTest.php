@@ -26,14 +26,14 @@ class DelegationPersisterTest extends \PHPUnit_Framework_TestCase
         $p = new DelegationPersister(
             (new Set(PersisterInterface::class))
                 ->add(
-                    $m1 = $this->getMock(PersisterInterface::class)
+                    $m1 = $this->createMock(PersisterInterface::class)
                 )
                 ->add(
-                    $m2 = $this->getMock(PersisterInterface::class)
+                    $m2 = $this->createMock(PersisterInterface::class)
                 )
         );
         $count = 0;
-        $expectedConn = $this->getMock(ConnectionInterface::class);
+        $expectedConn = $this->createMock(ConnectionInterface::class);
         $expectedContainer = new Container;
         $m1
             ->method('persist')

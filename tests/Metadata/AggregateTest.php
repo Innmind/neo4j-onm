@@ -61,7 +61,7 @@ class AggregateTest extends \PHPUnit_Framework_TestCase
 
         $ar2 = $ar->withProperty(
             'foo',
-            $this->getMock(TypeInterface::class)
+            $this->createMock(TypeInterface::class)
         );
         $this->assertNotSame($ar, $ar2);
         $this->assertSame(0, $ar->properties()->count());

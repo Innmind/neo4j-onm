@@ -25,7 +25,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testInterface()
     {
         $commited = false;
-        $conn = $this->getMock(ConnectionInterface::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $uow = $this
             ->getMockBuilder(UnitOfWork::class)
             ->disableOriginalConstructor()
@@ -46,8 +46,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             new MatchTranslator,
             new SpecificationTranslator
         );
-        $mock = $this->getMock(RepositoryInterface::class);
-        $meta = $this->getMock(EntityInterface::class);
+        $mock = $this->createMock(RepositoryInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('class')
             ->willReturn(new ClassName('foo'));

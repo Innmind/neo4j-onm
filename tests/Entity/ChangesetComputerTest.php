@@ -24,7 +24,7 @@ class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
     public function testComputeWithoutSource()
     {
         $c = $this->c->compute(
-            $this->getMock(IdentityInterface::class),
+            $this->createMock(IdentityInterface::class),
             $data = new Collection([
                 'id' => 42,
                 'foo' => 'bar',
@@ -45,7 +45,7 @@ class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             $this->c,
             $this->c->use(
-                $identity = $this->getMock(IdentityInterface::class),
+                $identity = $this->createMock(IdentityInterface::class),
                 new Collection([
                     'id' => 42,
                     'some' => 'prop',

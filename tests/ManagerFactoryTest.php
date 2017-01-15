@@ -38,7 +38,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -51,7 +51,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->validatedBy(new Configuration)
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -63,7 +63,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withDispatcher(new EventDispatcher)
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -75,7 +75,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEntityTranslators(new Map('string', EntityTranslatorInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -87,7 +87,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withGenerator(Uuid::class, new UuidGenerator)
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -98,8 +98,8 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
-            ->withEntityFactory($this->getMock(EntityFactoryInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withEntityFactory($this->createMock(EntityFactoryInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -111,7 +111,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withIdentityMatchTranslators(new Map('string', IdentityMatchTranslatorInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -121,7 +121,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $manager = ManagerFactory::for([])
             ->withMetadataFactories(new Map('string', MetadataFactoryInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -156,7 +156,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withType(get_class($mock))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -167,8 +167,8 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
-            ->withPersister($this->getMock(PersisterInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withPersister($this->createMock(PersisterInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -180,7 +180,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withMatchTranslators(new Map('string', MatchTranslatorInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -192,7 +192,7 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withSpecificationTranslators(new Map('string', SpecificationTranslatorInterface::class))
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -200,12 +200,12 @@ class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildWithGivenRepository()
     {
-        $mock = $this->getMock(RepositoryInterface::class);
+        $mock = $this->createMock(RepositoryInterface::class);
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withRepository('Image', $mock)
-            ->withConnection($m = $this->getMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);

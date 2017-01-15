@@ -17,7 +17,7 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
         $r = new Resolver;
 
         $class = $this->getMockClass(EntityFactoryInterface::class);
-        $meta = $this->getMock(EntityInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('factory')
             ->willReturn(new Factory($class));
@@ -35,7 +35,7 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
         $r = new Resolver;
 
         $class = $this->getMockClass(EntityFactoryInterface::class);
-        $meta = $this->getMock(EntityInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('factory')
             ->willReturn(new Factory($class));
