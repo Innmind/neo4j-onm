@@ -24,11 +24,16 @@
         "innmind/specification": "^1.0"
     },
     "autoload": {
-        "psr-0": {
-            "Innmind\\Neo4j\\ONM": ""
+        "psr-4": {
+            "Innmind\\Neo4j\\ONM\\": "src/"
         }
     },
-    "target-dir": "Innmind/Neo4j/ONM",
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Innmind\\Neo4j\\ONM\\": "tests/",
+            "Fixtures\\Innmind\\Neo4j\\ONM\\": "fixtures/"
+        }
+    },
     "require-dev": {
         "symfony/yaml": "~2.7|~3.0"
     }
