@@ -46,7 +46,8 @@ class SetType implements TypeInterface
             $innerConfig = $innerConfig->unset('nullable');
         }
 
-        $type->type = $config->get('inner');
+        $type->type = $config->hasKey('set_type') ?
+            $config->get('set_type') : $config->get('inner');
         $type->inner = $config
             ->get('_types')
             ->build(

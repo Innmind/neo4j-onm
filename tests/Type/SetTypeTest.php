@@ -155,4 +155,19 @@ class SetTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('string', (string) $t->fromDatabase([null])->type());
         $this->assertSame([''], $t->fromDatabase([null])->toPrimitive());
     }
+
+    public function testUseSpecificSetTypeInsteadOfInnerTypeName()
+    {
+        $type = SetType::fromConfig(new Collection([
+            'nullable' => null,
+            'inner' => 'string',
+            'set_type' => 'stdClass',
+            '_types' => new Types,
+        ]));
+
+        $set = $type->fromDatabase([]);
+
+        $this->assertInstanceOf(SetInterface::class, $set);
+        $this->assertSame('stdClass', (string) $set->type());
+    }
 }
