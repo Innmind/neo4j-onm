@@ -11,10 +11,20 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\CollectionInterface;
-use Innmind\Reflection\ReflectionObject;
+use Innmind\Reflection\{
+    ReflectionObject,
+    ExtractionStrategy\ExtractionStrategiesInterface
+};
 
 class RelationshipExtractor implements DataExtractorInterface
 {
+    private $extractionStrategies;
+
+    public function __construct(ExtractionStrategiesInterface $extractionStrategies = null)
+    {
+        $this->extractionStrategies = $extractionStrategies;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -24,7 +34,12 @@ class RelationshipExtractor implements DataExtractorInterface
             throw new InvalidArgumentException;
         }
 
-        $refl = new ReflectionObject($entity);
+        $refl = new ReflectionObject(
+            $entity,
+            null,
+            null,
+            $this->extractionStrategies
+        );
         $data = $refl->extract([
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),

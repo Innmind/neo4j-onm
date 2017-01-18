@@ -16,10 +16,20 @@ use Innmind\Immutable\{
     Collection,
     MapInterface
 };
-use Innmind\Reflection\ReflectionObject;
+use Innmind\Reflection\{
+    ReflectionObject,
+    ExtractionStrategy\ExtractionStrategiesInterface
+};
 
 class AggregateExtractor implements DataExtractorInterface
 {
+    private $extractionStrategies;
+
+    public function __construct(ExtractionStrategiesInterface $extractionStrategies = null)
+    {
+        $this->extractionStrategies = $extractionStrategies;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -32,7 +42,8 @@ class AggregateExtractor implements DataExtractorInterface
         $data = $this->extractProperties($entity, $meta->properties());
         $data = $data->set(
             $id = $meta->identity()->property(),
-            (new ReflectionObject($entity))
+            $this
+                ->reflection($entity)
                 ->extract([$id])
                 ->get($id)
                 ->value()
@@ -63,7 +74,8 @@ class AggregateExtractor implements DataExtractorInterface
         ValueObject $child,
         $entity
     ): CollectionInterface {
-        $rel = (new ReflectionObject($entity))
+        $rel = $this
+            ->reflection($entity)
             ->extract([
                 $prop = $child->relationship()->property()
             ])
@@ -76,7 +88,8 @@ class AggregateExtractor implements DataExtractorInterface
             ->set(
                 $prop = $child->relationship()->childProperty(),
                 $this->extractProperties(
-                    (new ReflectionObject($rel))
+                    $this
+                        ->reflection($rel)
                         ->extract([$prop])
                         ->get($prop),
                     $child->properties()
@@ -90,7 +103,7 @@ class AggregateExtractor implements DataExtractorInterface
         $object,
         MapInterface $properties
     ): CollectionInterface {
-        $refl = new ReflectionObject($object);
+        $refl = $this->reflection($object);
         $data = new Collection([]);
 
         $properties->foreach(function(
@@ -111,5 +124,15 @@ class AggregateExtractor implements DataExtractorInterface
         });
 
         return $data;
+    }
+
+    private function reflection($object): ReflectionObject
+    {
+        return new ReflectionObject(
+            $object,
+            null,
+            null,
+            $this->extractionStrategies
+        );
     }
 }

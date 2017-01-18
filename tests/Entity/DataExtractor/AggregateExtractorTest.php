@@ -22,7 +22,13 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     CollectionInterface,
-    Collection
+    Collection,
+    TypedCollection
+};
+use Innmind\Reflection\ExtractionStrategy\{
+    ExtractionStrategies,
+    ExtractionStrategyInterface,
+    ReflectionStrategy
 };
 
 class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
@@ -83,7 +89,10 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(DataExtractorInterface::class, $this->e);
     }
 
-    public function testExtract()
+    /**
+     * @dataProvider extractionStrategies
+     */
+    public function testExtract($strategies)
     {
         $entity = new class {
             public $uuid;
@@ -107,7 +116,8 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $data = $this->e->extract($entity, $this->m);
+        $extractor = new AggregateExtractor($strategies);
+        $data = $extractor->extract($entity, $this->m);
 
         $this->assertInstanceOf(CollectionInterface::class, $data);
         $this->assertSame(
@@ -151,5 +161,20 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
             new \stdClass,
             $this->createMock(EntityInterface::class)
         );
+    }
+
+    public function extractionStrategies(): array
+    {
+        return [
+            [null],
+            [
+                new ExtractionStrategies(
+                    new TypedCollection(
+                        ExtractionStrategyInterface::class,
+                        [new ReflectionStrategy]
+                    )
+                )
+            ],
+        ];
     }
 }
