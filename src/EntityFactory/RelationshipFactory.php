@@ -13,15 +13,26 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\CollectionInterface;
-use Innmind\Reflection\ReflectionClass;
+use Innmind\Reflection\{
+    ReflectionClass,
+    InstanciatorInterface,
+    InjectionStrategy\InjectionStrategiesInterface
+};
 
 class RelationshipFactory implements EntityFactoryInterface
 {
     private $generators;
+    private $instanciator;
+    private $injectionStrategies;
 
-    public function __construct(Generators $generators)
-    {
+    public function __construct(
+        Generators $generators,
+        InstanciatorInterface $instanciator = null,
+        InjectionStrategiesInterface $injectionStrategies = null
+    ) {
         $this->generators = $generators;
+        $this->instanciator = $instanciator;
+        $this->injectionStrategies = $injectionStrategies;
     }
 
     /**
@@ -36,7 +47,12 @@ class RelationshipFactory implements EntityFactoryInterface
             throw new InvalidArgumentException;
         }
 
-        $reflection = (new ReflectionClass((string) $meta->class()))
+        $reflection = (new ReflectionClass(
+            (string) $meta->class(),
+            null,
+            $this->injectionStrategies,
+            $this->instanciator
+        ))
             ->withProperty(
                 $meta->identity()->property(),
                 $identity
