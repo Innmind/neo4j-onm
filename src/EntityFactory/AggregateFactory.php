@@ -16,10 +16,25 @@ use Innmind\Immutable\{
     CollectionInterface,
     Set
 };
-use Innmind\Reflection\ReflectionClass;
+use Innmind\Reflection\{
+    ReflectionClass,
+    InstanciatorInterface,
+    InjectionStrategy\InjectionStrategiesInterface
+};
 
 class AggregateFactory implements EntityFactoryInterface
 {
+    private $instanciator;
+    private $injectionStrategies;
+
+    public function __construct(
+        InstanciatorInterface $instanciator = null,
+        InjectionStrategiesInterface $injectionStrategies = null
+    ) {
+        $this->instanciator = $instanciator;
+        $this->injectionStrategies = $injectionStrategies;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -32,7 +47,8 @@ class AggregateFactory implements EntityFactoryInterface
             throw new InvalidArgumentException;
         }
 
-        $reflection = (new ReflectionClass((string) $meta->class()))
+        $reflection = $this
+            ->reflection((string) $meta->class())
             ->withProperty(
                 $meta->identity()->property(),
                 $identity
@@ -93,7 +109,7 @@ class AggregateFactory implements EntityFactoryInterface
         CollectionInterface $data
     ) {
         $relationship = $meta->relationship();
-        $reflection = new ReflectionClass((string) $relationship->class());
+        $reflection = $this->reflection((string) $relationship->class());
 
         $relationship
             ->properties()
@@ -136,7 +152,7 @@ class AggregateFactory implements EntityFactoryInterface
         ValueObject $meta,
         CollectionInterface $data
     ) {
-        $reflection = new ReflectionClass((string) $meta->class());
+        $reflection = $this->reflection((string) $meta->class());
 
         $meta
             ->properties()
@@ -163,5 +179,15 @@ class AggregateFactory implements EntityFactoryInterface
             });
 
         return $reflection->buildObject();
+    }
+
+    private function reflection(string $class): ReflectionClass
+    {
+        return new ReflectionClass(
+            $class,
+            null,
+            $this->injectionStrategies,
+            $this->instanciator
+        );
     }
 }

@@ -21,7 +21,13 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     CollectionInterface,
-    Collection
+    Collection,
+    TypedCollection
+};
+use Innmind\Reflection\ExtractionStrategy\{
+    ExtractionStrategies,
+    ExtractionStrategyInterface,
+    ReflectionStrategy
 };
 
 class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
@@ -57,7 +63,10 @@ class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(DataExtractorInterface::class, $this->e);
     }
 
-    public function testExtract()
+    /**
+     * @dataProvider extractionStrategies
+     */
+    public function testExtract($strategies)
     {
         $entity = new class {
             public $uuid;
@@ -71,7 +80,8 @@ class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $data = $this->e->extract($entity, $this->m);
+        $extractor = new RelationshipExtractor($strategies);
+        $data = $extractor->extract($entity, $this->m);
 
         $this->assertInstanceOf(CollectionInterface::class, $data);
         $this->assertSame(
@@ -97,5 +107,20 @@ class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
             new \stdClass,
             $this->createMock(EntityInterface::class)
         );
+    }
+
+    public function extractionStrategies(): array
+    {
+        return [
+            [null],
+            [
+                new ExtractionStrategies(
+                    new TypedCollection(
+                        ExtractionStrategyInterface::class,
+                        [new ReflectionStrategy]
+                    )
+                )
+            ],
+        ];
     }
 }

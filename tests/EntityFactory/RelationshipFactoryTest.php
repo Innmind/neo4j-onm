@@ -22,16 +22,30 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     IdentityInterface
 };
+use Innmind\Reflection\{
+    InstanciatorInterface,
+    InjectionStrategy\InjectionStrategyInterface,
+    InjectionStrategy\InjectionStrategies
+};
 use Innmind\Immutable\{
     Collection,
+    CollectionInterface,
+    TypedCollection,
     SetInterface
 };
 
 class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
 {
-    public function testMake()
+    /**
+     * @dataProvider reflection
+     */
+    public function testMake($instanciator, $injectionStrategies)
     {
-        $f = new RelationshipFactory(new Generators);
+        $f = new RelationshipFactory(
+            new Generators,
+            $instanciator,
+            $injectionStrategies
+        );
 
         $entity = new class {
             public $uuid;
@@ -97,5 +111,50 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             $this->createMock(EntityInterface::class),
             new Collection([])
         );
+    }
+
+    public function reflection(): array
+    {
+        return [
+            [null, null],
+            [
+                new class implements InstanciatorInterface {
+                    public function build(string $class, CollectionInterface $properties)
+                    {
+                        return new $class;
+                    }
+
+                    public function getParameters(string $class): CollectionInterface
+                    {
+                        return new Collection([]);
+                    }
+                },
+                null,
+            ],
+            [
+                new class implements InstanciatorInterface {
+                    public function build(string $class, CollectionInterface $properties)
+                    {
+                        $object = new $class;
+                        $properties->each(function($name, $value) use ($object) {
+                            $object->$name = $value;
+                        });
+
+                        return $object;
+                    }
+
+                    public function getParameters(string $class): CollectionInterface
+                    {
+                        return new Collection([]);
+                    }
+                },
+                new InjectionStrategies(
+                    new TypedCollection(
+                        InjectionStrategyInterface::class,
+                        []
+                    )
+                ),
+            ],
+        ];
     }
 }
