@@ -375,6 +375,12 @@ class InsertPersister implements PersisterInterface
         $this->variables = $this->variables->add((string) $name);
 
         return $query
+            ->with(
+                ...$this
+                    ->variables
+                    ->remove((string) $name)
+                    ->toPrimitive()
+            )
             ->match((string) $name)
             ->withProperty(
                 $meta->target(),
