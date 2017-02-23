@@ -37,12 +37,12 @@ use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
     Query
 };
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Set,
     SetInterface,
     Map
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use PHPUnit\Framework\TestCase;
 
 class UnitOfWorkTest extends TestCase
@@ -79,7 +79,7 @@ class UnitOfWorkTest extends TestCase
         $this->metadatas = new Metadatas;
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($this->metadatas);
-        $dispatcher = new EventDispatcher;
+        $eventBus = $this->createMock(EventBusInterface::class);
 
         $this
             ->metadatas
@@ -105,7 +105,7 @@ class UnitOfWorkTest extends TestCase
                     ->add(
                         new InsertPersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $this->metadatas
                         )
@@ -113,7 +113,7 @@ class UnitOfWorkTest extends TestCase
                     ->add(
                         new UpdatePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $this->metadatas
                         )
@@ -121,7 +121,7 @@ class UnitOfWorkTest extends TestCase
                     ->add(
                         new RemovePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $this->metadatas
                         )
                     )

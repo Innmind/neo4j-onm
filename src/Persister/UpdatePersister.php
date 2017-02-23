@@ -9,8 +9,8 @@ use Innmind\Neo4j\ONM\{
     Entity\ChangesetComputer,
     Entity\DataExtractor,
     IdentityInterface,
-    Events,
-    Event\UpdateEvent,
+    Event\EntityAboutToBeUpdated,
+    Event\EntityUpdated,
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Relationship,
@@ -21,18 +21,18 @@ use Innmind\Neo4j\DBAL\{
     QueryInterface,
     Query
 };
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     CollectionInterface,
     StringPrimitive as Str,
     Map,
     MapInterface
 };
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UpdatePersister implements PersisterInterface
 {
     private $changeset;
-    private $dispatcher;
+    private $eventBus;
     private $extractor;
     private $metadatas;
     private $name;
@@ -40,12 +40,12 @@ class UpdatePersister implements PersisterInterface
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventDispatcherInterface $dispatcher,
+        EventBusInterface $eventBus,
         DataExtractor $extractor,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->dispatcher = $dispatcher;
+        $this->eventBus = $eventBus;
         $this->extractor = $extractor;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
@@ -90,9 +90,8 @@ class UpdatePersister implements PersisterInterface
         ) use (
             $entities
         ) {
-            $this->dispatcher->dispatch(
-                Events::PRE_UPDATE,
-                new UpdateEvent(
+            $this->eventBus->dispatch(
+                new EntityAboutToBeUpdated(
                     $identity,
                     $entities->get($identity),
                     $changeset
@@ -113,9 +112,8 @@ class UpdatePersister implements PersisterInterface
                 $identity,
                 $this->extractor->extract($entity)
             );
-            $this->dispatcher->dispatch(
-                Events::POST_UPDATE,
-                new UpdateEvent(
+            $this->eventBus->dispatch(
+                new EntityUpdated(
                     $identity,
                     $entity,
                     $changeset

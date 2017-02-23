@@ -21,23 +21,20 @@ use Innmind\Neo4j\ONM\{
     Persister\RemovePersister
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Set,
     MapInterface,
     Map
 };
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\EventDispatcher\{
-    EventDispatcher,
-    EventDispatcherInterface
-};
 
 final class ManagerFactory
 {
     private $entities;
     private $config;
     private $connection;
-    private $dispatcher;
+    private $eventBus;
     private $uow;
     private $container;
     private $entityFactory;
@@ -63,7 +60,6 @@ final class ManagerFactory
     private function __construct(array $entities)
     {
         $this->entities = $entities;
-        $this->dispatcher = new EventDispatcher;
         $this->types = new Types;
         $this->config = new Configuration;
         $this->additionalGenerators = new Map('string', GeneratorInterface::class);
@@ -112,15 +108,15 @@ final class ManagerFactory
     }
 
     /**
-     * Specify the event dispatcher to use
+     * Specify the event event bus to use
      *
-     * @param EventDispatcherInterface $dispatcher
+     * @param EventBusInterface $eventBus
      *
      * @return self
      */
-    public function withDispatcher(EventDispatcherInterface $dispatcher): self
+    public function withEventBus(EventBusInterface $eventBus): self
     {
-        $this->dispatcher = $dispatcher;
+        $this->eventBus = $eventBus;
 
         return $this;
     }
@@ -448,7 +444,7 @@ final class ManagerFactory
                     ->add(
                         new InsertPersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->extractor(),
                             $this->metadatas()
                         )
@@ -456,7 +452,7 @@ final class ManagerFactory
                     ->add(
                         new UpdatePersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->extractor(),
                             $this->metadatas()
                         )
@@ -464,7 +460,7 @@ final class ManagerFactory
                     ->add(
                         new RemovePersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->metadatas()
                         )
                     )

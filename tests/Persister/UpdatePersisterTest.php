@@ -24,19 +24,19 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Metadatas,
-    Events,
-    Event\UpdateEvent
+    Event\EntityAboutToBeUpdated,
+    Event\EntityUpdated
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionInterface,
     ResultInterface,
     Query\Parameter
 };
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Collection,
     CollectionInterface
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use PHPUnit\Framework\TestCase;
 
 class UpdatePersisterTest extends TestCase
@@ -133,7 +133,7 @@ class UpdatePersisterTest extends TestCase
     {
         $p = new UpdatePersister(
             $changeset = new ChangesetComputer,
-            $d = new EventDispatcher,
+            $bus = $this->createMock(EventBusInterface::class),
             $extractor = new DataExtractor($this->m),
             $this->m
         );
@@ -228,41 +228,37 @@ class UpdatePersisterTest extends TestCase
 
                 return $this->createMock(ResultInterface::class);
             }));
-        $d->addListener(
-            Events::PRE_UPDATE,
-            function(UpdateEvent $event) use (&$preCount, $aggregate, $relationship) {
-                ++$preCount;
-                $this->assertTrue(
-                    $event->entity() instanceof $aggregate ||
-                    $event->entity() instanceof $relationship
-                );
-                $this->assertTrue(
-                    $event->identity() === $aggregate->uuid ||
-                    $event->identity() === $relationship->uuid
-                );
-                $this->assertInstanceOf(CollectionInterface::class, $event->changeset());
-            }
-        );
-        $d->addListener(
-            Events::POST_UPDATE,
-            function(UpdateEvent $event) use (&$postCount, $aggregate, $relationship) {
-                ++$postCount;
-                $this->assertTrue(
-                    $event->entity() instanceof $aggregate ||
-                    $event->entity() instanceof $relationship
-                );
-                $this->assertTrue(
-                    $event->identity() === $aggregate->uuid ||
-                    $event->identity() === $relationship->uuid
-                );
-                $this->assertInstanceOf(CollectionInterface::class, $event->changeset());
-            }
-        );
+        $bus
+            ->expects($this->at(0))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityAboutToBeUpdated $event) use ($aggregate): bool {
+                return $event->entity() instanceof $aggregate &&
+                    $event->identity() === $aggregate->uuid;
+            }));
+        $bus
+            ->expects($this->at(1))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityAboutToBeUpdated $event) use ($relationship): bool {
+                return $event->entity() instanceof $relationship &&
+                    $event->identity() === $relationship->uuid;
+            }));
+        $bus
+            ->expects($this->at(2))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityUpdated $event) use ($aggregate): bool {
+                return $event->entity() instanceof $aggregate &&
+                    $event->identity() === $aggregate->uuid;
+            }));
+        $bus
+            ->expects($this->at(3))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityUpdated $event) use ($relationship): bool {
+                return $event->entity() instanceof $relationship &&
+                    $event->identity() === $relationship->uuid;
+            }));
 
         $this->assertSame(null, $p->persist($conn, $container));
         $this->assertSame(1, $count);
-        $this->assertSame(2, $preCount);
-        $this->assertSame(2, $postCount);
         $this->assertSame(
             Container::STATE_MANAGED,
             $container->stateFor($aggregate->uuid)

@@ -39,12 +39,12 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Set,
     SetInterface,
     Collection
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
@@ -78,7 +78,7 @@ class RepositoryTest extends TestCase
         $metadatas = new Metadatas;
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($metadatas);
-        $dispatcher = new EventDispatcher;
+        $eventBus = $this->createMock(EventBusInterface::class);
 
         $metadatas->register(
             $meta = (new Aggregate(
@@ -105,7 +105,7 @@ class RepositoryTest extends TestCase
                     ->add(
                         new InsertPersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $metadatas
                         )
@@ -113,7 +113,7 @@ class RepositoryTest extends TestCase
                     ->add(
                         new UpdatePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $metadatas
                         )
@@ -121,7 +121,7 @@ class RepositoryTest extends TestCase
                     ->add(
                         new RemovePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $metadatas
                         )
                     )

@@ -22,15 +22,15 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Identity\Uuid,
     Metadatas,
-    Events,
-    Event\RemoveEvent
+    Event\EntityAboutToBeRemoved,
+    Event\EntityRemoved
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionInterface,
     ResultInterface,
     Query\Parameter
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Innmind\EventBus\EventBusInterface;
 use PHPUnit\Framework\TestCase;
 
 class RemovePersisterTest extends TestCase
@@ -95,7 +95,7 @@ class RemovePersisterTest extends TestCase
     {
         $p = new RemovePersister(
             new ChangesetComputer,
-            $d = new EventDispatcher,
+            $bus = $this->createMock(EventBusInterface::class),
             $this->m
         );
 
@@ -145,39 +145,37 @@ class RemovePersisterTest extends TestCase
 
                 return $this->createMock(ResultInterface::class);
             }));
-        $d->addListener(
-            Events::PRE_REMOVE,
-            function(RemoveEvent $event) use (&$preCount, $aggregate, $relationship) {
-                ++$preCount;
-                $this->assertTrue(
-                    $event->entity() instanceof $aggregate ||
-                    $event->entity() instanceof $relationship
-                );
-                $this->assertTrue(
-                    $event->identity() === $aggregate->uuid ||
-                    $event->identity() === $relationship->uuid
-                );
-            }
-        );
-        $d->addListener(
-            Events::POST_REMOVE,
-            function(RemoveEvent $event) use (&$postCount, $aggregate, $relationship) {
-                ++$postCount;
-                $this->assertTrue(
-                    $event->entity() instanceof $aggregate ||
-                    $event->entity() instanceof $relationship
-                );
-                $this->assertTrue(
-                    $event->identity() === $aggregate->uuid ||
-                    $event->identity() === $relationship->uuid
-                );
-            }
-        );
+        $bus
+            ->expects($this->at(0))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($aggregate): bool {
+                return $event->entity() instanceof $aggregate &&
+                    $event->identity() === $aggregate->uuid;
+            }));
+        $bus
+            ->expects($this->at(1))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($relationship): bool {
+                return $event->entity() instanceof $relationship &&
+                    $event->identity() === $relationship->uuid;
+            }));
+        $bus
+            ->expects($this->at(2))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityRemoved $event) use ($aggregate): bool {
+                return $event->entity() instanceof $aggregate &&
+                    $event->identity() === $aggregate->uuid;
+            }));
+        $bus
+            ->expects($this->at(3))
+            ->method('dispatch')
+            ->with($this->callback(function(EntityRemoved $event) use ($relationship): bool {
+                return $event->entity() instanceof $relationship &&
+                    $event->identity() === $relationship->uuid;
+            }));
 
         $this->assertSame(null, $p->persist($conn, $container));
         $this->assertSame(1, $count);
-        $this->assertSame(2, $preCount);
-        $this->assertSame(2, $postCount);
         $this->assertSame(
             Container::STATE_REMOVED,
             $container->stateFor($aggregate->uuid)

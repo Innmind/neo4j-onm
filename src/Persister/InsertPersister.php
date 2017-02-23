@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\ChangesetComputer,
     Entity\DataExtractor,
-    Events,
-    Event\PersistEvent,
+    Event\EntityAboutToBePersisted,
+    Event\EntityPersisted,
     IdentityInterface,
     Metadata\Aggregate,
     Metadata\Property,
@@ -23,6 +23,7 @@ use Innmind\Neo4j\DBAL\{
     Query,
     Clause\Expression\Relationship as DBALRelationship
 };
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Collection,
     CollectionInterface,
@@ -30,12 +31,11 @@ use Innmind\Immutable\{
     MapInterface,
     Set
 };
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class InsertPersister implements PersisterInterface
 {
     private $changeset;
-    private $dispatcher;
+    private $eventBus;
     private $extractor;
     private $metadatas;
     private $name;
@@ -43,12 +43,12 @@ class InsertPersister implements PersisterInterface
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventDispatcherInterface $dispatcher,
+        EventBusInterface $eventBus,
         DataExtractor $extractor,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->dispatcher = $dispatcher;
+        $this->eventBus = $eventBus;
         $this->extractor = $extractor;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
@@ -66,9 +66,8 @@ class InsertPersister implements PersisterInterface
         }
 
         $entities->foreach(function(IdentityInterface $identity, $entity) {
-            $this->dispatcher->dispatch(
-                Events::PRE_PERSIST,
-                new PersistEvent($identity, $entity)
+            $this->eventBus->dispatch(
+                new EntityAboutToBePersisted($identity, $entity)
             );
         });
 
@@ -85,9 +84,8 @@ class InsertPersister implements PersisterInterface
                 $identity,
                 $this->extractor->extract($entity)
             );
-            $this->dispatcher->dispatch(
-                Events::POST_PERSIST,
-                new PersistEvent($identity, $entity)
+            $this->eventBus->dispatch(
+                new EntityPersisted($identity, $entity)
             );
         });
     }

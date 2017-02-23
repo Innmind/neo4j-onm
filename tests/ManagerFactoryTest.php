@@ -20,16 +20,14 @@ use Innmind\Neo4j\ONM\{
     RepositoryInterface
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Map,
     SetInterface,
     Set,
     CollectionInterface
 };
-use Symfony\Component\{
-    Yaml\Yaml,
-    EventDispatcher\EventDispatcher
-};
+use Symfony\Component\Yaml\Yaml;
 use PHPUnit\Framework\TestCase;
 
 class ManagerFactoryTest extends TestCase
@@ -39,6 +37,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
@@ -51,19 +50,8 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->validatedBy(new Configuration)
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
-            ->build();
-
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
-    }
-
-    public function testBuildWithGivenDispatcherInstance()
-    {
-        $manager = ManagerFactory::for([
-            Yaml::parse(file_get_contents('fixtures/mapping.yml'))
-        ])
-            ->withDispatcher(new EventDispatcher)
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
 
@@ -75,6 +63,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withEntityTranslators(new Map('string', EntityTranslatorInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -87,6 +76,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withGenerator(Uuid::class, new UuidGenerator)
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -99,6 +89,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withEntityFactory($this->createMock(EntityFactoryInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -111,6 +102,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withIdentityMatchTranslators(new Map('string', IdentityMatchTranslatorInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -121,6 +113,7 @@ class ManagerFactoryTest extends TestCase
     public function testBuildWithGivenMetadataFactories()
     {
         $manager = ManagerFactory::for([])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withMetadataFactories(new Map('string', MetadataFactoryInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -156,6 +149,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withType(get_class($mock))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -168,6 +162,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withPersister($this->createMock(PersisterInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -180,6 +175,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withMatchTranslators(new Map('string', MatchTranslatorInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -192,6 +188,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withSpecificationTranslators(new Map('string', SpecificationTranslatorInterface::class))
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();
@@ -205,6 +202,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
+            ->withEventBus($this->createMock(EventBusInterface::class))
             ->withRepository('Image', $mock)
             ->withConnection($m = $this->createMock(ConnectionInterface::class))
             ->build();

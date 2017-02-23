@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\ChangesetComputer,
     IdentityInterface,
-    Events,
-    Event\RemoveEvent,
+    Event\EntityAboutToBeRemoved,
+    Event\EntityRemoved,
     Metadatas,
     Metadata\Relationship,
     Metadata\ValueObject
@@ -19,29 +19,29 @@ use Innmind\Neo4j\DBAL\{
     QueryInterface,
     Query
 };
+use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Collection,
     StringPrimitive as Str,
     Set,
     MapInterface
 };
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RemovePersister implements PersisterInterface
 {
     private $changeset;
-    private $dispatcher;
+    private $eventBus;
     private $metadatas;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventDispatcherInterface $dispatcher,
+        EventBusInterface $eventBus,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->dispatcher = $dispatcher;
+        $this->eventBus = $eventBus;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
     }
@@ -54,9 +54,8 @@ class RemovePersister implements PersisterInterface
         $entities = $container
             ->state(Container::STATE_TO_BE_REMOVED)
             ->foreach(function(IdentityInterface $identity, $object) {
-                $this->dispatcher->dispatch(
-                    Events::PRE_REMOVE,
-                    new RemoveEvent($identity, $object)
+                $this->eventBus->dispatch(
+                    new EntityAboutToBeRemoved($identity, $object)
                 );
             });
 
@@ -74,9 +73,8 @@ class RemovePersister implements PersisterInterface
         ) {
             $container->push($identity, $object, Container::STATE_REMOVED);
             $this->changeset->use($identity, new Collection([])); //in case the identity is reused later on
-            $this->dispatcher->dispatch(
-                Events::POST_REMOVE,
-                new RemoveEvent($identity, $object)
+            $this->eventBus->dispatch(
+                new EntityRemoved($identity, $object)
             );
         });
     }
