@@ -43,8 +43,9 @@ use Innmind\Immutable\{
     Map
 };
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use PHPUnit\Framework\TestCase;
 
-class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
+class UnitOfWorkTest extends TestCase
 {
     private $uow;
     private $aggregateClass;
@@ -287,7 +288,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($this->uow, $this->uow->remove($entity));
 
-        $this->setExpectedException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManagedException::class);
         $this->uow->stateFor($entity->uuid);
     }
 
@@ -303,7 +304,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             $uow->detach($entity)
         );
         $this->assertFalse($uow->contains($entity->uuid));
-        $this->setExpectedException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManagedException::class);
         $uow->stateFor($entity->uuid);
     }
 

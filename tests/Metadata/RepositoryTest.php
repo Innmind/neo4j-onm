@@ -4,8 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Metadata\Repository;
+use PHPUnit\Framework\TestCase;
 
-class RepositoryTest extends \PHPUnit_Framework_TestCase
+class RepositoryTest extends TestCase
 {
     public function testInterface()
     {

@@ -18,8 +18,9 @@ use Innmind\Immutable\{
     SetInterface,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTest extends \PHPUnit_Framework_TestCase
+class AggregateTest extends TestCase
 {
     public function testInterface()
     {

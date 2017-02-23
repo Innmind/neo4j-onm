@@ -26,8 +26,9 @@ use Innmind\Immutable\{
     CollectionInterface,
     Collection
 };
+use PHPUnit\Framework\TestCase;
 
-class DataExtractorTest extends \PHPUnit_Framework_TestCase
+class DataExtractorTest extends TestCase
 {
     private $e;
     private $arClass;

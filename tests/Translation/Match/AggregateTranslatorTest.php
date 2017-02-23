@@ -24,8 +24,9 @@ use Innmind\Immutable\{
     Collection,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends TestCase
 {
     public function testTranslate()
     {

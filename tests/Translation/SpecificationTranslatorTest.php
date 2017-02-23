@@ -26,8 +26,9 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class SpecificationTranslatorTest extends \PHPUnit_Framework_TestCase
+class SpecificationTranslatorTest extends TestCase
 {
     public function testTranslate()
     {

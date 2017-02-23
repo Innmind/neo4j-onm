@@ -7,8 +7,9 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     IdentityInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class UuidTest extends \PHPUnit_Framework_TestCase
+class UuidTest extends TestCase
 {
     public function testInterface()
     {

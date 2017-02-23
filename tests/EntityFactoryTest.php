@@ -33,8 +33,9 @@ use Innmind\Immutable\{
     Map,
     SetInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class EntityFactoryTest extends \PHPUnit_Framework_TestCase
+class EntityFactoryTest extends TestCase
 {
     private $f;
 

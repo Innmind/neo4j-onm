@@ -12,8 +12,9 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Innmind\Immutable\Collection;
+use PHPUnit\Framework\TestCase;
 
-class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends TestCase
 {
     private $f;
 

@@ -9,8 +9,9 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class IdentityMatchTest extends \PHPUnit_Framework_TestCase
+class IdentityMatchTest extends TestCase
 {
     public function testInterface()
     {

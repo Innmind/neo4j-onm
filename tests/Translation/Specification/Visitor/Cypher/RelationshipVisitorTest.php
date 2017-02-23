@@ -25,8 +25,9 @@ use Innmind\Immutable\{
     SequenceInterface,
     CollectionInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
+class RelationshipVisitorTest extends TestCase
 {
     private $v;
 

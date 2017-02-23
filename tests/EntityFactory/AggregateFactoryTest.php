@@ -31,8 +31,9 @@ use Innmind\Immutable\{
     TypedCollection,
     SetInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends TestCase
 {
     /**
      * @dataProvider reflection

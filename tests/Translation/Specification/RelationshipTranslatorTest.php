@@ -24,8 +24,9 @@ use Innmind\Neo4j\ONM\{
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
 use Innmind\Immutable\Collection;
+use PHPUnit\Framework\TestCase;
 
-class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
+class RelationshipTranslatorTest extends TestCase
 {
     private $meta;
 

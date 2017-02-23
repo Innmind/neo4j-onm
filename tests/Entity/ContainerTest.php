@@ -7,8 +7,9 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     IdentityInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     public function testInterface()
     {

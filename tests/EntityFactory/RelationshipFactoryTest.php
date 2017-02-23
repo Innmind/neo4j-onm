@@ -33,8 +33,9 @@ use Innmind\Immutable\{
     TypedCollection,
     SetInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
+class RelationshipFactoryTest extends TestCase
 {
     /**
      * @dataProvider reflection

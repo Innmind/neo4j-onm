@@ -18,8 +18,9 @@ use Innmind\Immutable\{
     Set,
     Collection
 };
+use PHPUnit\Framework\TestCase;
 
-class TypesTest extends \PHPUnit_Framework_TestCase
+class TypesTest extends TestCase
 {
     public function testAll()
     {

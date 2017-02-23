@@ -27,8 +27,9 @@ use Innmind\Immutable\{
     MapInterface,
     Map
 };
+use PHPUnit\Framework\TestCase;
 
-class IdentityMatchTranslatorTest extends \PHPUnit_Framework_TestCase
+class IdentityMatchTranslatorTest extends TestCase
 {
     public function testTranslateAggregate()
     {

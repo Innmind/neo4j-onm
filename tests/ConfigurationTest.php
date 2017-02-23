@@ -8,8 +8,9 @@ use Symfony\Component\{
     Config\Definition\Processor,
     Yaml\Yaml
 };
+use PHPUnit\Framework\TestCase;
 
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     private $c;
     private $f;

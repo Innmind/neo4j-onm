@@ -16,8 +16,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     TypeInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipTest extends \PHPUnit_Framework_TestCase
+class RelationshipTest extends TestCase
 {
     public function testInterface()
     {

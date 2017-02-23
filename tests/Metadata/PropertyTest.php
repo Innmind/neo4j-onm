@@ -7,8 +7,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     TypeInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class PropertyTest extends \PHPUnit_Framework_TestCase
+class PropertyTest extends TestCase
 {
     public function testInterface()
     {

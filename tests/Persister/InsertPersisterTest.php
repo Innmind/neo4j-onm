@@ -36,8 +36,9 @@ use Innmind\Immutable\{
     Collection
 };
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use PHPUnit\Framework\TestCase;
 
-class InsertPersisterTest extends \PHPUnit_Framework_TestCase
+class InsertPersisterTest extends TestCase
 {
     private $m;
     private $arClass;

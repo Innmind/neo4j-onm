@@ -26,8 +26,9 @@ use Innmind\Immutable\{
     MapInterface,
     Map
 };
+use PHPUnit\Framework\TestCase;
 
-class MatchTranslatorTest extends \PHPUnit_Framework_TestCase
+class MatchTranslatorTest extends TestCase
 {
     public function testTranslateAggregate()
     {

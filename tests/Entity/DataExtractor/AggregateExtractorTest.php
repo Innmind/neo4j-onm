@@ -30,8 +30,9 @@ use Innmind\Reflection\ExtractionStrategy\{
     ExtractionStrategyInterface,
     ReflectionStrategy
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
+class AggregateExtractorTest extends TestCase
 {
     private $e;
     private $m;

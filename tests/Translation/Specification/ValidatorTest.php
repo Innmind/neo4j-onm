@@ -25,8 +25,9 @@ use Innmind\Immutable\{
     Collection,
     Map
 };
+use PHPUnit\Framework\TestCase;
 
-class ValidatorTest extends \PHPUnit_Framework_TestCase
+class ValidatorTest extends TestCase
 {
     private $aggregate;
     private $relationship;

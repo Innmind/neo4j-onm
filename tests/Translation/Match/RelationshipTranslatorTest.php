@@ -23,8 +23,9 @@ use Innmind\Immutable\{
     Collection,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
+class RelationshipTranslatorTest extends TestCase
 {
     public function testTranslate()
     {

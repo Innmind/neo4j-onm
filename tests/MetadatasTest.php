@@ -9,8 +9,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\EntityInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class MetadatasTest extends \PHPUnit_Framework_TestCase
+class MetadatasTest extends TestCase
 {
     public function testAdd()
     {

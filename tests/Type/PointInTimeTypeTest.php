@@ -17,8 +17,9 @@ use Innmind\Immutable\{
     SetInterface,
     Collection
 };
+use PHPUnit\Framework\TestCase;
 
-class PointInTimeTypeTest extends \PHPUnit_Framework_TestCase
+class PointInTimeTypeTest extends TestCase
 {
     public function testInterface()
     {

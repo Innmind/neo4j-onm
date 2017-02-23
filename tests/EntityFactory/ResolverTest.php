@@ -9,8 +9,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\Factory
 };
+use PHPUnit\Framework\TestCase;
 
-class ResolverTest extends \PHPUnit_Framework_TestCase
+class ResolverTest extends TestCase
 {
     public function testInterface()
     {

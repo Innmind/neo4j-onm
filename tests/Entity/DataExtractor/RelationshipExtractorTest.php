@@ -29,8 +29,9 @@ use Innmind\Reflection\ExtractionStrategy\{
     ExtractionStrategyInterface,
     ReflectionStrategy
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipExtractorTest extends \PHPUnit_Framework_TestCase
+class RelationshipExtractorTest extends TestCase
 {
     private $e;
     private $m;

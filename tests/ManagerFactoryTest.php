@@ -30,8 +30,9 @@ use Symfony\Component\{
     Yaml\Yaml,
     EventDispatcher\EventDispatcher
 };
+use PHPUnit\Framework\TestCase;
 
-class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
+class ManagerFactoryTest extends TestCase
 {
     public function testBasicBuild()
     {

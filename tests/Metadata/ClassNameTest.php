@@ -4,8 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Metadata\ClassName;
+use PHPUnit\Framework\TestCase;
 
-class ClassNameTest extends \PHPUnit_Framework_TestCase
+class ClassNameTest extends TestCase
 {
     public function testInterface()
     {

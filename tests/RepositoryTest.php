@@ -45,8 +45,9 @@ use Innmind\Immutable\{
     Collection
 };
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use PHPUnit\Framework\TestCase;
 
-class RepositoryTest extends \PHPUnit_Framework_TestCase
+class RepositoryTest extends TestCase
 {
     private $r;
     private $class;
@@ -153,7 +154,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->r, $this->r->remove($entity));
         $this->assertFalse($this->r->has($entity->uuid));
 
-        $this->setExpectedException(EntityNotFoundException::class);
+        $this->expectException(EntityNotFoundException::class);
         $this->r->get($entity->uuid);
     }
 

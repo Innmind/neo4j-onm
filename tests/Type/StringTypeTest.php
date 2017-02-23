@@ -11,8 +11,9 @@ use Innmind\Immutable\{
     SetInterface,
     Collection
 };
+use PHPUnit\Framework\TestCase;
 
-class StringTypeTest extends \PHPUnit_Framework_TestCase
+class StringTypeTest extends TestCase
 {
     public function testInterface()
     {

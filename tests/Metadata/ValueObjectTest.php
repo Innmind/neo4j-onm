@@ -14,8 +14,9 @@ use Innmind\Immutable\{
     SetInterface,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ValueObjectTest extends \PHPUnit_Framework_TestCase
+class ValueObjectTest extends TestCase
 {
     public function testInterface()
     {

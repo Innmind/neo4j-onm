@@ -11,8 +11,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship
 };
 use Symfony\Component\Yaml\Yaml;
+use PHPUnit\Framework\TestCase;
 
-class MetadataBuilderTest extends \PHPUnit_Framework_TestCase
+class MetadataBuilderTest extends TestCase
 {
     private $b;
 

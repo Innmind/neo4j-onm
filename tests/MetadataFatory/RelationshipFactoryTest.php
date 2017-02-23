@@ -11,8 +11,9 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Innmind\Immutable\Collection;
+use PHPUnit\Framework\TestCase;
 
-class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
+class RelationshipFactoryTest extends TestCase
 {
     private $f;
 

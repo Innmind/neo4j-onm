@@ -11,8 +11,9 @@ use Innmind\Immutable\{
     SetInterface,
     Collection
 };
+use PHPUnit\Framework\TestCase;
 
-class DateTypeTest extends \PHPUnit_Framework_TestCase
+class DateTypeTest extends TestCase
 {
     public function testInterface()
     {

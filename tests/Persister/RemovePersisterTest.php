@@ -31,8 +31,9 @@ use Innmind\Neo4j\DBAL\{
     Query\Parameter
 };
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use PHPUnit\Framework\TestCase;
 
-class RemovePersisterTest extends \PHPUnit_Framework_TestCase
+class RemovePersisterTest extends TestCase
 {
     private $m;
     private $arClass;

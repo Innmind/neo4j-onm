@@ -9,8 +9,9 @@ use Innmind\Neo4j\ONM\{
     Identity\GeneratorInterface,
     Identity\Generator\UuidGenerator
 };
+use PHPUnit\Framework\TestCase;
 
-class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
+class UuidGeneratorTest extends TestCase
 {
     public function testInterface()
     {

@@ -10,8 +10,9 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\Immutable\Set;
+use PHPUnit\Framework\TestCase;
 
-class DelegationPersisterTest extends \PHPUnit_Framework_TestCase
+class DelegationPersisterTest extends TestCase
 {
     public function testInterface()
     {

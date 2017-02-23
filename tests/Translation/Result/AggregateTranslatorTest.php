@@ -26,8 +26,9 @@ use Innmind\Immutable\{
     Collection,
     CollectionInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends TestCase
 {
     private $t;
     private $m;

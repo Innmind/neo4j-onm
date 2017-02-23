@@ -4,8 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Metadata\Alias;
+use PHPUnit\Framework\TestCase;
 
-class AliasTest extends \PHPUnit_Framework_TestCase
+class AliasTest extends TestCase
 {
     public function testInterface()
     {

@@ -19,8 +19,9 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
+use PHPUnit\Framework\TestCase;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     public function testInterface()
     {

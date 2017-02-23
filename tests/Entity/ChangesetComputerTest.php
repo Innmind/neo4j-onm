@@ -11,8 +11,9 @@ use Innmind\Immutable\{
     Collection,
     CollectionInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
+class ChangesetComputerTest extends TestCase
 {
     private $c;
 

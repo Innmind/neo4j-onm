@@ -11,8 +11,9 @@ use Innmind\Neo4j\ONM\{
     TypeInterface
 };
 use Innmind\Immutable\MapInterface;
+use PHPUnit\Framework\TestCase;
 
-class ValueObjectRelationshipTest extends \PHPUnit_Framework_TestCase
+class ValueObjectRelationshipTest extends TestCase
 {
     public function testInterface()
     {
