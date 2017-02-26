@@ -18,7 +18,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class EntityFactory
+final class EntityFactory
 {
     private $translator;
     private $generators;

@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class FloatType implements TypeInterface
+final class FloatType implements TypeInterface
 {
     private $nullable = false;
     private static $identifiers;

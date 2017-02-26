@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-class RelationshipEdge extends Identity
+final class RelationshipEdge extends Identity
 {
     private $target;
 

@@ -23,7 +23,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class RelationshipFactory implements MetadataFactoryInterface
+final class RelationshipFactory implements MetadataFactoryInterface
 {
     private $types;
 

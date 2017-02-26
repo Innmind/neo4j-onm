@@ -19,7 +19,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class AggregateTranslator implements MatchTranslatorInterface
+final class AggregateTranslator implements MatchTranslatorInterface
 {
     /**
      * {@inheritdoc}

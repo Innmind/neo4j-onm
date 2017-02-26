@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\Map;
 use Ramsey\Uuid\Uuid as Generator;
 
-class UuidGenerator implements GeneratorInterface
+final class UuidGenerator implements GeneratorInterface
 {
     private $identities;
 

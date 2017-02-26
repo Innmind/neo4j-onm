@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 /**
  * Holds the class name for an entity factory
  */
-class Factory
+final class Factory
 {
     private $class;
 

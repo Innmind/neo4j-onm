@@ -11,7 +11,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class ValueObject
+final class ValueObject
 {
     private $class;
     private $labels;

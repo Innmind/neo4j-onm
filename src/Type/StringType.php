@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class StringType implements TypeInterface
+final class StringType implements TypeInterface
 {
     private $nullable = false;
     private static $identifiers;

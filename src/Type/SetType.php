@@ -16,7 +16,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class SetType implements TypeInterface
+final class SetType implements TypeInterface
 {
     private $nullable = false;
     private $inner;

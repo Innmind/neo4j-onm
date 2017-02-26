@@ -21,7 +21,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class AggregateVisitor implements CypherVisitorInterface
+final class AggregateVisitor implements CypherVisitorInterface
 {
     private $meta;
     private $count = 0;

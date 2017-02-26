@@ -9,7 +9,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class ValueObjectRelationship
+final class ValueObjectRelationship
 {
     private $class;
     private $type;

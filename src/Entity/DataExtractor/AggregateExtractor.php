@@ -20,7 +20,7 @@ use Innmind\Reflection\{
     ExtractionStrategyInterface
 };
 
-class AggregateExtractor implements DataExtractorInterface
+final class AggregateExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 

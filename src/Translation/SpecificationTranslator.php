@@ -20,7 +20,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-class SpecificationTranslator
+final class SpecificationTranslator
 {
     private $translators;
     private $validator;

@@ -31,7 +31,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class InsertPersister implements PersisterInterface
+final class InsertPersister implements PersisterInterface
 {
     private $changeset;
     private $eventBus;

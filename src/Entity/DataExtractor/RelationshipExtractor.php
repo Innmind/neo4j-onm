@@ -16,7 +16,7 @@ use Innmind\Reflection\{
     ExtractionStrategyInterface
 };
 
-class RelationshipExtractor implements DataExtractorInterface
+final class RelationshipExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 

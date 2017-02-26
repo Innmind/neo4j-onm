@@ -17,7 +17,7 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\Str;
 
-class AggregateValidator implements ValidatorInterface
+final class AggregateValidator implements ValidatorInterface
 {
     /**
      * {@inheritdoc}

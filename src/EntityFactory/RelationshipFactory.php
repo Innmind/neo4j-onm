@@ -19,7 +19,7 @@ use Innmind\Reflection\{
     InjectionStrategyInterface
 };
 
-class RelationshipFactory implements EntityFactoryInterface
+final class RelationshipFactory implements EntityFactoryInterface
 {
     private $generators;
     private $instanciator;

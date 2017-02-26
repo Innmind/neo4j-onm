@@ -28,7 +28,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class RemovePersister implements PersisterInterface
+final class RemovePersister implements PersisterInterface
 {
     private $changeset;
     private $eventBus;

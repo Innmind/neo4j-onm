@@ -14,7 +14,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class DelegationPersister implements PersisterInterface
+final class DelegationPersister implements PersisterInterface
 {
     private $persisters;
 

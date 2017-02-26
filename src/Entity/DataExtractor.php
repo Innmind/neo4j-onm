@@ -16,7 +16,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class DataExtractor
+final class DataExtractor
 {
     private $metadatas;
     private $extractors;

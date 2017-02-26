@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class BooleanType implements TypeInterface
+final class BooleanType implements TypeInterface
 {
     private $nullable = false;
     private static $identifiers;

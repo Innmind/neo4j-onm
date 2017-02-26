@@ -24,7 +24,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class AggregateFactory implements MetadataFactoryInterface
+final class AggregateFactory implements MetadataFactoryInterface
 {
     private $types;
 

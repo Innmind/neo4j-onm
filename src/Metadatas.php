@@ -9,7 +9,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class Metadatas
+final class Metadatas
 {
     private $aliases;
     private $mapping;

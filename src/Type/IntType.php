@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class IntType implements TypeInterface
+final class IntType implements TypeInterface
 {
     private $nullable = false;
     private static $identifiers;

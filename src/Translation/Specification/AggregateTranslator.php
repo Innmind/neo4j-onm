@@ -24,7 +24,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-class AggregateTranslator implements SpecificationTranslatorInterface
+final class AggregateTranslator implements SpecificationTranslatorInterface
 {
     /**
      * {@inheritdoc}

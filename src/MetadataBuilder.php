@@ -18,7 +18,7 @@ use Symfony\Component\Config\Definition\{
     Processor
 };
 
-class MetadataBuilder
+final class MetadataBuilder
 {
     private $metadatas;
     private $factories;

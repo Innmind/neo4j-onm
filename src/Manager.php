@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Identity\Generators;
 use Innmind\Neo4j\DBAL\ConnectionInterface;
 
-class Manager implements ManagerInterface
+final class Manager implements ManagerInterface
 {
     private $unitOfWork;
     private $metadatas;

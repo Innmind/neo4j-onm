@@ -25,7 +25,7 @@ use Innmind\Immutable\{
     Collection
 };
 
-class RelationshipVisitor implements CypherVisitorInterface
+final class RelationshipVisitor implements CypherVisitorInterface
 {
     private $meta;
     private $count = 0;

@@ -9,7 +9,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class ChangesetComputer
+final class ChangesetComputer
 {
     private $sources;
 

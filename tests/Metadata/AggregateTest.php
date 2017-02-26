@@ -12,6 +12,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\EntityInterface,
     Metadata\ValueObject,
+    Metadata\ValueObjectRelationship,
+    Metadata\RelationshipType,
     TypeInterface
 };
 use Innmind\Immutable\{
@@ -48,10 +50,16 @@ class AggregateTest extends TestCase
         $this->assertCount(0, $ar->children());
 
         $ar2 = $ar->withChild(
-            $vo = $this
-                ->getMockBuilder(ValueObject::class)
-                ->disableOriginalConstructor()
-                ->getMock()
+            $vo = new ValueObject(
+                new ClassName('whatever'),
+                ['whatever'],
+                new ValueObjectRelationship(
+                    new ClassName('whatever'),
+                    new RelationshipType('whatever'),
+                    'foo',
+                    'bar'
+                )
+            )
         );
 
         $this->assertNotSame($ar, $ar2);

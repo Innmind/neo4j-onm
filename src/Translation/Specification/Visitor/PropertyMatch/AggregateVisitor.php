@@ -22,7 +22,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class AggregateVisitor implements PropertyMatchVisitorInterface
+final class AggregateVisitor implements PropertyMatchVisitorInterface
 {
     private $meta;
 

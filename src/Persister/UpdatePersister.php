@@ -28,7 +28,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class UpdatePersister implements PersisterInterface
+final class UpdatePersister implements PersisterInterface
 {
     private $changeset;
     private $eventBus;

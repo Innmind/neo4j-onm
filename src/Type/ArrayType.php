@@ -15,7 +15,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class ArrayType implements TypeInterface
+final class ArrayType implements TypeInterface
 {
     private $nullable = false;
     private $inner;

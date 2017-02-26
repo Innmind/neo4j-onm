@@ -17,7 +17,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class MatchTranslator
+final class MatchTranslator
 {
     private $translators;
 

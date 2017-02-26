@@ -24,7 +24,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class RelationshipVisitor implements PropertyMatchVisitorInterface
+final class RelationshipVisitor implements PropertyMatchVisitorInterface
 {
     private $meta;
 

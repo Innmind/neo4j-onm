@@ -22,7 +22,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class RelationshipTranslator implements EntityTranslatorInterface
+final class RelationshipTranslator implements EntityTranslatorInterface
 {
     /**
      * {@inheritdoc}

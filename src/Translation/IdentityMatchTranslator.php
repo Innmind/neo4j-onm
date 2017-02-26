@@ -18,7 +18,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class IdentityMatchTranslator
+final class IdentityMatchTranslator
 {
     private $translators;
 

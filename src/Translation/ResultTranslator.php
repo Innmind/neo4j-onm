@@ -21,7 +21,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class ResultTranslator
+final class ResultTranslator
 {
     private $translators;
 

@@ -8,31 +8,44 @@ use Innmind\Neo4j\ONM\{
     RepositoryInterface,
     Metadata\EntityInterface,
     Metadata\Repository,
+    Metadatas,
     UnitOfWork,
     Translation\MatchTranslator,
-    Translation\SpecificationTranslator
+    Translation\SpecificationTranslator,
+    Translation\ResultTranslator,
+    Translation\IdentityMatchTranslator,
+    Entity\Container,
+    Identity\Generators,
+    EntityFactory\Resolver,
+    PersisterInterface,
+    EntityFactory
 };
+use Innmind\Neo4j\DBAL\ConnectionInterface;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryFactoryTest extends TestCase
 {
-    private $f;
+    private $factory;
 
     public function setUp()
     {
-        $this->f = new RepositoryFactory(
-            $this
-                ->getMockBuilder(UnitOfWork::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
-            $this
-                ->getMockBuilder(MatchTranslator::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
-            $this
-                ->getMockBuilder(SpecificationTranslator::class)
-                ->disableOriginalConstructor()
-                ->getMock()
+        $this->factory = new RepositoryFactory(
+            new UnitOfWork(
+                $this->createMock(ConnectionInterface::class),
+                $container = new Container,
+                new EntityFactory(
+                    new ResultTranslator,
+                    $generators = new Generators,
+                    new Resolver,
+                    $container
+                ),
+                new IdentityMatchTranslator,
+                $metadatas = new Metadatas,
+                $persister = $this->createMock(PersisterInterface::class),
+                $generators
+            ),
+            new MatchTranslator,
+            new SpecificationTranslator
         );
     }
 
@@ -43,10 +56,10 @@ class RepositoryFactoryTest extends TestCase
         $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
-        $repo = $this->f->make($meta);
+        $repo = $this->factory->make($meta);
 
         $this->assertInstanceOf(get_class($mock), $repo);
-        $this->assertSame($repo, $this->f->make($meta));
+        $this->assertSame($repo, $this->factory->make($meta));
     }
 
     public function testRegister()
@@ -54,7 +67,7 @@ class RepositoryFactoryTest extends TestCase
         $meta = $this->createMock(EntityInterface::class);
         $repo = $this->createMock(RepositoryInterface::class);
 
-        $this->assertSame($this->f, $this->f->register($meta, $repo));
-        $this->assertSame($repo, $this->f->make($meta));
+        $this->assertSame($this->factory, $this->factory->register($meta, $repo));
+        $this->assertSame($repo, $this->factory->make($meta));
     }
 }

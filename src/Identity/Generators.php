@@ -8,7 +8,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class Generators
+final class Generators
 {
     private $mapping;
 

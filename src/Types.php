@@ -18,7 +18,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class Types
+final class Types
 {
     private $types;
 

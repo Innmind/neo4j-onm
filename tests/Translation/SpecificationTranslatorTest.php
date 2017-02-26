@@ -22,9 +22,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
+    Metadata\EntityInterface,
     Type\DateType
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Neo4j\DBAL\QueryInterface;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -42,10 +44,10 @@ class SpecificationTranslatorTest extends TestCase
                 $this->assertInstanceOf(Aggregate::class, $meta);
                 $this->assertSame($expected, $spec);
 
-                return $this
-                    ->getMockBuilder(IdentityMatch::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
+                return new IdentityMatch(
+                    $this->createMock(QueryInterface::class),
+                    new Map('string', EntityInterface::class)
+                );
             }));
         $m2 = $this->createMock(SpecificationTranslatorInterface::class);
         $m2
@@ -55,10 +57,10 @@ class SpecificationTranslatorTest extends TestCase
                 $this->assertInstanceOf(Relationship::class, $meta);
                 $this->assertSame($expected, $spec);
 
-                return $this
-                    ->getMockBuilder(IdentityMatch::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
+                return new IdentityMatch(
+                    $this->createMock(QueryInterface::class),
+                    new Map('string', EntityInterface::class)
+                );
             }));
 
         $t = new SpecificationTranslator(

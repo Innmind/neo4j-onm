@@ -12,7 +12,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-class Container
+final class Container
 {
     const STATE_MANAGED = 1;
     const STATE_NEW = 2;

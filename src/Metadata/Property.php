@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\TypeInterface;
 
-class Property
+final class Property
 {
     private $name;
     private $type;

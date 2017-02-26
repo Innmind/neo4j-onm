@@ -21,7 +21,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-class RelationshipTranslator implements SpecificationTranslatorInterface
+final class RelationshipTranslator implements SpecificationTranslatorInterface
 {
     /**
      * {@inheritdoc}

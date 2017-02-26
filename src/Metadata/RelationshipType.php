@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-class RelationshipType
+final class RelationshipType
 {
     private $type;
 

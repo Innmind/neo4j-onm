@@ -10,7 +10,7 @@ use Symfony\Component\Config\Definition\{
     Exception\InvalidConfigurationException
 };
 
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {

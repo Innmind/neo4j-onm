@@ -19,7 +19,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-class PointInTimeType implements TypeInterface
+final class PointInTimeType implements TypeInterface
 {
     private $nullable = false;
     private $format;

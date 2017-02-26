@@ -20,7 +20,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class AggregateTranslator implements IdentityMatchTranslatorInterface
+final class AggregateTranslator implements IdentityMatchTranslatorInterface
 {
     /**
      * {@inheritdoc}

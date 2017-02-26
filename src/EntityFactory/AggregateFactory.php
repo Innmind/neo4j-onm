@@ -22,7 +22,7 @@ use Innmind\Reflection\{
     InjectionStrategyInterface
 };
 
-class AggregateFactory implements EntityFactoryInterface
+final class AggregateFactory implements EntityFactoryInterface
 {
     private $instanciator;
     private $injectionStrategy;

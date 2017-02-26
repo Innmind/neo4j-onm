@@ -25,7 +25,7 @@ use Innmind\Immutable\{
     Set
 };
 
-class AggregateTranslator implements EntityTranslatorInterface
+final class AggregateTranslator implements EntityTranslatorInterface
 {
     /**
      * {@inheritdoc}

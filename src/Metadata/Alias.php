@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 /**
  * Entity alias
  */
-class Alias
+final class Alias
 {
     private $value;
 

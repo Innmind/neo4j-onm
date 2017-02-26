@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 /**
  * Holds the repository class for an entity
  */
-class Repository
+final class Repository
 {
     private $class;
 

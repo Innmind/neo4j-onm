@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\Map;
 
-class Resolver
+final class Resolver
 {
     private $mapping;
 
