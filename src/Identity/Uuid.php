@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     IdentityInterface,
     Exception\InvalidArgumentException
 };
-use Innmind\Immutable\StringPrimitive as Str;
+use Innmind\Immutable\Str;
 
 class Uuid implements IdentityInterface
 {
@@ -17,7 +17,7 @@ class Uuid implements IdentityInterface
 
     public function __construct(string $uuid)
     {
-        if (!(new Str($uuid))->match(self::PATTERN)) {
+        if (!(new Str($uuid))->matches(self::PATTERN)) {
             throw new InvalidArgumentException;
         }
 

@@ -34,11 +34,17 @@ class Aggregate extends Entity implements EntityInterface
         $this->children = new Map('string', ValueObject::class);
     }
 
+    /**
+     * @return SetInterface<string>
+     */
     public function labels(): SetInterface
     {
         return $this->labels;
     }
 
+    /**
+     * @return MapInterface<string, ValueObject>
+     */
     public function children(): MapInterface
     {
         return $this->children;

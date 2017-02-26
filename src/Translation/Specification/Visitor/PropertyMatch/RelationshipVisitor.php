@@ -18,11 +18,10 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    StringPrimitive as Str,
+    Str,
     SequenceInterface,
     Sequence,
-    Map,
-    Collection
+    Map
 };
 
 class RelationshipVisitor implements PropertyMatchVisitorInterface
@@ -96,14 +95,15 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
             ->put(
                 'entity',
                 new Sequence(
-                    new Collection([
-                        $prop => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $specification->value()
-                    ])
+                    (new Map('string', 'string'))
+                        ->put(
+                            $prop,
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $specification->value())
                 )
             );
     }
@@ -126,14 +126,15 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
             ->put(
                 $side,
                 new Sequence(
-                    new Collection([
-                        $edge->target() => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $value,
-                    ])
+                    (new Map('string', 'string'))
+                        ->put(
+                            $edge->target(),
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $value)
                 )
             );
     }
@@ -142,29 +143,21 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
         MapInterface $left,
         MapInterface $right
     ): MapInterface {
-        $map = $left;
-        $right->foreach(function(
-            string $var,
-            SequenceInterface $data
-        ) use (
-            &$map,
-            $left
-        ) {
-            if (!$map->contains($var)) {
-                $map = $map->put($var, $data);
+        return $right->reduce(
+            $left,
+            function(MapInterface $carry, string $var, SequenceInterface $data) use ($left): MapInterface {
+                if (!$carry->contains($var)) {
+                    return $carry->put($var, $data);
+                }
 
-                return;
+                return $carry->put(
+                    $var,
+                    new Sequence(
+                        $data->first()->merge($left->get($var)->first()),
+                        $data->last()->merge($left->get($var)->last())
+                    )
+                );
             }
-
-            $map = $map->put(
-                $var,
-                new Sequence(
-                    $data->get(0)->merge($left->get($var)->get(0)),
-                    $data->get(1)->merge($left->get($var)->get(1))
-                )
-            );
-        });
-
-        return $map;
+        );
     }
 }

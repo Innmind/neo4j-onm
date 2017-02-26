@@ -5,6 +5,7 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     TypeInterface,
+    Types,
     Exception\InvalidArgumentException
 };
 use Innmind\TimeContinuum\{
@@ -13,7 +14,7 @@ use Innmind\TimeContinuum\{
     PointInTime\Earth\PointInTime
 };
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     Set,
     SetInterface
 };
@@ -33,15 +34,15 @@ class PointInTimeType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(CollectionInterface $config): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
     {
         $type = new self;
 
-        if ($config->hasKey('nullable')) {
+        if ($config->contains('nullable')) {
             $type->nullable = true;
         }
 
-        if ($config->hasKey('format')) {
+        if ($config->contains('format')) {
             $format = $config->get('format');
             $type->format = new $format;
         }

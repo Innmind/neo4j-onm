@@ -17,10 +17,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Innmind\Immutable\{
-    Collection,
+    Map,
     MapInterface
 };
 use PHPUnit\Framework\TestCase;
@@ -50,7 +51,9 @@ class RelationshipTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
         $im = $t->translate($meta);

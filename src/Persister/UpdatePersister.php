@@ -23,8 +23,7 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
-    CollectionInterface,
-    StringPrimitive as Str,
+    Str,
     Map,
     MapInterface
 };
@@ -56,29 +55,20 @@ class UpdatePersister implements PersisterInterface
      */
     public function persist(ConnectionInterface $connection, Container $container)
     {
-        $changesets = new Map(
-            IdentityInterface::class,
-            CollectionInterface::class
-        );
-
-        $entities = $container
-            ->state(Container::STATE_MANAGED)
-            ->foreach(function(
-                IdentityInterface $identity,
-                $entity
-            ) use (
-                &$changesets
-            ) {
+        $entities = $container->state(Container::STATE_MANAGED);
+        $changesets = $entities->reduce(
+            new Map(IdentityInterface::class, MapInterface::class),
+            function(Map $carry, IdentityInterface $identity, $entity): Map {
                 $data = $this->extractor->extract($entity);
                 $changeset = $this->changeset->compute($identity, $data);
 
-                if ($changeset->count() > 0) {
-                    $changesets = $changesets->put(
-                        $identity,
-                        $changeset
-                    );
+                if ($changeset->size() === 0) {
+                    return $carry;
                 }
-            });
+
+                return $carry->put($identity, $changeset);
+            }
+        );
 
         if ($changesets->size() === 0) {
             return;
@@ -86,7 +76,7 @@ class UpdatePersister implements PersisterInterface
 
         $changesets->foreach(function(
             IdentityInterface $identity,
-            CollectionInterface $changeset
+            MapInterface $changeset
         ) use (
             $entities
         ) {
@@ -103,7 +93,7 @@ class UpdatePersister implements PersisterInterface
 
         $changesets->foreach(function(
             IdentityInterface $identity,
-            CollectionInterface $changeset
+            MapInterface $changeset
         ) use (
             $entities
         ) {
@@ -125,7 +115,7 @@ class UpdatePersister implements PersisterInterface
     /**
      * Build the query to update all entities at once
      *
-     * @param MapInterface<IdentityInterface, CollectionInterface> $changesets
+     * @param MapInterface<IdentityInterface, MapInterface<string, mixed>> $changesets
      * @param MapInterface<IdentityInterface, object> $entities
      *
      * @return QueryInterface
@@ -134,47 +124,41 @@ class UpdatePersister implements PersisterInterface
         MapInterface $changesets,
         MapInterface $entities
     ): QueryInterface {
-        $query = new Query;
-        $this->variables = new Map(Str::class, CollectionInterface::class);
+        $this->variables = new Map(Str::class, MapInterface::class);
 
-        $changesets->foreach(function(
-            IdentityInterface $identity,
-            CollectionInterface $changeset
-        ) use (
-            &$query,
-            $entities
-        ) {
-            $entity = $entities->get($identity);
-            $meta = $this->metadatas->get(get_class($entity));
+        $query = $changesets->reduce(
+            new Query,
+            function(Query $carry, IdentityInterface $identity, MapInterface $changeset) use ($entities): Query {
+                $entity = $entities->get($identity);
+                $meta = $this->metadatas->get(get_class($entity));
 
-            if ($meta instanceof Aggregate) {
-                $query = $this->matchAggregate(
-                    $identity,
-                    $entity,
-                    $meta,
-                    $changeset,
-                    $query
-                );
-            } else if ($meta instanceof Relationship) {
-                $query = $this->matchRelationship(
-                    $identity,
-                    $entity,
-                    $meta,
-                    $changeset,
-                    $query
-                );
+                if ($meta instanceof Aggregate) {
+                    return $this->matchAggregate(
+                        $identity,
+                        $entity,
+                        $meta,
+                        $changeset,
+                        $carry
+                    );
+                } else if ($meta instanceof Relationship) {
+                    return $this->matchRelationship(
+                        $identity,
+                        $entity,
+                        $meta,
+                        $changeset,
+                        $carry
+                    );
+                }
             }
-        });
-        $this
+        );
+        $query = $this
             ->variables
-            ->foreach(function(
-                Str $variable,
-                CollectionInterface $changeset
-            ) use (
-                &$query
-            ) {
-                $query = $this->update($variable, $changeset, $query);
-            });
+            ->reduce(
+                $query,
+                function(Query $carry, Str $variable, MapInterface $changeset): Query {
+                    return $this->update($variable, $changeset, $carry);
+                }
+            );
         $this->variables = null;
 
         return $query;
@@ -184,9 +168,9 @@ class UpdatePersister implements PersisterInterface
      * Add match clause to match all parts of the aggregate that needs to be updated
      *
      * @param IdentityInterface $identity
-     * @param obkect $entity
+     * @param object $entity
      * @param Aggregate $meta
-     * @param CollectionInterface $changeset
+     * @param MapInterface<string, mixed> $changeset
      * @param Query $query
      *
      * @return Query
@@ -195,7 +179,7 @@ class UpdatePersister implements PersisterInterface
         IdentityInterface $identity,
         $entity,
         Aggregate $meta,
-        CollectionInterface $changeset,
+        MapInterface $changeset,
         Query $query
     ): Query {
         $name = $this->name->sprintf(md5($identity->value()));
@@ -222,60 +206,53 @@ class UpdatePersister implements PersisterInterface
             )
         );
 
-        $meta
+        return $meta
             ->children()
-            ->foreach(function(
-                string $property,
-                ValueObject $child
-            ) use (
-                &$query,
-                $changeset,
-                $name
-            ) {
-                if (!$changeset->hasKey($property)) {
-                    return;
-                }
-
-                $changeset = $changeset->get($property);
-                $childName = null;
-                $relName = $name
-                    ->append('_')
-                    ->append($property);
-                $this->variables = $this->variables->put(
-                    $relName,
-                    $this->buildProperties(
-                        $changeset,
-                        $child->relationship()->properties()
-                    )
-                );
-
-                if ($changeset->hasKey($child->relationship()->childProperty())) {
-                    $childName = $relName
+            ->filter(function(string $property) use ($changeset): bool {
+                return $changeset->contains($property);
+            })
+            ->reduce(
+                $query,
+                function(Query $carry, string $property, ValueObject $child) use ($changeset, $name): Query {
+                    $changeset = $changeset->get($property);
+                    $childName = null;
+                    $relName = $name
                         ->append('_')
-                        ->append(
-                            $child->relationship()->childProperty()
-                        );
+                        ->append($property);
                     $this->variables = $this->variables->put(
-                        $childName,
-                        $changeset->get(
-                            $child->relationship()->childProperty()
+                        $relName,
+                        $this->buildProperties(
+                            $changeset,
+                            $child->relationship()->properties()
                         )
                     );
+
+                    if ($changeset->contains($child->relationship()->childProperty())) {
+                        $childName = $relName
+                            ->append('_')
+                            ->append(
+                                $child->relationship()->childProperty()
+                            );
+                        $this->variables = $this->variables->put(
+                            $childName,
+                            $changeset->get(
+                                $child->relationship()->childProperty()
+                            )
+                        );
+                    }
+
+                    return $carry
+                        ->match((string) $name)
+                        ->linkedTo(
+                            $childName ? (string) $childName : null,
+                            $child->labels()->toPrimitive()
+                        )
+                        ->through(
+                            (string) $child->relationship()->type(),
+                            (string) $relName
+                        );
                 }
-
-                $query = $query
-                    ->match((string) $name)
-                    ->linkedTo(
-                        $childName ? (string) $childName : null,
-                        $child->labels()->toPrimitive()
-                    )
-                    ->through(
-                        (string) $child->relationship()->type(),
-                        (string) $relName
-                    );
-            });
-
-        return $query;
+            );
     }
 
     /**
@@ -284,7 +261,7 @@ class UpdatePersister implements PersisterInterface
      * @param IdentityInterface $identity
      * @param object $entity
      * @param Relationship $meta
-     * @param CollectionInterface $changeset
+     * @param MapInterface<string, mixed> $changeset
      * @param Query $query
      *
      * @return Query
@@ -293,7 +270,7 @@ class UpdatePersister implements PersisterInterface
         IdentityInterface $identity,
         $entity,
         Relationship $meta,
-        CollectionInterface $changeset,
+        MapInterface $changeset,
         Query $query
     ): Query {
         $name = $this->name->sprintf(md5($identity->value()));
@@ -327,21 +304,16 @@ class UpdatePersister implements PersisterInterface
     /**
      * Build a collection with only the elements that are properties
      *
-     * @param CollectionInterface $changeset
+     * @param MapInterface<string, mixed> $changeset
      * @param MapInterface<string, Property> $properties
      *
-     * @return CollectionInterface
+     * @return MapInterface<string, mixed>
      */
     private function buildProperties(
-        CollectionInterface $changeset,
+        MapInterface $changeset,
         MapInterface $properties
-    ): CollectionInterface {
-        return $changeset->filter(function(
-            $data,
-            string $property
-        ) use (
-            $properties
-        ) {
+    ): MapInterface {
+        return $changeset->filter(function(string $property) use ($properties) {
             return $properties->contains($property);
         });
     }
@@ -350,14 +322,14 @@ class UpdatePersister implements PersisterInterface
      * Add a clause to set all properties to be updated on the wished variable
      *
      * @param Str $variable
-     * @param CollectionInterface $changeset
+     * @param MapInterface<string, mixed> $changeset
      * @param Query $query
      *
      * @return Query
      */
     private function update(
         Str $variable,
-        CollectionInterface $changeset,
+        MapInterface $changeset,
         Query $query
     ): Query {
         return $query
@@ -368,7 +340,14 @@ class UpdatePersister implements PersisterInterface
             ))
             ->withParameter(
                 (string) $variable->append('_props'),
-                $changeset->toPrimitive()
+                $changeset->reduce(
+                    [],
+                    function(array $carry, string $key, $value): array {
+                        $carry[$key] = $value;
+
+                        return $carry;
+                    }
+                )
             );
     }
 }

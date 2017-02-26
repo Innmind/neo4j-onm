@@ -16,7 +16,7 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    StringPrimitive as Str,
+    Str,
     Set
 };
 

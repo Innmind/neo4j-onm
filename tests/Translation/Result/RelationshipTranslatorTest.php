@@ -15,15 +15,17 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\EntityInterface,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Innmind\Neo4j\DBAL\{
     Result,
     ResultInterface
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map,
+    SetInterface
 };
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +33,7 @@ class RelationshipTranslatorTest extends TestCase
 {
     public function testTranslate()
     {
-        $t = new RelationshipTranslator;
+        $translator = new RelationshipTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -47,11 +49,13 @@ class RelationshipTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
 
-        $data = $t->translate(
+        $data = $translator->translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -97,8 +101,12 @@ class RelationshipTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
-        $data = $data->get(0);
+        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertSame(MapInterface::class, (string) $data->type());
+        $this->assertCount(1, $data);
+        $data = $data->current();
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
             $data->keys()->toPrimitive()
@@ -111,7 +119,7 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateMultipleRelationships()
     {
-        $t = new RelationshipTranslator;
+        $translator = new RelationshipTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -127,11 +135,13 @@ class RelationshipTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
 
-        $data = $t->translate(
+        $data = $translator->translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -237,24 +247,25 @@ class RelationshipTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
-        $this->assertSame(2, $data->count());
+        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertCount(2, $data);
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->get(0)->keys()->toPrimitive()
+            $data->current()->keys()->toPrimitive()
         );
-        $this->assertSame(42, $data->get(0)->get('id'));
-        $this->assertSame(24, $data->get(0)->get('start'));
-        $this->assertSame(66, $data->get(0)->get('end'));
-        $this->assertSame('2016-01-03T00:00:00+0200', $data->get(0)->get('created'));
+        $this->assertSame(42, $data->current()->get('id'));
+        $this->assertSame(24, $data->current()->get('start'));
+        $this->assertSame(66, $data->current()->get('end'));
+        $this->assertSame('2016-01-03T00:00:00+0200', $data->current()->get('created'));
+        $data->next();
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->get(1)->keys()->toPrimitive()
+            $data->current()->keys()->toPrimitive()
         );
-        $this->assertSame(43, $data->get(1)->get('id'));
-        $this->assertSame(24, $data->get(1)->get('start'));
-        $this->assertSame(66, $data->get(1)->get('end'));
-        $this->assertSame('2016-01-04T00:00:00+0200', $data->get(1)->get('created'));
+        $this->assertSame(43, $data->current()->get('id'));
+        $this->assertSame(24, $data->current()->get('start'));
+        $this->assertSame(66, $data->current()->get('end'));
+        $this->assertSame('2016-01-04T00:00:00+0200', $data->current()->get('created'));
     }
 
     /**

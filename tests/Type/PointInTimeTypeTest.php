@@ -5,7 +5,8 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\PointInTimeType,
-    TypeInterface
+    TypeInterface,
+    Types
 };
 use Innmind\TimeContinuum\{
     PointInTimeInterface,
@@ -15,7 +16,7 @@ use Innmind\TimeContinuum\{
 };
 use Innmind\Immutable\{
     SetInterface,
-    Collection
+    Map
 };
 use PHPUnit\Framework\TestCase;
 
@@ -25,20 +26,28 @@ class PointInTimeTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             TypeInterface::class,
-            PointInTimeType::fromConfig(new Collection([]))
+            PointInTimeType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            PointInTimeType::fromConfig(new Collection([]))
+            PointInTimeType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
                 ->isNullable()
         );
         $this->assertTrue(
-            PointInTimeType::fromConfig(new Collection([
-                'nullable' => null,
-            ]))
+            PointInTimeType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->isNullable()
         );
     }
@@ -53,7 +62,10 @@ class PointInTimeTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $type = PointInTimeType::fromConfig(new Collection([]));
+        $type = PointInTimeType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{2}:\d{2}/',
@@ -66,22 +78,31 @@ class PointInTimeTypeTest extends TestCase
 
         $this->assertRegExp(
             '/Fri, 01 Jan 2016 00:00:00 \+\d{4}/',
-            PointInTimeType::fromConfig(new Collection([
-                'format' => RSS::class
-            ]))
+            PointInTimeType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('format', RSS::class),
+                new Types
+            )
                 ->forDatabase(new PointInTime('2016-01-01'))
         );
 
         $this->assertSame(
             null,
-            PointInTimeType::fromConfig(new Collection(['nullable' => null]))
+            PointInTimeType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $type = PointInTimeType::fromConfig(new Collection([]));
+        $type = PointInTimeType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertInstanceOf(
             PointInTimeInterface::class,
@@ -99,7 +120,10 @@ class PointInTimeTypeTest extends TestCase
      */
     public function testThrowWhenInvalidDate()
     {
-        PointInTimeType::fromConfig(new Collection([]))
+        PointInTimeType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        )
             ->forDatabase(42);
     }
 }

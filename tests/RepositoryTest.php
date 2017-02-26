@@ -35,16 +35,23 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Type\StringType,
+    Types,
     Exception\EntityNotFoundException
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Innmind\EventBus\EventBusInterface;
+use Innmind\HttpTransport\GuzzleTransport;
+use Innmind\Http\{
+    Translator\Response\Psr7translator,
+    Factory\Header\Factories
+};
 use Innmind\Immutable\{
     Set,
     SetInterface,
-    Collection
+    Map
 };
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
@@ -66,6 +73,12 @@ class RepositoryTest extends TestCase
             'http'
         )
             ->for('neo4j', 'ci')
+            ->useTransport(
+                new GuzzleTransport(
+                    new Client,
+                    new Psr7translator(Factories::default())
+                )
+            )
             ->build();
         $container = new Container;
         $entityFactory = new EntityFactory(
@@ -89,9 +102,11 @@ class RepositoryTest extends TestCase
                 new Alias('foo'),
                 ['Label']
             ))
-                ->withProperty('content', StringType::fromConfig(new Collection([
-                    'nullable' => true,
-                ])))
+                ->withProperty('content', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                ))
         );
 
         $uow = new UnitOfWork(

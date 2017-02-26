@@ -25,11 +25,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    Entity\Container
+    Entity\Container,
+    Types
 };
 use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
-    Collection,
     Map,
     SetInterface
 };
@@ -37,15 +37,15 @@ use PHPUnit\Framework\TestCase;
 
 class EntityFactoryTest extends TestCase
 {
-    private $f;
+    private $factory;
 
     public function setUp()
     {
-        $this->f = new EntityFactory(
+        $this->factory = new EntityFactory(
             new ResultTranslator,
-            $g = new Generators,
+            $generators = new Generators,
             (new Resolver)
-                ->register(new RelationshipFactory($g)),
+                ->register(new RelationshipFactory($generators)),
             new Container
         );
     }
@@ -80,7 +80,9 @@ class EntityFactoryTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -98,7 +100,9 @@ class EntityFactoryTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -106,7 +110,9 @@ class EntityFactoryTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -132,7 +138,9 @@ class EntityFactoryTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
         $result = Result::fromRaw([
@@ -233,7 +241,7 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->f->make(
+        $entities = $this->factory->make(
             $result,
             $variables
         );
@@ -242,16 +250,18 @@ class EntityFactoryTest extends TestCase
             SetInterface::class,
             $entities
         );
-        $this->assertSame(2, $entities->size());
+        $this->assertCount(2, $entities);
         $this->assertInstanceOf(
             (string) $aggregate->class(),
-            $entities->toPrimitive()[0]
+            $entities->current()
         );
+        $entities->next();
         $this->assertInstanceOf(
             (string) $relationship->class(),
-            $entities->toPrimitive()[1]
+            $entities->current()
         );
-        $ar = $entities->toPrimitive()[0];
+        $entities->rewind();
+        $ar = $entities->current();
         $this->assertInstanceOf(Uuid::class, $ar->uuid);
         $this->assertSame(
             '11111111-1111-1111-1111-111111111111',
@@ -265,7 +275,7 @@ class EntityFactoryTest extends TestCase
             '2016-01-01T00:00:00+02:00',
             $ar->created->format('c')
         );
-        $this->assertSame(null, $ar->empty);
+        $this->assertNull($ar->empty);
         $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->relationship()->class(),
             $ar->rel
@@ -278,14 +288,15 @@ class EntityFactoryTest extends TestCase
             '2016-01-01T00:00:00+02:00',
             $ar->rel->created->format('c')
         );
-        $this->assertSame(null, $ar->rel->empty);
+        $this->assertNull($ar->rel->empty);
         $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->class(),
             $ar->rel->child
         );
         $this->assertSame('foo', $ar->rel->child->content);
-        $this->assertSame(null, $ar->rel->child->empty);
-        $rel = $entities->toPrimitive()[1];
+        $this->assertNull($ar->rel->child->empty);
+        $entities->next();
+        $rel = $entities->current();
         $this->assertInstanceOf((string) $relationship->class(), $rel);
         $this->assertInstanceOf(Uuid::class, $rel->uuid);
         $this->assertSame(
@@ -300,7 +311,7 @@ class EntityFactoryTest extends TestCase
             '2016-01-03T00:00:00+02:00',
             $rel->created->format('c')
         );
-        $this->assertSame(null, $rel->empty);
+        $this->assertNull($rel->empty);
         $this->assertInstanceOf(Uuid::class, $rel->start);
         $this->assertInstanceOf(Uuid::class, $rel->end);
         $this->assertSame(
@@ -313,7 +324,7 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertTrue(
-            $this->f->make($result, $variables)->equals($entities)
+            $this->factory->make($result, $variables)->equals($entities)
         );
     }
 
@@ -359,11 +370,11 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->f->make(
+        $entities = $this->factory->make(
             $result,
             $variables
         );
 
-        $this->assertSame(0, $entities->size());
+        $this->assertCount(0, $entities);
     }
 }

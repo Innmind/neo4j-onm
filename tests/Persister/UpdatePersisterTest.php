@@ -24,6 +24,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Metadatas,
+    Types,
     Event\EntityAboutToBeUpdated,
     Event\EntityUpdated
 };
@@ -34,14 +35,14 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
-    Collection,
-    CollectionInterface
+    MapInterface,
+    Map
 };
 use PHPUnit\Framework\TestCase;
 
 class UpdatePersisterTest extends TestCase
 {
-    private $m;
+    private $metadatas;
     private $arClass;
     private $rClass;
 
@@ -63,8 +64,8 @@ class UpdatePersisterTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $this->m = new Metadatas;
-        $this->m
+        $this->metadatas = new Metadatas;
+        $this->metadatas
             ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
@@ -78,7 +79,9 @@ class UpdatePersisterTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
                     ->withChild(
@@ -95,7 +98,9 @@ class UpdatePersisterTest extends TestCase
                                 ->withProperty(
                                     'empty',
                                     StringType::fromConfig(
-                                        new Collection(['nullable' => null])
+                                        (new Map('string', 'mixed'))
+                                            ->put('nullable', null),
+                                        new Types
                                     )
                                 )
                         ))
@@ -103,7 +108,9 @@ class UpdatePersisterTest extends TestCase
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
                     )
@@ -123,7 +130,9 @@ class UpdatePersisterTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -131,14 +140,14 @@ class UpdatePersisterTest extends TestCase
 
     public function testPersist()
     {
-        $p = new UpdatePersister(
+        $persister = new UpdatePersister(
             $changeset = new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
-            $extractor = new DataExtractor($this->m),
-            $this->m
+            $extractor = new DataExtractor($this->metadatas),
+            $this->metadatas
         );
 
-        $this->assertInstanceOf(PersisterInterface::class, $p);
+        $this->assertInstanceOf(PersisterInterface::class, $persister);
 
         $container = new Container;
         $conn = $this->createMock(ConnectionInterface::class);
@@ -169,25 +178,23 @@ class UpdatePersisterTest extends TestCase
         $changeset
             ->use(
                 $aggregate->uuid,
-                new Collection([
-                    'created' => new \DateTimeImmutable('2015-01-01'),
-                    'empty' => null,
-                    'rel' => new Collection([
-                        'created' => new \DateTimeImmutable('2015-01-01'),
-                        'empty' => null,
-                        'child' => new Collection([
-                            'content' => 'bar',
-                            'empty' => null,
-                        ]),
-                    ]),
-                ])
+                (new Map('string', 'mixed'))
+                    ->put('created', new \DateTimeImmutable('2015-01-01'))
+                    ->put('empty', null)
+                    ->put('rel', (new Map('string', 'mixed'))
+                        ->put('created', new \DateTimeImmutable('2015-01-01'))
+                        ->put('empty', null)
+                        ->put('child', (new Map('string', 'mixed'))
+                            ->put('content', 'bar')
+                            ->put('empty', null)
+                        )
+                    )
             )
             ->use(
                 $relationship->uuid,
-                new Collection([
-                    'created' => new \DateTimeImmutable('2015-01-01'),
-                    'empty' => null,
-                ])
+                (new Map('string', 'mixed'))
+                    ->put('created', new \DateTimeImmutable('2015-01-01'))
+                    ->put('empty', null)
             );
 
         $conn
@@ -197,10 +204,10 @@ class UpdatePersisterTest extends TestCase
                     'MATCH (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_identity} }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel), ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_identity} }]-() SET e38c6cbd28bf165070d070980dd1fb595 += {e38c6cbd28bf165070d070980dd1fb595_props}, e38c6cbd28bf165070d070980dd1fb595_rel += {e38c6cbd28bf165070d070980dd1fb595_rel_props}, e38c6cbd28bf165070d070980dd1fb595_rel_child += {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}, e50ead852f3361489a400ab5c70f6c5cf += {e50ead852f3361489a400ab5c70f6c5cf_props}',
                     $query->cypher()
                 );
-                $this->assertSame(6, $query->parameters()->count());
+                $this->assertCount(6, $query->parameters());
                 $query
                     ->parameters()
-                    ->each(function(int $idx, Parameter $value) {
+                    ->foreach(function(string $key, Parameter $value) {
                         $keys = [
                             'e38c6cbd28bf165070d070980dd1fb595_identity' => '11111111-1111-1111-1111-111111111111',
                             'e38c6cbd28bf165070d070980dd1fb595_props' => [
@@ -218,9 +225,9 @@ class UpdatePersisterTest extends TestCase
                             ],
                         ];
 
-                        $this->assertTrue(isset($keys[$value->key()]));
+                        $this->assertTrue(isset($keys[$key]));
                         $this->assertSame(
-                            $keys[$value->key()],
+                            $keys[$key],
                             $value->value()
                         );
                     });
@@ -257,7 +264,7 @@ class UpdatePersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertSame(null, $p->persist($conn, $container));
+        $this->assertNull($persister->persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_MANAGED,
@@ -267,23 +274,19 @@ class UpdatePersisterTest extends TestCase
             Container::STATE_MANAGED,
             $container->stateFor($relationship->uuid)
         );
-        $this->assertSame(
+        $this->assertCount(
             0,
-            $changeset
-                ->compute(
-                    $aggregate->uuid,
-                    $extractor->extract($aggregate)
-                )
-                ->count()
+            $changeset->compute(
+                $aggregate->uuid,
+                $extractor->extract($aggregate)
+            )
         );
-        $this->assertSame(
+        $this->assertCount(
             0,
-            $changeset
-                ->compute(
-                    $relationship->uuid,
-                    $extractor->extract($relationship)
-                )
-                ->count()
+            $changeset->compute(
+                $relationship->uuid,
+                $extractor->extract($relationship)
+            )
         );
     }
 }

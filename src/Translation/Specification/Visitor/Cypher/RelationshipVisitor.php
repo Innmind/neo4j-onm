@@ -18,7 +18,7 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    StringPrimitive as Str,
+    Str,
     SequenceInterface,
     Sequence,
     Map,
@@ -55,11 +55,11 @@ class RelationshipVisitor implements CypherVisitorInterface
                 return new Sequence(
                     sprintf(
                         '(%s %s %s)',
-                        $left->get(0),
+                        $left->first(),
                         $specification->operator(),
-                        $right->get(0)
+                        $right->first()
                     ),
-                    $left->get(1)->merge($right->get(1))
+                    $left->last()->merge($right->last())
                 );
 
             case $specification instanceof NotInterface:
@@ -68,9 +68,9 @@ class RelationshipVisitor implements CypherVisitorInterface
                 return new Sequence(
                     sprintf(
                         'NOT (%s)',
-                        $condition->get(0)
+                        $condition->first()
                     ),
-                    $condition->get(1)
+                    $condition->last()
                 );
         }
     }
@@ -115,9 +115,8 @@ class RelationshipVisitor implements CypherVisitorInterface
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $specification->value(),
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $specification->value())
         );
     }
 
@@ -144,9 +143,8 @@ class RelationshipVisitor implements CypherVisitorInterface
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $value,
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $value)
         );
     }
 }

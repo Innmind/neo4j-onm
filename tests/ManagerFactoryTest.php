@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactoryInterface,
     MetadataFactoryInterface,
     TypeInterface,
+    Types,
     PersisterInterface,
     RepositoryInterface
 };
@@ -25,7 +26,7 @@ use Innmind\Immutable\{
     Map,
     SetInterface,
     Set,
-    CollectionInterface
+    MapInterface
 };
 use Symfony\Component\Yaml\Yaml;
 use PHPUnit\Framework\TestCase;
@@ -125,7 +126,7 @@ class ManagerFactoryTest extends TestCase
     {
         $mock = new class implements TypeInterface
         {
-            public static function fromConfig(CollectionInterface $c): TypeInterface
+            public static function fromConfig(MapInterface $c, Types $types): TypeInterface
             {
             }
 

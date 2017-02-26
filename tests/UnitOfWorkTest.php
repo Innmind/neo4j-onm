@@ -38,11 +38,17 @@ use Innmind\Neo4j\DBAL\{
     Query
 };
 use Innmind\EventBus\EventBusInterface;
+use Innmind\HttpTransport\GuzzleTransport;
+use Innmind\Http\{
+    Translator\Response\Psr7Translator,
+    Factory\Header\Factories
+};
 use Innmind\Immutable\{
     Set,
     SetInterface,
     Map
 };
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 class UnitOfWorkTest extends TestCase
@@ -67,6 +73,12 @@ class UnitOfWorkTest extends TestCase
             'http'
         )
             ->for('neo4j', 'ci')
+            ->useTransport(
+                new GuzzleTransport(
+                    new Client,
+                    new Psr7Translator(Factories::default())
+                )
+            )
             ->build();
         $this->container = new Container;
         $this->entityFactory = new EntityFactory(

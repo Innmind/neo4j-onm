@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     IdentityInterface,
     Exception\InvalidArgumentException
 };
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 final class EntityAboutToBeUpdated
 {
@@ -21,7 +21,7 @@ final class EntityAboutToBeUpdated
     public function __construct(
         IdentityInterface $identity,
         $entity,
-        CollectionInterface $changeset
+        MapInterface $changeset
     ) {
         if (!is_object($entity)) {
             throw new InvalidArgumentException;
@@ -45,7 +45,10 @@ final class EntityAboutToBeUpdated
         return $this->entity;
     }
 
-    public function changeset(): CollectionInterface
+    /**
+     * @return MapInterface<string, mixed>
+     */
+    public function changeset(): MapInterface
     {
         return $this->changeset;
     }

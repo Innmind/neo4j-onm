@@ -18,7 +18,7 @@ use Innmind\Neo4j\DBAL\{
 use Innmind\Immutable\{
     MapInterface,
     Map,
-    CollectionInterface
+    SetInterface
 };
 
 class ResultTranslator
@@ -45,38 +45,32 @@ class ResultTranslator
      * @param ResultInterface $result
      * @param MapInterface<string, EntityInterface> $variables Association between query variables and entity definitions
      *
-     * @return MapInterface<string, CollectionInterface>
+     * @return MapInterface<string, SetInterface<MapInterface<string, mixed>>>
      */
     public function translate(
         ResultInterface $result,
         MapInterface $variables
     ): MapInterface {
-        $mapped = new Map('string', CollectionInterface::class);
+        return $variables
+            ->filter(function(string $variable) use ($result): bool {
+                $forVariable = $result
+                    ->rows()
+                    ->filter(function(RowInterface $row) use ($variable): bool {
+                        return $row->column() === $variable;
+                    });
 
-        $variables->foreach(function(
-            string $variable,
-            EntityInterface $meta
-        ) use (
-            &$mapped,
-            $result
-        ) {
-            $forVariable = $result
-                ->rows()
-                ->filter(function(RowInterface $row) use ($variable) {
-                    return $row->column() === $variable;
-                });
+                return $forVariable->size() > 0;
+            })
+            ->reduce(
+                new Map('string', SetInterface::class),
+                function(Map $carry, string $variable, EntityInterface $meta) use ($result): Map {
+                    $translator = $this->translators->get(get_class($meta));
 
-            if ($forVariable->count() === 0) {
-                return;
-            }
-
-            $translator = $this->translators->get(get_class($meta));
-            $mapped = $mapped->put(
-                $variable,
-                $translator->translate($variable, $meta, $result)
+                    return $carry->put(
+                        $variable,
+                        $translator->translate($variable, $meta, $result)
+                    );
+                }
             );
-        });
-
-        return $mapped;
     }
 }

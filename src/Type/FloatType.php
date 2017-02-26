@@ -3,9 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Type;
 
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    TypeInterface,
+    Types
+};
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     Set,
     SetInterface
 };
@@ -18,11 +21,11 @@ class FloatType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(CollectionInterface $config): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
     {
         $type = new self;
 
-        if ($config->hasKey('nullable')) {
+        if ($config->contains('nullable')) {
             $type->nullable = true;
         }
 

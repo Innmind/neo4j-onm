@@ -18,7 +18,7 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    StringPrimitive as Str,
+    Str,
     MapInterface,
     Set
 };
@@ -130,9 +130,15 @@ class AggregateTranslator implements SpecificationTranslatorInterface
             $condition = (new AggregateCypherVisitor($meta))->visit(
                 $specification
             );
-            $query = $query
-                ->where($condition->get(0))
-                ->withParameters($condition->get(1)->toPrimitive());
+            $query = $query->where($condition->first());
+            $query = $condition
+                ->last()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $key, $value): Query {
+                        return $carry->withParameter($key, $value);
+                    }
+                );
         }
 
         return new IdentityMatch(
@@ -148,12 +154,23 @@ class AggregateTranslator implements SpecificationTranslatorInterface
         MapInterface $mapping
     ): Query {
         if ($mapping->contains($name)) {
-            $query = $query
-                ->withProperties(
-                    $mapping->get($name)->get(0)->toPrimitive()
-                )
-                ->withParameters(
-                    $mapping->get($name)->get(1)->toPrimitive()
+            $query = $mapping
+                ->get($name)
+                ->first()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $property, string $cypher): Query {
+                        return $carry->withProperty($property, $cypher);
+                    }
+                );
+            $query = $mapping
+                ->get($name)
+                ->last()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $key, $value): Query {
+                        return $carry->withParameter($key, $value);
+                    }
                 );
         }
 

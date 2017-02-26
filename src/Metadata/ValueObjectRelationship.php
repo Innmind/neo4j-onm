@@ -55,6 +55,9 @@ class ValueObjectRelationship
         return $this->childProperty;
     }
 
+    /**
+     * @return MapInterface<string, Property>
+     */
     public function properties(): MapInterface
     {
         return $this->properties;

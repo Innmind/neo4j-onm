@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Types
 };
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipFactoryTest extends TestCase
@@ -32,32 +32,32 @@ class RelationshipFactoryTest extends TestCase
 
     public function testMake()
     {
-        $ar = $this->f->make(new Collection([
-            'class' => 'SomeRelationship',
-            'alias' => 'SR',
-            'repository' => 'SRRepository',
-            'factory' => 'SRFactory',
-            'rel_type' => 'SOME_RELATIONSHIP',
-            'identity' => [
+        $ar = $this->f->make((new Map('string', 'mixed'))
+            ->put('class', 'SomeRelationship')
+            ->put('alias', 'SR')
+            ->put('repository', 'SRRepository')
+            ->put('factory', 'SRFactory')
+            ->put('rel_type', 'SOME_RELATIONSHIP')
+            ->put('identity', [
                 'property' => 'uuid',
                 'type' => 'UUID',
-            ],
-            'startNode' => [
+            ])
+            ->put('startNode', [
                 'property' => 'startProperty',
                 'type' => 'UUID',
                 'target' => 'target',
-            ],
-            'endNode' => [
+            ])
+            ->put('endNode', [
                 'property' => 'endProperty',
                 'type' => 'UUID',
                 'target' => 'target',
-            ],
-            'properties' => [
+            ])
+            ->put('properties', [
                 'created' => [
                     'type' => 'date',
                 ],
-            ],
-        ]));
+            ])
+        );
 
         $this->assertInstanceOf(Relationship::class, $ar);
         $this->assertSame('SomeRelationship', (string) $ar->class());

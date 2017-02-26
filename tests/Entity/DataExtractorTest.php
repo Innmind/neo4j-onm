@@ -20,17 +20,18 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    Metadatas
+    Metadatas,
+    Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map
 };
 use PHPUnit\Framework\TestCase;
 
 class DataExtractorTest extends TestCase
 {
-    private $e;
+    private $extractor;
     private $arClass;
     private $rClass;
 
@@ -52,8 +53,8 @@ class DataExtractorTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $m = new Metadatas;
-        $m
+        $metadatas = new Metadatas;
+        $metadatas
             ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
@@ -67,7 +68,9 @@ class DataExtractorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
                     ->withChild(
@@ -85,7 +88,9 @@ class DataExtractorTest extends TestCase
                                 ->withProperty(
                                     'empty',
                                     StringType::fromConfig(
-                                        new Collection(['nullable' => null])
+                                        (new Map('string', 'mixed'))
+                                            ->put('nullable', null),
+                                        new Types
                                     )
                                 )
                         ))
@@ -93,7 +98,9 @@ class DataExtractorTest extends TestCase
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
                     )
@@ -113,11 +120,13 @@ class DataExtractorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
-        $this->e = new DataExtractor($m);
+        $this->extractor = new DataExtractor($metadatas);
     }
 
     public function testExtractAggregateRoot()
@@ -139,9 +148,11 @@ class DataExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $data = $this->e->extract($entity);
+        $data = $this->extractor->extract($entity);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['created', 'empty', 'uuid', 'rel'],
             $data->keys()->toPrimitive()
@@ -150,9 +161,11 @@ class DataExtractorTest extends TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertSame('string', (string) $data->get('rel')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'empty', 'child'],
             $data->get('rel')->keys()->toPrimitive()
@@ -161,17 +174,19 @@ class DataExtractorTest extends TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('rel')->get('created')
         );
-        $this->assertSame(null, $data->get('rel')->get('empty'));
+        $this->assertNull($data->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
+            MapInterface::class,
             $data->get('rel')->get('child')
         );
+        $this->assertSame('string', (string) $data->get('rel')->get('child')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'empty'],
             $data->get('rel')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame('foo', $data->get('rel')->get('child')->get('content'));
-        $this->assertSame(null, $data->get('rel')->get('child')->get('empty'));
+        $this->assertNull($data->get('rel')->get('child')->get('empty'));
     }
 
     public function testExtractRelationship()
@@ -182,9 +197,11 @@ class DataExtractorTest extends TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $data = $this->e->extract($entity);
+        $data = $this->extractor->extract($entity);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['uuid', 'start', 'end', 'created', 'empty'],
             $data->keys()->toPrimitive()
@@ -193,7 +210,7 @@ class DataExtractorTest extends TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
         $this->assertSame($s, $data->get('start'));
         $this->assertSame($e, $data->get('end'));

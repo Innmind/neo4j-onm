@@ -17,29 +17,25 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    Identity\Uuid
+    Identity\Uuid,
+    Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection,
-    TypedCollection
+    MapInterface,
+    Map
 };
-use Innmind\Reflection\ExtractionStrategy\{
-    ExtractionStrategies,
-    ExtractionStrategyInterface,
-    ReflectionStrategy
-};
+use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipExtractorTest extends TestCase
 {
-    private $e;
-    private $m;
+    private $extractor;
+    private $meta;
 
     public function setUp()
     {
-        $this->e = new RelationshipExtractor;
-        $this->m = new Relationship(
+        $this->extractor = new RelationshipExtractor;
+        $this->meta = new Relationship(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
@@ -49,19 +45,21 @@ class RelationshipExtractorTest extends TestCase
             new RelationshipEdge('start', Uuid::class, 'target'),
             new RelationshipEdge('end', Uuid::class, 'target')
         );
-        $this->m = $this->m
+        $this->meta = $this->meta
             ->withProperty('created', new DateType)
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
     }
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractorInterface::class, $this->e);
+        $this->assertInstanceOf(DataExtractorInterface::class, $this->extractor);
     }
 
     /**
@@ -82,9 +80,11 @@ class RelationshipExtractorTest extends TestCase
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
         $extractor = new RelationshipExtractor($strategies);
-        $data = $extractor->extract($entity, $this->m);
+        $data = $extractor->extract($entity, $this->meta);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['uuid', 'start', 'end', 'created', 'empty'],
             $data->keys()->toPrimitive()
@@ -93,7 +93,7 @@ class RelationshipExtractorTest extends TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
         $this->assertSame($s, $data->get('start'));
         $this->assertSame($e, $data->get('end'));
@@ -104,7 +104,7 @@ class RelationshipExtractorTest extends TestCase
      */
     public function testThrowWhenExtractingInvalidMeta()
     {
-        $this->e->extract(
+        $this->extractor->extract(
             new \stdClass,
             $this->createMock(EntityInterface::class)
         );
@@ -114,14 +114,7 @@ class RelationshipExtractorTest extends TestCase
     {
         return [
             [null],
-            [
-                new ExtractionStrategies(
-                    new TypedCollection(
-                        ExtractionStrategyInterface::class,
-                        [new ReflectionStrategy]
-                    )
-                )
-            ],
+            [new ReflectionStrategy],
         ];
     }
 }

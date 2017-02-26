@@ -12,6 +12,7 @@ use Innmind\Neo4j\ONM\{
     Event\EntityRemoved,
     Metadatas,
     Metadata\Relationship,
+    Metadata\Aggregate,
     Metadata\ValueObject
 };
 use Innmind\Neo4j\DBAL\{
@@ -21,10 +22,10 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
-    Collection,
-    StringPrimitive as Str,
-    Set,
-    MapInterface
+    Str,
+    Stream,
+    MapInterface,
+    Map
 };
 
 class RemovePersister implements PersisterInterface
@@ -72,7 +73,7 @@ class RemovePersister implements PersisterInterface
             $container
         ) {
             $container->push($identity, $object, Container::STATE_REMOVED);
-            $this->changeset->use($identity, new Collection([])); //in case the identity is reused later on
+            $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
             $this->eventBus->dispatch(
                 new EntityRemoved($identity, $object)
             );
@@ -89,7 +90,7 @@ class RemovePersister implements PersisterInterface
     private function queryFor(MapInterface $entities): QueryInterface
     {
         $query = new Query;
-        $this->variables = new Set('string');
+        $this->variables = new Stream('string');
         $partitions = $entities->partition(function(
             IdentityInterface $identity,
             $entity
@@ -99,31 +100,30 @@ class RemovePersister implements PersisterInterface
             return $meta instanceof Relationship;
         });
 
-        $partitions
+        $query = $partitions
             ->get(true)
-            ->foreach(function(
-                IdentityInterface $identity,
-                $entity
-            ) use (
-                &$query
-            ) {
-                $query = $this->matchRelationship($identity, $entity, $query);
-            });
-        $partitions
+            ->reduce(
+                $query,
+                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                    return $this->matchRelationship($identity, $entity, $carry);
+                }
+            );
+        $query = $partitions
             ->get(false)
-            ->foreach(function(
-                IdentityInterface $identity,
-                $entity
-            ) use (
-                &$query
-            ) {
-                $query = $this->matchAggregate($identity, $entity, $query);
-            });
-        $this
+            ->reduce(
+                $query,
+                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                    return $this->matchAggregate($identity, $entity, $carry);
+                }
+            );
+        $query = $this
             ->variables
-            ->foreach(function(string $variable) use (&$query) {
-                $query = $query->delete($variable);
-            });
+            ->reduce(
+                $query,
+                function(Query $carry, string $variable): Query {
+                    return $carry->delete($variable);
+                }
+            );
         $this->variables = null;
 
         return $query;
@@ -200,36 +200,33 @@ class RemovePersister implements PersisterInterface
                 $identity->value()
             );
 
-        $meta
+        return $meta
             ->children()
-            ->foreach(function(
-                string $property,
-                ValueObject $child
-            ) use (
-                &$query,
-                $name
-            ) {
-                $query = $query
-                    ->match((string) $name)
-                    ->linkedTo(
-                        $childName = (string) $name
-                            ->append('_')
-                            ->append($child->relationship()->property())
-                            ->append('_')
-                            ->append($child->relationship()->childProperty()),
-                        $child->labels()->toPrimitive()
-                    )
-                    ->through(
-                        (string) $child->relationship()->type(),
-                        $relName = (string) $name
-                            ->append('_')
-                            ->append($child->relationship()->property())
-                    );
-                $this->variables = $this->variables
-                    ->add($childName)
-                    ->add($relName);
-            });
+            ->reduce(
+                $query,
+                function(Query $carry, string $property, ValueObject $child) use ($name): Query {
+                    $carry = $carry
+                        ->match((string) $name)
+                        ->linkedTo(
+                            $childName = (string) $name
+                                ->append('_')
+                                ->append($child->relationship()->property())
+                                ->append('_')
+                                ->append($child->relationship()->childProperty()),
+                            $child->labels()->toPrimitive()
+                        )
+                        ->through(
+                            (string) $child->relationship()->type(),
+                            $relName = (string) $name
+                                ->append('_')
+                                ->append($child->relationship()->property())
+                        );
+                    $this->variables = $this->variables
+                        ->add($childName)
+                        ->add($relName);
 
-        return $query;
+                    return $carry;
+                }
+            );
     }
 }

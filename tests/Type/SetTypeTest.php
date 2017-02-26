@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     SetInterface,
-    Collection,
+    Map,
     Set
 };
 use PHPUnit\Framework\TestCase;
@@ -21,10 +21,11 @@ class SetTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             TypeInterface::class,
-            SetType::fromConfig(new Collection([
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            SetType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string'),
+                new Types
+            )
         );
     }
 
@@ -34,7 +35,10 @@ class SetTypeTest extends TestCase
      */
     public function testThrowWhenMissingInnerType()
     {
-        SetType::fromConfig(new Collection([]));
+        SetType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
     }
 
     /**
@@ -42,24 +46,30 @@ class SetTypeTest extends TestCase
      */
     public function testThrowWhenInnerTypeIsArray()
     {
-        SetType::fromConfig(new Collection(['inner' => 'set']));
+        SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'set'),
+            new Types
+        );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            SetType::fromConfig(new Collection([
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            SetType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->isNullable()
         );
         $this->assertTrue(
-            SetType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            SetType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->isNullable()
         );
     }
@@ -74,10 +84,11 @@ class SetTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = SetType::fromConfig(new Collection([
-            'inner' => 'string',
-            '_types' => new Types,
-        ]));
+        $t = SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'string'),
+            new Types
+        );
 
         $this->assertSame(
             ['foo'],
@@ -86,20 +97,22 @@ class SetTypeTest extends TestCase
 
         $this->assertSame(
             null,
-            SetType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            SetType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->forDatabase(null)
         );
         $this->assertSame(
             [''],
-            SetType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            SetType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->forDatabase((new Set('string'))->add(''))
         );
     }
@@ -110,11 +123,12 @@ class SetTypeTest extends TestCase
      */
     public function testThrowWhenInvalidType()
     {
-        SetType::fromConfig(new Collection([
-            'nullable' => null,
-            'inner' => 'string',
-            '_types' => new Types,
-        ]))
+        SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('nullable', null)
+                ->put('inner', 'string'),
+            new Types
+        )
             ->forDatabase(['']);
     }
 
@@ -124,20 +138,22 @@ class SetTypeTest extends TestCase
      */
     public function testThrowWhenInvalidSetType()
     {
-        SetType::fromConfig(new Collection([
-            'nullable' => null,
-            'inner' => 'string',
-            '_types' => new Types,
-        ]))
+        SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('nullable', null)
+                ->put('inner', 'string'),
+            new Types
+        )
             ->forDatabase(new Set('int'));
     }
 
     public function testFromDatabase()
     {
-        $t = SetType::fromConfig(new Collection([
-            'inner' => 'string',
-            '_types' => new Types,
-        ]));
+        $t = SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'string'),
+            new Types
+        );
 
         $this->assertInstanceOf(SetInterface::class, $t->fromDatabase(['foo']));
         $this->assertSame('string', (string) $t->fromDatabase(['foo'])->type());
@@ -146,11 +162,12 @@ class SetTypeTest extends TestCase
         $this->assertSame('string', (string) $t->fromDatabase([null])->type());
         $this->assertSame([''], $t->fromDatabase([null])->toPrimitive());
 
-        $t = SetType::fromConfig(new Collection([
-            'nullable' => null,
-            'inner' => 'string',
-            '_types' => new Types,
-        ]));
+        $t = SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('nullable', null)
+                ->put('inner', 'string'),
+            new Types
+        );
 
         $this->assertInstanceOf(SetInterface::class, $t->fromDatabase([null]));
         $this->assertSame('string', (string) $t->fromDatabase([null])->type());
@@ -159,12 +176,13 @@ class SetTypeTest extends TestCase
 
     public function testUseSpecificSetTypeInsteadOfInnerTypeName()
     {
-        $type = SetType::fromConfig(new Collection([
-            'nullable' => null,
-            'inner' => 'string',
-            'set_type' => 'stdClass',
-            '_types' => new Types,
-        ]));
+        $type = SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('nullable', null)
+                ->put('inner', 'string')
+                ->put('set_type', 'stdClass'),
+            new Types
+        );
 
         $set = $type->fromDatabase([]);
 

@@ -18,13 +18,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\{
-    Collection,
-    Map
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class ValidatorTest extends TestCase
@@ -46,7 +44,9 @@ class ValidatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -63,7 +63,9 @@ class ValidatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -71,7 +73,9 @@ class ValidatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -89,7 +93,9 @@ class ValidatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
     }

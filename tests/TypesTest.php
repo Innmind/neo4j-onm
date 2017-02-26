@@ -14,10 +14,7 @@ use Innmind\Neo4j\ONM\{
     Type\IntType,
     Type\StringType
 };
-use Innmind\Immutable\{
-    Set,
-    Collection
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class TypesTest extends TestCase
@@ -26,6 +23,14 @@ class TypesTest extends TestCase
     {
         $t = new Types;
 
+        $this->assertSame(
+            'string',
+            (string) $t->all()->keyType()
+        );
+        $this->assertSame(
+            'string',
+            (string) $t->all()->valueType()
+        );
         $this->assertSame(
             [
                 'array',
@@ -73,11 +78,15 @@ class TypesTest extends TestCase
 
         $this->assertInstanceOf(
             StringType::class,
-            $t->build('string', new Collection([]))
+            $t->build('string', new Map('string', 'mixed'))
         );
         $this->assertInstanceOf(
             ArrayType::class,
-            $t->build('array', new Collection(['inner' => 'string']))
+            $t->build(
+                'array',
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string')
+            )
         );
     }
 }

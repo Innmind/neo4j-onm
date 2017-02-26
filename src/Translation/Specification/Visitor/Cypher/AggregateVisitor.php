@@ -15,10 +15,10 @@ use Innmind\Specification\{
     NotInterface
 };
 use Innmind\Immutable\{
-    StringPrimitive as Str,
+    Str,
     SequenceInterface,
     Sequence,
-    Collection
+    Map
 };
 
 class AggregateVisitor implements CypherVisitorInterface
@@ -51,11 +51,11 @@ class AggregateVisitor implements CypherVisitorInterface
                 return new Sequence(
                     sprintf(
                         '(%s %s %s)',
-                        $left->get(0),
+                        $left->first(),
                         $specification->operator(),
-                        $right->get(0)
+                        $right->first()
                     ),
-                    $left->get(1)->merge($right->get(1))
+                    $left->last()->merge($right->last())
                 );
 
             case $specification instanceof NotInterface:
@@ -64,9 +64,9 @@ class AggregateVisitor implements CypherVisitorInterface
                 return new Sequence(
                     sprintf(
                         'NOT (%s)',
-                        $condition->get(0)
+                        $condition->first()
                     ),
-                    $condition->get(1)
+                    $condition->last()
                 );
         }
     }
@@ -80,7 +80,7 @@ class AggregateVisitor implements CypherVisitorInterface
             case $this->meta->properties()->contains($specification->property()):
                 return $this->buildPropertyCondition($specification);
 
-            case $property->match('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
+            case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyCondition($specification);
         }
     }
@@ -100,9 +100,8 @@ class AggregateVisitor implements CypherVisitorInterface
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $specification->value(),
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $specification->value())
         );
     }
 
@@ -111,7 +110,9 @@ class AggregateVisitor implements CypherVisitorInterface
     ): SequenceInterface {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
-        $var = (new Str('entity_'))->append($pieces->pop()->join('_'));
+        $var = (new Str('entity_'))->append(
+            (string) $pieces->dropEnd(1)->join('_')
+        );
         $key = $var
             ->append('_')
             ->append((string) $pieces->last())
@@ -126,9 +127,8 @@ class AggregateVisitor implements CypherVisitorInterface
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $specification->value(),
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $specification->value())
         );
     }
 }

@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 
 class RemovePersisterTest extends TestCase
 {
-    private $m;
+    private $metadatas;
     private $arClass;
     private $rClass;
 
@@ -53,8 +53,8 @@ class RemovePersisterTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $this->m = new Metadatas;
-        $this->m
+        $this->metadatas = new Metadatas;
+        $this->metadatas
             ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
@@ -93,13 +93,13 @@ class RemovePersisterTest extends TestCase
 
     public function testPersist()
     {
-        $p = new RemovePersister(
+        $persister = new RemovePersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
-            $this->m
+            $this->metadatas
         );
 
-        $this->assertInstanceOf(PersisterInterface::class, $p);
+        $this->assertInstanceOf(PersisterInterface::class, $persister);
 
         $container = new Container;
         $conn = $this->createMock(ConnectionInterface::class);
@@ -126,18 +126,18 @@ class RemovePersisterTest extends TestCase
                     'MATCH ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_identity} }]-(), (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_identity} }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel) DELETE e50ead852f3361489a400ab5c70f6c5cf, e38c6cbd28bf165070d070980dd1fb595, e38c6cbd28bf165070d070980dd1fb595_rel_child, e38c6cbd28bf165070d070980dd1fb595_rel',
                     $query->cypher()
                 );
-                $this->assertSame(2, $query->parameters()->count());
+                $this->assertCount(2, $query->parameters());
                 $query
                     ->parameters()
-                    ->each(function(int $idx, Parameter $value) {
+                    ->foreach(function(string $key, Parameter $value) {
                         $keys = [
                             'e38c6cbd28bf165070d070980dd1fb595_identity' => '11111111-1111-1111-1111-111111111111',
                             'e50ead852f3361489a400ab5c70f6c5cf_identity' => '11111111-1111-1111-1111-111111111112',
                         ];
 
-                        $this->assertTrue(isset($keys[$value->key()]));
+                        $this->assertTrue(isset($keys[$key]));
                         $this->assertSame(
-                            $keys[$value->key()],
+                            $keys[$key],
                             $value->value()
                         );
                     });
@@ -174,7 +174,7 @@ class RemovePersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertSame(null, $p->persist($conn, $container));
+        $this->assertNull($persister->persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_REMOVED,

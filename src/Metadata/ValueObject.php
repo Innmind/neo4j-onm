@@ -43,11 +43,17 @@ class ValueObject
         return $this->relationship;
     }
 
+    /**
+     * @return SetInterface<string>
+     */
     public function labels(): SetInterface
     {
         return $this->labels;
     }
 
+    /**
+     * @return MapInterface<string, Property>
+     */
     public function properties(): MapInterface
     {
         return $this->properties;

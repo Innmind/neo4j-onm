@@ -17,11 +17,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class AggregateTranslatorTest extends TestCase
@@ -42,7 +43,9 @@ class AggregateTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -59,7 +62,9 @@ class AggregateTranslatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -67,7 +72,9 @@ class AggregateTranslatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -83,9 +90,9 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslateWithPropertyMatch()
     {
-        $t = new AggregateTranslator;
+        $translator = new AggregateTranslator;
 
-        $match = $t->translate(
+        $match = $translator->translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))
@@ -100,11 +107,11 @@ class AggregateTranslatorTest extends TestCase
             'MATCH (entity:Label { empty: {entity_empty}, created: {entity_created} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF { empty: {entity_rel_empty}, created: {entity_rel_created} }]-(entity_rel_child:AnotherLabel { empty: {entity_rel_child_empty}, content: {entity_rel_child_content} }) RETURN entity, entity_rel, entity_rel_child',
             $match->query()->cypher()
         );
-        $this->assertSame(6, $match->query()->parameters()->count());
+        $this->assertCount(6, $match->query()->parameters());
         $match
             ->query()
             ->parameters()
-            ->each(function(int $idx, Parameter $parameter) {
+            ->foreach(function(string $key, Parameter $parameter) {
                 $expected = [
                     'entity_empty' => 20,
                     'entity_created' => 10,
@@ -114,21 +121,21 @@ class AggregateTranslatorTest extends TestCase
                     'entity_rel_child_content' => 50,
                 ];
 
-                $this->assertTrue(isset($expected[$parameter->key()]));
+                $this->assertTrue(isset($expected[$key]));
                 $this->assertSame(
-                    $expected[$parameter->key()],
+                    $expected[$key],
                     $parameter->value()
                 );
             });
-        $this->assertSame(1, $match->variables()->size());
+        $this->assertCount(1, $match->variables());
         $this->assertSame($this->meta, $match->variables()->get('entity'));
     }
 
     public function testTranslateWithWhereClause()
     {
-        $t = new AggregateTranslator;
+        $translator = new AggregateTranslator;
 
-        $match = $t->translate(
+        $match = $translator->translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))
@@ -143,11 +150,11 @@ class AggregateTranslatorTest extends TestCase
             'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) WHERE (((((entity.created = {entity_created1} AND entity.empty = {entity_empty2}) OR entity_rel.created = {entity_rel_created3}) AND entity_rel.empty = {entity_rel_empty4}) AND entity_rel_child.content = {entity_rel_child_content5}) AND NOT (entity_rel_child.empty = {entity_rel_child_empty6})) RETURN entity, entity_rel, entity_rel_child',
             $match->query()->cypher()
         );
-        $this->assertSame(6, $match->query()->parameters()->count());
+        $this->assertCount(6, $match->query()->parameters());
         $match
             ->query()
             ->parameters()
-            ->each(function(int $idx, Parameter $parameter) {
+            ->foreach(function(string $key, Parameter $parameter) {
                 $expected = [
                     'entity_empty2' => 20,
                     'entity_created1' => 10,
@@ -157,13 +164,13 @@ class AggregateTranslatorTest extends TestCase
                     'entity_rel_child_content5' => 50,
                 ];
 
-                $this->assertTrue(isset($expected[$parameter->key()]));
+                $this->assertTrue(isset($expected[$key]));
                 $this->assertSame(
-                    $expected[$parameter->key()],
+                    $expected[$key],
                     $parameter->value()
                 );
             });
-        $this->assertSame(1, $match->variables()->size());
+        $this->assertCount(1, $match->variables());
         $this->assertSame($this->meta, $match->variables()->get('entity'));
     }
 }

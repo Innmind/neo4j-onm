@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     SetInterface,
-    Collection
+    Map
 };
 use PHPUnit\Framework\TestCase;
 
@@ -20,10 +20,11 @@ class ArrayTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             TypeInterface::class,
-            ArrayType::fromConfig(new Collection([
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string'),
+                new Types
+            )
         );
     }
 
@@ -33,7 +34,10 @@ class ArrayTypeTest extends TestCase
      */
     public function testThrowWhenMissingInnerType()
     {
-        ArrayType::fromConfig(new Collection([]));
+        ArrayType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
     }
 
     /**
@@ -41,24 +45,30 @@ class ArrayTypeTest extends TestCase
      */
     public function testThrowWhenInnerTypeIsArray()
     {
-        ArrayType::fromConfig(new Collection(['inner' => 'array']));
+        ArrayType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'array'),
+            new Types
+        );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            ArrayType::fromConfig(new Collection([
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->isNullable()
         );
         $this->assertTrue(
-            ArrayType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->isNullable()
         );
     }
@@ -73,10 +83,11 @@ class ArrayTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = ArrayType::fromConfig(new Collection([
-            'inner' => 'string',
-            '_types' => new Types,
-        ]));
+        $t = ArrayType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'string'),
+            new Types
+        );
 
         $this->assertSame(
             ['foo'],
@@ -86,41 +97,45 @@ class ArrayTypeTest extends TestCase
 
         $this->assertSame(
             null,
-            ArrayType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->forDatabase(null)
         );
         $this->assertSame(
             [null],
-            ArrayType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->forDatabase([null])
         );
     }
 
     public function testFromDatabase()
     {
-        $t = ArrayType::fromConfig(new Collection([
-            'inner' => 'string',
-            '_types' => new Types,
-        ]));
+        $t = ArrayType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'string'),
+            new Types
+        );
 
         $this->assertSame(['foo'], $t->fromDatabase(['foo']));
         $this->assertSame([''], $t->fromDatabase([null]));
 
         $this->assertSame(
             [''],
-            ArrayType::fromConfig(new Collection([
-                'nullable' => null,
-                'inner' => 'string',
-                '_types' => new Types,
-            ]))
+            ArrayType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null)
+                    ->put('inner', 'string'),
+                new Types
+            )
                 ->fromDatabase([null])
         );
     }

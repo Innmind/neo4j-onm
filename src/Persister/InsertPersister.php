@@ -25,11 +25,10 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
-    Collection,
-    CollectionInterface,
-    StringPrimitive as Str,
+    Str,
     MapInterface,
-    Set
+    Stream,
+    Map
 };
 
 class InsertPersister implements PersisterInterface
@@ -100,7 +99,7 @@ class InsertPersister implements PersisterInterface
     private function queryFor(MapInterface $entities): QueryInterface
     {
         $query = new Query;
-        $this->variables = new Set('string');
+        $this->variables = new Stream('string');
 
         $partitions = $entities->partition(function(
             IdentityInterface $identity,
@@ -110,26 +109,22 @@ class InsertPersister implements PersisterInterface
 
             return $meta instanceof Aggregate;
         });
-        $partitions
+        $query = $partitions
             ->get(true)
-            ->foreach(function(
-                IdentityInterface $identity,
-                $entity
-            ) use (
-                &$query
-            ) {
-                $query = $this->createAggregate($identity, $entity, $query);
-            });
-        $partitions
+            ->reduce(
+                $query,
+                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                    return $this->createAggregate($identity, $entity, $carry);
+                }
+            );
+        $query = $partitions
             ->get(false)
-            ->foreach(function(
-                IdentityInterface $identity,
-                $entity
-            ) use (
-                &$query
-            ) {
-                $query = $this->createRelationship($identity, $entity, $query);
-            });
+            ->reduce(
+                $query,
+                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                    return $this->createRelationship($identity, $entity, $carry);
+                }
+            );
         $this->variables = null;
 
         return $query;
@@ -162,6 +157,7 @@ class InsertPersister implements PersisterInterface
             $meta->properties(),
             $paramKey
         );
+        $keysToKeep = $data->keys()->intersect($properties->keys());
 
         $query = $query
             ->withProperty(
@@ -171,31 +167,47 @@ class InsertPersister implements PersisterInterface
                     ->append('}.')
                     ->append($meta->identity()->property())
             )
-            ->withProperties($properties->toPrimitive())
-            ->withParameters([
-                (string) $paramKey => $data
-                    ->keyIntersect($properties)
-                    ->set($meta->identity()->property(), $identity->value())
-                    ->toPrimitive()
-            ]);
+            ->withProperties($properties->reduce(
+                [],
+                function(array $carry, string $property, string $cypher): array {
+                    $carry[$property] = $cypher;
 
-        $meta
-            ->children()
-            ->foreach(function(
-                string $property,
-                ValueObject $child
-            ) use (
-                &$query,
-                $varName,
+                    return $carry;
+                }
+            ))
+            ->withParameter(
+                (string) $paramKey,
                 $data
-            ) {
-                $query = $this->createAggregateChild(
-                    $child,
-                    $varName,
-                    $data->get($property),
-                    $query
-                );
-            });
+                    ->filter(function(string $key) use ($keysToKeep): bool {
+                        return $keysToKeep->contains($key);
+                    })
+                    ->put(
+                        $meta->identity()->property(),
+                        $identity->value()
+                    )
+                    ->reduce(
+                        [],
+                        function(array $carry, string $key, $value): array {
+                            $carry[$key] = $value;
+
+                            return $carry;
+                        }
+                    )
+            );
+
+        $query = $meta
+            ->children()
+            ->reduce(
+                $query,
+                function(Query $carry, string $property, ValueObject $child) use ($varName, $data): Query {
+                    return $this->createAggregateChild(
+                        $child,
+                        $varName,
+                        $data->get($property),
+                        $carry
+                    );
+                }
+            );
         $this->variables = $this->variables->add((string) $varName);
 
         return $query;
@@ -207,7 +219,7 @@ class InsertPersister implements PersisterInterface
      *
      * @param ValueObject $meta
      * @param Str $nodeName
-     * @param CollectionInterface $data
+     * @param MapInterface<string, mixed> $data
      * @param Query $query
      *
      * @return Query
@@ -215,7 +227,7 @@ class InsertPersister implements PersisterInterface
     private function createAggregateChild(
         ValueObject $meta,
         Str $nodeName,
-        CollectionInterface $data,
+        MapInterface $data,
         Query $query
     ): Query {
         $relationshipName = $nodeName
@@ -241,27 +253,57 @@ class InsertPersister implements PersisterInterface
                 (string) $endNodeName,
                 $meta->labels()->toPrimitive()
             )
-            ->withProperties($endNodeProperties->toPrimitive())
-            ->withParameters([
-                (string) $endNodeParamKey => $data
+            ->withProperties($endNodeProperties->reduce(
+                [],
+                function(array $carry, string $property, string $cypher): array {
+                    $carry[$property] = $cypher;
+
+                    return $carry;
+                }
+            ))
+            ->withParameter(
+                (string) $endNodeParamKey,
+                $data
                     ->get(
                         $meta->relationship()->childProperty()
                     )
-                    ->toPrimitive()
-            ])
+                    ->reduce(
+                        [],
+                        function(array $carry, string $key, $value): array {
+                            $carry[$key] = $value;
+
+                            return $carry;
+                        }
+                    )
+            )
             ->through(
                 (string) $meta->relationship()->type(),
                 (string) $relationshipName,
                 DBALRelationship::LEFT
             )
-            ->withProperties($relationshipProperties->toPrimitive())
-            ->withParameters([
-                (string) $relationshipParamKey => $data
-                    ->unset(
+            ->withProperties($relationshipProperties->reduce(
+                [],
+                function(array $carry, string $property, string $cypher): array {
+                    $carry[$property] = $cypher;
+
+                    return $carry;
+                }
+            ))
+            ->withParameter(
+                (string) $relationshipParamKey,
+                $data
+                    ->remove(
                         $meta->relationship()->childProperty()
                     )
-                    ->toPrimitive()
-            ]);
+                    ->reduce(
+                        [],
+                        function(array $carry, string $key, $value): array {
+                            $carry[$key] = $value;
+
+                            return $carry;
+                        }
+                    )
+            );
     }
 
     /**
@@ -270,23 +312,23 @@ class InsertPersister implements PersisterInterface
      * @param MapInterface<string, Property> $properties
      * @param Str $name
      *
-     * @return CollectionInterface
+     * @return MapInterface<string, string>
      */
     private function buildProperties(
         MapInterface $properties,
         Str $name
-    ): CollectionInterface {
-        $data = new Collection([]);
+    ): MapInterface {
         $name = $name->prepend('{')->append('}.');
 
-        $properties->foreach(function(string $property) use (&$data, $name) {
-            $data = $data->set(
-                $property,
-                (string) $name->append($property)
-            );
-        });
-
-        return $data;
+        return $properties->reduce(
+            new Map('string', 'string'),
+            function(Map $carry, string $property) use ($name): Map {
+                return $carry->put(
+                    $property,
+                    (string) $name->append($property)
+                );
+            }
+        );
     }
 
     /**
@@ -313,6 +355,7 @@ class InsertPersister implements PersisterInterface
 
         $paramKey = $varName->append('_props');
         $properties = $this->buildProperties($meta->properties(), $paramKey);
+        $keysToKeep = $data->keys()->intersect($properties->keys());
 
         return $this
             ->matchEdge(
@@ -340,13 +383,30 @@ class InsertPersister implements PersisterInterface
                     ->append('}.')
                     ->append($meta->identity()->property())
             )
-            ->withProperties($properties->toPrimitive())
-            ->withParameters([
-                (string) $paramKey => $data
-                    ->keyIntersect($properties)
-                    ->set($meta->identity()->property(), $identity->value())
-                    ->toPrimitive()
-            ]);
+            ->withProperties($properties->reduce(
+                [],
+                function(array $carry, string $property, string $cypher): array {
+                    $carry[$property] = $cypher;
+
+                    return $carry;
+                }
+            ))
+            ->withParameter(
+                (string) $paramKey,
+                $data
+                    ->filter(function(string $key) use ($keysToKeep): bool {
+                        return $keysToKeep->contains($key);
+                    })
+                    ->put($meta->identity()->property(), $identity->value())
+                    ->reduce(
+                        [],
+                        function(array $carry, string $key, $value): array {
+                            $carry[$key] = $value;
+
+                            return $carry;
+                        }
+                    )
+            );
     }
 
     /**
@@ -370,7 +430,7 @@ class InsertPersister implements PersisterInterface
             return $query;
         }
 
-        if ($this->variables->count() > 0) {
+        if ($this->variables->size() > 0) {
             $query = $query->with(...$this->variables->toPrimitive());
         }
 

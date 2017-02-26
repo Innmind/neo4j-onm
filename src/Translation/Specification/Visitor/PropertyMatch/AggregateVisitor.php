@@ -16,11 +16,10 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    StringPrimitive as Str,
+    Str,
     SequenceInterface,
     Sequence,
-    Map,
-    Collection
+    Map
 };
 
 class AggregateVisitor implements PropertyMatchVisitorInterface
@@ -68,7 +67,7 @@ class AggregateVisitor implements PropertyMatchVisitorInterface
             case $this->meta->properties()->contains($specification->property()):
                 return $this->buildPropertyMapping($specification);
 
-            case $property->match('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
+            case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyMapping($specification);
         }
     }
@@ -83,14 +82,15 @@ class AggregateVisitor implements PropertyMatchVisitorInterface
             ->put(
                 'entity',
                 new Sequence(
-                    new Collection([
-                        $prop => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $specification->value()
-                    ])
+                    (new Map('string', 'string'))
+                        ->put(
+                            $prop,
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $specification->value())
                 )
             );
     }
@@ -100,21 +100,24 @@ class AggregateVisitor implements PropertyMatchVisitorInterface
     ): MapInterface {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
-        $var = (new Str('entity_'))->append($pieces->pop()->join('_'));
+        $var = (new Str('entity_'))->append(
+            (string) $pieces->dropEnd(1)->join('_')
+        );
         $key = $var->append('_')->append((string) $pieces->last());
 
         return (new Map('string', SequenceInterface::class))
             ->put(
                 (string) $var,
                 new Sequence(
-                    new Collection([
-                        (string) $pieces->last() => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $specification->value()
-                    ])
+                    (new Map('string', 'string'))
+                        ->put(
+                            (string) $pieces->last(),
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $specification->value())
                 )
             );
     }
@@ -123,29 +126,21 @@ class AggregateVisitor implements PropertyMatchVisitorInterface
         MapInterface $left,
         MapInterface $right
     ): MapInterface {
-        $map = $left;
-        $right->foreach(function(
-            string $var,
-            SequenceInterface $data
-        ) use (
-            &$map,
-            $left
-        ) {
-            if (!$map->contains($var)) {
-                $map = $map->put($var, $data);
+        return $right->reduce(
+            $left,
+            function(MapInterface $carry, string $var, SequenceInterface $data) use ($left): MapInterface {
+                if (!$carry->contains($var)) {
+                    return $carry->put($var, $data);
+                }
 
-                return;
+                return $carry->put(
+                    $var,
+                    new Sequence(
+                        $data->first()->merge($left->get($var)->first()),
+                        $data->last()->merge($left->get($var)->last())
+                    )
+                );
             }
-
-            $map = $map->put(
-                $var,
-                new Sequence(
-                    $data->get(0)->merge($left->get($var)->get(0)),
-                    $data->get(1)->merge($left->get($var)->get(1))
-                )
-            );
-        });
-
-        return $map;
+        );
     }
 }

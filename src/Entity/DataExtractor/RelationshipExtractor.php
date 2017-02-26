@@ -10,25 +10,25 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException
 };
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy\ExtractionStrategiesInterface
+    ExtractionStrategyInterface
 };
 
 class RelationshipExtractor implements DataExtractorInterface
 {
-    private $extractionStrategies;
+    private $extractionStrategy;
 
-    public function __construct(ExtractionStrategiesInterface $extractionStrategies = null)
+    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
     {
-        $this->extractionStrategies = $extractionStrategies;
+        $this->extractionStrategy = $extractionStrategy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, EntityInterface $meta): CollectionInterface
+    public function extract($entity, EntityInterface $meta): MapInterface
     {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -38,7 +38,7 @@ class RelationshipExtractor implements DataExtractorInterface
             $entity,
             null,
             null,
-            $this->extractionStrategies
+            $this->extractionStrategy
         );
         $data = $refl->extract([
             $id = $meta->identity()->property(),
@@ -46,40 +46,33 @@ class RelationshipExtractor implements DataExtractorInterface
             $end = $meta->endNode()->property(),
         ]);
         $data = $data
-            ->set(
+            ->put(
                 $id,
                 $data->get($id)->value()
             )
-            ->set(
+            ->put(
                 $start,
                 $data->get($start)->value()
             )
-            ->set(
+            ->put(
                 $end,
                 $data->get($end)->value()
             );
 
-        $meta
+        return $meta
             ->properties()
-            ->foreach(function(
-                string $name,
-                Property $property
-            ) use (
-                &$data,
-                $refl
-            ) {
-                $data = $data->set(
-                    $name,
-                    $property
-                        ->type()
-                        ->forDatabase(
-                            $refl
-                                ->extract([$name])
-                                ->get($name)
-                        )
-                );
-            });
-
-        return $data;
+            ->reduce(
+                $data,
+                function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
+                    return $carry->put(
+                        $name,
+                        $property
+                            ->type()
+                            ->forDatabase(
+                                $refl->extract([$name])->get($name)
+                            )
+                    );
+                }
+            );
     }
 }

@@ -16,8 +16,10 @@ use Innmind\Neo4j\DBAL\{
     Result\RowInterface
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map,
+    SetInterface,
+    Set
 };
 
 class RelationshipTranslator implements EntityTranslatorInterface
@@ -29,54 +31,53 @@ class RelationshipTranslator implements EntityTranslatorInterface
         string $variable,
         EntityInterface $meta,
         ResultInterface $result
-    ): CollectionInterface {
+    ): SetInterface {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 
-        $rows = $result
+        return $result
             ->rows()
             ->filter(function(RowInterface $row) use ($variable) {
                 return $row->column() === $variable;
-            });
-        $data = new Collection([]);
-
-        foreach ($rows as $relationship) {
-            $data = $data->push(
-                $this->translateRelationship(
-                    $relationship->value()[$meta->identity()->property()],
-                    $meta,
-                    $result
-                )
+            })
+            ->reduce(
+                new Set(MapInterface::class),
+                function(Set $carry, RowInterface $row) use ($meta, $result): Set {
+                    return $carry->add(
+                        $this->translateRelationship(
+                            $row->value()[$meta->identity()->property()],
+                            $meta,
+                            $result
+                        )
+                    );
+                }
             );
-        }
-
-        return $data;
     }
 
     private function translateRelationship(
         $identity,
         EntityInterface $meta,
         ResultInterface $result
-    ): CollectionInterface {
+    ): MapInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(RelationshipInterface $relationship) use ($identity, $meta) {
+            ->filter(function(int $id, RelationshipInterface $relationship) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 
-                return $properties->hasKey($id) &&
+                return $properties->contains($id) &&
                     $properties->get($id) === $identity;
             })
-            ->first();
-        $data = (new Collection([]))
-            ->set(
+            ->current();
+        $data = (new Map('string', 'mixed'))
+            ->put(
                 $meta->identity()->property(),
                 $relationship->properties()->get(
                     $meta->identity()->property()
                 )
             )
-            ->set(
+            ->put(
                 $meta->startNode()->property(),
                 $result
                     ->nodes()
@@ -84,7 +85,7 @@ class RelationshipTranslator implements EntityTranslatorInterface
                     ->properties()
                     ->get($meta->startNode()->target())
             )
-            ->set(
+            ->put(
                 $meta->endNode()->property(),
                 $result
                     ->nodes()
@@ -93,28 +94,26 @@ class RelationshipTranslator implements EntityTranslatorInterface
                     ->get($meta->endNode()->target())
             );
 
-        $meta
+        return $meta
             ->properties()
-            ->foreach(function(
-                string $name,
-                Property $property
-            ) use (
-                &$data,
-                $relationship
-            ) {
+            ->filter(function(string $name, Property $property) use ($relationship): bool {
                 if (
                     $property->type()->isNullable() &&
-                    !$relationship->properties()->hasKey($name)
+                    !$relationship->properties()->contains($name)
                 ) {
-                    return;
+                    return false;
                 }
 
-                $data = $data->set(
-                    $name,
-                    $relationship->properties()->get($name)
-                );
-            });
-
-        return $data;
+                return true;
+            })
+            ->reduce(
+                $data,
+                function(Map $carry, string $name, Property $property) use ($relationship): Map {
+                    return $carry->put(
+                        $name,
+                        $relationship->properties()->get($name)
+                    );
+                }
+            );
     }
 }

@@ -15,8 +15,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     Map,
-    MapInterface,
-    CollectionInterface
+    MapInterface
 };
 
 class Types
@@ -59,7 +58,7 @@ class Types
             ));
         }
 
-        call_user_func([$type, 'identifiers'])
+        [$type, 'identifiers']()
             ->foreach(function(string $identifier) use ($type) {
                 $this->types = $this->types->put(
                     $identifier,
@@ -84,17 +83,12 @@ class Types
      * Build a new type instance of the wished type
      *
      * @param string $type
-     * @param CollectionInterface $config
+     * @param MapInterface<string, mixed> $config
      *
      * @return TypeInterface
      */
-    public function build(string $type, CollectionInterface $config): TypeInterface
+    public function build(string $type, MapInterface $config): TypeInterface
     {
-        $config = $config->set('_types', $this);
-
-        return call_user_func(
-            [$this->types->get($type), 'fromConfig'],
-            $config
-        );
+        return [$this->types->get($type), 'fromConfig']($config, $this);
     }
 }

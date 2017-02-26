@@ -68,8 +68,15 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
                     'entity',
                     Relationship::RIGHT
                 )
-                ->where($condition->get(0))
-                ->withParameters($condition->get(1)->toPrimitive());
+                ->where($condition->first());
+            $query = $condition
+                ->last()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $name, $value): Query {
+                        return $carry->withParameter($name, $value);
+                    }
+                );
         }
 
         return new IdentityMatch(
@@ -85,12 +92,23 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
         MapInterface $mapping
     ): Query {
         if ($mapping->contains($name)) {
-            $query = $query
-                ->withProperties(
-                    $mapping->get($name)->get(0)->toPrimitive()
-                )
-                ->withParameters(
-                    $mapping->get($name)->get(1)->toPrimitive()
+            $query = $mapping
+                ->get($name)
+                ->first()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $property, string $cypher): Query {
+                        return $carry->withProperty($property, $cypher);
+                    }
+                );
+            $query = $mapping
+                ->get($name)
+                ->last()
+                ->reduce(
+                    $query,
+                    function(Query $carry, string $key, $value): Query {
+                        return $carry->withParameter($key, $value);
+                    }
                 );
         }
 

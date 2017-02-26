@@ -24,6 +24,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Metadatas,
+    Types,
     Event\EntityAboutToBePersisted,
     Event\EntityPersisted
 };
@@ -33,7 +34,7 @@ use Innmind\Neo4j\DBAL\{
     Query\Parameter
 };
 use Innmind\EventBus\EventBusInterface;
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class InsertPersisterTest extends TestCase
@@ -75,7 +76,9 @@ class InsertPersisterTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
                     ->withChild(
@@ -92,7 +95,9 @@ class InsertPersisterTest extends TestCase
                                 ->withProperty(
                                     'empty',
                                     StringType::fromConfig(
-                                        new Collection(['nullable' => null])
+                                        (new Map('string', 'mixed'))
+                                            ->put('nullable', null),
+                                        new Types
                                     )
                                 )
                         ))
@@ -100,7 +105,9 @@ class InsertPersisterTest extends TestCase
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
                     )
@@ -120,7 +127,9 @@ class InsertPersisterTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -171,10 +180,10 @@ class InsertPersisterTest extends TestCase
                     'CREATE (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_props}.uuid, created: {e38c6cbd28bf165070d070980dd1fb595_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_props}.empty }), (e38c6cbd28bf165070d070980dd1fb595)<-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO { created: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.empty }]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel { content: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.content, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.empty }) WITH e38c6cbd28bf165070d070980dd1fb595 MATCH (e3c0eb72d56d7c664157fe196fa61f653 { uuid: {e3c0eb72d56d7c664157fe196fa61f653_props}.uuid }) WITH e38c6cbd28bf165070d070980dd1fb595, e3c0eb72d56d7c664157fe196fa61f653 MATCH (e4519d9310a314e2fce041e833b6553a9 { uuid: {e4519d9310a314e2fce041e833b6553a9_props}.uuid }) CREATE (e3c0eb72d56d7c664157fe196fa61f653)-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_props}.uuid, created: {e50ead852f3361489a400ab5c70f6c5cf_props}.created, empty: {e50ead852f3361489a400ab5c70f6c5cf_props}.empty }]->(e4519d9310a314e2fce041e833b6553a9)',
                     $query->cypher()
                 );
-                $this->assertSame(6, $query->parameters()->count());
+                $this->assertCount(6, $query->parameters());
                 $query
                     ->parameters()
-                    ->each(function(int $idx, Parameter $value) {
+                    ->foreach(function(string $key, Parameter $value) {
                         $keys = [
                             'e38c6cbd28bf165070d070980dd1fb595_props' => [
                                 'created' => '2016-01-01T00:00:00+0000',
@@ -202,9 +211,9 @@ class InsertPersisterTest extends TestCase
                             ],
                         ];
 
-                        $this->assertTrue(isset($keys[$value->key()]));
+                        $this->assertTrue(isset($keys[$key]));
                         $this->assertSame(
-                            $keys[$value->key()],
+                            $keys[$key],
                             $value->value()
                         );
                     });
@@ -241,7 +250,7 @@ class InsertPersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertSame(null, $p->persist($conn, $container));
+        $this->assertNull($p->persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_MANAGED,

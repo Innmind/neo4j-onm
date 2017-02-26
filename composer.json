@@ -15,14 +15,14 @@
         "issues": "http://github.com/Innmind/neo4j-onm/issues"
     },
     "require": {
-        "php": ">=7.0",
-        "innmind/neo4j-dbal": "~2.0",
-        "innmind/immutable": "~1.5",
+        "php": "~7.1",
+        "innmind/neo4j-dbal": "~3.0",
+        "innmind/immutable": "~2.0",
         "symfony/config": "~3.0",
         "ramsey/uuid": "^3.2",
-        "innmind/reflection": "^1.1",
+        "innmind/reflection": "~2.0",
         "innmind/specification": "^1.0",
-        "innmind/event-bus": "~1.0"
+        "innmind/event-bus": "~2.0"
     },
     "autoload": {
         "psr-4": {

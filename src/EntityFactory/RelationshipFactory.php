@@ -12,27 +12,27 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     Exception\InvalidArgumentException
 };
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionClass,
     InstanciatorInterface,
-    InjectionStrategy\InjectionStrategiesInterface
+    InjectionStrategyInterface
 };
 
 class RelationshipFactory implements EntityFactoryInterface
 {
     private $generators;
     private $instanciator;
-    private $injectionStrategies;
+    private $injectionStrategy;
 
     public function __construct(
         Generators $generators,
         InstanciatorInterface $instanciator = null,
-        InjectionStrategiesInterface $injectionStrategies = null
+        InjectionStrategyInterface $injectionStrategy = null
     ) {
         $this->generators = $generators;
         $this->instanciator = $instanciator;
-        $this->injectionStrategies = $injectionStrategies;
+        $this->injectionStrategy = $injectionStrategy;
     }
 
     /**
@@ -41,7 +41,7 @@ class RelationshipFactory implements EntityFactoryInterface
     public function make(
         IdentityInterface $identity,
         EntityInterface $meta,
-        CollectionInterface $data
+        MapInterface $data
     ) {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -50,7 +50,7 @@ class RelationshipFactory implements EntityFactoryInterface
         $reflection = (new ReflectionClass(
             (string) $meta->class(),
             null,
-            $this->injectionStrategies,
+            $this->injectionStrategy,
             $this->instanciator
         ))
             ->withProperty(
@@ -76,30 +76,29 @@ class RelationshipFactory implements EntityFactoryInterface
                     )
             );
 
-        $meta
+        return $meta
             ->properties()
-            ->foreach(function(
-                string $name,
-                Property $property
-            ) use (
-                &$reflection,
-                $data
-            ) {
+            ->filter(function(string $name, Property $property) use ($data): bool {
                 if (
                     $property->type()->isNullable() &&
-                    !$data->hasKey($name)
+                    !$data->contains($name)
                 ) {
-                    return;
+                    return false;
                 }
 
-                $reflection = $reflection->withProperty(
-                    $name,
-                    $property->type()->fromDatabase(
-                        $data->get($name)
-                    )
-                );
-            });
-
-        return $reflection->buildObject();
+                return true;
+            })
+            ->reduce(
+                $reflection,
+                function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
+                    return $carry->withProperty(
+                        $name,
+                        $property->type()->fromDatabase(
+                            $data->get($name)
+                        )
+                    );
+                }
+            )
+            ->build();
     }
 }

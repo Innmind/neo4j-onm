@@ -18,24 +18,24 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\RelationshipEdge,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
-    Collection,
+    Map,
     MapInterface,
-    SequenceInterface,
-    CollectionInterface
+    SequenceInterface
 };
 use PHPUnit\Framework\TestCase;
 
 class RelationshipVisitorTest extends TestCase
 {
-    private $v;
+    private $visitor;
 
     public function setUp()
     {
-        $this->v = new RelationshipVisitor(
+        $this->visitor = new RelationshipVisitor(
             (new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
@@ -50,7 +50,9 @@ class RelationshipVisitorTest extends TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 )
         );
@@ -58,12 +60,12 @@ class RelationshipVisitorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->v);
+        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->visitor);
     }
 
     public function testVisit()
     {
-        $mapping = $this->v->visit(
+        $mapping = $this->visitor->visit(
             (new Property('created', '=', null))
                 ->and(new Property('empty', '=', null))
                 ->and(new Property('start', '=', 'foo'))
@@ -80,71 +82,57 @@ class RelationshipVisitorTest extends TestCase
             ['entity', 'start', 'end'],
             $mapping->keys()->toPrimitive()
         );
-        $this->assertSame(2, $mapping->get('entity')->size());
+        $this->assertCount(2, $mapping->get('entity'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(0)
+            MapInterface::class,
+            $mapping->get('entity')->first()
         );
+        $this->assertSame('string', (string) $mapping->get('entity')->first()->keyType());
+        $this->assertSame('string', (string) $mapping->get('entity')->first()->valueType());
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(1)
+            MapInterface::class,
+            $mapping->get('entity')->last()
         );
-        $this->assertSame(
-            [
-                'empty' => '{entity_empty}',
-                'created' => '{entity_created}',
-            ],
-            $mapping->get('entity')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'entity_empty' => null,
-                'entity_created' => null,
-            ],
-            $mapping->get('entity')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('start')->size());
+        $this->assertSame('string', (string) $mapping->get('start')->last()->keyType());
+        $this->assertSame('mixed', (string) $mapping->get('start')->last()->valueType());
+        $this->assertSame('{entity_empty}', $mapping->get('entity')->first()->get('empty'));
+        $this->assertSame('{entity_created}', $mapping->get('entity')->first()->get('created'));
+        $this->assertNull($mapping->get('entity')->last()->get('entity_empty'));
+        $this->assertNull($mapping->get('entity')->last()->get('entity_created'));
+        $this->assertCount(2, $mapping->get('start'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('start')->get(0)
+            MapInterface::class,
+            $mapping->get('start')->first()
         );
+        $this->assertSame('string', (string) $mapping->get('start')->first()->keyType());
+        $this->assertSame('string', (string) $mapping->get('start')->first()->valueType());
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('start')->get(1)
+            MapInterface::class,
+            $mapping->get('start')->last()
         );
-        $this->assertSame(
-            [
-                'id' => '{start_id}',
-            ],
-            $mapping->get('start')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'start_id' => 'foo',
-            ],
-            $mapping->get('start')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('end')->size());
+        $this->assertSame('string', (string) $mapping->get('start')->last()->keyType());
+        $this->assertSame('mixed', (string) $mapping->get('start')->last()->valueType());
+        $this->assertCount(1, $mapping->get('start')->first());
+        $this->assertSame('{start_id}', $mapping->get('start')->first()->get('id'));
+        $this->assertCount(1, $mapping->get('start')->last());
+        $this->assertSame('foo', $mapping->get('start')->last()->get('start_id'));
+        $this->assertCount(2, $mapping->get('end'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('end')->get(0)
+            MapInterface::class,
+            $mapping->get('end')->first()
         );
+        $this->assertSame('string', (string) $mapping->get('end')->first()->keyType());
+        $this->assertSame('string', (string) $mapping->get('end')->first()->valueType());
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('end')->get(1)
+            MapInterface::class,
+            $mapping->get('end')->last()
         );
-        $this->assertSame(
-            [
-                'id' => '{end_id}',
-            ],
-            $mapping->get('end')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'end_id' => 'bar',
-            ],
-            $mapping->get('end')->get(1)->toPrimitive()
-        );
+        $this->assertSame('string', (string) $mapping->get('end')->last()->keyType());
+        $this->assertSame('mixed', (string) $mapping->get('end')->last()->valueType());
+        $this->assertCount(1, $mapping->get('end')->first());
+        $this->assertSame('{end_id}', $mapping->get('end')->first()->get('id'));
+        $this->assertCount(1, $mapping->get('end')->last());
+        $this->assertSame('bar', $mapping->get('end')->last()->get('end_id'));
     }
 
     /**
@@ -152,7 +140,7 @@ class RelationshipVisitorTest extends TestCase
      */
     public function testThrowWhenNotDirectComparison()
     {
-        $this->v->visit(new Property('created', '~=', 'foo'));
+        $this->visitor->visit(new Property('created', '~=', 'foo'));
     }
 
     /**
@@ -160,7 +148,7 @@ class RelationshipVisitorTest extends TestCase
      */
     public function testThrowWhenOrOperator()
     {
-        $this->v->visit(
+        $this->visitor->visit(
             (new Property('created', '=', 'foo'))
                 ->or(new Property('empty', '=', 'foo'))
         );
@@ -171,7 +159,7 @@ class RelationshipVisitorTest extends TestCase
      */
     public function testThrowWhenNegatedSpecification()
     {
-        $this->v->visit(
+        $this->visitor->visit(
             (new Property('created', '=', 'foo'))->not()
         );
     }

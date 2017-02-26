@@ -19,10 +19,10 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Innmind\Immutable\{
-    Collection,
     MapInterface,
     Map
 };
@@ -32,7 +32,7 @@ class MatchTranslatorTest extends TestCase
 {
     public function testTranslateAggregate()
     {
-        $t = new MatchTranslator;
+        $translator = new MatchTranslator;
         $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -46,7 +46,9 @@ class MatchTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -63,7 +65,9 @@ class MatchTranslatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -71,18 +75,20 @@ class MatchTranslatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
-        $im = $t->translate($meta);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
             'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $im->query()->cypher()
         );
-        $this->assertSame(0, $im->query()->parameters()->count());
+        $this->assertCount(0, $im->query()->parameters());
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
             'string',
@@ -92,13 +98,13 @@ class MatchTranslatorTest extends TestCase
             EntityInterface::class,
             (string) $im->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
+        $this->assertCount(1, $im->variables());
         $this->assertSame($meta, $im->variables()->get('entity'));
     }
 
     public function testTranslateRelationship()
     {
-        $t = new MatchTranslator;
+        $translator = new MatchTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -114,17 +120,19 @@ class MatchTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
-        $im = $t->translate($meta);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
             'MATCH (start)-[entity:type]->(end) RETURN start, end, entity',
             $im->query()->cypher()
         );
-        $this->assertSame(0, $im->query()->parameters()->count());
+        $this->assertCount(0, $im->query()->parameters());
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
             'string',
@@ -134,7 +142,7 @@ class MatchTranslatorTest extends TestCase
             EntityInterface::class,
             (string) $im->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
+        $this->assertCount(1, $im->variables());
         $this->assertSame($meta, $im->variables()->get('entity'));
     }
 

@@ -5,6 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
     Translation\Result\AggregateTranslator,
+    Translation\EntityTranslatorInterface,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -16,27 +17,29 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\EntityInterface,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Innmind\Neo4j\DBAL\{
     Result,
     ResultInterface
 };
 use Innmind\Immutable\{
-    Collection,
-    CollectionInterface
+    MapInterface,
+    SetInterface,
+    Map
 };
 use PHPUnit\Framework\TestCase;
 
 class AggregateTranslatorTest extends TestCase
 {
-    private $t;
-    private $m;
+    private $translator;
+    private $meta;
 
     public function setUp()
     {
-        $this->t = new AggregateTranslator;
-        $this->m = new Aggregate(
+        $this->translator = new AggregateTranslator;
+        $this->meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
@@ -44,12 +47,14 @@ class AggregateTranslatorTest extends TestCase
             new Alias('foo'),
             ['Label']
         );
-        $this->m = $this->m
+        $this->meta = $this->meta
             ->withProperty('created', new DateType)
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -66,7 +71,9 @@ class AggregateTranslatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -74,7 +81,9 @@ class AggregateTranslatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             )
@@ -92,7 +101,9 @@ class AggregateTranslatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -100,17 +111,27 @@ class AggregateTranslatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
     }
 
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            EntityTranslatorInterface::class,
+            $this->translator
+        );
+    }
+
     public function testTranslate()
     {
-        $data = $this->t->translate(
+        $data = $this->translator->translate(
             'n',
-            $this->m,
+            $this->meta,
             Result::fromRaw([
                 'columns' => ['n'],
                 'data' => [[
@@ -175,16 +196,22 @@ class AggregateTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
-        $data = $data->get(0);
-        $this->assertSame(4, $data->count());
+        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertSame(MapInterface::class, (string) $data->type());
+        $this->assertCount(1, $data);
+        $data = $data->current();
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
+        $this->assertCount(4, $data);
         $this->assertSame(
             ['id', 'created', 'rel', 'rel2'],
             $data->keys()->toPrimitive()
         );
         $this->assertSame(42, $data->get('id'));
         $this->assertSame('2016-01-01T00:00:00+0200', $data->get('created'));
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertSame('string', (string) $data->get('rel')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'child'],
             $data->get('rel')->keys()->toPrimitive()
@@ -194,8 +221,16 @@ class AggregateTranslatorTest extends TestCase
             $data->get('rel')->get('created')
         );
         $this->assertInstanceOf(
-            CollectionInterface::class,
+            MapInterface::class,
             $data->get('rel')->get('child')
+        );
+        $this->assertSame(
+            'string',
+            (string) $data->get('rel')->get('child')->keyType()
+        );
+        $this->assertSame(
+            'mixed',
+            (string) $data->get('rel')->get('child')->valueType()
         );
         $this->assertSame(
             ['content'],
@@ -205,8 +240,10 @@ class AggregateTranslatorTest extends TestCase
             'foo',
             $data->get('rel')->get('child')->get('content')
         );
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('rel2'));
-        $this->assertSame(2, $data->get('rel2')->count());
+        $this->assertInstanceOf(MapInterface::class, $data->get('rel2'));
+        $this->assertSame('string', (string) $data->get('rel2')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel2')->valueType());
+        $this->assertCount(2, $data->get('rel2'));
         $this->assertSame(
             ['created', 'child'],
             $data->get('rel2')->keys()->toPrimitive()
@@ -216,8 +253,16 @@ class AggregateTranslatorTest extends TestCase
             $data->get('rel2')->get('created')
         );
         $this->assertInstanceOf(
-            CollectionInterface::class,
+            MapInterface::class,
             $data->get('rel2')->get('child')
+        );
+        $this->assertSame(
+            'string',
+            (string) $data->get('rel2')->get('child')->keyType()
+        );
+        $this->assertSame(
+            'mixed',
+            (string) $data->get('rel2')->get('child')->valueType()
         );
         $this->assertSame(
             ['content'],
@@ -231,7 +276,7 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslateMultipleNodes()
     {
-        $m = new Aggregate(
+        $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
@@ -239,18 +284,20 @@ class AggregateTranslatorTest extends TestCase
             new Alias('foo'),
             ['Label']
         );
-        $m = $m
+        $meta = $meta
             ->withProperty('created', new DateType)
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
 
-        $data = $this->t->translate(
+        $data = $this->translator->translate(
             'n',
-            $m,
+            $meta,
             Result::fromRaw([
                 'columns' => ['n'],
                 'data' => [
@@ -312,20 +359,21 @@ class AggregateTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
-        $this->assertSame(2, $data->count());
+        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertCount(2, $data);
         $this->assertSame(
             ['id', 'created'],
-            $data->get(0)->keys()->toPrimitive()
+            $data->current()->keys()->toPrimitive()
         );
-        $this->assertSame(42, $data->get(0)->get('id'));
-        $this->assertSame('2016-01-01T00:00:00+0200', $data->get(0)->get('created'));
+        $this->assertSame(42, $data->current()->get('id'));
+        $this->assertSame('2016-01-01T00:00:00+0200', $data->current()->get('created'));
+        $data->next();
         $this->assertSame(
             ['id', 'created'],
-            $data->get(1)->keys()->toPrimitive()
+            $data->current()->keys()->toPrimitive()
         );
-        $this->assertSame(43, $data->get(1)->get('id'));
-        $this->assertSame('2016-01-02T00:00:00+0200', $data->get(1)->get('created'));
+        $this->assertSame(43, $data->current()->get('id'));
+        $this->assertSame('2016-01-02T00:00:00+0200', $data->current()->get('created'));
     }
 
     /**
@@ -334,9 +382,9 @@ class AggregateTranslatorTest extends TestCase
      */
     public function testThrowWhenMoreThanOneRelationshipFound()
     {
-        $this->t->translate(
+        $this->translator->translate(
             'n',
-            $this->m,
+            $this->meta,
             Result::fromRaw([
                 'columns' => ['n'],
                 'data' => [[

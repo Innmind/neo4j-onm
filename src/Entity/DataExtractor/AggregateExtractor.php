@@ -12,68 +12,68 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection,
-    MapInterface
+    MapInterface,
+    Map
 };
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy\ExtractionStrategiesInterface
+    ExtractionStrategyInterface
 };
 
 class AggregateExtractor implements DataExtractorInterface
 {
-    private $extractionStrategies;
+    private $extractionStrategy;
 
-    public function __construct(ExtractionStrategiesInterface $extractionStrategies = null)
+    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
     {
-        $this->extractionStrategies = $extractionStrategies;
+        $this->extractionStrategy = $extractionStrategy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, EntityInterface $meta): CollectionInterface
+    public function extract($entity, EntityInterface $meta): MapInterface
     {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
-        $data = $this->extractProperties($entity, $meta->properties());
-        $data = $data->set(
-            $id = $meta->identity()->property(),
-            $this
-                ->reflection($entity)
-                ->extract([$id])
-                ->get($id)
-                ->value()
-        );
+        $data = $this
+            ->extractProperties($entity, $meta->properties())
+            ->put(
+                $id = $meta->identity()->property(),
+                $this
+                    ->reflection($entity)
+                    ->extract([$id])
+                    ->get($id)
+                    ->value()
+            );
 
-        $meta
+        return $meta
             ->children()
-            ->foreach(function(
-                string $property,
-                ValueObject $child
-            ) use (
-                &$data,
-                $entity
-            ) {
-                $data = $data->set(
-                    $property,
-                    $this->extractRelationship(
-                        $child,
-                        $entity
-                    )
-                );
-            });
-
-        return $data;
+            ->reduce(
+                $data,
+                function(MapInterface $carry, string $property, ValueObject $child) use ($entity): MapInterface {
+                    return $carry->put(
+                        $property,
+                        $this->extractRelationship(
+                            $child,
+                            $entity
+                        )
+                    );
+                }
+            );
     }
 
+    /**
+     * @param object $entity
+     *
+     * @return MapInterface<string, mixed>
+     */
     private function extractRelationship(
         ValueObject $child,
         $entity
-    ): CollectionInterface {
+    ): MapInterface {
         $rel = $this
             ->reflection($entity)
             ->extract([
@@ -85,7 +85,7 @@ class AggregateExtractor implements DataExtractorInterface
                 $rel,
                 $child->relationship()->properties()
             )
-            ->set(
+            ->put(
                 $prop = $child->relationship()->childProperty(),
                 $this->extractProperties(
                     $this
@@ -99,40 +99,43 @@ class AggregateExtractor implements DataExtractorInterface
         return $data;
     }
 
+    /**
+     * @param object $object
+     * @param MapInterface<string, Property> $properties
+     *
+     * @return MapInterface<string, mixed>
+     */
     private function extractProperties(
         $object,
         MapInterface $properties
-    ): CollectionInterface {
+    ): MapInterface {
         $refl = $this->reflection($object);
-        $data = new Collection([]);
 
-        $properties->foreach(function(
-            string $name,
-            Property $property
-        ) use (
-            &$data,
-            $refl
-        ) {
-            $data = $data->set(
-                $name,
-                $property
-                    ->type()
-                    ->forDatabase(
-                        $refl->extract([$name])->get($name)
-                    )
-            );
-        });
-
-        return $data;
+        return $properties->reduce(
+            new Map('string', 'mixed'),
+            function(Map $carry, string $name, Property $property) use ($refl): Map {
+                return $carry->put(
+                    $name,
+                    $property
+                        ->type()
+                        ->forDatabase(
+                            $refl->extract([$name])->get($name)
+                        )
+                );
+            }
+        );
     }
 
+    /**
+     * @param object $object
+     */
     private function reflection($object): ReflectionObject
     {
         return new ReflectionObject(
             $object,
             null,
             null,
-            $this->extractionStrategies
+            $this->extractionStrategy
         );
     }
 }

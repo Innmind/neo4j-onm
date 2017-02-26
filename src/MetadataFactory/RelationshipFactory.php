@@ -19,8 +19,8 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map
 };
 
 class RelationshipFactory implements MetadataFactoryInterface
@@ -35,7 +35,7 @@ class RelationshipFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(CollectionInterface $config): EntityInterface
+    public function make(MapInterface $config): EntityInterface
     {
         $entity = new Relationship(
             new ClassName($config->get('class')),
@@ -44,15 +44,15 @@ class RelationshipFactory implements MetadataFactoryInterface
                 $config->get('identity')['type']
             ),
             new Repository(
-                $config->hasKey('repository') ?
+                $config->contains('repository') ?
                     $config->get('repository') : EntityRepository::class
             ),
             new Factory(
-                $config->hasKey('factory') ?
+                $config->contains('factory') ?
                     $config->get('factory') : EntityFactory::class
             ),
             new Alias(
-                $config->hasKey('alias') ?
+                $config->contains('alias') ?
                     $config->get('alias') : $config->get('class')
             ),
             new RelationshipType($config->get('rel_type')),
@@ -68,10 +68,10 @@ class RelationshipFactory implements MetadataFactoryInterface
             )
         );
 
-        if ($config->hasKey('properties')) {
+        if ($config->contains('properties')) {
             $entity = $this->appendProperties(
                 $entity,
-                new Collection($config->get('properties'))
+                $this->map($config->get('properties'))
             );
         }
 
@@ -80,18 +80,35 @@ class RelationshipFactory implements MetadataFactoryInterface
 
     private function appendProperties(
         Relationship $relationship,
-        CollectionInterface $properties
+        MapInterface $properties
     ): Relationship {
-        $properties->each(function(string $name, array $config) use (&$relationship) {
-            $relationship = $relationship->withProperty(
-                $name,
-                $this->types->build(
-                    $config['type'],
-                    new Collection($config)
-                )
-            );
-        });
+        return $properties->reduce(
+            $relationship,
+            function(Relationship $carry, string $name, array $config): Relationship {
+                $config = $this->map($config);
 
-        return $relationship;
+                return $carry->withProperty(
+                    $name,
+                    $this->types->build(
+                        $config->get('type'),
+                        $config
+                    )
+                );
+            }
+        );
+    }
+
+    /**
+     * @return MapInterface<string, mixed>
+     */
+    private function map(array $data): MapInterface
+    {
+        $map = new Map('string', 'mixed');
+
+        foreach ($data as $key => $value) {
+            $map = $map->put($key, $value);
+        }
+
+        return $map;
     }
 }

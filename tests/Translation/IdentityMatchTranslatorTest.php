@@ -20,10 +20,10 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     IdentityInterface,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Innmind\Immutable\{
-    Collection,
     MapInterface,
     Map
 };
@@ -33,7 +33,7 @@ class IdentityMatchTranslatorTest extends TestCase
 {
     public function testTranslateAggregate()
     {
-        $t = new IdentityMatchTranslator;
+        $translator = new IdentityMatchTranslator;
         $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -47,7 +47,9 @@ class IdentityMatchTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -64,7 +66,9 @@ class IdentityMatchTranslatorTest extends TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -72,7 +76,9 @@ class IdentityMatchTranslatorTest extends TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -80,21 +86,17 @@ class IdentityMatchTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $t->translate($meta, $identity);
+        $im = $translator->translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
             'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $im->query()->cypher()
         );
-        $this->assertSame(1, $im->query()->parameters()->count());
-        $this->assertSame(
-            'entity_identity',
-            $im->query()->parameters()->get(0)->key()
-        );
+        $this->assertCount(1, $im->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get(0)->value()
+            $im->query()->parameters()->get('entity_identity')->value()
         );
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
@@ -105,13 +107,13 @@ class IdentityMatchTranslatorTest extends TestCase
             EntityInterface::class,
             (string) $im->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
+        $this->assertCount(1, $im->variables());
         $this->assertSame($meta, $im->variables()->get('entity'));
     }
 
     public function testTranslateRelationship()
     {
-        $t = new IdentityMatchTranslator;
+        $translator = new IdentityMatchTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -127,28 +129,26 @@ class IdentityMatchTranslatorTest extends TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
         $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $t->translate($meta, $identity);
+        $im = $translator->translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
             'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
             $im->query()->cypher()
         );
-        $this->assertSame(1, $im->query()->parameters()->count());
-        $this->assertSame(
-            'entity_identity',
-            $im->query()->parameters()->get(0)->key()
-        );
+        $this->assertCount(1, $im->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get(0)->value()
+            $im->query()->parameters()->get('entity_identity')->value()
         );
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
@@ -159,7 +159,7 @@ class IdentityMatchTranslatorTest extends TestCase
             EntityInterface::class,
             (string) $im->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
+        $this->assertCount(1, $im->variables());
         $this->assertSame($meta, $im->variables()->get('entity'));
     }
 

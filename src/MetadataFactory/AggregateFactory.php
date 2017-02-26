@@ -20,8 +20,8 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map
 };
 
 class AggregateFactory implements MetadataFactoryInterface
@@ -36,7 +36,7 @@ class AggregateFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(CollectionInterface $config): EntityInterface
+    public function make(MapInterface $config): EntityInterface
     {
         $entity = new Aggregate(
             new ClassName($config->get('class')),
@@ -45,31 +45,35 @@ class AggregateFactory implements MetadataFactoryInterface
                 $config->get('identity')['type']
             ),
             new Repository(
-                $config->hasKey('repository') ?
+                $config->contains('repository') ?
                     $config->get('repository') : EntityRepository::class
             ),
             new Factory(
-                $config->hasKey('factory') ?
+                $config->contains('factory') ?
                     $config->get('factory') : EntityFactory::class
             ),
             new Alias(
-                $config->hasKey('alias') ?
+                $config->contains('alias') ?
                     $config->get('alias') : $config->get('class')
             ),
             $config->get('labels')
         );
 
-        if ($config->hasKey('properties')) {
+        if ($config->contains('properties')) {
             $entity = $this->appendProperties(
                 $entity,
-                new Collection($config->get('properties'))
+                $this->map(
+                    $config->get('properties')
+                )
             );
         }
 
-        if ($config->hasKey('children')) {
+        if ($config->contains('children')) {
             $entity = $this->appendChildren(
                 $entity,
-                new Collection($config->get('children'))
+                $this->map(
+                    $config->get('children')
+                )
             );
         }
 
@@ -78,60 +82,78 @@ class AggregateFactory implements MetadataFactoryInterface
 
     private function appendProperties(
         $object,
-        CollectionInterface $properties
+        MapInterface $properties
     ) {
-        $properties->each(function(string $name, array $config) use (&$object) {
-            $object = $object->withProperty(
-                $name,
-                $this->types->build(
-                    $config['type'],
-                    new Collection($config)
-                )
-            );
-        });
+        return $properties->reduce(
+            $object,
+            function($carry, string $name, array $config) {
+                $config = $this->map($config);
 
-        return $object;
+                return $carry->withProperty(
+                    $name,
+                    $this->types->build(
+                        $config->get('type'),
+                        $config
+                    )
+                );
+            }
+        );
     }
 
     private function appendChildren(
         Aggregate $entity,
-        CollectionInterface $children
+        MapInterface $children
     ): Aggregate {
-        $children->each(function(string $name, array $config) use (&$entity) {
-            $config = new Collection($config);
-            $rel = new ValueObjectRelationship(
-                new ClassName($config->get('class')),
-                new RelationshipType($config->get('type')),
-                $name,
-                $config->get('child')['property'],
-                $config->hasKey('collection') ?
-                    (bool) $config->get('collection') : false
-            );
-
-            if ($config->hasKey('properties')) {
-                $rel = $this->appendProperties(
-                    $rel,
-                    new Collection($config->get('properties'))
+        return $children->reduce(
+            $entity,
+            function(Aggregate $carry, string $name, array $config): Aggregate {
+                $config = $this->map($config);
+                $rel = new ValueObjectRelationship(
+                    new ClassName($config->get('class')),
+                    new RelationshipType($config->get('type')),
+                    $name,
+                    $config->get('child')['property'],
+                    $config->contains('collection') ?
+                        (bool) $config->get('collection') : false
                 );
-            }
 
-            $config = new Collection($config->get('child'));
-            $child = new ValueObject(
-                new ClassName($config->get('class')),
-                $config->get('labels'),
-                $rel
-            );
+                if ($config->contains('properties')) {
+                    $rel = $this->appendProperties(
+                        $rel,
+                        $this->map($config->get('properties'))
+                    );
+                }
 
-            if ($config->hasKey('properties')) {
-                $child = $this->appendProperties(
-                    $child,
-                    new Collection($config->get('properties'))
+                $config = $this->map($config->get('child'));
+                $child = new ValueObject(
+                    new ClassName($config->get('class')),
+                    $config->get('labels'),
+                    $rel
                 );
+
+                if ($config->contains('properties')) {
+                    $child = $this->appendProperties(
+                        $child,
+                        $this->map($config->get('properties'))
+                    );
+                }
+
+                return $carry->withChild($child);
             }
+        );
+    }
 
-            $entity = $entity->withChild($child);
-        });
+    /**
+     * @return MapInterface<string, mixed>
+     */
+    private function map(array $data): MapInterface
+    {
+        $map = new Map('string', 'mixed');
 
-        return $entity;
+        foreach ($data as $key => $value) {
+            $map = $map->put($key, $value);
+        }
+
+        return $map;
     }
 }
