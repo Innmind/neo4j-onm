@@ -43,7 +43,7 @@ use Innmind\Neo4j\DBAL\ConnectionFactory;
 use Innmind\EventBus\EventBusInterface;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
-    Translator\Response\Psr7translator,
+    Translator\Response\Psr7Translator,
     Factory\Header\Factories
 };
 use Innmind\Immutable\{
@@ -76,7 +76,7 @@ class RepositoryTest extends TestCase
             ->useTransport(
                 new GuzzleTransport(
                     new Client,
-                    new Psr7translator(Factories::default())
+                    new Psr7Translator(Factories::default())
                 )
             )
             ->build();
