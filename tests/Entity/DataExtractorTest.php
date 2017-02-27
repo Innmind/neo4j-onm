@@ -34,6 +34,7 @@ class DataExtractorTest extends TestCase
     private $extractor;
     private $arClass;
     private $rClass;
+    private $metadatas;
 
     public function setUp()
     {
@@ -53,8 +54,8 @@ class DataExtractorTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $metadatas = new Metadatas;
-        $metadatas
+        $this->metadatas = new Metadatas;
+        $this->metadatas
             ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
@@ -126,7 +127,7 @@ class DataExtractorTest extends TestCase
                         )
                     )
             );
-        $this->extractor = new DataExtractor($metadatas);
+        $this->extractor = new DataExtractor($this->metadatas);
     }
 
     public function testExtractAggregateRoot()
@@ -222,5 +223,16 @@ class DataExtractorTest extends TestCase
     public function testThrowWhenInvalidEntity()
     {
         $this->extractor->extract('');
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidExtractorMap()
+    {
+        new DataExtractor(
+            $this->metadatas,
+            new Map('string', 'callable')
+        );
     }
 }
