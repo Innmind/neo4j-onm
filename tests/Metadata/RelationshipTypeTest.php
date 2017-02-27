@@ -10,8 +10,16 @@ class RelationshipTypeTest extends TestCase
 {
     public function testInterface()
     {
-        $t = new RelationshipType('FOO');
+        $type = new RelationshipType('FOO');
 
-        $this->assertSame('FOO', (string) $t);
+        $this->assertSame('FOO', (string) $type);
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyType()
+    {
+        new RelationshipType('');
     }
 }
