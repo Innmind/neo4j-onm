@@ -10,27 +10,28 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship
 };
+use Innmind\Immutable\Map;
 use Symfony\Component\Yaml\Yaml;
 use PHPUnit\Framework\TestCase;
 
 class MetadataBuilderTest extends TestCase
 {
-    private $b;
+    private $builder;
 
     public function setUp()
     {
-        $this->b = new MetadataBuilder(new Types);
+        $this->builder = new MetadataBuilder(new Types);
     }
 
     public function testContainer()
     {
         $this->assertInstanceOf(
             Metadatas::class,
-            $this->b->container()
+            $this->builder->container()
         );
         $this->assertSame(
-            $this->b->container(),
-            $this->b->container()
+            $this->builder->container(),
+            $this->builder->container()
         );
     }
 
@@ -38,27 +39,27 @@ class MetadataBuilderTest extends TestCase
     {
         $conf = Yaml::parse(file_get_contents('fixtures/mapping.yml'));
 
-        $this->assertSame(0, $this->b->container()->all()->size());
+        $this->assertCount(0, $this->builder->container()->all());
         $this->assertSame(
-            $this->b,
-            $this->b->inject([$conf])
+            $this->builder,
+            $this->builder->inject([$conf])
         );
-        $this->assertSame(2, $this->b->container()->all()->size());
+        $this->assertCount(2, $this->builder->container()->all());
         $this->assertInstanceOf(
             Aggregate::class,
-            $this->b->container()->get('Image')
+            $this->builder->container()->get('Image')
         );
         $this->assertInstanceOf(
             Aggregate::class,
-            $this->b->container()->get('I')
+            $this->builder->container()->get('I')
         );
         $this->assertInstanceOf(
             Relationship::class,
-            $this->b->container()->get('SomeRelationship')
+            $this->builder->container()->get('SomeRelationship')
         );
         $this->assertInstanceOf(
             Relationship::class,
-            $this->b->container()->get('SR')
+            $this->builder->container()->get('SR')
         );
     }
 
@@ -68,6 +69,17 @@ class MetadataBuilderTest extends TestCase
      */
     public function testThrowWhenConfigurationFormatNotRespected()
     {
-        $this->b->inject([['foo' => []]]);
+        $this->builder->inject([['foo' => []]]);
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidFactoriesMap()
+    {
+        new MetadataBuilder(
+            new Types,
+            new Map('string', 'object')
+        );
     }
 }
