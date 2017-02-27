@@ -101,4 +101,12 @@ class AggregateFactoryTest extends TestCase
             $rel->properties()->get('created')->type()
         );
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidConfigMap()
+    {
+        $this->factory->make(new Map('string', 'variable'));
+    }
 }

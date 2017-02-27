@@ -15,24 +15,24 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipFactoryTest extends TestCase
 {
-    private $f;
+    private $factory;
 
     public function setUp()
     {
-        $this->f = new RelationshipFactory(new Types);
+        $this->factory = new RelationshipFactory(new Types);
     }
 
     public function testInterface()
     {
         $this->assertInstanceOf(
             MetadataFactoryInterface::class,
-            $this->f
+            $this->factory
         );
     }
 
     public function testMake()
     {
-        $ar = $this->f->make((new Map('string', 'mixed'))
+        $ar = $this->factory->make((new Map('string', 'mixed'))
             ->put('class', 'SomeRelationship')
             ->put('alias', 'SR')
             ->put('repository', 'SRRepository')
@@ -77,5 +77,13 @@ class RelationshipFactoryTest extends TestCase
             DateType::class,
             $ar->properties()->get('created')->type()
         );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidConfigMap()
+    {
+        $this->factory->make(new Map('string', 'variable'));
     }
 }
