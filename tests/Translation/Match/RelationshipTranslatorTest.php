@@ -28,13 +28,17 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipTranslatorTest extends TestCase
 {
-    public function testTranslate()
+    public function testInterface()
     {
-        $t = new RelationshipTranslator;
         $this->assertInstanceOf(
             MatchTranslatorInterface::class,
-            $t
+            new RelationshipTranslator
         );
+    }
+
+    public function testTranslate()
+    {
+        $translator = new RelationshipTranslator;
 
         $meta = new Relationship(
             new ClassName('foo'),
@@ -56,7 +60,7 @@ class RelationshipTranslatorTest extends TestCase
                     new Types
                 )
             );
-        $im = $t->translate($meta);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

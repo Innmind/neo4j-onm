@@ -30,13 +30,17 @@ use PHPUnit\Framework\TestCase;
 
 class AggregateTranslatorTest extends TestCase
 {
-    public function testTranslate()
+    public function testInterface()
     {
-        $t = new AggregateTranslator;
         $this->assertInstanceOf(
             IdentityMatchTranslatorInterface::class,
-            $t
+            new AggregateTranslator
         );
+    }
+
+    public function testTranslate()
+    {
+        $translator = new AggregateTranslator;
 
         $meta = new Aggregate(
             new ClassName('FQCN'),
@@ -90,7 +94,7 @@ class AggregateTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $t->translate($meta, $identity);
+        $im = $translator->translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

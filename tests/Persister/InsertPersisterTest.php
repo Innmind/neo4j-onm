@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
 
 class InsertPersisterTest extends TestCase
 {
-    private $m;
+    private $metadatas;
     private $arClass;
     private $rClass;
 
@@ -61,8 +61,8 @@ class InsertPersisterTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $this->m = new Metadatas;
-        $this->m
+        $this->metadatas = new Metadatas;
+        $this->metadatas
             ->register(
                 (new Aggregate(
                     new ClassName($this->arClass),
@@ -135,16 +135,27 @@ class InsertPersisterTest extends TestCase
             );
     }
 
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            PersisterInterface::class,
+            new InsertPersister(
+                new ChangesetComputer,
+                $this->createMock(EventBusInterface::class),
+                new DataExtractor($this->metadatas),
+                $this->metadatas
+            )
+        );
+    }
+
     public function testPersist()
     {
-        $p = new InsertPersister(
+        $persister = new InsertPersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
-            new DataExtractor($this->m),
-            $this->m
+            new DataExtractor($this->metadatas),
+            $this->metadatas
         );
-
-        $this->assertInstanceOf(PersisterInterface::class, $p);
 
         $container = new Container;
         $conn = $this->createMock(ConnectionInterface::class);
@@ -250,7 +261,7 @@ class InsertPersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertNull($p->persist($conn, $container));
+        $this->assertNull($persister->persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_MANAGED,

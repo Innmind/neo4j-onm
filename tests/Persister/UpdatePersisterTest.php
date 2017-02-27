@@ -138,6 +138,19 @@ class UpdatePersisterTest extends TestCase
             );
     }
 
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            PersisterInterface::class,
+            new UpdatePersister(
+                new ChangesetComputer,
+                $this->createMock(EventBusInterface::class),
+                new DataExtractor($this->metadatas),
+                $this->metadatas
+            )
+        );
+    }
+
     public function testPersist()
     {
         $persister = new UpdatePersister(
@@ -146,8 +159,6 @@ class UpdatePersisterTest extends TestCase
             $extractor = new DataExtractor($this->metadatas),
             $this->metadatas
         );
-
-        $this->assertInstanceOf(PersisterInterface::class, $persister);
 
         $container = new Container;
         $conn = $this->createMock(ConnectionInterface::class);
