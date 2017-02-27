@@ -32,7 +32,7 @@ final class RelationshipTranslator implements EntityTranslatorInterface
         EntityInterface $meta,
         ResultInterface $result
     ): SetInterface {
-        if (!$meta instanceof Relationship) {
+        if (empty($variable) || !$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 

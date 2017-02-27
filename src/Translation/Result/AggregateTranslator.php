@@ -35,7 +35,7 @@ final class AggregateTranslator implements EntityTranslatorInterface
         EntityInterface $meta,
         ResultInterface $result
     ): SetInterface {
-        if (!$meta instanceof Aggregate) {
+        if (empty($variable) || !$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

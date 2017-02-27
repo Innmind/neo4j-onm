@@ -464,9 +464,21 @@ class AggregateTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
-        (new AggregateTranslator)->translate(
+        $this->translator->translate(
             'r',
             $this->createMock(EntityInterface::class),
+            $this->createMock(ResultInterface::class)
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenTranslatingEmptyVariable()
+    {
+        $this->translator->translate(
+            '',
+            $this->meta,
             $this->createMock(ResultInterface::class)
         );
     }
