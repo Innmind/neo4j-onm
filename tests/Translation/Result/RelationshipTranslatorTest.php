@@ -5,6 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
     Translation\Result\RelationshipTranslator,
+    Translation\EntityTranslatorInterface,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -31,6 +32,14 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipTranslatorTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            EntityTranslatorInterface::class,
+            new RelationshipTranslator
+        );
+    }
+
     public function testTranslate()
     {
         $translator = new RelationshipTranslator;

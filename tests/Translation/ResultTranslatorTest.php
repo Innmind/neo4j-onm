@@ -339,4 +339,12 @@ class ResultTranslatorTest extends TestCase
 
         $this->assertCount(0, $data);
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyInvalidMap()
+    {
+        new ResultTranslator(new Map('string', 'callable'));
+    }
 }

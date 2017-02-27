@@ -5,6 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
+    Translation\Specification\ValidatorInterface,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -98,6 +99,14 @@ class ValidatorTest extends TestCase
                     new Types
                 )
             );
+    }
+
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            ValidatorInterface::class,
+            new Validator
+        );
     }
 
     public function testValidateAggregate()
