@@ -14,4 +14,12 @@ class AliasTest extends TestCase
 
         $this->assertSame('foo', (string) $a);
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyValue()
+    {
+        new Alias('');
+    }
 }
