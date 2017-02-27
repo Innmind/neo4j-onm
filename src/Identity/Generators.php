@@ -12,25 +12,12 @@ final class Generators
 {
     private $mapping;
 
-    public function __construct()
+    public function __construct(MapInterface $mapping = null)
     {
+        $mapping = $mapping ?? new Map('string', GeneratorInterface::class);
         $this->mapping = (new Map('string', GeneratorInterface::class))
-            ->put(Uuid::class, new Generator\UuidGenerator);
-    }
-
-    /**
-     * Reference the couple identity class / generator
-     *
-     * @param string $class
-     * @param GeneratorInterface $generator
-     *
-     * @return self
-     */
-    public function register(string $class, GeneratorInterface $generator): self
-    {
-        $this->mapping = $this->mapping->put($class, $generator);
-
-        return $this;
+            ->put(Uuid::class, new Generator\UuidGenerator)
+            ->merge($mapping);
     }
 
     /**
@@ -43,15 +30,5 @@ final class Generators
     public function get(string $class): GeneratorInterface
     {
         return $this->mapping->get($class);
-    }
-
-    /**
-     * Return the whole mapping
-     *
-     * @return MapInterface<string, GeneratorInterface>
-     */
-    public function all(): MapInterface
-    {
-        return $this->mapping;
     }
 }

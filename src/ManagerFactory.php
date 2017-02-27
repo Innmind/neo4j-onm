@@ -363,12 +363,15 @@ final class ManagerFactory
     private function generators(): Generators
     {
         if ($this->generators === null) {
-            $this->generators = new Generators;
-            $this
+            $generators = $this
                 ->additionalGenerators
-                ->foreach(function(string $class, GeneratorInterface $gen) {
-                    $this->generators->register($class, $gen);
-                });
+                ->reduce(
+                    new Map('string', GeneratorInterface::class),
+                    function(Map $carry, string $class, GeneratorInterface $gen): Map {
+                        return $carry->put($class, $gen);
+                    }
+                );
+            $this->generators = new Generators($generators);
         }
 
         return $this->generators;
