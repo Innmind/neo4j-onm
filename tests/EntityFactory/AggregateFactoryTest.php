@@ -19,7 +19,8 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     IdentityInterface,
-    Types
+    Types,
+    EntityFactoryInterface
 };
 use Innmind\Reflection\{
     InstanciatorInterface,
@@ -36,6 +37,14 @@ use PHPUnit\Framework\TestCase;
 
 class AggregateFactoryTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            EntityFactoryInterface::class,
+            new AggregateFactory
+        );
+    }
+
     /**
      * @dataProvider reflection
      */

@@ -21,7 +21,8 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generators,
     IdentityInterface,
-    Types
+    Types,
+    EntityFactoryInterface
 };
 use Innmind\Reflection\{
     InstanciatorInterface,
@@ -39,6 +40,14 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipFactoryTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            EntityFactoryInterface::class,
+            new RelationshipFactory(new Generators)
+        );
+    }
+
     /**
      * @dataProvider reflection
      */
