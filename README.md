@@ -173,7 +173,7 @@ Now that you know how to add/remove, let's learn how query our entities back fro
 $image = images->get(new Uuid($_GET['wished_image_id']));
 ```
 
-**Note**: the usage of `$_GET` here is only to be framework agnostic, but event if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](Identity/Uuid.php#L20)).
+**Note**: the usage of `$_GET` here is only to be framework agnostic, but even if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](Identity/Uuid.php#L20)).
 
 But accessing entities through their identifiers is not enough, that's why a repository as a method called `matching` which allows only a single parameter that has to be a [specification](https://github.com/Innmind/Specification).
 
