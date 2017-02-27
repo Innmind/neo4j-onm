@@ -41,4 +41,30 @@ class ValueObjectRelationshipTest extends TestCase
         $this->assertSame(1, $vor2->properties()->count());
         $this->assertTrue($vor2->properties()->contains('foo'));
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyProperty()
+    {
+        new ValueObjectRelationship(
+            new ClassName('foo'),
+            new RelationshipType('FOO'),
+            '',
+            'node'
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyChildProperty()
+    {
+        new ValueObjectRelationship(
+            new ClassName('foo'),
+            new RelationshipType('FOO'),
+            'relationship',
+            ''
+        );
+    }
 }

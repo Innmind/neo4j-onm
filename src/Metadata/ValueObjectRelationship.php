@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    TypeInterface,
+    Exception\InvalidArgumentException
+};
 use Innmind\Immutable\{
     Map,
     MapInterface
@@ -23,6 +26,10 @@ final class ValueObjectRelationship
         string $property,
         string $childProperty
     ) {
+        if (empty($property) || empty($childProperty)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->class = $class;
         $this->type = $type;
         $this->property = $property;
