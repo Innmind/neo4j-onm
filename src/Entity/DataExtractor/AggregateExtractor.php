@@ -34,7 +34,7 @@ final class AggregateExtractor implements DataExtractorInterface
      */
     public function extract($entity, EntityInterface $meta): MapInterface
     {
-        if (!$meta instanceof Aggregate) {
+        if (!is_object($entity) || !$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

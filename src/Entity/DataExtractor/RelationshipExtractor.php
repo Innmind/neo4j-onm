@@ -30,7 +30,7 @@ final class RelationshipExtractor implements DataExtractorInterface
      */
     public function extract($entity, EntityInterface $meta): MapInterface
     {
-        if (!$meta instanceof Relationship) {
+        if (!is_object($entity) || !$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 

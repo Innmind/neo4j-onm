@@ -47,6 +47,10 @@ final class DataExtractor
      */
     public function extract($entity): MapInterface
     {
+        if (!is_object($entity)) {
+            throw new InvalidArgumentException;
+        }
+
         $meta = $this->metadatas->get(get_class($entity));
 
         return $this

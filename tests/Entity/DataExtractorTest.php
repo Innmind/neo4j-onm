@@ -215,4 +215,12 @@ class DataExtractorTest extends TestCase
         $this->assertSame($s, $data->get('start'));
         $this->assertSame($e, $data->get('end'));
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidEntity()
+    {
+        $this->extractor->extract('');
+    }
 }
