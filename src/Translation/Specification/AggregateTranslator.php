@@ -127,17 +127,20 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
                             Relationship::LEFT
                         );
                 });
-            $condition = (new AggregateCypherVisitor($meta))(
-                $specification
-            );
-            $query = $query->where($condition->first());
-            $query = $condition
-                ->last()
-                ->reduce(
-                    $query,
-                    function(Query $carry, string $key, $value): Query {
-                        return $carry->withParameter($key, $value);
-                    }
+            $condition = (new AggregateCypherVisitor($meta))($specification);
+            $query = $query
+                ->where($condition->cypher())
+                ->withParameters(
+                    $condition
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
                 );
         }
 

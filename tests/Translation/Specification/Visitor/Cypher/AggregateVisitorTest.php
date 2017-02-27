@@ -20,11 +20,7 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\{
-    Map,
-    SequenceInterface,
-    MapInterface
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class AggregateVisitorTest extends TestCase
@@ -100,24 +96,18 @@ class AggregateVisitorTest extends TestCase
                 ->and((new Property('rel.child.empty', '=', 60))->not())
         );
 
-        $this->assertInstanceOf(SequenceInterface::class, $condition);
-        $this->assertCount(2, $condition);
         $this->assertSame(
             '(((((entity.created = {entity_created1} AND entity.empty = {entity_empty2}) OR entity_rel.created = {entity_rel_created3}) AND entity_rel.empty = {entity_rel_empty4}) AND entity_rel_child.content = {entity_rel_child_content5}) AND NOT (entity_rel_child.empty = {entity_rel_child_empty6}))',
-            $condition->first()
+            $condition->cypher()
         );
-        $this->assertInstanceOf(
-            MapInterface::class,
-            $condition->last()
-        );
-        $this->assertSame('string', (string) $condition->last()->keyType());
-        $this->assertSame('mixed', (string) $condition->last()->valueType());
-        $this->assertCount(6, $condition->last());
-        $this->assertSame(10, $condition->last()->get('entity_created1'));
-        $this->assertSame(20, $condition->last()->get('entity_empty2'));
-        $this->assertSame(30, $condition->last()->get('entity_rel_created3'));
-        $this->assertSame(40, $condition->last()->get('entity_rel_empty4'));
-        $this->assertSame(50, $condition->last()->get('entity_rel_child_content5'));
-        $this->assertSame(60, $condition->last()->get('entity_rel_child_empty6'));
+        $this->assertSame('string', (string) $condition->parameters()->keyType());
+        $this->assertSame('mixed', (string) $condition->parameters()->valueType());
+        $this->assertCount(6, $condition->parameters());
+        $this->assertSame(10, $condition->parameters()->get('entity_created1'));
+        $this->assertSame(20, $condition->parameters()->get('entity_empty2'));
+        $this->assertSame(30, $condition->parameters()->get('entity_rel_created3'));
+        $this->assertSame(40, $condition->parameters()->get('entity_rel_empty4'));
+        $this->assertSame(50, $condition->parameters()->get('entity_rel_child_content5'));
+        $this->assertSame(60, $condition->parameters()->get('entity_rel_child_empty6'));
     }
 }

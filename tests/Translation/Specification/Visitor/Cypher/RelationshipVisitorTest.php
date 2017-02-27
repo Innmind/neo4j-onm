@@ -71,21 +71,15 @@ class RelationshipVisitorTest extends TestCase
                 ->and((new Property('end', '=', 'bar'))->not())
         );
 
-        $this->assertInstanceOf(SequenceInterface::class, $condition);
-        $this->assertCount(2, $condition);
         $this->assertSame(
             '(((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4}))',
-            $condition->first()
+            $condition->cypher()
         );
-        $this->assertInstanceOf(
-            MapInterface::class,
-            $condition->last()
-        );
-        $this->assertSame('string', (string) $condition->last()->keyType());
-        $this->assertSame('mixed', (string) $condition->last()->valueType());
-        $this->assertSame(10, $condition->last()->get('entity_created1'));
-        $this->assertSame(20, $condition->last()->get('entity_empty2'));
-        $this->assertSame('foo', $condition->last()->get('start_id3'));
-        $this->assertSame('bar', $condition->last()->get('end_id4'));
+        $this->assertSame('string', (string) $condition->parameters()->keyType());
+        $this->assertSame('mixed', (string) $condition->parameters()->valueType());
+        $this->assertSame(10, $condition->parameters()->get('entity_created1'));
+        $this->assertSame(20, $condition->parameters()->get('entity_empty2'));
+        $this->assertSame('foo', $condition->parameters()->get('start_id3'));
+        $this->assertSame('bar', $condition->parameters()->get('end_id4'));
     }
 }

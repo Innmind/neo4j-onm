@@ -3,8 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor;
 
+use Innmind\Neo4j\ONM\Query\Where;
 use Innmind\Specification\SpecificationInterface;
-use Innmind\Immutable\SequenceInterface;
 
 interface CypherVisitorInterface
 {
@@ -13,7 +13,7 @@ interface CypherVisitorInterface
      *
      * @param SpecificationInterface $specification
      *
-     * @return SequenceInterface
+     * @return Where
      */
-    public function __invoke(SpecificationInterface $specification): SequenceInterface;
+    public function __invoke(SpecificationInterface $specification): Where;
 }

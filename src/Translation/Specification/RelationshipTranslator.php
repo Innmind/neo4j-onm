@@ -57,9 +57,7 @@ final class RelationshipTranslator implements SpecificationTranslatorInterface
                 $mapping
             );
         } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
-            $condition = (new RelationshipCypherVisitor($meta))(
-                $specification
-            );
+            $condition = (new RelationshipCypherVisitor($meta))($specification);
             $query = (new Query)
                 ->match('start')
                 ->linkedTo('end')
@@ -68,14 +66,18 @@ final class RelationshipTranslator implements SpecificationTranslatorInterface
                     'entity',
                     Relationship::RIGHT
                 )
-                ->where($condition->first());
-            $query = $condition
-                ->last()
-                ->reduce(
-                    $query,
-                    function(Query $carry, string $name, $value): Query {
-                        return $carry->withParameter($name, $value);
-                    }
+                ->where($condition->cypher())
+                ->withParameters(
+                    $condition
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
                 );
         }
 

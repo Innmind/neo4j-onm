@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     IdentityInterface,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Query\Where
 };
 use Innmind\Specification\{
     SpecificationInterface,
@@ -19,8 +20,6 @@ use Innmind\Specification\{
 use Innmind\Immutable\{
     MapInterface,
     Str,
-    SequenceInterface,
-    Sequence,
     Map,
     Collection
 };
@@ -38,10 +37,8 @@ final class RelationshipVisitor implements CypherVisitorInterface
     /**
      * {@inheritdo}
      */
-    public function __invoke(
-        SpecificationInterface $specification
-    ): SequenceInterface {
-
+    public function __invoke(SpecificationInterface $specification): Where
+    {
         switch (true) {
             case $specification instanceof ComparatorInterface:
                 ++$this->count; //used for parameters name, so a same property can be used multiple times
@@ -51,33 +48,17 @@ final class RelationshipVisitor implements CypherVisitorInterface
             case $specification instanceof CompositeInterface:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
+                $operator = strtolower((string) $specification->operator());
 
-                return new Sequence(
-                    sprintf(
-                        '(%s %s %s)',
-                        $left->first(),
-                        $specification->operator(),
-                        $right->first()
-                    ),
-                    $left->last()->merge($right->last())
-                );
+                return $left->{$operator}($right);
 
             case $specification instanceof NotInterface:
-                $condition = ($this)($specification->specification());
-
-                return new Sequence(
-                    sprintf(
-                        'NOT (%s)',
-                        $condition->first()
-                    ),
-                    $condition->last()
-                );
+                return ($this)($specification->specification())->not();
         }
     }
 
-    private function buildCondition(
-        ComparatorInterface $specification
-    ): SequenceInterface {
+    private function buildCondition(ComparatorInterface $specification): Where
+    {
         $property = $specification->property();
 
         switch (true) {
@@ -102,13 +83,13 @@ final class RelationshipVisitor implements CypherVisitorInterface
 
     private function buildPropertyCondition(
         ComparatorInterface $specification
-    ): SequenceInterface {
+    ): Where {
         $prop = $specification->property();
         $key = (new Str('entity_'))
             ->append($prop)
             ->append((string) $this->count);
 
-        return new Sequence(
+        return new Where(
             sprintf(
                 'entity.%s %s %s',
                 $prop,
@@ -124,7 +105,7 @@ final class RelationshipVisitor implements CypherVisitorInterface
         ComparatorInterface $specification,
         RelationshipEdge $edge,
         string $side
-    ): SequenceInterface {
+    ): Where {
         $key = (new Str($side))
             ->append('_')
             ->append($edge->target())
@@ -135,7 +116,7 @@ final class RelationshipVisitor implements CypherVisitorInterface
             $value = $value->value();
         }
 
-        return new Sequence(
+        return new Where(
             sprintf(
                 '%s.%s %s %s',
                 $side,
