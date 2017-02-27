@@ -10,11 +10,19 @@ class RelationshipEdgeTest extends TestCase
 {
     public function testInterface()
     {
-        $i = new RelationshipEdge('uuid', 'UUID', 'target');
+        $edge = new RelationshipEdge('uuid', 'UUID', 'target');
 
-        $this->assertSame('uuid', (string) $i);
-        $this->assertSame('uuid', $i->property());
-        $this->assertSame('UUID', $i->type());
-        $this->assertSame('target', $i->target());
+        $this->assertSame('uuid', (string) $edge);
+        $this->assertSame('uuid', $edge->property());
+        $this->assertSame('UUID', $edge->type());
+        $this->assertSame('target', $edge->target());
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyTarget()
+    {
+        new RelationshipEdge('uuid', 'UUID', '');
     }
 }
