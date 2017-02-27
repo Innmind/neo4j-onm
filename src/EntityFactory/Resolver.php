@@ -13,9 +13,13 @@ final class Resolver
 {
     private $mapping;
 
-    public function __construct()
+    public function __construct(EntityFactoryInterface ...$factories)
     {
         $this->mapping = new Map('string', EntityFactoryInterface::class);
+
+        foreach ($factories as $factory) {
+            $this->register($factory);
+        }
     }
 
     /**
@@ -25,7 +29,7 @@ final class Resolver
      *
      * @return self
      */
-    public function register(EntityFactoryInterface $factory): self
+    private function register(EntityFactoryInterface $factory): self
     {
         $this->mapping = $this->mapping->put(
             get_class($factory),

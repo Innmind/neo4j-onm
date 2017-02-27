@@ -382,15 +382,17 @@ final class ManagerFactory
     private function resolver(): Resolver
     {
         if ($this->resolver === null) {
-            $this->resolver = (new Resolver)
-                ->register(new RelationshipFactory(
-                    $this->generators()
-                ));
-            $this
+            $factories = $this
                 ->entityFactories
-                ->foreach(function(EntityFactoryInterface $factory) {
-                    $this->resolver->register($factory);
-                });
+                ->reduce(
+                    [new RelationshipFactory($this->generators())],
+                    function(array $carry, EntityFactoryInterface $factory): array {
+                        $carry[] = $factory;
+
+                        return $carry;
+                    }
+                );
+            $this->resolver = new Resolver(...$factories);
         }
 
         return $this->resolver;

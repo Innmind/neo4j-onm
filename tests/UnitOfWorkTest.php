@@ -84,8 +84,9 @@ class UnitOfWorkTest extends TestCase
         $this->entityFactory = new EntityFactory(
             new ResultTranslator,
             $this->generators = new Generators,
-            (new Resolver)
-                ->register(new RelationshipFactory($this->generators)),
+            new Resolver(
+                new RelationshipFactory($this->generators)
+            ),
             $this->container
         );
         $this->metadatas = new Metadatas;

@@ -44,8 +44,9 @@ class EntityFactoryTest extends TestCase
         $this->factory = new EntityFactory(
             new ResultTranslator,
             $generators = new Generators,
-            (new Resolver)
-                ->register(new RelationshipFactory($generators)),
+            new Resolver(
+                new RelationshipFactory($generators)
+            ),
             new Container
         );
     }

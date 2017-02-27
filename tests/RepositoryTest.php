@@ -84,8 +84,9 @@ class RepositoryTest extends TestCase
         $entityFactory = new EntityFactory(
             new ResultTranslator,
             $generators = new Generators,
-            (new Resolver)
-                ->register(new RelationshipFactory($generators)),
+            new Resolver(
+                new RelationshipFactory($generators)
+            ),
             $container
         );
         $metadatas = new Metadatas;
