@@ -47,7 +47,7 @@ use Innmind\Http\{
     Factory\Header\Factories
 };
 use Innmind\Immutable\{
-    Set,
+    Stream,
     SetInterface,
     Map
 };
@@ -117,7 +117,7 @@ class RepositoryTest extends TestCase
             new IdentityMatchTranslator,
             $metadatas,
             new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $changeset,

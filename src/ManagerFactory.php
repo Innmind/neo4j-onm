@@ -24,6 +24,7 @@ use Innmind\Neo4j\DBAL\ConnectionInterface;
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Set,
+    Stream,
     MapInterface,
     Map
 };
@@ -445,7 +446,7 @@ final class ManagerFactory
     {
         if ($this->persister === null) {
             $this->persister = new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $this->changeset(),

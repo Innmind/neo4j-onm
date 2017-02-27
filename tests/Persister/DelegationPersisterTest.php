@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
     Entity\Container
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
 class DelegationPersisterTest extends TestCase
@@ -17,7 +17,7 @@ class DelegationPersisterTest extends TestCase
     public function testInterface()
     {
         $p = new DelegationPersister(
-            new Set(PersisterInterface::class)
+            new Stream(PersisterInterface::class)
         );
         $this->assertInstanceOf(PersisterInterface::class, $p);
     }
@@ -25,7 +25,7 @@ class DelegationPersisterTest extends TestCase
     public function testPersist()
     {
         $p = new DelegationPersister(
-            (new Set(PersisterInterface::class))
+            (new Stream(PersisterInterface::class))
                 ->add(
                     $m1 = $this->createMock(PersisterInterface::class)
                 )

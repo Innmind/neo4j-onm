@@ -44,7 +44,7 @@ use Innmind\Http\{
     Factory\Header\Factories
 };
 use Innmind\Immutable\{
-    Set,
+    Stream,
     SetInterface,
     Map
 };
@@ -114,7 +114,7 @@ class UnitOfWorkTest extends TestCase
             new IdentityMatchTranslator,
             $this->metadatas,
             new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $changeset,
