@@ -21,7 +21,10 @@ use Innmind\Neo4j\ONM\{
     Persister\RemovePersister
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\{
+    EventBusInterface,
+    NullEventBus
+};
 use Innmind\Immutable\{
     Set,
     Stream,
@@ -60,6 +63,7 @@ final class ManagerFactory
 
     private function __construct(array $entities)
     {
+        $this->eventBus = new NullEventBus;
         $this->entities = $entities;
         $this->config = new Configuration;
         $this->additionalGenerators = new Map('string', GeneratorInterface::class);
