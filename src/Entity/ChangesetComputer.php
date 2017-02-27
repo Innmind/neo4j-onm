@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Entity;
 
-use Innmind\Neo4j\ONM\IdentityInterface;
+use Innmind\Neo4j\ONM\{
+    IdentityInterface,
+    Exception\InvalidArgumentException
+};
 use Innmind\Immutable\{
     MapInterface,
     Map
@@ -33,6 +36,13 @@ final class ChangesetComputer
         IdentityInterface $identity,
         MapInterface $source
     ): self {
+        if (
+            (string) $source->keyType() !== 'string' ||
+            (string) $source->valueType() !== 'mixed'
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         $this->sources = $this->sources->put(
             $identity,
             $source
@@ -53,6 +63,13 @@ final class ChangesetComputer
         IdentityInterface $identity,
         MapInterface $target
     ): MapInterface {
+        if (
+            (string) $target->keyType() !== 'string' ||
+            (string) $target->valueType() !== 'mixed'
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         if (!$this->sources->contains($identity)) {
             return $target;
         }

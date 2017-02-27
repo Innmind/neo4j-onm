@@ -118,4 +118,26 @@ class ChangesetComputerTest extends TestCase
         $this->assertSame('bar', $diff->get('rel')->get('child')->get('content'));
         $this->assertNull($diff->get('rel')->get('child')->get('extra'));
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenUsingInvalidSource()
+    {
+        $this->computer->use(
+            $this->createMock(IdentityInterface::class),
+            new Map('string', 'variable')
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenComputingInvalidTarget()
+    {
+        $this->computer->compute(
+            $this->createMock(IdentityInterface::class),
+            new Map('string', 'variable')
+        );
+    }
 }
