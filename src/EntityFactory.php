@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Metadata\EntityInterface,
-    Entity\Container
+    Entity\Container,
+    Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\ResultInterface;
 use Innmind\Immutable\{
@@ -49,6 +50,13 @@ final class EntityFactory
         ResultInterface $result,
         MapInterface $variables
     ): SetInterface {
+        if (
+            (string) $variables->keyType() !== 'string' ||
+            (string) $variables->valueType() !== EntityInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         $structuredData = $this->translator->translate($result, $variables);
         $entities = new Set('object');
 

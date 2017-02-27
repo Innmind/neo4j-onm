@@ -28,7 +28,10 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Types
 };
-use Innmind\Neo4j\DBAL\Result;
+use Innmind\Neo4j\DBAL\{
+    Result,
+    ResultInterface
+};
 use Innmind\Immutable\{
     Map,
     SetInterface
@@ -377,5 +380,16 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertCount(0, $entities);
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidVariableMap()
+    {
+        $this->factory->make(
+            $this->createMock(ResultInterface::class),
+            new Map('string', 'object')
+        );
     }
 }
