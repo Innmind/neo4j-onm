@@ -55,4 +55,16 @@ class ContainerTest extends TestCase
     {
         (new Container)->get($this->createMock(IdentityInterface::class));
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenPushingToInvalidState()
+    {
+        (new Container)->push(
+            $this->createMock(IdentityInterface::class),
+            new \stdClass,
+            42
+        );
+    }
 }

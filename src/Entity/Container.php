@@ -5,7 +5,8 @@ namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     IdentityInterface,
-    Exception\IdentityNotManagedException
+    Exception\IdentityNotManagedException,
+    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
     Map,
@@ -53,6 +54,10 @@ final class Container
      */
     public function push(IdentityInterface $identity, $entity, int $wished): self
     {
+        if (!$this->states->contains($wished)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->states = $this->states->map(function(
             int $state,
             MapInterface $entities
