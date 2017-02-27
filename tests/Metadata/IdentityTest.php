@@ -16,4 +16,20 @@ class IdentityTest extends TestCase
         $this->assertSame('uuid', $i->property());
         $this->assertSame('UUID', $i->type());
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyProperty()
+    {
+        new Identity('', 'UUID');
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyType()
+    {
+        new Identity('uuid', '');
+    }
 }
