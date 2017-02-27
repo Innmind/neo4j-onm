@@ -74,4 +74,12 @@ class UuidGeneratorTest extends TestCase
         $this->assertInstanceOf(get_class($uuid), $uuid2);
         $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyType()
+    {
+        new UuidGenerator('');
+    }
 }
