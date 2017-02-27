@@ -51,6 +51,13 @@ final class ResultTranslator
         ResultInterface $result,
         MapInterface $variables
     ): MapInterface {
+        if (
+            (string) $variables->keyType() !== 'string' ||
+            (string) $variables->valueType() !== EntityInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         return $variables
             ->filter(function(string $variable) use ($result): bool {
                 $forVariable = $result

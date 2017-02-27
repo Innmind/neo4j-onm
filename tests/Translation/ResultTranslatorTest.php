@@ -21,7 +21,10 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Types
 };
-use Innmind\Neo4j\DBAL\Result;
+use Innmind\Neo4j\DBAL\{
+    Result,
+    ResultInterface
+};
 use Innmind\Immutable\{
     Map,
     MapInterface,
@@ -346,5 +349,16 @@ class ResultTranslatorTest extends TestCase
     public function testThrowWhenEmptyInvalidMap()
     {
         new ResultTranslator(new Map('string', 'callable'));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyInvalidVariableMap()
+    {
+        (new ResultTranslator)->translate(
+            $this->createMock(ResultInterface::class),
+            new Map('string', 'object')
+        );
     }
 }
