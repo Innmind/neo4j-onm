@@ -37,14 +37,21 @@ use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
     Query
 };
+use Innmind\EventBus\EventBusInterface;
+use Innmind\HttpTransport\GuzzleTransport;
+use Innmind\Http\{
+    Translator\Response\Psr7Translator,
+    Factory\Header\Factories
+};
 use Innmind\Immutable\{
-    Set,
+    Stream,
     SetInterface,
     Map
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use GuzzleHttp\Client;
+use PHPUnit\Framework\TestCase;
 
-class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
+class UnitOfWorkTest extends TestCase
 {
     private $uow;
     private $aggregateClass;
@@ -66,32 +73,35 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             'http'
         )
             ->for('neo4j', 'ci')
+            ->useTransport(
+                new GuzzleTransport(
+                    new Client,
+                    new Psr7Translator(Factories::default())
+                )
+            )
             ->build();
         $this->container = new Container;
         $this->entityFactory = new EntityFactory(
             new ResultTranslator,
             $this->generators = new Generators,
-            (new Resolver)
-                ->register(new RelationshipFactory($this->generators)),
+            new Resolver(
+                new RelationshipFactory($this->generators)
+            ),
             $this->container
         );
-        $this->metadatas = new Metadatas;
+        $this->metadatas = new Metadatas(
+            new Aggregate(
+                new ClassName($this->aggregateClass),
+                new Identity('uuid', Uuid::class),
+                new Repository('foo'),
+                new Factory(AggregateFactory::class),
+                new Alias('foo'),
+                ['Label']
+            )
+        );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($this->metadatas);
-        $dispatcher = new EventDispatcher;
-
-        $this
-            ->metadatas
-            ->register(
-                new Aggregate(
-                    new ClassName($this->aggregateClass),
-                    new Identity('uuid', Uuid::class),
-                    new Repository('foo'),
-                    new Factory(AggregateFactory::class),
-                    new Alias('foo'),
-                    ['Label']
-                )
-            );
+        $eventBus = $this->createMock(EventBusInterface::class);
 
         $this->uow = new UnitOfWork(
             $this->conn,
@@ -100,11 +110,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             new IdentityMatchTranslator,
             $this->metadatas,
             new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $this->metadatas
                         )
@@ -112,7 +122,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                     ->add(
                         new UpdatePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $this->metadatas
                         )
@@ -120,7 +130,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
                     ->add(
                         new RemovePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $this->metadatas
                         )
                     )
@@ -287,7 +297,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($this->uow, $this->uow->remove($entity));
 
-        $this->setExpectedException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManagedException::class);
         $this->uow->stateFor($entity->uuid);
     }
 
@@ -303,7 +313,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
             $uow->detach($entity)
         );
         $this->assertFalse($uow->contains($entity->uuid));
-        $this->setExpectedException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManagedException::class);
         $uow->stateFor($entity->uuid);
     }
 

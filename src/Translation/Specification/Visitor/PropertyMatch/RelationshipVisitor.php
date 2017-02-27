@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     IdentityInterface,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Query\PropertiesMatch
 };
 use Innmind\Specification\{
     SpecificationInterface,
@@ -18,14 +19,11 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    StringPrimitive as Str,
-    SequenceInterface,
-    Sequence,
-    Map,
-    Collection
+    Str,
+    Map
 };
 
-class RelationshipVisitor implements PropertyMatchVisitorInterface
+final class RelationshipVisitor implements PropertyMatchVisitorInterface
 {
     private $meta;
 
@@ -37,7 +35,7 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
     /**
      * {@inheritdo}
      */
-    public function visit(SpecificationInterface $specification): MapInterface
+    public function __invoke(SpecificationInterface $specification): MapInterface
     {
         switch (true) {
             case $specification instanceof ComparatorInterface:
@@ -53,8 +51,8 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
                 }
 
                 return $this->merge(
-                    $this->visit($specification->left()),
-                    $this->visit($specification->right())
+                    ($this)($specification->left()),
+                    ($this)($specification->right())
                 );
         }
 
@@ -92,18 +90,19 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
         $prop = $specification->property();
         $key = (new Str('entity_'))->append($prop);
 
-        return (new Map('string', SequenceInterface::class))
+        return (new Map('string', PropertiesMatch::class))
             ->put(
                 'entity',
-                new Sequence(
-                    new Collection([
-                        $prop => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $specification->value()
-                    ])
+                new PropertiesMatch(
+                    (new Map('string', 'string'))
+                        ->put(
+                            $prop,
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $specification->value())
                 )
             );
     }
@@ -122,18 +121,19 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
             $value = $value->value();
         }
 
-        return (new Map('string', SequenceInterface::class))
+        return (new Map('string', PropertiesMatch::class))
             ->put(
                 $side,
-                new Sequence(
-                    new Collection([
-                        $edge->target() => (string) $key
-                            ->prepend('{')
-                            ->append('}'),
-                    ]),
-                    new Collection([
-                        (string) $key => $value,
-                    ])
+                new PropertiesMatch(
+                    (new Map('string', 'string'))
+                        ->put(
+                            $edge->target(),
+                            (string) $key
+                                ->prepend('{')
+                                ->append('}')
+                        ),
+                    (new Map('string', 'mixed'))
+                        ->put((string) $key, $value)
                 )
             );
     }
@@ -142,29 +142,18 @@ class RelationshipVisitor implements PropertyMatchVisitorInterface
         MapInterface $left,
         MapInterface $right
     ): MapInterface {
-        $map = $left;
-        $right->foreach(function(
-            string $var,
-            SequenceInterface $data
-        ) use (
-            &$map,
-            $left
-        ) {
-            if (!$map->contains($var)) {
-                $map = $map->put($var, $data);
+        return $right->reduce(
+            $left,
+            function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+                if (!$carry->contains($var)) {
+                    return $carry->put($var, $data);
+                }
 
-                return;
+                return $carry->put(
+                    $var,
+                    $data->merge($left->get($var))
+                );
             }
-
-            $map = $map->put(
-                $var,
-                new Sequence(
-                    $data->get(0)->merge($left->get($var)->get(0)),
-                    $data->get(1)->merge($left->get($var)->get(1))
-                )
-            );
-        });
-
-        return $map;
+        );
     }
 }

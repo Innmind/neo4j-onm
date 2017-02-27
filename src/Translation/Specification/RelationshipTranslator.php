@@ -21,7 +21,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-class RelationshipTranslator implements SpecificationTranslatorInterface
+final class RelationshipTranslator implements SpecificationTranslatorInterface
 {
     /**
      * {@inheritdoc}
@@ -31,9 +31,7 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
         SpecificationInterface $specification
     ): IdentityMatch {
         try {
-            $mapping = (new RelationshipPropertyMatchVisitor($meta))->visit(
-                $specification
-            );
+            $mapping = (new RelationshipPropertyMatchVisitor($meta))($specification);
 
             $query = $this->addProperties(
                 $this
@@ -57,9 +55,7 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
                 $mapping
             );
         } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
-            $condition = (new RelationshipCypherVisitor($meta))->visit(
-                $specification
-            );
+            $condition = (new RelationshipCypherVisitor($meta))($specification);
             $query = (new Query)
                 ->match('start')
                 ->linkedTo('end')
@@ -68,8 +64,19 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
                     'entity',
                     Relationship::RIGHT
                 )
-                ->where($condition->get(0))
-                ->withParameters($condition->get(1)->toPrimitive());
+                ->where($condition->cypher())
+                ->withParameters(
+                    $condition
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
+                );
         }
 
         return new IdentityMatch(
@@ -79,6 +86,9 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
         );
     }
 
+    /**
+     * @param MapInterface<string, PropertiesMatch> $mapping
+     */
     private function addProperties(
         Query $query,
         string $name,
@@ -87,10 +97,30 @@ class RelationshipTranslator implements SpecificationTranslatorInterface
         if ($mapping->contains($name)) {
             $query = $query
                 ->withProperties(
-                    $mapping->get($name)->get(0)->toPrimitive()
+                    $mapping
+                        ->get($name)
+                        ->properties()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $property, string $cypher): array {
+                                $carry[$property] = $cypher;
+
+                                return $carry;
+                            }
+                        )
                 )
                 ->withParameters(
-                    $mapping->get($name)->get(1)->toPrimitive()
+                    $mapping
+                        ->get($name)
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
                 );
         }
 

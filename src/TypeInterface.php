@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     SetInterface
 };
 
@@ -13,11 +13,11 @@ interface TypeInterface
     /**
      * Build a type instance out of a config array
      *
-     * @param CollectionInterface $config
+     * @param MapInterface<string, mixed> $config
      *
      * @return self
      */
-    public static function fromConfig(CollectionInterface $config): self;
+    public static function fromConfig(MapInterface $config, Types $types): self;
 
     /**
      * Format the given value as a valid database value

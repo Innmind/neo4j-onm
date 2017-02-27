@@ -19,22 +19,28 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     IdentityInterface,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Innmind\Immutable\{
-    Collection,
+    Map,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends TestCase
 {
-    public function testTranslate()
+    public function testInterface()
     {
-        $t = new AggregateTranslator;
         $this->assertInstanceOf(
             IdentityMatchTranslatorInterface::class,
-            $t
+            new AggregateTranslator
         );
+    }
+
+    public function testTranslate()
+    {
+        $translator = new AggregateTranslator;
 
         $meta = new Aggregate(
             new ClassName('FQCN'),
@@ -49,7 +55,9 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -66,7 +74,9 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -74,7 +84,9 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -82,21 +94,17 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $t->translate($meta, $identity);
+        $im = $translator->translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
             'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $im->query()->cypher()
         );
-        $this->assertSame(1, $im->query()->parameters()->count());
-        $this->assertSame(
-            'entity_identity',
-            $im->query()->parameters()->get(0)->key()
-        );
+        $this->assertCount(1, $im->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get(0)->value()
+            $im->query()->parameters()->get('entity_identity')->value()
         );
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
@@ -107,7 +115,7 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
             EntityInterface::class,
             (string) $im->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
+        $this->assertCount(1, $im->variables());
         $this->assertSame($meta, $im->variables()->get('entity'));
     }
 }

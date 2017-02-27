@@ -20,18 +20,21 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    Metadatas
+    Metadatas,
+    Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection
+    MapInterface,
+    Map
 };
+use PHPUnit\Framework\TestCase;
 
-class DataExtractorTest extends \PHPUnit_Framework_TestCase
+class DataExtractorTest extends TestCase
 {
-    private $e;
+    private $extractor;
     private $arClass;
     private $rClass;
+    private $metadatas;
 
     public function setUp()
     {
@@ -51,72 +54,76 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
         };
         $this->rClass  = get_class($r);
 
-        $m = new Metadatas;
-        $m
-            ->register(
-                (new Aggregate(
-                    new ClassName($this->arClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    ['Label']
-                ))
-                    ->withProperty('created', new DateType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            new Collection(['nullable' => null])
-                        )
+        $this->metadatas = new Metadatas(
+            (new Aggregate(
+                new ClassName($this->arClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                ['Label']
+            ))
+                ->withProperty('created', new DateType)
+                ->withProperty(
+                    'empty',
+                    StringType::fromConfig(
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
-                    ->withChild(
-                        (new ValueObject(
+                )
+                ->withChild(
+                    (new ValueObject(
+                        new ClassName('foo'),
+                        ['AnotherLabel'],
+                        (new ValueObjectRelationship(
                             new ClassName('foo'),
-                            ['AnotherLabel'],
-                            (new ValueObjectRelationship(
-                                new ClassName('foo'),
-                                new RelationshipType('foo'),
-                                'rel',
-                                'child',
-                                true
-                            ))
-                                ->withProperty('created', new DateType)
-                                ->withProperty(
-                                    'empty',
-                                    StringType::fromConfig(
-                                        new Collection(['nullable' => null])
-                                    )
-                                )
+                            new RelationshipType('foo'),
+                            'rel',
+                            'child',
+                            true
                         ))
-                            ->withProperty('content', new StringType)
+                            ->withProperty('created', new DateType)
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
-                    )
-            )
-            ->register(
-                (new Relationship(
-                    new ClassName($this->rClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    new RelationshipType('type'),
-                    new RelationshipEdge('start', Uuid::class, 'target'),
-                    new RelationshipEdge('end', Uuid::class, 'target')
-                ))
-                    ->withProperty('created', new DateType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                    ))
+                        ->withProperty('content', new StringType)
+                        ->withProperty(
+                            'empty',
+                            StringType::fromConfig(
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
+                            )
                         )
+                ),
+            (new Relationship(
+                new ClassName($this->rClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'target'),
+                new RelationshipEdge('end', Uuid::class, 'target')
+            ))
+                ->withProperty('created', new DateType)
+                ->withProperty(
+                    'empty',
+                    StringType::fromConfig(
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
-            );
-        $this->e = new DataExtractor($m);
+                )
+        );
+        $this->extractor = new DataExtractor($this->metadatas);
     }
 
     public function testExtractAggregateRoot()
@@ -138,9 +145,11 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $data = $this->e->extract($entity);
+        $data = $this->extractor->extract($entity);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['created', 'empty', 'uuid', 'rel'],
             $data->keys()->toPrimitive()
@@ -149,9 +158,11 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertSame('string', (string) $data->get('rel')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'empty', 'child'],
             $data->get('rel')->keys()->toPrimitive()
@@ -160,17 +171,19 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('rel')->get('created')
         );
-        $this->assertSame(null, $data->get('rel')->get('empty'));
+        $this->assertNull($data->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
+            MapInterface::class,
             $data->get('rel')->get('child')
         );
+        $this->assertSame('string', (string) $data->get('rel')->get('child')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'empty'],
             $data->get('rel')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame('foo', $data->get('rel')->get('child')->get('content'));
-        $this->assertSame(null, $data->get('rel')->get('child')->get('empty'));
+        $this->assertNull($data->get('rel')->get('child')->get('empty'));
     }
 
     public function testExtractRelationship()
@@ -181,9 +194,11 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $data = $this->e->extract($entity);
+        $data = $this->extractor->extract($entity);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['uuid', 'start', 'end', 'created', 'empty'],
             $data->keys()->toPrimitive()
@@ -192,9 +207,28 @@ class DataExtractorTest extends \PHPUnit_Framework_TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
         $this->assertSame($s, $data->get('start'));
         $this->assertSame($e, $data->get('end'));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidEntity()
+    {
+        $this->extractor->extract('');
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidExtractorMap()
+    {
+        new DataExtractor(
+            $this->metadatas,
+            new Map('string', 'callable')
+        );
     }
 }

@@ -18,21 +18,25 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\EntityInterface,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
-use Innmind\Neo4j\DBAL\Result;
+use Innmind\Neo4j\DBAL\{
+    Result,
+    ResultInterface
+};
 use Innmind\Immutable\{
-    Collection,
     Map,
     MapInterface,
-    CollectionInterface
+    SetInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
+class ResultTranslatorTest extends TestCase
 {
     public function testTranslate()
     {
-        $t = new ResultTranslator;
+        $translator = new ResultTranslator;
         $aggregate = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -46,7 +50,9 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -63,7 +69,9 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -71,7 +79,9 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             )
@@ -89,7 +99,9 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -97,7 +109,9 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -116,11 +130,13 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
 
-        $data = $t->translate(
+        $data = $translator->translate(
             Result::fromRaw([
                 'columns' => ['n', 'r'],
                 'data' => [[
@@ -222,74 +238,74 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
-        $this->assertSame(CollectionInterface::class, (string) $data->valueType());
+        $this->assertSame(SetInterface::class, (string) $data->valueType());
         $this->assertSame(
             ['n', 'r'],
             $data->keys()->toPrimitive()
         );
-        $this->assertSame(4, $data->get('n')->get(0)->count());
+        $this->assertCount(4, $data->get('n')->current());
         $this->assertSame(
             ['id', 'created', 'rel', 'rel2'],
-            $data->get('n')->get(0)->keys()->toPrimitive()
+            $data->get('n')->current()->keys()->toPrimitive()
         );
-        $this->assertSame(42, $data->get('n')->get(0)->get('id'));
-        $this->assertSame('2016-01-01T00:00:00+0200', $data->get('n')->get(0)->get('created'));
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('n')->get(0)->get('rel'));
+        $this->assertSame(42, $data->get('n')->current()->get('id'));
+        $this->assertSame('2016-01-01T00:00:00+0200', $data->get('n')->current()->get('created'));
+        $this->assertInstanceOf(MapInterface::class, $data->get('n')->current()->get('rel'));
         $this->assertSame(
             ['created', 'child'],
-            $data->get('n')->get(0)->get('rel')->keys()->toPrimitive()
+            $data->get('n')->current()->get('rel')->keys()->toPrimitive()
         );
         $this->assertSame(
             '2016-01-01T00:00:00+0200',
-            $data->get('n')->get(0)->get('rel')->get('created')
+            $data->get('n')->current()->get('rel')->get('created')
         );
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $data->get('n')->get(0)->get('rel')->get('child')
+            MapInterface::class,
+            $data->get('n')->current()->get('rel')->get('child')
         );
         $this->assertSame(
             ['content'],
-            $data->get('n')->get(0)->get('rel')->get('child')->keys()->toPrimitive()
+            $data->get('n')->current()->get('rel')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame(
             'foo',
-            $data->get('n')->get(0)->get('rel')->get('child')->get('content')
+            $data->get('n')->current()->get('rel')->get('child')->get('content')
         );
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('n')->get(0)->get('rel2'));
-        $this->assertSame(2, $data->get('n')->get(0)->get('rel2')->count());
+        $this->assertInstanceOf(MapInterface::class, $data->get('n')->current()->get('rel2'));
+        $this->assertSame(2, $data->get('n')->current()->get('rel2')->count());
         $this->assertSame(
             ['created', 'child'],
-            $data->get('n')->get(0)->get('rel2')->keys()->toPrimitive()
+            $data->get('n')->current()->get('rel2')->keys()->toPrimitive()
         );
         $this->assertSame(
             '2016-01-03T00:00:00+0200',
-            $data->get('n')->get(0)->get('rel2')->get('created')
+            $data->get('n')->current()->get('rel2')->get('created')
         );
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $data->get('n')->get(0)->get('rel2')->get('child')
+            MapInterface::class,
+            $data->get('n')->current()->get('rel2')->get('child')
         );
         $this->assertSame(
             ['content'],
-            $data->get('n')->get(0)->get('rel2')->get('child')->keys()->toPrimitive()
+            $data->get('n')->current()->get('rel2')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame(
             'baz',
-            $data->get('n')->get(0)->get('rel2')->get('child')->get('content')
+            $data->get('n')->current()->get('rel2')->get('child')->get('content')
         );
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->get('r')->get(0)->keys()->toPrimitive()
+            $data->get('r')->current()->keys()->toPrimitive()
         );
-        $this->assertSame(42, $data->get('r')->get(0)->get('id'));
-        $this->assertSame(24, $data->get('r')->get(0)->get('start'));
-        $this->assertSame(66, $data->get('r')->get(0)->get('end'));
-        $this->assertSame('2016-01-03T00:00:00+0200', $data->get('r')->get(0)->get('created'));
+        $this->assertSame(42, $data->get('r')->current()->get('id'));
+        $this->assertSame(24, $data->get('r')->current()->get('start'));
+        $this->assertSame(66, $data->get('r')->current()->get('end'));
+        $this->assertSame('2016-01-03T00:00:00+0200', $data->get('r')->current()->get('created'));
     }
 
     public function testTranslateWithoutExpectedVariable()
     {
-        $t = new ResultTranslator;
+        $translator = new ResultTranslator;
         $aggregate = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -308,7 +324,7 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')
         );
-        $data = $t->translate(
+        $data = $translator->translate(
             Result::fromRaw([
                 'columns' => [],
                 'data' => [[
@@ -324,6 +340,25 @@ class ResultTranslatorTest extends \PHPUnit_Framework_TestCase
                 ->put('r', $relationship)
         );
 
-        $this->assertSame(0, $data->size());
+        $this->assertCount(0, $data);
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyInvalidMap()
+    {
+        new ResultTranslator(new Map('string', 'callable'));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyInvalidVariableMap()
+    {
+        (new ResultTranslator)->translate(
+            $this->createMock(ResultInterface::class),
+            new Map('string', 'object')
+        );
     }
 }

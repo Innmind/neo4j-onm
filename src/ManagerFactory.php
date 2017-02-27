@@ -21,23 +21,24 @@ use Innmind\Neo4j\ONM\{
     Persister\RemovePersister
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\EventBus\{
+    EventBusInterface,
+    NullEventBus
+};
 use Innmind\Immutable\{
     Set,
+    Stream,
     MapInterface,
     Map
 };
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\EventDispatcher\{
-    EventDispatcher,
-    EventDispatcherInterface
-};
 
 final class ManagerFactory
 {
     private $entities;
     private $config;
     private $connection;
-    private $dispatcher;
+    private $eventBus;
     private $uow;
     private $container;
     private $entityFactory;
@@ -48,7 +49,7 @@ final class ManagerFactory
     private $resolver;
     private $identityMatchTranslator;
     private $additionalIdentityMatchTranslator;
-    private $types;
+    private $types = [];
     private $metadataBuilder;
     private $metadataFactories;
     private $persister;
@@ -62,9 +63,8 @@ final class ManagerFactory
 
     private function __construct(array $entities)
     {
+        $this->eventBus = new NullEventBus;
         $this->entities = $entities;
-        $this->dispatcher = new EventDispatcher;
-        $this->types = new Types;
         $this->config = new Configuration;
         $this->additionalGenerators = new Map('string', GeneratorInterface::class);
         $this->entityFactories = new Set(EntityFactoryInterface::class);
@@ -112,15 +112,15 @@ final class ManagerFactory
     }
 
     /**
-     * Specify the event dispatcher to use
+     * Specify the event event bus to use
      *
-     * @param EventDispatcherInterface $dispatcher
+     * @param EventBusInterface $eventBus
      *
      * @return self
      */
-    public function withDispatcher(EventDispatcherInterface $dispatcher): self
+    public function withEventBus(EventBusInterface $eventBus): self
     {
-        $this->dispatcher = $dispatcher;
+        $this->eventBus = $eventBus;
 
         return $this;
     }
@@ -208,7 +208,7 @@ final class ManagerFactory
      */
     public function withType(string $class): self
     {
-        $this->types->register($class);
+        $this->types[] = $class;
 
         return $this;
     }
@@ -367,12 +367,15 @@ final class ManagerFactory
     private function generators(): Generators
     {
         if ($this->generators === null) {
-            $this->generators = new Generators;
-            $this
+            $generators = $this
                 ->additionalGenerators
-                ->foreach(function(string $class, GeneratorInterface $gen) {
-                    $this->generators->register($class, $gen);
-                });
+                ->reduce(
+                    new Map('string', GeneratorInterface::class),
+                    function(Map $carry, string $class, GeneratorInterface $gen): Map {
+                        return $carry->put($class, $gen);
+                    }
+                );
+            $this->generators = new Generators($generators);
         }
 
         return $this->generators;
@@ -386,15 +389,17 @@ final class ManagerFactory
     private function resolver(): Resolver
     {
         if ($this->resolver === null) {
-            $this->resolver = (new Resolver)
-                ->register(new RelationshipFactory(
-                    $this->generators()
-                ));
-            $this
+            $factories = $this
                 ->entityFactories
-                ->foreach(function(EntityFactoryInterface $factory) {
-                    $this->resolver->register($factory);
-                });
+                ->reduce(
+                    [new RelationshipFactory($this->generators())],
+                    function(array $carry, EntityFactoryInterface $factory): array {
+                        $carry[] = $factory;
+
+                        return $carry;
+                    }
+                );
+            $this->resolver = new Resolver(...$factories);
         }
 
         return $this->resolver;
@@ -425,7 +430,7 @@ final class ManagerFactory
     {
         if ($this->metadataBuilder === null) {
             $this->metadataBuilder = (new MetadataBuilder(
-                $this->types,
+                new Types(...$this->types),
                 $this->metadataFactories,
                 $this->config
             ))
@@ -444,11 +449,11 @@ final class ManagerFactory
     {
         if ($this->persister === null) {
             $this->persister = new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->extractor(),
                             $this->metadatas()
                         )
@@ -456,7 +461,7 @@ final class ManagerFactory
                     ->add(
                         new UpdatePersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->extractor(),
                             $this->metadatas()
                         )
@@ -464,7 +469,7 @@ final class ManagerFactory
                     ->add(
                         new RemovePersister(
                             $this->changeset(),
-                            $this->dispatcher,
+                            $this->eventBus,
                             $this->metadatas()
                         )
                     )

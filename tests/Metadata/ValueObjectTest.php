@@ -6,6 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Metadata;
 use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
+    Metadata\RelationshipType,
     Metadata\ClassName,
     Metadata\Property,
     TypeInterface
@@ -14,18 +15,21 @@ use Innmind\Immutable\{
     SetInterface,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ValueObjectTest extends \PHPUnit_Framework_TestCase
+class ValueObjectTest extends TestCase
 {
     public function testInterface()
     {
         $vo = new ValueObject(
             $cn = new ClassName('foo'),
             ['LabelA', 'LabelB'],
-            $vor = $this
-                ->getMockBuilder(ValueObjectRelationship::class)
-                ->disableOriginalConstructor()
-                ->getMock()
+            $vor = new ValueObjectRelationship(
+                new ClassName('whatever'),
+                new RelationshipType('whatever'),
+                'foo',
+                'bar'
+            )
         );
 
         $this->assertSame($cn, $vo->class());

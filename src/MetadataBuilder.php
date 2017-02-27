@@ -10,16 +10,18 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
-    Collection,
-    Map
+    MapInterface,
+    Map,
+    Set
 };
 use Symfony\Component\Config\Definition\{
     ConfigurationInterface,
     Processor
 };
 
-class MetadataBuilder
+final class MetadataBuilder
 {
+    private $definitions;
     private $metadatas;
     private $factories;
     private $config;
@@ -27,10 +29,10 @@ class MetadataBuilder
 
     public function __construct(
         Types $types,
-        Map $factories = null,
+        MapInterface $factories = null,
         ConfigurationInterface $config = null
     ) {
-        $this->metadatas = new Metadatas;
+        $this->definitions = new Set(EntityInterface::class);
         $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
             ->put('aggregate', new AggregateFactory($types))
             ->put('relationship', new RelationshipFactory($types));
@@ -52,6 +54,10 @@ class MetadataBuilder
      */
     public function container(): Metadatas
     {
+        if (!$this->metadatas instanceof Metadatas) {
+            $this->metadatas = new Metadatas(...$this->definitions);
+        }
+
         return $this->metadatas;
     }
 
@@ -70,8 +76,11 @@ class MetadataBuilder
         );
 
         foreach ($metas as $class => $meta) {
-            $this->metadatas->register(
-                $this->build($class, $meta)
+            $this->definitions = $this->definitions->add(
+                $this->build(
+                    $class,
+                    $this->map($meta)
+                )
             );
         }
 
@@ -82,18 +91,31 @@ class MetadataBuilder
      * Build an entity metadata
      *
      * @param string $class
-     * @param array $config
+     * @param MapInterface<string, mixed> $config
      *
      * @return EntityInterface
      */
-    public function build(string $class, array $config): EntityInterface
+    public function build(string $class, MapInterface $config): EntityInterface
     {
-        $config = (new Collection($config))
-            ->set('class', $class);
+        $config = $config->put('class', $class);
 
         return $this
             ->factories
             ->get($config->get('type'))
-            ->make($config->unset('type'));
+            ->make($config->remove('type'));
+    }
+
+    /**
+     * @return MapInterface<string, mixed>
+     */
+    private function map(array $data): MapInterface
+    {
+        $map = new Map('string', 'mixed');
+
+        foreach ($data as $key => $value) {
+            $map = $map->put($key, $value);
+        }
+
+        return $map;
     }
 }

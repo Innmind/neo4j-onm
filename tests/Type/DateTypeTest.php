@@ -5,33 +5,43 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\DateType,
-    TypeInterface
+    TypeInterface,
+    Types
 };
 use Innmind\Immutable\{
     SetInterface,
-    Collection
+    Map
 };
+use PHPUnit\Framework\TestCase;
 
-class DateTypeTest extends \PHPUnit_Framework_TestCase
+class DateTypeTest extends TestCase
 {
     public function testInterface()
     {
         $this->assertInstanceOf(
             TypeInterface::class,
-            DateType::fromConfig(new Collection([]))
+            DateType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            DateType::fromConfig(new Collection([]))
+            DateType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
                 ->isNullable()
         );
         $this->assertTrue(
-            DateType::fromConfig(new Collection([
-                'nullable' => null,
-            ]))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->isNullable()
         );
     }
@@ -47,7 +57,10 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
     public function testForDatabase()
     {
         $expected = '/2016-01-01T00:00:00\+\d{4}/';
-        $t = DateType::fromConfig(new Collection([]));
+        $t = DateType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertRegExp(
             $expected,
@@ -63,26 +76,41 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertRegExp(
             $expected,
-            DateType::fromConfig(new Collection(['Immutable' => false]))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('immutable', false),
+                new Types
+            )
                 ->forDatabase(new \DateTimeImmutable('2016-01-01'))
         );
 
         $this->assertSame(
             '160101',
-            DateType::fromConfig(new Collection(['format' => 'ymd']))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('format', 'ymd'),
+                new Types
+            )
                 ->forDatabase(new \DateTime('2016-01-01'))
         );
 
         $this->assertSame(
             null,
-            DateType::fromConfig(new Collection(['nullable' => null]))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $t = DateType::fromConfig(new Collection([]));
+        $t = DateType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
@@ -95,22 +123,32 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '01/01/2016',
-            DateType::fromConfig(new Collection(['format' => 'ymd']))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('format', 'ymd'),
+                new Types
+            )
                 ->fromDatabase('160101')
                 ->format('d/m/Y')
         );
 
         $this->assertInstanceOf(
             \DateTime::class,
-            DateType::fromConfig(new Collection(['immutable' => false]))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('immutable', false),
+                new Types
+            )
                 ->fromDatabase('2016-01-01T00:00:00+0200')
         );
         $this->assertSame(
             '01/01/2016',
-            DateType::fromConfig(new Collection([
-                'format' => 'ymd',
-                'immutable' => false,
-            ]))
+            DateType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('format', 'ymd')
+                    ->put('immutable', false),
+                new Types
+            )
                 ->fromDatabase('160101')
                 ->format('d/m/Y')
         );
@@ -122,7 +160,10 @@ class DateTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenInvalidDate()
     {
-        DateType::fromConfig(new Collection([]))
+        DateType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        )
             ->forDatabase(42);
     }
 }

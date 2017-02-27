@@ -9,12 +9,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\Factory
 };
+use PHPUnit\Framework\TestCase;
 
-class ResolverTest extends \PHPUnit_Framework_TestCase
+class ResolverTest extends TestCase
 {
     public function testInterface()
     {
-        $r = new Resolver;
+        $resolver = new Resolver;
 
         $class = $this->getMockClass(EntityFactoryInterface::class);
         $meta = $this->createMock(EntityInterface::class);
@@ -24,24 +25,23 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(
             EntityFactoryInterface::class,
-            $r->get($meta)
+            $resolver->get($meta)
         );
-        $this->assertInstanceOf($class, $r->get($meta));
-        $this->assertSame($r->get($meta), $r->get($meta));
+        $this->assertInstanceOf($class, $resolver->get($meta));
+        $this->assertSame($resolver->get($meta), $resolver->get($meta));
     }
 
     public function testRegister()
     {
-        $r = new Resolver;
-
         $class = $this->getMockClass(EntityFactoryInterface::class);
         $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('factory')
             ->willReturn(new Factory($class));
-        $f = new $class;
+        $factory = new $class;
 
-        $this->assertSame($r, $r->register($f));
-        $this->assertSame($f, $r->get($meta));
+        $resolver = new Resolver($factory);
+
+        $this->assertSame($factory, $resolver->get($meta));
     }
 }

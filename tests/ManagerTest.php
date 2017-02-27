@@ -14,61 +14,71 @@ use Innmind\Neo4j\ONM\{
     RepositoryInterface,
     Metadata\EntityInterface,
     Metadata\ClassName,
+    Metadata\Alias,
     Metadata\Repository,
     Identity\Uuid,
-    Identity\Generators
+    Identity\Generators,
+    Entity\Container,
+    EntityFactory,
+    EntityFactory\Resolver,
+    Translation\ResultTranslator,
+    Translation\IdentityMatchTranslator,
+    PersisterInterface
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
+use PHPUnit\Framework\TestCase;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     public function testInterface()
     {
-        $commited = false;
-        $conn = $this->createMock(ConnectionInterface::class);
-        $uow = $this
-            ->getMockBuilder(UnitOfWork::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $uow
-            ->method('connection')
-            ->willReturn($conn);
-        $uow
-            ->method('commit')
-            ->will($this->returnCallback(function() use (&$commited, $uow) {
-                $commited = true;
-
-                return $uow;
-            }));
-        $metadatas = new Metadatas;
-        $factory = new RepositoryFactory(
-            $uow,
-            new MatchTranslator,
-            new SpecificationTranslator
-        );
         $mock = $this->createMock(RepositoryInterface::class);
+        $conn = $this->createMock(ConnectionInterface::class);
         $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('class')
             ->willReturn(new ClassName('foo'));
         $meta
+            ->method('alias')
+            ->willReturn(new Alias('foo'));
+        $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
-        $metadatas->register($meta);
+        $uow = new UnitOfWork(
+            $conn,
+            $container = new Container,
+            new EntityFactory(
+                new ResultTranslator,
+                $generators = new Generators,
+                new Resolver,
+                $container
+            ),
+            new IdentityMatchTranslator,
+            $metadatas = new Metadatas($meta),
+            $persister = $this->createMock(PersisterInterface::class),
+            $generators
+        );
+        $persister
+            ->expects($this->once())
+            ->method('persist')
+            ->with($conn, $container);
+        $factory = new RepositoryFactory(
+            $uow,
+            new MatchTranslator,
+            new SpecificationTranslator
+        );
 
-        $m = new Manager(
+        $manager = new Manager(
             $uow,
             $metadatas,
             $factory,
-            new Generators
+            $generators
         );
 
-        $this->assertInstanceOf(ManagerInterface::class, $m);
-        $this->assertSame($conn, $m->connection());
-        $this->assertInstanceOf(get_class($mock), $m->repository('foo'));
-        $this->assertFalse($commited);
-        $this->assertSame($m, $m->flush());
-        $this->assertTrue($commited);
-        $this->assertInstanceOf(Uuid::class, $m->new(Uuid::class));
+        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertSame($conn, $manager->connection());
+        $this->assertInstanceOf(get_class($mock), $manager->repository('foo'));
+        $this->assertSame($manager, $manager->flush());
+        $this->assertInstanceOf(Uuid::class, $manager->new(Uuid::class));
     }
 }

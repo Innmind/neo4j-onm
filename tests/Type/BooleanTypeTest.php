@@ -5,33 +5,43 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\BooleanType,
-    TypeInterface
+    TypeInterface,
+    Types
 };
 use Innmind\Immutable\{
     SetInterface,
-    Collection
+    Map
 };
+use PHPUnit\Framework\TestCase;
 
-class BooleanTypeTest extends \PHPUnit_Framework_TestCase
+class BooleanTypeTest extends TestCase
 {
     public function testInterface()
     {
         $this->assertInstanceOf(
             TypeInterface::class,
-            BooleanType::fromConfig(new Collection([]))
+            BooleanType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            BooleanType::fromConfig(new Collection([]))
+            BooleanType::fromConfig(
+                new Map('string', 'mixed'),
+                new Types
+            )
                 ->isNullable()
         );
         $this->assertTrue(
-            BooleanType::fromConfig(new Collection([
-                'nullable' => null,
-            ]))
+            BooleanType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->isNullable()
         );
     }
@@ -46,7 +56,10 @@ class BooleanTypeTest extends \PHPUnit_Framework_TestCase
 
     public function testForDatabase()
     {
-        $t = BooleanType::fromConfig(new Collection([]));
+        $t = BooleanType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertSame(
             true,
@@ -63,21 +76,32 @@ class BooleanTypeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(
             null,
-            BooleanType::fromConfig(new Collection(['nullable' => null]))
+            BooleanType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $t = BooleanType::fromConfig(new Collection([]));
+        $t = BooleanType::fromConfig(
+            new Map('string', 'mixed'),
+            new Types
+        );
 
         $this->assertSame(true, $t->fromDatabase(true));
         $this->assertSame(false, $t->fromDatabase(null));
 
         $this->assertSame(
             false,
-            BooleanType::fromConfig(new Collection(['nullable' => null]))
+            BooleanType::fromConfig(
+                (new Map('string', 'mixed'))
+                    ->put('nullable', null),
+                new Types
+            )
                 ->fromDatabase(null)
         );
     }

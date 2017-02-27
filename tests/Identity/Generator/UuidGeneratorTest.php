@@ -9,8 +9,9 @@ use Innmind\Neo4j\ONM\{
     Identity\GeneratorInterface,
     Identity\Generator\UuidGenerator
 };
+use PHPUnit\Framework\TestCase;
 
-class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
+class UuidGeneratorTest extends TestCase
 {
     public function testInterface()
     {
@@ -72,5 +73,13 @@ class UuidGeneratorTest extends \PHPUnit_Framework_TestCase
         $uuid2 = $g->new();
         $this->assertInstanceOf(get_class($uuid), $uuid2);
         $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyType()
+    {
+        new UuidGenerator('');
     }
 }

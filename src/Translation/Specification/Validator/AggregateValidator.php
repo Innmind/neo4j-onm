@@ -15,9 +15,9 @@ use Innmind\Specification\{
     NotInterface,
     SpecificationInterface
 };
-use Innmind\Immutable\StringPrimitive as Str;
+use Innmind\Immutable\Str;
 
-class AggregateValidator implements ValidatorInterface
+final class AggregateValidator implements ValidatorInterface
 {
     /**
      * {@inheritdoc}
@@ -61,7 +61,7 @@ class AggregateValidator implements ValidatorInterface
 
         $property = new Str($property);
 
-        if (!$property->match('/[a-zA-Z]+(\.[a-zA-Z]+)+/')) {
+        if (!$property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/')) {
             return false;
         }
 

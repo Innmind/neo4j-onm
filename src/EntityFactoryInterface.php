@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 interface EntityFactoryInterface
 {
@@ -13,13 +13,13 @@ interface EntityFactoryInterface
      *
      * @param IdentityInterface $identity
      * @param EntityInterface $meta
-     * @param CollectionInterface $data
+     * @param MapInterface<string, mixed> $data
      *
      * @return object
      */
     public function make(
         IdentityInterface $identity,
         EntityInterface $meta,
-        CollectionInterface $data
+        MapInterface $data
     );
 }

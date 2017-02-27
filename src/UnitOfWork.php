@@ -20,7 +20,7 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\ReflectionObject;
 
-class UnitOfWork
+final class UnitOfWork
 {
     private $connection;
     private $container;

@@ -8,110 +8,136 @@ use Innmind\Neo4j\ONM\{
     IdentityInterface
 };
 use Innmind\Immutable\{
-    Collection,
-    CollectionInterface
+    MapInterface,
+    Map
 };
+use PHPUnit\Framework\TestCase;
 
-class ChangesetComputerTest extends \PHPUnit_Framework_TestCase
+class ChangesetComputerTest extends TestCase
 {
-    private $c;
+    private $computer;
 
     public function setUp()
     {
-        $this->c = new ChangesetComputer;
+        $this->computer = new ChangesetComputer;
     }
 
     public function testComputeWithoutSource()
     {
-        $c = $this->c->compute(
+        $diff = $this->computer->compute(
             $this->createMock(IdentityInterface::class),
-            $data = new Collection([
-                'id' => 42,
-                'foo' => 'bar',
-                'rel' => new Collection([
-                    'prop' => 'baz',
-                    'child' => new Collection([
-                        'some' => 'prop',
-                    ]),
-                ]),
-            ])
+            $data = (new Map('string', 'mixed'))
+                ->put('id', 42)
+                ->put('foo', 'bar')
+                ->put('rel', (new Map('string', 'mixed'))
+                    ->put('prop', 'baz')
+                    ->put('child', (new Map('string', 'mixed'))
+                        ->put('some', 'prop')
+                    )
+                )
         );
 
-        $this->assertSame($c, $data);
+        $this->assertSame($diff, $data);
     }
 
     public function testComputeWithSource()
     {
         $this->assertSame(
-            $this->c,
-            $this->c->use(
+            $this->computer,
+            $this->computer->use(
                 $identity = $this->createMock(IdentityInterface::class),
-                new Collection([
-                    'id' => 42,
-                    'some' => 'prop',
-                    'should' => 'change',
-                    'another' => 'value',
-                    'rel' => new Collection([
-                        'empty' => 'not this time',
-                        'child' => new Collection([
-                            'content' => 'foo',
-                            'extra' => 'content',
-                        ]),
-                    ]),
-                    'rel2' => new Collection([
-                        'foo' => 'bar',
-                        'child' => new Collection([
-                            'content' => 'baz',
-                        ]),
-                    ]),
-                ])
+                (new Map('string', 'mixed'))
+                    ->put('id', 42)
+                    ->put('some', 'prop')
+                    ->put('should', 'change')
+                    ->put('another', 'value')
+                    ->put('rel', (new Map('string', 'mixed'))
+                        ->put('empty', 'not this time')
+                        ->put('child', (new Map('string', 'mixed'))
+                            ->put('content', 'foo')
+                            ->put('extra', 'content')
+                        )
+                    )
+                    ->put('rel2', (new Map('string', 'mixed'))
+                        ->put('foo', 'bar')
+                        ->put('child', (new Map('string', 'mixed'))
+                            ->put('content', 'baz')
+                        )
+                    )
             )
         );
 
-        $c = $this->c->compute(
+        $diff = $this->computer->compute(
             $identity,
-            new Collection([
-                'id' => 42,
-                'some' => 'prop',
-                'should' => 'to',
-                'extra' => 'value',
-                'rel' => new Collection([
-                    'child' => new Collection([
-                        'content' => 'bar',
-                    ]),
-                ]),
-                'rel2' => new Collection([
-                    'foo' => 'bar',
-                    'child' => new Collection([
-                        'content' => 'baz',
-                    ]),
-                ]),
-            ])
+            (new Map('string', 'mixed'))
+                ->put('id', 42)
+                ->put('some', 'prop')
+                ->put('should', 'to')
+                ->put('extra', 'value')
+                ->put('rel', (new Map('string', 'mixed'))
+                    ->put('child', (new Map('string', 'mixed'))
+                        ->put('content', 'bar')
+                    )
+                )
+                ->put('rel2', (new Map('string', 'mixed'))
+                    ->put('foo', 'bar')
+                    ->put('child', (new Map('string', 'mixed'))
+                        ->put('content', 'baz')
+                    )
+                )
         );
 
-        $this->assertInstanceOf(CollectionInterface::class, $c);
+        $this->assertInstanceOf(MapInterface::class, $diff);
+        $this->assertSame('string', (string) $diff->keyType());
+        $this->assertSame('mixed', (string) $diff->valueType());
         $this->assertSame(
             ['should', 'extra', 'rel', 'another'],
-            $c->keys()->toPrimitive()
+            $diff->keys()->toPrimitive()
         );
-        $this->assertSame('to', $c->get('should'));
-        $this->assertSame('value', $c->get('extra'));
-        $this->assertSame(null, $c->get('another'));
-        $this->assertInstanceOf(CollectionInterface::class, $c->get('rel'));
+        $this->assertSame('to', $diff->get('should'));
+        $this->assertSame('value', $diff->get('extra'));
+        $this->assertNull($diff->get('another'));
+        $this->assertInstanceOf(MapInterface::class, $diff->get('rel'));
+        $this->assertSame('string', (string) $diff->get('rel')->keyType());
+        $this->assertSame('mixed', (string) $diff->get('rel')->valueType());
         $this->assertSame(
             ['child', 'empty'],
-            $c->get('rel')->keys()->toPrimitive()
+            $diff->get('rel')->keys()->toPrimitive()
         );
-        $this->assertSame(null, $c->get('rel')->get('empty'));
+        $this->assertNull($diff->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
-            $c->get('rel')->get('child')
+            MapInterface::class,
+            $diff->get('rel')->get('child')
         );
+        $this->assertSame('string', (string) $diff->get('rel')->get('child')->keyType());
+        $this->assertSame('mixed', (string) $diff->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'extra'],
-            $c->get('rel')->get('child')->keys()->toPrimitive()
+            $diff->get('rel')->get('child')->keys()->toPrimitive()
         );
-        $this->assertSame('bar', $c->get('rel')->get('child')->get('content'));
-        $this->assertSame(null, $c->get('rel')->get('child')->get('extra'));
+        $this->assertSame('bar', $diff->get('rel')->get('child')->get('content'));
+        $this->assertNull($diff->get('rel')->get('child')->get('extra'));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenUsingInvalidSource()
+    {
+        $this->computer->use(
+            $this->createMock(IdentityInterface::class),
+            new Map('string', 'variable')
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenComputingInvalidTarget()
+    {
+        $this->computer->compute(
+            $this->createMock(IdentityInterface::class),
+            new Map('string', 'variable')
+        );
     }
 }

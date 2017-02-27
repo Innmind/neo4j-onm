@@ -16,23 +16,24 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types,
+    Query\PropertiesMatch
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
-    Collection,
-    MapInterface,
-    SequenceInterface,
-    CollectionInterface
+    Map,
+    MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
+class AggregateVisitorTest extends TestCase
 {
-    private $v;
+    private $visitor;
 
     public function setUp()
     {
-        $this->v = new AggregateVisitor(
+        $this->visitor = new AggregateVisitor(
             (new Aggregate(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
@@ -45,7 +46,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 )
                 ->withChild(
@@ -62,7 +65,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
                     ))
@@ -70,7 +75,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 )
@@ -79,12 +86,12 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->v);
+        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->visitor);
     }
 
     public function testVisit()
     {
-        $mapping = $this->v->visit(
+        $mapping = ($this->visitor)(
             (new Property('created', '=', null))
                 ->and(new Property('empty', '=', null))
                 ->and(new Property('rel.created', '=', null))
@@ -96,82 +103,31 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(MapInterface::class, $mapping);
         $this->assertSame('string', (string) $mapping->keyType());
         $this->assertSame(
-            SequenceInterface::class,
+            PropertiesMatch::class,
             (string) $mapping->valueType()
         );
         $this->assertSame(
             ['entity', 'entity_rel', 'entity_rel_child'],
             $mapping->keys()->toPrimitive()
         );
-        $this->assertSame(2, $mapping->get('entity')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(1)
-        );
-        $this->assertSame(
-            [
-                'empty' => '{entity_empty}',
-                'created' => '{entity_created}',
-            ],
-            $mapping->get('entity')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'entity_empty' => null,
-                'entity_created' => null,
-            ],
-            $mapping->get('entity')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('entity_rel')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity_rel')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity_rel')->get(1)
-        );
-        $this->assertSame(
-            [
-                'empty' => '{entity_rel_empty}',
-                'created' => '{entity_rel_created}',
-            ],
-            $mapping->get('entity_rel')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'entity_rel_empty' => null,
-                'entity_rel_created' => null,
-            ],
-            $mapping->get('entity_rel')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('entity_rel_child')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity_rel_child')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity_rel_child')->get(1)
-        );
-        $this->assertSame(
-            [
-                'empty' => '{entity_rel_child_empty}',
-                'content' => '{entity_rel_child_content}',
-            ],
-            $mapping->get('entity_rel_child')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'entity_rel_child_empty' => null,
-                'entity_rel_child_content' => null,
-            ],
-            $mapping->get('entity_rel_child')->get(1)->toPrimitive()
-        );
+        $this->assertCount(2, $mapping->get('entity')->properties());
+        $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
+        $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));
+        $this->assertCount(2, $mapping->get('entity')->parameters());
+        $this->assertNull($mapping->get('entity')->parameters()->get('entity_empty'));
+        $this->assertNull($mapping->get('entity')->parameters()->get('entity_created'));
+        $this->assertCount(2, $mapping->get('entity_rel')->properties());
+        $this->assertSame('{entity_rel_empty}', $mapping->get('entity_rel')->properties()->get('empty'));
+        $this->assertSame('{entity_rel_created}', $mapping->get('entity_rel')->properties()->get('created'));
+        $this->assertCount(2, $mapping->get('entity_rel')->parameters());
+        $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_empty'));
+        $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_created'));
+        $this->assertCount(2, $mapping->get('entity_rel_child')->properties());
+        $this->assertSame('{entity_rel_child_empty}', $mapping->get('entity_rel_child')->properties()->get('empty'));
+        $this->assertSame('{entity_rel_child_content}', $mapping->get('entity_rel_child')->properties()->get('content'));
+        $this->assertCount(2, $mapping->get('entity_rel_child')->parameters());
+        $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_empty'));
+        $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_content'));
     }
 
     /**
@@ -179,7 +135,7 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenNotDirectComparison()
     {
-        $this->v->visit(new Property('created', '~=', 'foo'));
+        ($this->visitor)(new Property('created', '~=', 'foo'));
     }
 
     /**
@@ -187,7 +143,7 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenOrOperator()
     {
-        $this->v->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))
                 ->or(new Property('empty', '=', 'foo'))
         );
@@ -198,7 +154,7 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenNegatedSpecification()
     {
-        $this->v->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))->not()
         );
     }

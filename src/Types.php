@@ -15,15 +15,14 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     Map,
-    MapInterface,
-    CollectionInterface
+    MapInterface
 };
 
-class Types
+final class Types
 {
     private $types;
 
-    public function __construct()
+    public function __construct(string ...$types)
     {
         $defaults = [
             ArrayType::class,
@@ -34,10 +33,11 @@ class Types
             IntType::class,
             StringType::class,
         ];
+        $types = array_merge($defaults, $types);
         $this->types = (new Map('string', 'string'));
 
-        foreach ($defaults as $default) {
-            $this->register($default);
+        foreach ($types as $type) {
+            $this->register($type);
         }
     }
 
@@ -48,7 +48,7 @@ class Types
      *
      * @return self
      */
-    public function register(string $type): self
+    private function register(string $type): self
     {
         $refl = new \ReflectionClass($type);
 
@@ -59,7 +59,7 @@ class Types
             ));
         }
 
-        call_user_func([$type, 'identifiers'])
+        [$type, 'identifiers']()
             ->foreach(function(string $identifier) use ($type) {
                 $this->types = $this->types->put(
                     $identifier,
@@ -71,30 +71,22 @@ class Types
     }
 
     /**
-     * Return the types mapping
-     *
-     * @return MapInterface<string, string>
-     */
-    public function all(): MapInterface
-    {
-        return $this->types;
-    }
-
-    /**
      * Build a new type instance of the wished type
      *
      * @param string $type
-     * @param CollectionInterface $config
+     * @param MapInterface<string, mixed> $config
      *
      * @return TypeInterface
      */
-    public function build(string $type, CollectionInterface $config): TypeInterface
+    public function build(string $type, MapInterface $config): TypeInterface
     {
-        $config = $config->set('_types', $this);
+        if (
+            (string) $config->keyType() !== 'string' ||
+            (string) $config->valueType() !== 'mixed'
+        ) {
+            throw new InvalidArgumentException;
+        }
 
-        return call_user_func(
-            [$this->types->get($type), 'fromConfig'],
-            $config
-        );
+        return [$this->types->get($type), 'fromConfig']($config, $this);
     }
 }

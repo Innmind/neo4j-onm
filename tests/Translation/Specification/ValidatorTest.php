@@ -5,6 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
+    Translation\Specification\ValidatorInterface,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -18,15 +19,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\{
-    Collection,
-    Map
-};
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class ValidatorTest extends \PHPUnit_Framework_TestCase
+class ValidatorTest extends TestCase
 {
     private $aggregate;
     private $relationship;
@@ -45,7 +45,9 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -62,7 +64,9 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -70,7 +74,9 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -88,9 +94,19 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             );
+    }
+
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            ValidatorInterface::class,
+            new Validator
+        );
     }
 
     public function testValidateAggregate()

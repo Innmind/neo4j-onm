@@ -3,12 +3,18 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-class ClassName
+use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+
+final class ClassName
 {
     private $class;
 
     public function __construct(string $class)
     {
+        if (empty($class)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->class = $class;
     }
 

@@ -35,18 +35,26 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Type\StringType,
+    Types,
     Exception\EntityNotFoundException
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
-use Innmind\Immutable\{
-    Set,
-    SetInterface,
-    Collection
+use Innmind\EventBus\EventBusInterface;
+use Innmind\HttpTransport\GuzzleTransport;
+use Innmind\Http\{
+    Translator\Response\Psr7Translator,
+    Factory\Header\Factories
 };
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Innmind\Immutable\{
+    Stream,
+    SetInterface,
+    Map
+};
+use GuzzleHttp\Client;
+use PHPUnit\Framework\TestCase;
 
-class RepositoryTest extends \PHPUnit_Framework_TestCase
+class RepositoryTest extends TestCase
 {
     private $r;
     private $class;
@@ -65,21 +73,23 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             'http'
         )
             ->for('neo4j', 'ci')
+            ->useTransport(
+                new GuzzleTransport(
+                    new Client,
+                    new Psr7Translator(Factories::default())
+                )
+            )
             ->build();
         $container = new Container;
         $entityFactory = new EntityFactory(
             new ResultTranslator,
             $generators = new Generators,
-            (new Resolver)
-                ->register(new RelationshipFactory($generators)),
+            new Resolver(
+                new RelationshipFactory($generators)
+            ),
             $container
         );
-        $metadatas = new Metadatas;
-        $changeset = new ChangesetComputer;
-        $extractor = new DataExtractor($metadatas);
-        $dispatcher = new EventDispatcher;
-
-        $metadatas->register(
+        $metadatas = new Metadatas(
             $meta = (new Aggregate(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
@@ -88,10 +98,15 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
                 new Alias('foo'),
                 ['Label']
             ))
-                ->withProperty('content', StringType::fromConfig(new Collection([
-                    'nullable' => true,
-                ])))
+                ->withProperty('content', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                ))
         );
+        $changeset = new ChangesetComputer;
+        $extractor = new DataExtractor($metadatas);
+        $eventBus = $this->createMock(EventBusInterface::class);
 
         $uow = new UnitOfWork(
             $conn,
@@ -100,11 +115,11 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
             new IdentityMatchTranslator,
             $metadatas,
             new DelegationPersister(
-                (new Set(PersisterInterface::class))
+                (new Stream(PersisterInterface::class))
                     ->add(
                         new InsertPersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $metadatas
                         )
@@ -112,7 +127,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
                     ->add(
                         new UpdatePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $extractor,
                             $metadatas
                         )
@@ -120,7 +135,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
                     ->add(
                         new RemovePersister(
                             $changeset,
-                            $dispatcher,
+                            $eventBus,
                             $metadatas
                         )
                     )
@@ -153,7 +168,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->r, $this->r->remove($entity));
         $this->assertFalse($this->r->has($entity->uuid));
 
-        $this->setExpectedException(EntityNotFoundException::class);
+        $this->expectException(EntityNotFoundException::class);
         $this->r->get($entity->uuid);
     }
 

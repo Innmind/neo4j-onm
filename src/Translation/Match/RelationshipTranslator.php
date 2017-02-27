@@ -14,7 +14,7 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\Map;
 
-class RelationshipTranslator implements MatchTranslatorInterface
+final class RelationshipTranslator implements MatchTranslatorInterface
 {
     /**
      * {@inheritdoc}

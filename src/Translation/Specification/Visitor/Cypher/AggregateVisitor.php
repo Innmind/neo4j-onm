@@ -6,7 +6,8 @@ namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\CypherVisitorInterface,
     Metadata\Aggregate,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Query\Where
 };
 use Innmind\Specification\{
     SpecificationInterface,
@@ -15,13 +16,11 @@ use Innmind\Specification\{
     NotInterface
 };
 use Innmind\Immutable\{
-    StringPrimitive as Str,
-    SequenceInterface,
-    Sequence,
-    Collection
+    Str,
+    Map
 };
 
-class AggregateVisitor implements CypherVisitorInterface
+final class AggregateVisitor implements CypherVisitorInterface
 {
     private $meta;
     private $count = 0;
@@ -34,10 +33,8 @@ class AggregateVisitor implements CypherVisitorInterface
     /**
      * {@inheritdo}
      */
-    public function visit(
-        SpecificationInterface $specification
-    ): SequenceInterface {
-
+    public function __invoke(SpecificationInterface $specification): Where
+    {
         switch (true) {
             case $specification instanceof ComparatorInterface:
                 ++$this->count; //used for parameters name, so a same property can be used multiple times
@@ -45,79 +42,64 @@ class AggregateVisitor implements CypherVisitorInterface
                 return $this->buildCondition($specification);
 
             case $specification instanceof CompositeInterface:
-                $left = $this->visit($specification->left());
-                $right = $this->visit($specification->right());
+                $left = ($this)($specification->left());
+                $right = ($this)($specification->right());
+                $operator = strtolower((string) $specification->operator());
 
-                return new Sequence(
-                    sprintf(
-                        '(%s %s %s)',
-                        $left->get(0),
-                        $specification->operator(),
-                        $right->get(0)
-                    ),
-                    $left->get(1)->merge($right->get(1))
-                );
+                return $left->{$operator}($right);
 
             case $specification instanceof NotInterface:
-                $condition = $this->visit($specification->specification());
-
-                return new Sequence(
-                    sprintf(
-                        'NOT (%s)',
-                        $condition->get(0)
-                    ),
-                    $condition->get(1)
-                );
+                return ($this)($specification->specification())->not();
         }
     }
 
-    private function buildCondition(
-        ComparatorInterface $specification
-    ): SequenceInterface {
+    private function buildCondition(ComparatorInterface $specification): Where
+    {
         $property = new Str($specification->property());
 
         switch (true) {
             case $this->meta->properties()->contains($specification->property()):
                 return $this->buildPropertyCondition($specification);
 
-            case $property->match('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
+            case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyCondition($specification);
         }
     }
 
     private function buildPropertyCondition(
         ComparatorInterface $specification
-    ): SequenceInterface {
+    ): Where {
         $prop = $specification->property();
         $key = (new Str('entity_'))
             ->append($prop)
             ->append((string) $this->count);
 
-        return new Sequence(
+        return new Where(
             sprintf(
                 'entity.%s %s %s',
                 $prop,
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $specification->value(),
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $specification->value())
         );
     }
 
     private function buildSubPropertyCondition(
         ComparatorInterface $specification
-    ): SequenceInterface {
+    ): Where {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
-        $var = (new Str('entity_'))->append($pieces->pop()->join('_'));
+        $var = (new Str('entity_'))->append(
+            (string) $pieces->dropEnd(1)->join('_')
+        );
         $key = $var
             ->append('_')
             ->append((string) $pieces->last())
             ->append((string) $this->count);
 
-        return new Sequence(
+        return new Where(
             sprintf(
                 '%s %s %s',
                 $var
@@ -126,9 +108,8 @@ class AggregateVisitor implements CypherVisitorInterface
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            new Collection([
-                (string) $key => $specification->value(),
-            ])
+            (new Map('string', 'mixed'))
+                ->put((string) $key, $specification->value())
         );
     }
 }

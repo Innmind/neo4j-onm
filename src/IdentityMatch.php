@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Neo4j\DBAL\QueryInterface;
 use Innmind\Immutable\MapInterface;
 
-class IdentityMatch
+final class IdentityMatch
 {
     private $query;
     private $variables;

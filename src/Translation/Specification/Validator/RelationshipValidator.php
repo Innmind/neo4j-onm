@@ -15,9 +15,8 @@ use Innmind\Specification\{
     NotInterface,
     SpecificationInterface
 };
-use Innmind\Immutable\StringPrimitive as Str;
 
-class RelationshipValidator implements ValidatorInterface
+final class RelationshipValidator implements ValidatorInterface
 {
     /**
      * {@inheritdoc}

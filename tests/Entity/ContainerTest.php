@@ -7,8 +7,9 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     IdentityInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     public function testInterface()
     {
@@ -53,5 +54,17 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {
         (new Container)->get($this->createMock(IdentityInterface::class));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenPushingToInvalidState()
+    {
+        (new Container)->push(
+            $this->createMock(IdentityInterface::class),
+            new \stdClass,
+            42
+        );
     }
 }

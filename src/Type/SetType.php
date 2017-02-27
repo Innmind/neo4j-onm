@@ -5,17 +5,18 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     TypeInterface,
+    Types,
     Exception\TypeDeclarationException,
     Exception\RecursiveTypeDeclarationException,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     SetInterface,
     Set
 };
 
-class SetType implements TypeInterface
+final class SetType implements TypeInterface
 {
     private $nullable = false;
     private $inner;
@@ -25,11 +26,11 @@ class SetType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(CollectionInterface $config): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
     {
         $type = new self;
 
-        if (!$config->hasKey('inner')) {
+        if (!$config->contains('inner')) {
             throw TypeDeclarationException::missingField('inner');
         }
 
@@ -37,23 +38,19 @@ class SetType implements TypeInterface
             throw new RecursiveTypeDeclarationException;
         }
 
-        $innerConfig = $config
-            ->unset('inner')
-            ->unset('_types');
+        $innerConfig = $config->remove('inner');
 
-        if ($config->hasKey('nullable')) {
+        if ($config->contains('nullable')) {
             $type->nullable = true;
-            $innerConfig = $innerConfig->unset('nullable');
+            $innerConfig = $innerConfig->remove('nullable');
         }
 
-        $type->type = $config->hasKey('set_type') ?
+        $type->type = $config->contains('set_type') ?
             $config->get('set_type') : $config->get('inner');
-        $type->inner = $config
-            ->get('_types')
-            ->build(
-                $config->get('inner'),
-                $innerConfig
-            );
+        $type->inner = $types->build(
+            $config->get('inner'),
+            $innerConfig
+        );
 
         return $type;
     }

@@ -12,14 +12,17 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\EntityInterface,
     Metadata\ValueObject,
+    Metadata\ValueObjectRelationship,
+    Metadata\RelationshipType,
     TypeInterface
 };
 use Innmind\Immutable\{
     SetInterface,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTest extends \PHPUnit_Framework_TestCase
+class AggregateTest extends TestCase
 {
     public function testInterface()
     {
@@ -44,28 +47,34 @@ class AggregateTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(MapInterface::class, $ar->children());
         $this->assertSame('string', (string) $ar->children()->keyType());
         $this->assertSame(ValueObject::class, (string) $ar->children()->valueType());
-        $this->assertSame(0, $ar->children()->count());
+        $this->assertCount(0, $ar->children());
 
         $ar2 = $ar->withChild(
-            $vo = $this
-                ->getMockBuilder(ValueObject::class)
-                ->disableOriginalConstructor()
-                ->getMock()
+            $vo = new ValueObject(
+                new ClassName('whatever'),
+                ['whatever'],
+                new ValueObjectRelationship(
+                    new ClassName('whatever'),
+                    new RelationshipType('whatever'),
+                    'foo',
+                    'bar'
+                )
+            )
         );
 
         $this->assertNotSame($ar, $ar2);
         $this->assertInstanceOf(Aggregate::class, $ar2);
-        $this->assertSame(0, $ar->children()->count());
-        $this->assertSame(1, $ar2->children()->count());
-        $this->assertSame($vo, $ar2->children()->first()->value());
+        $this->assertCount(0, $ar->children());
+        $this->assertCount(1, $ar2->children());
+        $this->assertSame($vo, $ar2->children()->current());
 
         $ar2 = $ar->withProperty(
             'foo',
             $this->createMock(TypeInterface::class)
         );
         $this->assertNotSame($ar, $ar2);
-        $this->assertSame(0, $ar->properties()->count());
-        $this->assertSame(1, $ar2->properties()->count());
+        $this->assertCount(0, $ar->properties());
+        $this->assertCount(1, $ar2->properties());
         $this->assertTrue($ar2->properties()->contains('foo'));
     }
 }

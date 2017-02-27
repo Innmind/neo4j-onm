@@ -3,13 +3,16 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    TypeInterface,
+    Exception\InvalidArgumentException
+};
 use Innmind\Immutable\{
     Map,
     MapInterface
 };
 
-class ValueObjectRelationship
+final class ValueObjectRelationship
 {
     private $class;
     private $type;
@@ -23,6 +26,10 @@ class ValueObjectRelationship
         string $property,
         string $childProperty
     ) {
+        if (empty($property) || empty($childProperty)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->class = $class;
         $this->type = $type;
         $this->property = $property;
@@ -55,6 +62,9 @@ class ValueObjectRelationship
         return $this->childProperty;
     }
 
+    /**
+     * @return MapInterface<string, Property>
+     */
     public function properties(): MapInterface
     {
         return $this->properties;

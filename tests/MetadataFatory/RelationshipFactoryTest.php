@@ -10,53 +10,54 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Types
 };
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
+class RelationshipFactoryTest extends TestCase
 {
-    private $f;
+    private $factory;
 
     public function setUp()
     {
-        $this->f = new RelationshipFactory(new Types);
+        $this->factory = new RelationshipFactory(new Types);
     }
 
     public function testInterface()
     {
         $this->assertInstanceOf(
             MetadataFactoryInterface::class,
-            $this->f
+            $this->factory
         );
     }
 
     public function testMake()
     {
-        $ar = $this->f->make(new Collection([
-            'class' => 'SomeRelationship',
-            'alias' => 'SR',
-            'repository' => 'SRRepository',
-            'factory' => 'SRFactory',
-            'rel_type' => 'SOME_RELATIONSHIP',
-            'identity' => [
+        $ar = $this->factory->make((new Map('string', 'mixed'))
+            ->put('class', 'SomeRelationship')
+            ->put('alias', 'SR')
+            ->put('repository', 'SRRepository')
+            ->put('factory', 'SRFactory')
+            ->put('rel_type', 'SOME_RELATIONSHIP')
+            ->put('identity', [
                 'property' => 'uuid',
                 'type' => 'UUID',
-            ],
-            'startNode' => [
+            ])
+            ->put('startNode', [
                 'property' => 'startProperty',
                 'type' => 'UUID',
                 'target' => 'target',
-            ],
-            'endNode' => [
+            ])
+            ->put('endNode', [
                 'property' => 'endProperty',
                 'type' => 'UUID',
                 'target' => 'target',
-            ],
-            'properties' => [
+            ])
+            ->put('properties', [
                 'created' => [
                     'type' => 'date',
                 ],
-            ],
-        ]));
+            ])
+        );
 
         $this->assertInstanceOf(Relationship::class, $ar);
         $this->assertSame('SomeRelationship', (string) $ar->class());
@@ -76,5 +77,13 @@ class RelationshipFactoryTest extends \PHPUnit_Framework_TestCase
             DateType::class,
             $ar->properties()->get('created')->type()
         );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidConfigMap()
+    {
+        $this->factory->make(new Map('string', 'variable'));
     }
 }

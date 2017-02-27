@@ -11,8 +11,9 @@ use Innmind\Neo4j\ONM\{
     TypeInterface
 };
 use Innmind\Immutable\MapInterface;
+use PHPUnit\Framework\TestCase;
 
-class ValueObjectRelationshipTest extends \PHPUnit_Framework_TestCase
+class ValueObjectRelationshipTest extends TestCase
 {
     public function testInterface()
     {
@@ -39,5 +40,31 @@ class ValueObjectRelationshipTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, $vor->properties()->count());
         $this->assertSame(1, $vor2->properties()->count());
         $this->assertTrue($vor2->properties()->contains('foo'));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyProperty()
+    {
+        new ValueObjectRelationship(
+            new ClassName('foo'),
+            new RelationshipType('FOO'),
+            '',
+            'node'
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyChildProperty()
+    {
+        new ValueObjectRelationship(
+            new ClassName('foo'),
+            new RelationshipType('FOO'),
+            'relationship',
+            ''
+        );
     }
 }

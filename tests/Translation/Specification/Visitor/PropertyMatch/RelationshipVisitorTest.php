@@ -18,23 +18,24 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Metadata\RelationshipEdge,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types,
+    Query\PropertiesMatch
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
-    Collection,
-    MapInterface,
-    SequenceInterface,
-    CollectionInterface
+    Map,
+    MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
+class RelationshipVisitorTest extends TestCase
 {
-    private $v;
+    private $visitor;
 
     public function setUp()
     {
-        $this->v = new RelationshipVisitor(
+        $this->visitor = new RelationshipVisitor(
             (new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
@@ -49,7 +50,9 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 )
         );
@@ -57,12 +60,12 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->v);
+        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->visitor);
     }
 
     public function testVisit()
     {
-        $mapping = $this->v->visit(
+        $mapping = ($this->visitor)(
             (new Property('created', '=', null))
                 ->and(new Property('empty', '=', null))
                 ->and(new Property('start', '=', 'foo'))
@@ -72,78 +75,25 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(MapInterface::class, $mapping);
         $this->assertSame('string', (string) $mapping->keyType());
         $this->assertSame(
-            SequenceInterface::class,
+            PropertiesMatch::class,
             (string) $mapping->valueType()
         );
         $this->assertSame(
             ['entity', 'start', 'end'],
             $mapping->keys()->toPrimitive()
         );
-        $this->assertSame(2, $mapping->get('entity')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('entity')->get(1)
-        );
-        $this->assertSame(
-            [
-                'empty' => '{entity_empty}',
-                'created' => '{entity_created}',
-            ],
-            $mapping->get('entity')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'entity_empty' => null,
-                'entity_created' => null,
-            ],
-            $mapping->get('entity')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('start')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('start')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('start')->get(1)
-        );
-        $this->assertSame(
-            [
-                'id' => '{start_id}',
-            ],
-            $mapping->get('start')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'start_id' => 'foo',
-            ],
-            $mapping->get('start')->get(1)->toPrimitive()
-        );
-        $this->assertSame(2, $mapping->get('end')->size());
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('end')->get(0)
-        );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $mapping->get('end')->get(1)
-        );
-        $this->assertSame(
-            [
-                'id' => '{end_id}',
-            ],
-            $mapping->get('end')->get(0)->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                'end_id' => 'bar',
-            ],
-            $mapping->get('end')->get(1)->toPrimitive()
-        );
+        $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
+        $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));
+        $this->assertNull($mapping->get('entity')->parameters()->get('entity_empty'));
+        $this->assertNull($mapping->get('entity')->parameters()->get('entity_created'));
+        $this->assertCount(1, $mapping->get('start')->properties());
+        $this->assertSame('{start_id}', $mapping->get('start')->properties()->get('id'));
+        $this->assertCount(1, $mapping->get('start')->parameters());
+        $this->assertSame('foo', $mapping->get('start')->parameters()->get('start_id'));
+        $this->assertCount(1, $mapping->get('end')->properties());
+        $this->assertSame('{end_id}', $mapping->get('end')->properties()->get('id'));
+        $this->assertCount(1, $mapping->get('end')->parameters());
+        $this->assertSame('bar', $mapping->get('end')->parameters()->get('end_id'));
     }
 
     /**
@@ -151,7 +101,7 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenNotDirectComparison()
     {
-        $this->v->visit(new Property('created', '~=', 'foo'));
+        ($this->visitor)(new Property('created', '~=', 'foo'));
     }
 
     /**
@@ -159,7 +109,7 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenOrOperator()
     {
-        $this->v->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))
                 ->or(new Property('empty', '=', 'foo'))
         );
@@ -170,7 +120,7 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenNegatedSpecification()
     {
-        $this->v->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))->not()
         );
     }

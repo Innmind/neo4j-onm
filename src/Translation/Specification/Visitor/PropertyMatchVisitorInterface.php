@@ -15,7 +15,7 @@ interface PropertyMatchVisitorInterface
      *
      * @throws SpecificationNotApplicableAsPropertyMatchException
      *
-     * @return MapInterface<string, SequenceInterface>
+     * @return MapInterface<string, PropertiesMatch>
      */
-    public function visit(SpecificationInterface $specification): MapInterface;
+    public function __invoke(SpecificationInterface $specification): MapInterface;
 }

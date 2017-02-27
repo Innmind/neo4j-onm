@@ -5,15 +5,16 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     TypeInterface,
+    Types,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     Set,
     SetInterface
 };
 
-class DateType implements TypeInterface
+final class DateType implements TypeInterface
 {
     private $nullable = false;
     private $format = \DateTime::ISO8601;
@@ -23,19 +24,19 @@ class DateType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(CollectionInterface $config): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
     {
         $type = new self;
 
-        if ($config->hasKey('nullable')) {
+        if ($config->contains('nullable')) {
             $type->nullable = true;
         }
 
-        if ($config->hasKey('format')) {
+        if ($config->contains('format')) {
             $type->format = $config->get('format');
         }
 
-        if ($config->hasKey('immutable')) {
+        if ($config->contains('immutable')) {
             $type->immutable = (bool) $config->get('immutable');
         }
 

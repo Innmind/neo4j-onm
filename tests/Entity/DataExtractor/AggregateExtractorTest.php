@@ -18,28 +18,25 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    Identity\Uuid
+    Identity\Uuid,
+    Types
 };
 use Innmind\Immutable\{
-    CollectionInterface,
-    Collection,
-    TypedCollection
+    MapInterface,
+    Map
 };
-use Innmind\Reflection\ExtractionStrategy\{
-    ExtractionStrategies,
-    ExtractionStrategyInterface,
-    ReflectionStrategy
-};
+use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
+use PHPUnit\Framework\TestCase;
 
-class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
+class AggregateExtractorTest extends TestCase
 {
-    private $e;
-    private $m;
+    private $extractor;
+    private $meta;
 
     public function setUp()
     {
-        $this->e = new AggregateExtractor;
-        $this->m = new Aggregate(
+        $this->extractor = new AggregateExtractor;
+        $this->meta = new Aggregate(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
@@ -47,12 +44,14 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
             new Alias('foo'),
             ['Label']
         );
-        $this->m = $this->m
+        $this->meta = $this->meta
             ->withProperty('created', new DateType)
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -70,7 +69,9 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -78,7 +79,9 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -86,7 +89,7 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractorInterface::class, $this->e);
+        $this->assertInstanceOf(DataExtractorInterface::class, $this->extractor);
     }
 
     /**
@@ -117,9 +120,11 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
         $child->content = 'foo';
 
         $extractor = new AggregateExtractor($strategies);
-        $data = $extractor->extract($entity, $this->m);
+        $data = $extractor->extract($entity, $this->meta);
 
-        $this->assertInstanceOf(CollectionInterface::class, $data);
+        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertSame('string', (string) $data->keyType());
+        $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['created', 'empty', 'uuid', 'rel'],
             $data->keys()->toPrimitive()
@@ -128,9 +133,11 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
-        $this->assertSame(null, $data->get('empty'));
+        $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
-        $this->assertInstanceOf(CollectionInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertSame('string', (string) $data->get('rel')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'empty', 'child'],
             $data->get('rel')->keys()->toPrimitive()
@@ -139,17 +146,19 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('rel')->get('created')
         );
-        $this->assertSame(null, $data->get('rel')->get('empty'));
+        $this->assertNull($data->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            CollectionInterface::class,
+            MapInterface::class,
             $data->get('rel')->get('child')
         );
+        $this->assertSame('string', (string) $data->get('rel')->get('child')->keyType());
+        $this->assertSame('mixed', (string) $data->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'empty'],
             $data->get('rel')->get('child')->keys()->toPrimitive()
         );
         $this->assertSame('foo', $data->get('rel')->get('child')->get('content'));
-        $this->assertSame(null, $data->get('rel')->get('child')->get('empty'));
+        $this->assertNull($data->get('rel')->get('child')->get('empty'));
     }
 
     /**
@@ -157,9 +166,20 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowWhenExtractingInvalidMeta()
     {
-        $this->e->extract(
+        $this->extractor->extract(
             new \stdClass,
             $this->createMock(EntityInterface::class)
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenExtractingInvalidEntity()
+    {
+        $this->extractor->extract(
+            '',
+            $this->meta
         );
     }
 
@@ -167,14 +187,7 @@ class AggregateExtractorTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [null],
-            [
-                new ExtractionStrategies(
-                    new TypedCollection(
-                        ExtractionStrategyInterface::class,
-                        [new ReflectionStrategy]
-                    )
-                )
-            ],
+            [new ReflectionStrategy],
         ];
     }
 }

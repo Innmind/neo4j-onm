@@ -5,16 +5,17 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     TypeInterface,
+    Types,
     Exception\TypeDeclarationException,
     Exception\RecursiveTypeDeclarationException
 };
 use Innmind\Immutable\{
-    CollectionInterface,
+    MapInterface,
     Set,
     SetInterface
 };
 
-class ArrayType implements TypeInterface
+final class ArrayType implements TypeInterface
 {
     private $nullable = false;
     private $inner;
@@ -23,11 +24,11 @@ class ArrayType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(CollectionInterface $config): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
     {
         $type = new self;
 
-        if (!$config->hasKey('inner')) {
+        if (!$config->contains('inner')) {
             throw TypeDeclarationException::missingField('inner');
         }
 
@@ -35,16 +36,14 @@ class ArrayType implements TypeInterface
             throw new RecursiveTypeDeclarationException;
         }
 
-        $type->inner = $config
-            ->get('_types')
-            ->build(
-                $config->get('inner'),
-                $config
-                    ->unset('inner')
-                    ->unset('_types')
-            );
+        $type->inner = $types->build(
+            $config->get('inner'),
+            $config
+                ->remove('inner')
+                ->remove('_types')
+        );
 
-        if ($config->hasKey('nullable')) {
+        if ($config->contains('nullable')) {
             $type->nullable = true;
         }
 

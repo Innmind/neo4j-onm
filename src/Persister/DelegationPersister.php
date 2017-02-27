@@ -9,16 +9,13 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
-use Innmind\Immutable\{
-    Set,
-    SetInterface
-};
+use Innmind\Immutable\StreamInterface;
 
-class DelegationPersister implements PersisterInterface
+final class DelegationPersister implements PersisterInterface
 {
     private $persisters;
 
-    public function __construct(SetInterface $persisters)
+    public function __construct(StreamInterface $persisters)
     {
         if ((string) $persisters->type() !== PersisterInterface::class) {
             throw new InvalidArgumentException;

@@ -6,17 +6,22 @@ namespace Innmind\Neo4j\ONM\Identity\Generator;
 use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\GeneratorInterface,
-    IdentityInterface
+    IdentityInterface,
+    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\Map;
 use Ramsey\Uuid\Uuid as Generator;
 
-class UuidGenerator implements GeneratorInterface
+final class UuidGenerator implements GeneratorInterface
 {
     private $identities;
 
     public function __construct(string $type = Uuid::class)
     {
+        if (empty($type)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->identities = new Map('string', $type);
     }
 

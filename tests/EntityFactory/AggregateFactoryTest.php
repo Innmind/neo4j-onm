@@ -18,22 +18,33 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    IdentityInterface
+    IdentityInterface,
+    Types,
+    EntityFactoryInterface
 };
 use Innmind\Reflection\{
     InstanciatorInterface,
-    InjectionStrategy\InjectionStrategyInterface,
-    InjectionStrategy\InjectionStrategies
+    InjectionStrategyInterface
 };
 use Innmind\Immutable\{
-    Collection,
-    CollectionInterface,
-    TypedCollection,
-    SetInterface
+    SetInterface,
+    Set,
+    MapInterface,
+    Map,
+    Stream
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            EntityFactoryInterface::class,
+            new AggregateFactory
+        );
+    }
+
     /**
      * @dataProvider reflection
      */
@@ -69,7 +80,9 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -86,7 +99,9 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -94,7 +109,9 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
@@ -102,16 +119,15 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
         $ar = $f->make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
-            new Collection([
-                'uuid' => 24,
-                'created' => '2016-01-01T00:00:00+0200',
-                'rel' => new Collection([
-                    'created' => '2016-01-01T00:00:00+0200',
-                    'child' => new Collection([
-                        'content' => 'foo',
-                    ]),
-                ]),
-            ])
+            (new Map('string', 'mixed'))
+                ->put('uuid', 24)
+                ->put('created', '2016-01-01T00:00:00+0200')
+                ->put('rel', (new Map('string', 'mixed'))
+                    ->put('created', '2016-01-01T00:00:00+0200')
+                    ->put('child', (new Map('string', 'mixed'))
+                        ->put('content', 'foo')
+                    )
+                )
         );
 
         $this->assertInstanceOf(get_class($entity), $ar);
@@ -124,7 +140,7 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
             '2016-01-01T00:00:00+02:00',
             $ar->created->format('c')
         );
-        $this->assertSame(null, $ar->empty);
+        $this->assertNull($ar->empty);
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
             $ar->rel->created
@@ -133,24 +149,43 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
             '2016-01-01T00:00:00+02:00',
             $ar->rel->created->format('c')
         );
-        $this->assertSame(null, $ar->rel->empty);
+        $this->assertNull($ar->rel->empty);
         $this->assertInstanceOf(
             get_class($child),
             $ar->rel->child
         );
         $this->assertSame('foo', $ar->rel->child->content);
-        $this->assertSame(null, $ar->rel->child->empty);
+        $this->assertNull($ar->rel->child->empty);
     }
 
     /**
-     * @expectedException Innmind\neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
      */
     public function testThrowWhenTryingToBuildNonAggregate()
     {
         (new AggregateFactory)->make(
             $this->createMock(IdentityInterface::class),
             $this->createMock(EntityInterface::class),
-            new Collection([])
+            new Map('string', 'mixed')
+        );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenTryingToBuildWithInvalidData()
+    {
+        (new AggregateFactory)->make(
+            $this->createMock(IdentityInterface::class),
+            new Aggregate(
+                new ClassName('foo'),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                ['Label']
+            ),
+            new Map('string', 'variable')
         );
     }
 
@@ -160,41 +195,36 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
             [null, null],
             [
                 new class implements InstanciatorInterface {
-                    public function build(string $class, CollectionInterface $properties)
+                    public function build(string $class, MapInterface $properties)
                     {
                         return new $class;
                     }
 
-                    public function getParameters(string $class): CollectionInterface
+                    public function parameters(string $class): SetInterface
                     {
-                        return new Collection([]);
+                        return new Set('string');
                     }
                 },
                 null,
             ],
             [
                 new class implements InstanciatorInterface {
-                    public function build(string $class, CollectionInterface $properties)
+                    public function build(string $class, MapInterface $properties)
                     {
                         $object = new $class;
-                        $properties->each(function($name, $value) use ($object) {
+                        $properties->foreach(function($name, $value) use ($object) {
                             $object->$name = $value;
                         });
 
                         return $object;
                     }
 
-                    public function getParameters(string $class): CollectionInterface
+                    public function parameters(string $class): SetInterface
                     {
-                        return new Collection([]);
+                        return new Set('string');
                     }
                 },
-                new InjectionStrategies(
-                    new TypedCollection(
-                        InjectionStrategyInterface::class,
-                        []
-                    )
-                ),
+                $this->createMock(InjectionStrategyInterface::class)
             ],
         ];
     }

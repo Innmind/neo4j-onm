@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-class Relationship extends Entity implements EntityInterface
+final class Relationship extends Entity implements EntityInterface
 {
     private $type;
     private $startNode;

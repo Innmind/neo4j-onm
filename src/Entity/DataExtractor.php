@@ -13,11 +13,10 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map,
-    CollectionInterface
+    Map
 };
 
-class DataExtractor
+final class DataExtractor
 {
     private $metadatas;
     private $extractors;
@@ -44,10 +43,14 @@ class DataExtractor
      *
      * @param object $entity
      *
-     * @return CollectionInterface
+     * @return MapInterface<string, mixed>
      */
-    public function extract($entity): CollectionInterface
+    public function extract($entity): MapInterface
     {
+        if (!is_object($entity)) {
+            throw new InvalidArgumentException;
+        }
+
         $meta = $this->metadatas->get(get_class($entity));
 
         return $this

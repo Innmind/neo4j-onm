@@ -17,7 +17,7 @@ use Innmind\Immutable\{
     Map
 };
 
-class Validator implements ValidatorInterface
+final class Validator implements ValidatorInterface
 {
     private $validators;
 

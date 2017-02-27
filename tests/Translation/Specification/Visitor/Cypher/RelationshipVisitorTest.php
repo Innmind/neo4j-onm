@@ -17,22 +17,24 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
-    Collection,
+    Map,
     SequenceInterface,
-    CollectionInterface
+    MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
+class RelationshipVisitorTest extends TestCase
 {
-    private $v;
+    private $visitor;
 
     public function setUp()
     {
-        $this->v = new RelationshipVisitor(
+        $this->visitor = new RelationshipVisitor(
             (new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
@@ -47,7 +49,9 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 )
         );
@@ -55,36 +59,27 @@ class RelationshipVisitorTest extends \PHPUnit_Framework_TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(CypherVisitorInterface::class, $this->v);
+        $this->assertInstanceOf(CypherVisitorInterface::class, $this->visitor);
     }
 
     public function testVisit()
     {
-        $condition = $this->v->visit(
+        $condition = ($this->visitor)(
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))
                 ->and(new Property('start', '=', 'foo'))
                 ->and((new Property('end', '=', 'bar'))->not())
         );
 
-        $this->assertInstanceOf(SequenceInterface::class, $condition);
-        $this->assertSame(2, $condition->size());
         $this->assertSame(
             '(((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4}))',
-            $condition->get(0)
+            $condition->cypher()
         );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $condition->get(1)
-        );
-        $this->assertSame(
-            [
-                'entity_created1' => 10,
-                'entity_empty2' => 20,
-                'start_id3' => 'foo',
-                'end_id4' => 'bar',
-            ],
-            $condition->get(1)->toPrimitive()
-        );
+        $this->assertSame('string', (string) $condition->parameters()->keyType());
+        $this->assertSame('mixed', (string) $condition->parameters()->valueType());
+        $this->assertSame(10, $condition->parameters()->get('entity_created1'));
+        $this->assertSame(20, $condition->parameters()->get('entity_empty2'));
+        $this->assertSame('foo', $condition->parameters()->get('start_id3'));
+        $this->assertSame('bar', $condition->parameters()->get('end_id4'));
     }
 }

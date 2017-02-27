@@ -19,13 +19,15 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     IdentityMatch,
-    Identity\Uuid
+    Identity\Uuid,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
+class RelationshipTranslatorTest extends TestCase
 {
     private $meta;
 
@@ -45,7 +47,9 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 );
     }
@@ -60,9 +64,9 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
 
     public function testTranslateWithPropertyMatch()
     {
-        $t = new RelationshipTranslator;
+        $translator = new RelationshipTranslator;
 
-        $match = $t->translate(
+        $match = $translator->translate(
             $this->meta,
             (new Property('created', '=', 1))
                 ->and(new Property('empty', '=', 2))
@@ -75,11 +79,11 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
             'MATCH (start { id: {start_id} })-[entity:type { empty: {entity_empty}, created: {entity_created} }]->(end { id: {end_id} }) RETURN start, end, entity',
             $match->query()->cypher()
         );
-        $this->assertSame(4, $match->query()->parameters()->count());
+        $this->assertCount(4, $match->query()->parameters());
         $match
             ->query()
             ->parameters()
-            ->each(function(int $idx, Parameter $parameter) {
+            ->foreach(function(string $key, Parameter $parameter) {
                 $expected = [
                     'entity_empty' => 2,
                     'entity_created' => 1,
@@ -87,21 +91,21 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                     'end_id' => '11111111-1111-1111-1111-111111111111',
                 ];
 
-                $this->assertTrue(isset($expected[$parameter->key()]));
+                $this->assertTrue(isset($expected[$key]));
                 $this->assertSame(
-                    $expected[$parameter->key()],
+                    $expected[$key],
                     $parameter->value()
                 );
             });
-        $this->assertSame(1, $match->variables()->size());
+        $this->assertCount(1, $match->variables());
         $this->assertSame($this->meta, $match->variables()->get('entity'));
     }
 
     public function testTranslateWithWhereClause()
     {
-        $t = new RelationshipTranslator;
+        $translator = new RelationshipTranslator;
 
-        $match = $t->translate(
+        $match = $translator->translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))
@@ -114,11 +118,11 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
             'MATCH (start)-[entity:type]->(end) WHERE (((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4})) RETURN start, end, entity',
             $match->query()->cypher()
         );
-        $this->assertSame(4, $match->query()->parameters()->count());
+        $this->assertCount(4, $match->query()->parameters());
         $match
             ->query()
             ->parameters()
-            ->each(function(int $idx, Parameter $parameter) {
+            ->foreach(function(string $key, Parameter $parameter) {
                 $expected = [
                     'entity_empty2' => 20,
                     'entity_created1' => 10,
@@ -126,9 +130,9 @@ class RelationshipTranslatorTest extends \PHPUnit_Framework_TestCase
                     'end_id4' => '11111111-1111-1111-1111-111111111111',
                 ];
 
-                $this->assertTrue(isset($expected[$parameter->key()]));
+                $this->assertTrue(isset($expected[$key]));
                 $this->assertSame(
-                    $expected[$parameter->key()],
+                    $expected[$key],
                     $parameter->value()
                 );
             });

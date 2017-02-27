@@ -16,11 +16,11 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    StringPrimitive as Str,
+    Str,
     Set
 };
 
-class AggregateTranslator implements IdentityMatchTranslatorInterface
+final class AggregateTranslator implements IdentityMatchTranslatorInterface
 {
     /**
      * {@inheritdoc}

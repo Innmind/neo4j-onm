@@ -173,7 +173,7 @@ Now that you know how to add/remove, let's learn how query our entities back fro
 $image = images->get(new Uuid($_GET['wished_image_id']));
 ```
 
-**Note**: the usage of `$_GET` here is only to be framework agnostic, but event if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](Identity/Uuid.php#L20)).
+**Note**: the usage of `$_GET` here is only to be framework agnostic, but even if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](Identity/Uuid.php#L20)).
 
 But accessing entities through their identifiers is not enough, that's why a repository as a method called `matching` which allows only a single parameter that has to be a [specification](https://github.com/Innmind/Specification).
 
@@ -190,28 +190,6 @@ $entities = $images->matching(
 ```
 
 Here `ImageOfDomain` would use the image `url` to check if it's one of the wished one. The library can translate any tree of specification into a valid cypher query. And because `ImageOfDomain` should implement a method like `isSatisfiedBy` you can reuse `$spec` to validate any `Image` elsewhere in your code.
-
-### Events
-
-The library only contains 6 event types which all occur at the same moment: when you call `flush` on your manager.
-
-* `Events::PRE_PERSIST` dispatched before an entity is inserted in the graph
-* `Events::POST_PERSIST` dispatched after the cypher query has been sent to neo4j
-* `Events::PRE_UPDATE` dispatched before an entity is updated in the graph (gives access to the data changeset that will be applied)
-* `Events::POST_UPDATE` dispatched after the changeset has been applied
-* `Events::PRE_REMOVE` dispatched before an entity is removed
-* `Events::POST_REMOVE` dispatched after the cypher query has been sent to neo4j
-
-To listen to these events you need to specify your own event dispather instance when building your manager.
-
-```php
-use Symfony\Component\EventDispatcher\EventDispatcher;
-
-ManagerFactory::for([/* mapping */])
-    ->withDispatcher($dispatcher = new EventDispatcher)
-    ->withConnection($conn)
-    ->build();
-```
 
 ### Overriding defaults
 

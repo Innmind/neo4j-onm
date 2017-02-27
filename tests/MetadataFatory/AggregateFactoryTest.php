@@ -11,43 +11,44 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Types
 };
-use Innmind\Immutable\Collection;
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
+class AggregateFactoryTest extends TestCase
 {
-    private $f;
+    private $factory;
 
     public function setUp()
     {
-        $this->f = new AggregateFactory(new Types);
+        $this->factory = new AggregateFactory(new Types);
     }
 
     public function testInterface()
     {
         $this->assertInstanceOf(
             MetadataFactoryInterface::class,
-            $this->f
+            $this->factory
         );
     }
 
     public function testMake()
     {
-        $ar = $this->f->make(new Collection([
-            'class' => 'Image',
-            'alias' => 'I',
-            'repository' => 'ImageRepository',
-            'factory' => 'ImageFactory',
-            'labels' => ['Image'],
-            'identity' => [
+        $ar = $this->factory->make((new Map('string', 'mixed'))
+            ->put('class', 'Image')
+            ->put('alias', 'I')
+            ->put('repository', 'ImageRepository')
+            ->put('factory', 'ImageFactory')
+            ->put('labels', ['Image'])
+            ->put('identity', [
                 'property' => 'uuid',
                 'type' => 'UUID',
-            ],
-            'properties' => [
+            ])
+            ->put('properties', [
                 'url' => [
                     'type' => 'string',
                 ],
-            ],
-            'children' => [
+            ])
+            ->put('children', [
                 'rel' => [
                     'class' => 'DescriptionOf',
                     'type' => 'DESCRIPTION_OF',
@@ -67,8 +68,8 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
                         ],
                     ],
                 ],
-            ],
-        ]));
+            ])
+        );
 
         $this->assertInstanceOf(Aggregate::class, $ar);
         $this->assertSame('Image', (string) $ar->class());
@@ -99,5 +100,13 @@ class AggregateFactoryTest extends \PHPUnit_Framework_TestCase
             DateType::class,
             $rel->properties()->get('created')->type()
         );
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidConfigMap()
+    {
+        $this->factory->make(new Map('string', 'variable'));
     }
 }

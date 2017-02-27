@@ -18,13 +18,13 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    StringPrimitive as Str,
+    Str,
     MapInterface,
     Set
 };
 use Innmind\Specification\SpecificationInterface;
 
-class AggregateTranslator implements SpecificationTranslatorInterface
+final class AggregateTranslator implements SpecificationTranslatorInterface
 {
     /**
      * {@inheritdoc}
@@ -36,9 +36,7 @@ class AggregateTranslator implements SpecificationTranslatorInterface
         $variables = new Set('string');
 
         try {
-            $mapping = (new AggregatePropertyMatchVisitor($meta))->visit(
-                $specification
-            );
+            $mapping = (new AggregatePropertyMatchVisitor($meta))($specification);
 
             $query = $this
                 ->addProperties(
@@ -127,12 +125,21 @@ class AggregateTranslator implements SpecificationTranslatorInterface
                             Relationship::LEFT
                         );
                 });
-            $condition = (new AggregateCypherVisitor($meta))->visit(
-                $specification
-            );
+            $condition = (new AggregateCypherVisitor($meta))($specification);
             $query = $query
-                ->where($condition->get(0))
-                ->withParameters($condition->get(1)->toPrimitive());
+                ->where($condition->cypher())
+                ->withParameters(
+                    $condition
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
+                );
         }
 
         return new IdentityMatch(
@@ -142,6 +149,9 @@ class AggregateTranslator implements SpecificationTranslatorInterface
         );
     }
 
+    /**
+     * @param MapInterface<string, PropertiesMatch> $mapping
+     */
     private function addProperties(
         Query $query,
         string $name,
@@ -150,10 +160,30 @@ class AggregateTranslator implements SpecificationTranslatorInterface
         if ($mapping->contains($name)) {
             $query = $query
                 ->withProperties(
-                    $mapping->get($name)->get(0)->toPrimitive()
+                    $mapping
+                        ->get($name)
+                        ->properties()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $property, string $cypher): array {
+                                $carry[$property] = $cypher;
+
+                                return $carry;
+                            }
+                        )
                 )
                 ->withParameters(
-                    $mapping->get($name)->get(1)->toPrimitive()
+                    $mapping
+                        ->get($name)
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
                 );
         }
 

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
 use Innmind\Neo4j\DBAL\ResultInterface;
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\SetInterface;
 
 interface EntityTranslatorInterface
 {
@@ -16,11 +16,11 @@ interface EntityTranslatorInterface
      * @param EntityInterface $meta
      * @param ResultInterface $result
      *
-     * @return CollectionInterface
+     * @return SetInterface<MapInterface<string, mixed>>
      */
     public function translate(
         string $variable,
         EntityInterface $meta,
         ResultInterface $result
-    ): CollectionInterface;
+    ): SetInterface;
 }

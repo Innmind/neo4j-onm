@@ -8,18 +8,18 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Metadata\EntityInterface,
-    Entity\Container
+    Entity\Container,
+    Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\ResultInterface;
 use Innmind\Immutable\{
     Map,
     Set,
     SetInterface,
-    MapInterface,
-    CollectionInterface
+    MapInterface
 };
 
-class EntityFactory
+final class EntityFactory
 {
     private $translator;
     private $generators;
@@ -39,7 +39,7 @@ class EntityFactory
     }
 
     /**
-     * Translate the dbal result into a ste of entities
+     * Translate the dbal result into a set of entities
      *
      * @param ResultInterface $result
      * @param MapInterface<string, EntityInterface> $variables
@@ -50,51 +50,41 @@ class EntityFactory
         ResultInterface $result,
         MapInterface $variables
     ): SetInterface {
+        if (
+            (string) $variables->keyType() !== 'string' ||
+            (string) $variables->valueType() !== EntityInterface::class
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         $structuredData = $this->translator->translate($result, $variables);
         $entities = new Set('object');
 
-        $variables->foreach(function(
-            string $variable,
-            EntityInterface $meta
-        ) use (
-            &$entities,
-            $structuredData
-        ) {
-            if (!$structuredData->contains($variable)) {
-                return;
-            }
-
-            $data = $structuredData->get($variable);
-
-            if ($data->hasKey(0)) { // means collection
-                $data->each(function(
-                    int $index,
-                    CollectionInterface $data
-                ) use (
-                    &$entities,
-                    $meta
-                ) {
-                    $entities = $entities->add(
-                        $this->makeEntity(
-                            $meta,
-                            $data
-                        )
-                    );
-                });
-            } else {
-                $entities = $entities->add(
-                    $this->makeEntity(
-                        $meta,
-                        $data
-                    )
-                );
-            }
-        });
-
-        return $entities;
+        return $variables
+            ->filter(function(string $variable) use ($structuredData): bool {
+                return $structuredData->contains($variable);
+            })
+            ->reduce(
+                new Set('object'),
+                function(Set $carry, string $variable, EntityInterface $meta) use ($structuredData): Set {
+                    return $structuredData
+                        ->get($variable)
+                        ->reduce(
+                            $carry,
+                            function(Set $carry, MapInterface $data) use ($meta): Set {
+                                return $carry->add(
+                                    $this->makeEntity($meta, $data)
+                                );
+                            }
+                        );
+                }
+            );
     }
 
-    private function makeEntity(EntityInterface $meta, CollectionInterface $data)
+    /**
+     * @param MapInterface<string, mixed> $data
+     */
+    private function makeEntity(EntityInterface $meta, MapInterface $data)
     {
         $identity = $this
             ->generators

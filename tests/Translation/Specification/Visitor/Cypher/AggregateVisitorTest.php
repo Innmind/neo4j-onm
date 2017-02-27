@@ -16,22 +16,20 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type\DateType,
-    Type\StringType
+    Type\StringType,
+    Types
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\{
-    Collection,
-    SequenceInterface,
-    CollectionInterface
-};
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
+class AggregateVisitorTest extends TestCase
 {
-    private $v;
+    private $visitor;
 
     public function setUp()
     {
-        $this->v = new AggregateVisitor(
+        $this->visitor = new AggregateVisitor(
             (new Aggregate(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
@@ -44,7 +42,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                 ->withProperty(
                     'empty',
                     StringType::fromConfig(
-                        new Collection(['nullable' => null])
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
                 )
                 ->withChild(
@@ -61,7 +61,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
-                                    new Collection(['nullable' => null])
+                                    (new Map('string', 'mixed'))
+                                        ->put('nullable', null),
+                                    new Types
                                 )
                             )
                     ))
@@ -69,7 +71,9 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 )
@@ -78,12 +82,12 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(CypherVisitorInterface::class, $this->v);
+        $this->assertInstanceOf(CypherVisitorInterface::class, $this->visitor);
     }
 
     public function testVisit()
     {
-        $condition = $this->v->visit(
+        $condition = ($this->visitor)(
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))
                 ->or(new Property('rel.created', '=', 30))
@@ -92,26 +96,18 @@ class AggregateVisitorTest extends \PHPUnit_Framework_TestCase
                 ->and((new Property('rel.child.empty', '=', 60))->not())
         );
 
-        $this->assertInstanceOf(SequenceInterface::class, $condition);
-        $this->assertSame(2, $condition->size());
         $this->assertSame(
             '(((((entity.created = {entity_created1} AND entity.empty = {entity_empty2}) OR entity_rel.created = {entity_rel_created3}) AND entity_rel.empty = {entity_rel_empty4}) AND entity_rel_child.content = {entity_rel_child_content5}) AND NOT (entity_rel_child.empty = {entity_rel_child_empty6}))',
-            $condition->get(0)
+            $condition->cypher()
         );
-        $this->assertInstanceOf(
-            CollectionInterface::class,
-            $condition->get(1)
-        );
-        $this->assertSame(
-            [
-                'entity_created1' => 10,
-                'entity_empty2' => 20,
-                'entity_rel_created3' => 30,
-                'entity_rel_empty4' => 40,
-                'entity_rel_child_content5' => 50,
-                'entity_rel_child_empty6' => 60,
-            ],
-            $condition->get(1)->toPrimitive()
-        );
+        $this->assertSame('string', (string) $condition->parameters()->keyType());
+        $this->assertSame('mixed', (string) $condition->parameters()->valueType());
+        $this->assertCount(6, $condition->parameters());
+        $this->assertSame(10, $condition->parameters()->get('entity_created1'));
+        $this->assertSame(20, $condition->parameters()->get('entity_empty2'));
+        $this->assertSame(30, $condition->parameters()->get('entity_rel_created3'));
+        $this->assertSame(40, $condition->parameters()->get('entity_rel_empty4'));
+        $this->assertSame(50, $condition->parameters()->get('entity_rel_child_content5'));
+        $this->assertSame(60, $condition->parameters()->get('entity_rel_child_empty6'));
     }
 }

@@ -9,26 +9,39 @@ use Innmind\Neo4j\ONM\Identity\{
     Uuid,
     Generator\UuidGenerator
 };
+use Innmind\Immutable\Map;
+use PHPUnit\Framework\TestCase;
 
-class GeneratorsTest extends \PHPUnit_Framework_TestCase
+class GeneratorsTest extends TestCase
 {
     public function testInterface()
     {
-        $g = new Generators;
+        $generators = new Generators;
 
-        $this->assertSame(1, $g->all()->size());
-        $this->assertSame(
-            Uuid::class,
-            $g->all()->keys()->get(0)
-        );
         $this->assertInstanceOf(
             UuidGenerator::class,
-            $g->get(Uuid::class)
+            $generators->get(Uuid::class)
         );
-        $this->assertSame(
-            $g,
-            $g->register('foo', $m = $this->createMock(GeneratorInterface::class))
+    }
+
+    public function testRegisterGenerator()
+    {
+        $generators = new Generators(
+            (new Map('string', GeneratorInterface::class))
+                ->put(
+                    'foo',
+                    $mock = $this->createMock(GeneratorInterface::class)
+                )
         );
-        $this->assertSame(2, $g->all()->size());
+
+        $this->assertSame($mock, $generators->get('foo'));
+    }
+
+    /**
+     * @expectedException Innmind\Immutable\Exception\InvalidArgumentException
+     */
+    public function testTrhowWhenInvalidMap()
+    {
+        new Generators(new Map('string', 'object'));
     }
 }

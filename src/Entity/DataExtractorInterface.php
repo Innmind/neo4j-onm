@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\Metadata\EntityInterface;
-use Innmind\Immutable\CollectionInterface;
+use Innmind\Immutable\MapInterface;
 
 interface DataExtractorInterface
 {
@@ -14,7 +14,7 @@ interface DataExtractorInterface
      * @param object $entity
      * @param EntityInterface $meta
      *
-     * @return CollectionInterface
+     * @return MapInterface<string, mixed>
      */
-    public function extract($entity, EntityInterface $meta): CollectionInterface;
+    public function extract($entity, EntityInterface $meta): MapInterface;
 }

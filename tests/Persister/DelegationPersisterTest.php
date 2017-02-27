@@ -9,62 +9,49 @@ use Innmind\Neo4j\ONM\{
     Entity\Container
 };
 use Innmind\Neo4j\DBAL\ConnectionInterface;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\Stream;
+use PHPUnit\Framework\TestCase;
 
-class DelegationPersisterTest extends \PHPUnit_Framework_TestCase
+class DelegationPersisterTest extends TestCase
 {
     public function testInterface()
     {
-        $p = new DelegationPersister(
-            new Set(PersisterInterface::class)
+        $perister = new DelegationPersister(
+            new Stream(PersisterInterface::class)
         );
-        $this->assertInstanceOf(PersisterInterface::class, $p);
+        $this->assertInstanceOf(PersisterInterface::class, $perister);
     }
 
     public function testPersist()
     {
-        $p = new DelegationPersister(
-            (new Set(PersisterInterface::class))
+        $persister = new DelegationPersister(
+            (new Stream(PersisterInterface::class))
                 ->add(
-                    $m1 = $this->createMock(PersisterInterface::class)
+                    $mock1 = $this->createMock(PersisterInterface::class)
                 )
                 ->add(
-                    $m2 = $this->createMock(PersisterInterface::class)
+                    $mock2 = $this->createMock(PersisterInterface::class)
                 )
         );
-        $count = 0;
-        $expectedConn = $this->createMock(ConnectionInterface::class);
-        $expectedContainer = new Container;
-        $m1
+        $connection = $this->createMock(ConnectionInterface::class);
+        $container = new Container;
+        $mock1
+            ->expects($this->once())
             ->method('persist')
-            ->will($this->returnCallback(function(
-                ConnectionInterface $conn,
-                Container $container
-            ) use (
-                &$count,
-                $expectedConn,
-                $expectedContainer
-            ) {
-                $this->assertSame($expectedConn, $conn);
-                $this->assertSame($expectedContainer, $container);
-                ++$count;
-            }));
-        $m2
+            ->with($connection, $container);
+        $mock2
+            ->expects($this->once())
             ->method('persist')
-            ->will($this->returnCallback(function(
-                ConnectionInterface $conn,
-                Container $container
-            ) use (
-                &$count,
-                $expectedConn,
-                $expectedContainer
-            ) {
-                $this->assertSame($expectedConn, $conn);
-                $this->assertSame($expectedContainer, $container);
-                ++$count;
-            }));
+            ->with($connection, $container);
 
-        $this->assertSame(null, $p->persist($expectedConn, $expectedContainer));
-        $this->assertSame(2, $count);
+        $this->assertNull($persister->persist($connection, $container));
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidStream()
+    {
+        new DelegationPersister(new Stream('callable'));
     }
 }

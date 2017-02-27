@@ -18,22 +18,28 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
-    IdentityMatch
+    IdentityMatch,
+    Types
 };
 use Innmind\Immutable\{
-    Collection,
+    Map,
     MapInterface
 };
+use PHPUnit\Framework\TestCase;
 
-class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
+class AggregateTranslatorTest extends TestCase
 {
-    public function testTranslate()
+    public function testInterface()
     {
-        $t = new AggregateTranslator;
         $this->assertInstanceOf(
             MatchTranslatorInterface::class,
-            $t
+            new AggregateTranslator
         );
+    }
+
+    public function testTranslate()
+    {
+        $translator = new AggregateTranslator;
 
         $meta = new Aggregate(
             new ClassName('FQCN'),
@@ -48,7 +54,9 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
             ->withProperty(
                 'empty',
                 StringType::fromConfig(
-                    new Collection(['nullable' => null])
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
                 )
             )
             ->withChild(
@@ -65,7 +73,9 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
                         ->withProperty(
                             'empty',
                             StringType::fromConfig(
-                                new Collection(['nullable' => null])
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
                             )
                         )
                 ))
@@ -73,11 +83,13 @@ class AggregateTranslatorTest extends \PHPUnit_Framework_TestCase
                     ->withProperty(
                         'empty',
                         StringType::fromConfig(
-                            new Collection(['nullable' => null])
+                            (new Map('string', 'mixed'))
+                                ->put('nullable', null),
+                            new Types
                         )
                     )
             );
-        $im = $t->translate($meta);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

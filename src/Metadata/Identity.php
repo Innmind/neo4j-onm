@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
+use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+
 /**
  * Holds the property name of an entity identifier
  */
@@ -13,6 +15,10 @@ class Identity
 
     public function __construct(string $property, string $type)
     {
+        if (empty($property) || empty($type)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->property = $property;
         $this->type = $type;
     }

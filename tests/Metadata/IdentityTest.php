@@ -4,8 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Metadata\Identity;
+use PHPUnit\Framework\TestCase;
 
-class IdentityTest extends \PHPUnit_Framework_TestCase
+class IdentityTest extends TestCase
 {
     public function testInterface()
     {
@@ -14,5 +15,21 @@ class IdentityTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('uuid', (string) $i);
         $this->assertSame('uuid', $i->property());
         $this->assertSame('UUID', $i->type());
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyProperty()
+    {
+        new Identity('', 'UUID');
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyType()
+    {
+        new Identity('uuid', '');
     }
 }
