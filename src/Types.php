@@ -22,7 +22,7 @@ final class Types
 {
     private $types;
 
-    public function __construct()
+    public function __construct(string ...$types)
     {
         $defaults = [
             ArrayType::class,
@@ -33,10 +33,11 @@ final class Types
             IntType::class,
             StringType::class,
         ];
+        $types = array_merge($defaults, $types);
         $this->types = (new Map('string', 'string'));
 
-        foreach ($defaults as $default) {
-            $this->register($default);
+        foreach ($types as $type) {
+            $this->register($type);
         }
     }
 
@@ -47,7 +48,7 @@ final class Types
      *
      * @return self
      */
-    public function register(string $type): self
+    private function register(string $type): self
     {
         $refl = new \ReflectionClass($type);
 
@@ -67,16 +68,6 @@ final class Types
             });
 
         return $this;
-    }
-
-    /**
-     * Return the types mapping
-     *
-     * @return MapInterface<string, string>
-     */
-    public function all(): MapInterface
-    {
-        return $this->types;
     }
 
     /**

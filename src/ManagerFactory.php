@@ -46,7 +46,7 @@ final class ManagerFactory
     private $resolver;
     private $identityMatchTranslator;
     private $additionalIdentityMatchTranslator;
-    private $types;
+    private $types = [];
     private $metadataBuilder;
     private $metadataFactories;
     private $persister;
@@ -61,7 +61,6 @@ final class ManagerFactory
     private function __construct(array $entities)
     {
         $this->entities = $entities;
-        $this->types = new Types;
         $this->config = new Configuration;
         $this->additionalGenerators = new Map('string', GeneratorInterface::class);
         $this->entityFactories = new Set(EntityFactoryInterface::class);
@@ -205,7 +204,7 @@ final class ManagerFactory
      */
     public function withType(string $class): self
     {
-        $this->types->register($class);
+        $this->types[] = $class;
 
         return $this;
     }
@@ -427,7 +426,7 @@ final class ManagerFactory
     {
         if ($this->metadataBuilder === null) {
             $this->metadataBuilder = (new MetadataBuilder(
-                $this->types,
+                new Types(...$this->types),
                 $this->metadataFactories,
                 $this->config
             ))

@@ -12,7 +12,8 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\FloatType,
     Type\IntType,
-    Type\StringType
+    Type\StringType,
+    Type\PointInTimeType
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
@@ -21,45 +22,40 @@ class TypesTest extends TestCase
 {
     public function testAll()
     {
-        $t = new Types;
+        $types = new Types;
 
-        $this->assertSame(
-            'string',
-            (string) $t->all()->keyType()
-        );
-        $this->assertSame(
-            'string',
-            (string) $t->all()->valueType()
-        );
-        $this->assertSame(
-            [
-                'array',
-                'set',
-                'bool',
-                'boolean',
-                'date',
-                'datetime',
-                'float',
-                'int',
-                'integer',
-                'string',
-            ],
-            $t->all()->keys()->toPrimitive()
-        );
-        $this->assertSame(
-            [
-                ArrayType::class,
-                SetType::class,
-                BooleanType::class,
-                BooleanType::class,
-                DateType::class,
-                DateType::class,
-                FloatType::class,
-                IntType::class,
-                IntType::class,
-                StringType::class,
-            ],
-            $t->all()->values()->toPrimitive()
+        $defaults = [
+            'array' => ArrayType::class,
+            'set' => SetType::class,
+            'bool' => BooleanType::class,
+            'boolean' => BooleanType::class,
+            'date' => DateType::class,
+            'datetime' => DateType::class,
+            'float' => FloatType::class,
+            'int' => IntType::class,
+            'integer' => IntType::class,
+            'string' => StringType::class,
+        ];
+
+        foreach ($defaults as $key => $value) {
+            $this->assertInstanceOf($value, $types->build(
+                $key,
+                (new Map('string', 'mixed'))
+                    ->put('inner', 'string')
+            ));
+        }
+    }
+
+    public function testRegisterCustomType()
+    {
+        $types = new Types(PointInTimeType::class);
+
+        $this->assertInstanceOf(
+            PointInTimeType::class,
+            $types->build(
+                'point_in_time',
+                new Map('string', 'mixed')
+            )
         );
     }
 
@@ -69,20 +65,20 @@ class TypesTest extends TestCase
      */
     public function testThrowWhenRegisteringingInvalidType()
     {
-        (new Types)->register('stdClass');
+        new Types('stdClass');
     }
 
     public function testBuild()
     {
-        $t = new Types;
+        $types = new Types;
 
         $this->assertInstanceOf(
             StringType::class,
-            $t->build('string', new Map('string', 'mixed'))
+            $types->build('string', new Map('string', 'mixed'))
         );
         $this->assertInstanceOf(
             ArrayType::class,
-            $t->build(
+            $types->build(
                 'array',
                 (new Map('string', 'mixed'))
                     ->put('inner', 'string')
