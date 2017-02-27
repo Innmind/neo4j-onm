@@ -91,7 +91,7 @@ class AggregateVisitorTest extends TestCase
 
     public function testVisit()
     {
-        $condition = $this->visitor->visit(
+        $condition = ($this->visitor)(
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))
                 ->or(new Property('rel.created', '=', 30))

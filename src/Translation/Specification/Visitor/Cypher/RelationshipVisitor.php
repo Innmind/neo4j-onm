@@ -38,7 +38,7 @@ final class RelationshipVisitor implements CypherVisitorInterface
     /**
      * {@inheritdo}
      */
-    public function visit(
+    public function __invoke(
         SpecificationInterface $specification
     ): SequenceInterface {
 
@@ -49,8 +49,8 @@ final class RelationshipVisitor implements CypherVisitorInterface
                 return $this->buildCondition($specification);
 
             case $specification instanceof CompositeInterface:
-                $left = $this->visit($specification->left());
-                $right = $this->visit($specification->right());
+                $left = ($this)($specification->left());
+                $right = ($this)($specification->right());
 
                 return new Sequence(
                     sprintf(
@@ -63,7 +63,7 @@ final class RelationshipVisitor implements CypherVisitorInterface
                 );
 
             case $specification instanceof NotInterface:
-                $condition = $this->visit($specification->specification());
+                $condition = ($this)($specification->specification());
 
                 return new Sequence(
                     sprintf(

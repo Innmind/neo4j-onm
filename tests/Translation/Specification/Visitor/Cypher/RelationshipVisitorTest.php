@@ -64,7 +64,7 @@ class RelationshipVisitorTest extends TestCase
 
     public function testVisit()
     {
-        $condition = $this->visitor->visit(
+        $condition = ($this->visitor)(
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))
                 ->and(new Property('start', '=', 'foo'))

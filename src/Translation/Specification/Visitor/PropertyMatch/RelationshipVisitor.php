@@ -36,7 +36,7 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
     /**
      * {@inheritdo}
      */
-    public function visit(SpecificationInterface $specification): MapInterface
+    public function __invoke(SpecificationInterface $specification): MapInterface
     {
         switch (true) {
             case $specification instanceof ComparatorInterface:
@@ -52,8 +52,8 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
                 }
 
                 return $this->merge(
-                    $this->visit($specification->left()),
-                    $this->visit($specification->right())
+                    ($this)($specification->left()),
+                    ($this)($specification->right())
                 );
         }
 

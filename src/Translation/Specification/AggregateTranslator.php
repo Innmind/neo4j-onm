@@ -36,7 +36,7 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
         $variables = new Set('string');
 
         try {
-            $mapping = (new AggregatePropertyMatchVisitor($meta))->visit(
+            $mapping = (new AggregatePropertyMatchVisitor($meta))(
                 $specification
             );
 
@@ -127,7 +127,7 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
                             Relationship::LEFT
                         );
                 });
-            $condition = (new AggregateCypherVisitor($meta))->visit(
+            $condition = (new AggregateCypherVisitor($meta))(
                 $specification
             );
             $query = $query->where($condition->first());

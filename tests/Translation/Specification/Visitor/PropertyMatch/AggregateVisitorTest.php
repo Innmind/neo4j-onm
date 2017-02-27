@@ -91,7 +91,7 @@ class AggregateVisitorTest extends TestCase
 
     public function testVisit()
     {
-        $mapping = $this->visitor->visit(
+        $mapping = ($this->visitor)(
             (new Property('created', '=', null))
                 ->and(new Property('empty', '=', null))
                 ->and(new Property('rel.created', '=', null))
@@ -174,7 +174,7 @@ class AggregateVisitorTest extends TestCase
      */
     public function testThrowWhenNotDirectComparison()
     {
-        $this->visitor->visit(new Property('created', '~=', 'foo'));
+        ($this->visitor)(new Property('created', '~=', 'foo'));
     }
 
     /**
@@ -182,7 +182,7 @@ class AggregateVisitorTest extends TestCase
      */
     public function testThrowWhenOrOperator()
     {
-        $this->visitor->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))
                 ->or(new Property('empty', '=', 'foo'))
         );
@@ -193,7 +193,7 @@ class AggregateVisitorTest extends TestCase
      */
     public function testThrowWhenNegatedSpecification()
     {
-        $this->visitor->visit(
+        ($this->visitor)(
             (new Property('created', '=', 'foo'))->not()
         );
     }

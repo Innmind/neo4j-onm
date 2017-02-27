@@ -17,5 +17,5 @@ interface PropertyMatchVisitorInterface
      *
      * @return MapInterface<string, SequenceInterface>
      */
-    public function visit(SpecificationInterface $specification): MapInterface;
+    public function __invoke(SpecificationInterface $specification): MapInterface;
 }

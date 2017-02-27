@@ -15,5 +15,5 @@ interface CypherVisitorInterface
      *
      * @return SequenceInterface
      */
-    public function visit(SpecificationInterface $specification): SequenceInterface;
+    public function __invoke(SpecificationInterface $specification): SequenceInterface;
 }

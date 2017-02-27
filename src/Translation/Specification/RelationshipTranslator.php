@@ -31,7 +31,7 @@ final class RelationshipTranslator implements SpecificationTranslatorInterface
         SpecificationInterface $specification
     ): IdentityMatch {
         try {
-            $mapping = (new RelationshipPropertyMatchVisitor($meta))->visit(
+            $mapping = (new RelationshipPropertyMatchVisitor($meta))(
                 $specification
             );
 
@@ -57,7 +57,7 @@ final class RelationshipTranslator implements SpecificationTranslatorInterface
                 $mapping
             );
         } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
-            $condition = (new RelationshipCypherVisitor($meta))->visit(
+            $condition = (new RelationshipCypherVisitor($meta))(
                 $specification
             );
             $query = (new Query)
