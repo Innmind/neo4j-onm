@@ -14,4 +14,12 @@ class ClassNameTest extends TestCase
 
         $this->assertSame('Class\Name\Space', (string) $c);
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyClass()
+    {
+        new ClassName('');
+    }
 }
