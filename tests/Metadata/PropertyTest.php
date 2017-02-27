@@ -13,12 +13,20 @@ class PropertyTest extends TestCase
 {
     public function testInterface()
     {
-        $p = new Property(
+        $property = new Property(
             'foo',
-            $t = $this->createMock(TypeInterface::class)
+            $type = $this->createMock(TypeInterface::class)
         );
 
-        $this->assertSame('foo', $p->name());
-        $this->assertSame($t, $p->type());
+        $this->assertSame('foo', $property->name());
+        $this->assertSame($type, $property->type());
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyName()
+    {
+        new Property('', $this->createMock(TypeInterface::class));
     }
 }

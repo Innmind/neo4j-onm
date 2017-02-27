@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\{
+    TypeInterface,
+    Exception\InvalidArgumentException
+};
 
 final class Property
 {
@@ -12,6 +15,10 @@ final class Property
 
     public function __construct(string $name, TypeInterface $type)
     {
+        if (empty($name)) {
+            throw new InvalidArgumentException;
+        }
+
         $this->name = $name;
         $this->type = $type;
     }
