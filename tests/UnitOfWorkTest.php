@@ -89,23 +89,19 @@ class UnitOfWorkTest extends TestCase
             ),
             $this->container
         );
-        $this->metadatas = new Metadatas;
+        $this->metadatas = new Metadatas(
+            new Aggregate(
+                new ClassName($this->aggregateClass),
+                new Identity('uuid', Uuid::class),
+                new Repository('foo'),
+                new Factory(AggregateFactory::class),
+                new Alias('foo'),
+                ['Label']
+            )
+        );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($this->metadatas);
         $eventBus = $this->createMock(EventBusInterface::class);
-
-        $this
-            ->metadatas
-            ->register(
-                new Aggregate(
-                    new ClassName($this->aggregateClass),
-                    new Identity('uuid', Uuid::class),
-                    new Repository('foo'),
-                    new Factory(AggregateFactory::class),
-                    new Alias('foo'),
-                    ['Label']
-                )
-            );
 
         $this->uow = new UnitOfWork(
             $this->conn,

@@ -89,12 +89,7 @@ class RepositoryTest extends TestCase
             ),
             $container
         );
-        $metadatas = new Metadatas;
-        $changeset = new ChangesetComputer;
-        $extractor = new DataExtractor($metadatas);
-        $eventBus = $this->createMock(EventBusInterface::class);
-
-        $metadatas->register(
+        $metadatas = new Metadatas(
             $meta = (new Aggregate(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
@@ -109,6 +104,9 @@ class RepositoryTest extends TestCase
                     new Types
                 ))
         );
+        $changeset = new ChangesetComputer;
+        $extractor = new DataExtractor($metadatas);
+        $eventBus = $this->createMock(EventBusInterface::class);
 
         $uow = new UnitOfWork(
             $conn,

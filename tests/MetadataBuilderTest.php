@@ -39,12 +39,10 @@ class MetadataBuilderTest extends TestCase
     {
         $conf = Yaml::parse(file_get_contents('fixtures/mapping.yml'));
 
-        $this->assertCount(0, $this->builder->container()->all());
         $this->assertSame(
             $this->builder,
             $this->builder->inject([$conf])
         );
-        $this->assertCount(2, $this->builder->container()->all());
         $this->assertInstanceOf(
             Aggregate::class,
             $this->builder->container()->get('Image')

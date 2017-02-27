@@ -14,10 +14,14 @@ final class Metadatas
     private $aliases;
     private $mapping;
 
-    public function __construct()
+    public function __construct(EntityInterface ...$metas)
     {
         $this->aliases = new Map('string', 'string');
         $this->mapping = new Map('string', EntityInterface::class);
+
+        foreach ($metas as $meta) {
+            $this->register($meta);
+        }
     }
 
     /**
@@ -27,7 +31,7 @@ final class Metadatas
      *
      * @return self
      */
-    public function register(EntityInterface $meta): self
+    private function register(EntityInterface $meta): self
     {
         $this->aliases = $this->aliases->put(
             (string) $meta->alias(),
@@ -52,15 +56,5 @@ final class Metadatas
         }
 
         return $this->mapping->get($name);
-    }
-
-    /**
-     * Return all metadatas
-     *
-     * @return MapInterface<string, EntityInterface>
-     */
-    public function all(): MapInterface
-    {
-        return $this->mapping;
     }
 }

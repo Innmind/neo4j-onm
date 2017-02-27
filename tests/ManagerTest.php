@@ -32,7 +32,18 @@ class ManagerTest extends TestCase
 {
     public function testInterface()
     {
+        $mock = $this->createMock(RepositoryInterface::class);
         $conn = $this->createMock(ConnectionInterface::class);
+        $meta = $this->createMock(EntityInterface::class);
+        $meta
+            ->method('class')
+            ->willReturn(new ClassName('foo'));
+        $meta
+            ->method('alias')
+            ->willReturn(new Alias('foo'));
+        $meta
+            ->method('repository')
+            ->willReturn(new Repository(get_class($mock)));
         $uow = new UnitOfWork(
             $conn,
             $container = new Container,
@@ -43,7 +54,7 @@ class ManagerTest extends TestCase
                 $container
             ),
             new IdentityMatchTranslator,
-            $metadatas = new Metadatas,
+            $metadatas = new Metadatas($meta),
             $persister = $this->createMock(PersisterInterface::class),
             $generators
         );
@@ -56,18 +67,6 @@ class ManagerTest extends TestCase
             new MatchTranslator,
             new SpecificationTranslator
         );
-        $mock = $this->createMock(RepositoryInterface::class);
-        $meta = $this->createMock(EntityInterface::class);
-        $meta
-            ->method('class')
-            ->willReturn(new ClassName('foo'));
-        $meta
-            ->method('alias')
-            ->willReturn(new Alias('foo'));
-        $meta
-            ->method('repository')
-            ->willReturn(new Repository(get_class($mock)));
-        $metadatas->register($meta);
 
         $manager = new Manager(
             $uow,

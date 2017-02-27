@@ -61,47 +61,35 @@ class InsertPersisterTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $this->metadatas = new Metadatas;
-        $this->metadatas
-            ->register(
-                (new Aggregate(
-                    new ClassName($this->arClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    ['Label']
-                ))
-                    ->withProperty('created', new DateType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
+        $this->metadatas = new Metadatas(
+            (new Aggregate(
+                new ClassName($this->arClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                ['Label']
+            ))
+                ->withProperty('created', new DateType)
+                ->withProperty(
+                    'empty',
+                    StringType::fromConfig(
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
-                    ->withChild(
-                        (new ValueObject(
+                )
+                ->withChild(
+                    (new ValueObject(
+                        new ClassName('foo'),
+                        ['AnotherLabel'],
+                        (new ValueObjectRelationship(
                             new ClassName('foo'),
-                            ['AnotherLabel'],
-                            (new ValueObjectRelationship(
-                                new ClassName('foo'),
-                                new RelationshipType('FOO'),
-                                'rel',
-                                'child'
-                            ))
-                                ->withProperty('created', new DateType)
-                                ->withProperty(
-                                    'empty',
-                                    StringType::fromConfig(
-                                        (new Map('string', 'mixed'))
-                                            ->put('nullable', null),
-                                        new Types
-                                    )
-                                )
+                            new RelationshipType('FOO'),
+                            'rel',
+                            'child'
                         ))
-                            ->withProperty('content', new StringType)
+                            ->withProperty('created', new DateType)
                             ->withProperty(
                                 'empty',
                                 StringType::fromConfig(
@@ -110,29 +98,37 @@ class InsertPersisterTest extends TestCase
                                     new Types
                                 )
                             )
-                    )
-            )
-            ->register(
-                (new Relationship(
-                    new ClassName($this->rClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    new RelationshipType('type'),
-                    new RelationshipEdge('start', Uuid::class, 'uuid'),
-                    new RelationshipEdge('end', Uuid::class, 'uuid')
-                ))
-                    ->withProperty('created', new DateType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
+                    ))
+                        ->withProperty('content', new StringType)
+                        ->withProperty(
+                            'empty',
+                            StringType::fromConfig(
+                                (new Map('string', 'mixed'))
+                                    ->put('nullable', null),
+                                new Types
+                            )
                         )
+                ),
+            (new Relationship(
+                new ClassName($this->rClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'uuid'),
+                new RelationshipEdge('end', Uuid::class, 'uuid')
+            ))
+                ->withProperty('created', new DateType)
+                ->withProperty(
+                    'empty',
+                    StringType::fromConfig(
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
                     )
-            );
+                )
+        );
     }
 
     public function testInterface()

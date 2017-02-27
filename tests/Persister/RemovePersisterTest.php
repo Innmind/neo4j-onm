@@ -53,42 +53,38 @@ class RemovePersisterTest extends TestCase
         };
         $this->rClass  = get_class($r);
 
-        $this->metadatas = new Metadatas;
-        $this->metadatas
-            ->register(
-                (new Aggregate(
-                    new ClassName($this->arClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    ['Label']
-                ))
-                    ->withChild(
-                        new ValueObject(
+        $this->metadatas = new Metadatas(
+            (new Aggregate(
+                new ClassName($this->arClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                ['Label']
+            ))
+                ->withChild(
+                    new ValueObject(
+                        new ClassName('foo'),
+                        ['AnotherLabel'],
+                        new ValueObjectRelationship(
                             new ClassName('foo'),
-                            ['AnotherLabel'],
-                            new ValueObjectRelationship(
-                                new ClassName('foo'),
-                                new RelationshipType('FOO'),
-                                'rel',
-                                'child'
-                            )
+                            new RelationshipType('FOO'),
+                            'rel',
+                            'child'
                         )
                     )
+                ),
+            new Relationship(
+                new ClassName($this->rClass),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'uuid'),
+                new RelationshipEdge('end', Uuid::class, 'uuid')
             )
-            ->register(
-                new Relationship(
-                    new ClassName($this->rClass),
-                    new Identity('uuid', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    new RelationshipType('type'),
-                    new RelationshipEdge('start', Uuid::class, 'uuid'),
-                    new RelationshipEdge('end', Uuid::class, 'uuid')
-                )
-            );
+        );
     }
 
     public function testInterface()

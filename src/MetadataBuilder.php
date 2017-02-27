@@ -11,7 +11,8 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
+    Set
 };
 use Symfony\Component\Config\Definition\{
     ConfigurationInterface,
@@ -20,6 +21,7 @@ use Symfony\Component\Config\Definition\{
 
 final class MetadataBuilder
 {
+    private $definitions;
     private $metadatas;
     private $factories;
     private $config;
@@ -30,7 +32,7 @@ final class MetadataBuilder
         MapInterface $factories = null,
         ConfigurationInterface $config = null
     ) {
-        $this->metadatas = new Metadatas;
+        $this->definitions = new Set(EntityInterface::class);
         $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
             ->put('aggregate', new AggregateFactory($types))
             ->put('relationship', new RelationshipFactory($types));
@@ -52,6 +54,10 @@ final class MetadataBuilder
      */
     public function container(): Metadatas
     {
+        if (!$this->metadatas instanceof Metadatas) {
+            $this->metadatas = new Metadatas(...$this->definitions);
+        }
+
         return $this->metadatas;
     }
 
@@ -70,7 +76,7 @@ final class MetadataBuilder
         );
 
         foreach ($metas as $class => $meta) {
-            $this->metadatas->register(
+            $this->definitions = $this->definitions->add(
                 $this->build(
                     $class,
                     $this->map($meta)
