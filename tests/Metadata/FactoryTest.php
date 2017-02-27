@@ -14,4 +14,12 @@ class FactoryTest extends TestCase
 
         $this->assertSame('Class\Name\SpaceFactory', (string) $f);
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyClass()
+    {
+        new Factory('');
+    }
 }
