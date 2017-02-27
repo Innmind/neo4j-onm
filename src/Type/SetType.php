@@ -74,11 +74,14 @@ final class SetType implements TypeInterface
             ));
         }
 
-        return $value
-            ->map(function($value) {
-                return $this->inner->forDatabase($value);
-            })
-            ->toPrimitive();
+        return $value->reduce(
+            [],
+            function(array $carry, $value): array {
+                $carry[] = $this->inner->forDatabase($value);
+
+                return $carry;
+            }
+        );
     }
 
     /**

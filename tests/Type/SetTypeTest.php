@@ -11,7 +11,8 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\{
     SetInterface,
     Map,
-    Set
+    Set,
+    MapInterface
 };
 use PHPUnit\Framework\TestCase;
 
@@ -114,6 +115,54 @@ class SetTypeTest extends TestCase
                 new Types
             )
                 ->forDatabase((new Set('string'))->add(''))
+        );
+    }
+
+    public function testForDatabaseWithCastableInnerValue()
+    {
+        $mock = new class {
+            public function __toString(): string
+            {
+                return 'foo';
+            }
+        };
+        $mockType = new class implements TypeInterface {
+            public static function fromConfig(MapInterface $c, Types $t): TypeInterface
+            {
+                return new self;
+            }
+
+            public function forDatabase($value)
+            {
+                return (string) $value;
+            }
+
+            public function fromDatabase($value)
+            {
+            }
+
+            public function isNullable(): bool
+            {
+                return false;
+            }
+
+            public static function identifiers(): SetInterface
+            {
+                return (new Set('string'))->add('mock');
+            }
+        };
+        $type = SetType::fromConfig(
+            (new Map('string', 'mixed'))
+                ->put('inner', 'mock')
+                ->put('set_type', get_class($mock)),
+            new Types(get_class($mockType))
+        );
+
+        $this->assertSame(
+            ['foo'],
+            $type->forDatabase(
+                (new Set(get_class($mock)))->add($mock)
+            )
         );
     }
 
