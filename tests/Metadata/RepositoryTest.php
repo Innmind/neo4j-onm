@@ -10,8 +10,16 @@ class RepositoryTest extends TestCase
 {
     public function testInterface()
     {
-        $r = new Repository('Class\Name\SpaceRepository');
+        $repository = new Repository('Class\Name\SpaceRepository');
 
-        $this->assertSame('Class\Name\SpaceRepository', (string) $r);
+        $this->assertSame('Class\Name\SpaceRepository', (string) $repository);
+    }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenEmptyClass()
+    {
+        new Repository('');
     }
 }
