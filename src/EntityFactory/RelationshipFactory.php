@@ -43,7 +43,11 @@ final class RelationshipFactory implements EntityFactoryInterface
         EntityInterface $meta,
         MapInterface $data
     ) {
-        if (!$meta instanceof Relationship) {
+        if (
+            !$meta instanceof Relationship ||
+            (string) $data->keyType() !== 'string' ||
+            (string) $data->valueType() !== 'mixed'
+        ) {
             throw new InvalidArgumentException;
         }
 

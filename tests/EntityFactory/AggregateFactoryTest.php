@@ -161,6 +161,25 @@ class AggregateFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenTryingToBuildWithInvalidData()
+    {
+        (new AggregateFactory)->make(
+            $this->createMock(IdentityInterface::class),
+            new Aggregate(
+                new ClassName('foo'),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                ['Label']
+            ),
+            new Map('string', 'variable')
+        );
+    }
+
     public function reflection(): array
     {
         return [

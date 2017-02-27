@@ -43,7 +43,11 @@ final class AggregateFactory implements EntityFactoryInterface
         EntityInterface $meta,
         MapInterface $data
     ) {
-        if (!$meta instanceof Aggregate) {
+        if (
+            !$meta instanceof Aggregate ||
+            (string) $data->keyType() !== 'string' ||
+            (string) $data->valueType() !== 'mixed'
+        ) {
             throw new InvalidArgumentException;
         }
 

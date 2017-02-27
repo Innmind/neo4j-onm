@@ -117,6 +117,27 @@ class RelationshipFactoryTest extends TestCase
         );
     }
 
+    /**
+     * @expectedException Innmind\neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenTryingToBuildWithInvalidData()
+    {
+        (new RelationshipFactory(new Generators))->make(
+            $this->createMock(IdentityInterface::class),
+            new Relationship(
+                new ClassName('foo'),
+                new Identity('uuid', 'foo'),
+                new Repository('foo'),
+                new Factory('foo'),
+                new Alias('foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'target'),
+                new RelationshipEdge('end', Uuid::class, 'target')
+            ),
+            new Map('string', 'variable')
+        );
+    }
+
     public function reflection(): array
     {
         return [
