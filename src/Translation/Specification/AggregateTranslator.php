@@ -36,9 +36,7 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
         $variables = new Set('string');
 
         try {
-            $mapping = (new AggregatePropertyMatchVisitor($meta))(
-                $specification
-            );
+            $mapping = (new AggregatePropertyMatchVisitor($meta))($specification);
 
             $query = $this
                 ->addProperties(
@@ -151,29 +149,41 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
         );
     }
 
+    /**
+     * @param MapInterface<string, PropertiesMatch> $mapping
+     */
     private function addProperties(
         Query $query,
         string $name,
         MapInterface $mapping
     ): Query {
         if ($mapping->contains($name)) {
-            $query = $mapping
-                ->get($name)
-                ->first()
-                ->reduce(
-                    $query,
-                    function(Query $carry, string $property, string $cypher): Query {
-                        return $carry->withProperty($property, $cypher);
-                    }
-                );
-            $query = $mapping
-                ->get($name)
-                ->last()
-                ->reduce(
-                    $query,
-                    function(Query $carry, string $key, $value): Query {
-                        return $carry->withParameter($key, $value);
-                    }
+            $query = $query
+                ->withProperties(
+                    $mapping
+                        ->get($name)
+                        ->properties()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $property, string $cypher): array {
+                                $carry[$property] = $cypher;
+
+                                return $carry;
+                            }
+                        )
+                )
+                ->withParameters(
+                    $mapping
+                        ->get($name)
+                        ->parameters()
+                        ->reduce(
+                            [],
+                            function(array $carry, string $key, $value): array {
+                                $carry[$key] = $value;
+
+                                return $carry;
+                            }
+                        )
                 );
         }
 

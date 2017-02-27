@@ -6,7 +6,8 @@ namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatch;
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitorInterface,
     Metadata\Aggregate,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Query\PropertiesMatch
 };
 use Innmind\Specification\{
     SpecificationInterface,
@@ -17,8 +18,6 @@ use Innmind\Specification\{
 use Innmind\Immutable\{
     MapInterface,
     Str,
-    SequenceInterface,
-    Sequence,
     Map
 };
 
@@ -78,10 +77,10 @@ final class AggregateVisitor implements PropertyMatchVisitorInterface
         $prop = $specification->property();
         $key = (new Str('entity_'))->append($prop);
 
-        return (new Map('string', SequenceInterface::class))
+        return (new Map('string', PropertiesMatch::class))
             ->put(
                 'entity',
-                new Sequence(
+                new PropertiesMatch(
                     (new Map('string', 'string'))
                         ->put(
                             $prop,
@@ -105,10 +104,10 @@ final class AggregateVisitor implements PropertyMatchVisitorInterface
         );
         $key = $var->append('_')->append((string) $pieces->last());
 
-        return (new Map('string', SequenceInterface::class))
+        return (new Map('string', PropertiesMatch::class))
             ->put(
                 (string) $var,
-                new Sequence(
+                new PropertiesMatch(
                     (new Map('string', 'string'))
                         ->put(
                             (string) $pieces->last(),
@@ -128,17 +127,14 @@ final class AggregateVisitor implements PropertyMatchVisitorInterface
     ): MapInterface {
         return $right->reduce(
             $left,
-            function(MapInterface $carry, string $var, SequenceInterface $data) use ($left): MapInterface {
+            function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
                 if (!$carry->contains($var)) {
                     return $carry->put($var, $data);
                 }
 
                 return $carry->put(
                     $var,
-                    new Sequence(
-                        $data->first()->merge($left->get($var)->first()),
-                        $data->last()->merge($left->get($var)->last())
-                    )
+                    $data->merge($left->get($var))
                 );
             }
         );
