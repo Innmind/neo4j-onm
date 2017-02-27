@@ -89,6 +89,13 @@ final class Types
      */
     public function build(string $type, MapInterface $config): TypeInterface
     {
+        if (
+            (string) $config->keyType() !== 'string' ||
+            (string) $config->valueType() !== 'mixed'
+        ) {
+            throw new InvalidArgumentException;
+        }
+
         return [$this->types->get($type), 'fromConfig']($config, $this);
     }
 }

@@ -89,4 +89,12 @@ class TypesTest extends TestCase
             )
         );
     }
+
+    /**
+     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     */
+    public function testThrowWhenInvalidConfigMap()
+    {
+        (new Types)->build('string', new Map('string', 'variable'));
+    }
 }
