@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Identity\Generators;
 use Innmind\Neo4j\DBAL\Connection;
 
 interface Manager
@@ -14,5 +15,5 @@ interface Manager
      * Persist all the entities' modifications
      */
     public function flush(): self;
-    public function new(string $class): Identity;
+    public function identities(): Generators;
 }

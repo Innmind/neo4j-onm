@@ -55,11 +55,8 @@ final class Manager implements ManagerInterface
         return $this;
     }
 
-    public function new(string $class): Identity
+    public function identities(): Generators
     {
-        return $this
-            ->generators
-            ->get($class)
-            ->new();
+        return $this->generators;
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Identity;
 
+use Innmind\Neo4j\ONM\Identity;
 use Innmind\Immutable\{
     Map,
     MapInterface
@@ -26,5 +27,10 @@ final class Generators
     public function get(string $class): Generator
     {
         return $this->mapping->get($class);
+    }
+
+    public function new(string $class): Identity
+    {
+        return $this->get($class)->new();
     }
 }
