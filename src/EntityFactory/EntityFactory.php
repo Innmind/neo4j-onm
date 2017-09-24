@@ -6,7 +6,6 @@ namespace Innmind\Neo4j\ONM\EntityFactory;
 use Innmind\Neo4j\ONM\{
     Translation\ResultTranslator,
     Identity\Generators,
-    EntityFactory\Resolver,
     Metadata\Entity,
     Entity\Container,
     Entity\Container\State

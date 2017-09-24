@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Identity\Generator,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
-    EntityFactory,
     Persister\DelegationPersister,
     Persister\InsertPersister,
     Persister\UpdatePersister,

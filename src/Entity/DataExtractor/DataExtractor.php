@@ -8,8 +8,6 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Aggregate,
     Metadata\Relationship,
-    Entity\DataExtractor\AggregateExtractor,
-    Entity\DataExtractor\RelationshipExtractor,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
