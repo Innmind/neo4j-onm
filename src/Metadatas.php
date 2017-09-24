@@ -26,8 +26,6 @@ final class Metadatas
 
     /**
      * Register a new entity metadata
-     *
-     * @return self
      */
     private function register(Entity $meta): self
     {

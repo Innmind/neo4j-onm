@@ -45,8 +45,6 @@ final class Types
      * Register the given type
      *
      * @param string $type FQCN
-     *
-     * @return self
      */
     private function register(string $type): self
     {

@@ -12,8 +12,6 @@ interface Repository
      * Add a new entity to the repository
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function add($entity): self;
 
@@ -42,8 +40,6 @@ interface Repository
      * Remove the given entity from the repository
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function remove($entity): self;
 
@@ -56,8 +52,6 @@ interface Repository
 
     /**
      * Return all the entities matching the given specification
-     *
-     * @param SpecificationInterface $specification
      *
      * @return SetInterface<object>
      */

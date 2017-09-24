@@ -49,11 +49,6 @@ final class MetadataBuilder
         }
     }
 
-    /**
-     * Return the metadatas container
-     *
-     * @return Metadatas
-     */
     public function container(): Metadatas
     {
         if (!$this->metadatas instanceof Metadatas) {
@@ -65,10 +60,6 @@ final class MetadataBuilder
 
     /**
      * Append the given mapping to the metadatas
-     *
-     * @param array $metas
-     *
-     * @return self
      */
     public function inject(array $metas): self
     {

@@ -22,10 +22,6 @@ final class Generators
 
     /**
      * Return the generator for the given identity class
-     *
-     * @param string $class
-     *
-     * @return Generator
      */
     public function get(string $class): Generator
     {

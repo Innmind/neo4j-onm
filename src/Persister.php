@@ -11,9 +11,6 @@ interface Persister
     /**
      * Use the given collection to persist modifications in the given container
      *
-     * @param Connection $connection
-     * @param Container $container
-     *
      * @return void
      */
     public function persist(Connection $connection, Container $container);

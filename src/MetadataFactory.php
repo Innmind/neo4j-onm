@@ -9,7 +9,7 @@ use Innmind\Immutable\MapInterface;
 interface MetadataFactory
 {
     /**
-     * @param  MapInterface<string, mixed> $config
+     * @param MapInterface<string, mixed> $config
      */
     public function make(MapInterface $config): Entity;
 }

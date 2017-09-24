@@ -33,17 +33,11 @@ final class Manager implements ManagerInterface
         $this->generators = $generators;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function connection(): Connection
     {
         return $this->unitOfWork->connection();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function repository(string $class): Repository
     {
         return $this->repositoryFactory->make(
@@ -61,9 +55,6 @@ final class Manager implements ManagerInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function new(string $class): Identity
     {
         return $this

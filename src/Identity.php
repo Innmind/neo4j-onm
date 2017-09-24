@@ -14,8 +14,6 @@ interface Identity
 
     /**
      * Return the string representation of the identifier
-     *
-     * @return string
      */
     public function __toString(): string;
 }

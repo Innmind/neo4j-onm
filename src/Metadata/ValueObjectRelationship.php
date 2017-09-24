@@ -54,8 +54,6 @@ final class ValueObjectRelationship
 
     /**
      * Return the property name where to find the child
-     *
-     * @return string
      */
     public function childProperty(): string
     {
@@ -70,14 +68,6 @@ final class ValueObjectRelationship
         return $this->properties;
     }
 
-    /**
-     * Add a property to the definition
-     *
-     * @param string $name
-     * @param Type $type
-     *
-     * @return self
-     */
     public function withProperty(string $name, Type $type): self
     {
         $valueObject = clone $this;

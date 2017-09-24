@@ -59,14 +59,6 @@ final class ValueObject
         return $this->properties;
     }
 
-    /**
-     * Add a property to the definition
-     *
-     * @param string $name
-     * @param Type $type
-     *
-     * @return self
-     */
     public function withProperty(string $name, Type $type): self
     {
         $valueObject = clone $this;

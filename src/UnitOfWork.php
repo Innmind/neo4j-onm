@@ -51,8 +51,6 @@ final class UnitOfWork
 
     /**
      * Return the connection used by this unit of work
-     *
-     * @return Connection
      */
     public function connection(): Connection
     {
@@ -63,8 +61,6 @@ final class UnitOfWork
      * Add the given entity to the ones to be persisted
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function persist($entity): self
     {
@@ -88,10 +84,6 @@ final class UnitOfWork
 
     /**
      * Check if the given identity already has been loaded
-     *
-     * @param Identity $identity
-     *
-     * @return bool
      */
     public function contains(Identity $identity): bool
     {
@@ -100,10 +92,6 @@ final class UnitOfWork
 
     /**
      * Return the state for the given identity
-     *
-     * @param Identity $identity
-     *
-     * @return int
      */
     public function stateFor(Identity $identity): int
     {
@@ -112,9 +100,6 @@ final class UnitOfWork
 
     /**
      * Return the entity with the given identifier
-     *
-     * @param string $class
-     * @param Identity $identity
      *
      * @throws EntityNotFound
      *
@@ -154,8 +139,6 @@ final class UnitOfWork
      * Plan the given entity to be removed
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function remove($entity): self
     {
@@ -192,8 +175,6 @@ final class UnitOfWork
      * Detach the given entity from the unit of work
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function detach($entity): self
     {
@@ -223,8 +204,6 @@ final class UnitOfWork
 
     /**
      * Send the modifications to the database
-     *
-     * @return self
      */
     public function commit(): self
     {
@@ -237,8 +216,6 @@ final class UnitOfWork
      * Extract the identity object from the given entity
      *
      * @param object $entity
-     *
-     * @return Identity
      */
     private function extractIdentity($entity): Identity
     {

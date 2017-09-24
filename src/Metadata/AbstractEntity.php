@@ -81,9 +81,6 @@ abstract class AbstractEntity
         return $this->class;
     }
 
-    /**
-     * Add a property to the definition
-     */
     public function withProperty(string $name, Type $type): Entity
     {
         $entity = clone $this;

@@ -74,10 +74,6 @@ final class ManagerFactory
 
     /**
      * Specify the entities definitions you want to use
-     *
-     * @param array $entities
-     *
-     * @return self
      */
     public static function for(array $entities): self
     {
@@ -86,10 +82,6 @@ final class ManagerFactory
 
     /**
      * Specify the configuration object to use to validate config data
-     *
-     * @param ConfigurationInterface $config
-     *
-     * @return self
      */
     public function validatedBy(ConfigurationInterface $config): self
     {
@@ -110,10 +102,6 @@ final class ManagerFactory
 
     /**
      * Specify the event event bus to use
-     *
-     * @param EventBusInterface $eventBus
-     *
-     * @return self
      */
     public function withEventBus(EventBusInterface $eventBus): self
     {
@@ -126,8 +114,6 @@ final class ManagerFactory
      * Specify the map of translators to use in ResultTranslator
      *
      * @param MapInterface<string, EntityTranslator> $translators
-     *
-     * @return self
      */
     public function withEntityTranslators(MapInterface $translators): self
     {
@@ -151,13 +137,6 @@ final class ManagerFactory
         return $this;
     }
 
-    /**
-     * Add an entity factory
-     *
-     * @param EntityFactory $factory
-     *
-     * @return self
-     */
     public function withEntityFactory(EntityFactory $factory): self
     {
         $this->entityFactories = $this->entityFactories->add($factory);
@@ -169,8 +148,6 @@ final class ManagerFactory
      * Set the identity match translators
      *
      * @param MapInterface<string, IdentityMatchTranslator> $translators
-     *
-     * @return self
      */
     public function withIdentityMatchTranslators(MapInterface $translators): self
     {
@@ -183,8 +160,6 @@ final class ManagerFactory
      * Specify the metadata factories
      *
      * @param MapInterface<string, MetadataFactory> $factories
-     *
-     * @return self
      */
     public function withMetadataFactories(MapInterface $factories): self
     {
@@ -195,10 +170,6 @@ final class ManagerFactory
 
     /**
      * Add a new property type
-     *
-     * @param string $class
-     *
-     * @return self
      */
     public function withType(string $class): self
     {
@@ -209,10 +180,6 @@ final class ManagerFactory
 
     /**
      * Specify the persister to use
-     *
-     * @param Persister $persister
-     *
-     * @return self
      */
     public function withPersister(Persister $persister): self
     {
@@ -225,8 +192,6 @@ final class ManagerFactory
      * Specify the translators to use to build match queries
      *
      * @param MapInterface<string, MatchTranslator> $translators
-     *
-     * @return self
      */
     public function withMatchTranslators(MapInterface $translators): self
     {
@@ -239,8 +204,6 @@ final class ManagerFactory
      * Specify the translators to use to build match queries out of specifications
      *
      * @param MapInterface<string, SpecificationTranslator> $translators
-     *
-     * @return self
      */
     public function withSpecificationTranslators(MapInterface $translators): self
     {
@@ -277,11 +240,6 @@ final class ManagerFactory
         );
     }
 
-    /**
-     * Build the unit of work
-     *
-     * @return UnitOfWork
-     */
     private function unitOfWork(): UnitOfWork
     {
         if ($this->uow === null) {
@@ -301,8 +259,6 @@ final class ManagerFactory
 
     /**
      * Build an entity container
-     *
-     * @return Container
      */
     private function container(): Container
     {
@@ -313,9 +269,6 @@ final class ManagerFactory
         return $this->container;
     }
 
-    /**
-     * Build the entity factory
-     */
     private function entityFactory(): EntityFactory\EntityFactory
     {
         if ($this->entityFactory === null) {
@@ -332,8 +285,6 @@ final class ManagerFactory
 
     /**
      * Build the dbal query result translator
-     *
-     * @return ResultTranslator
      */
     private function resultTranslator(): ResultTranslator
     {
@@ -348,8 +299,6 @@ final class ManagerFactory
 
     /**
      * Build the identities generators
-     *
-     * @return Generators
      */
     private function generators(): Generators
     {
@@ -370,8 +319,6 @@ final class ManagerFactory
 
     /**
      * Build the entity factory resolver
-     *
-     * @return Resolver
      */
     private function resolver(): Resolver
     {
@@ -392,11 +339,6 @@ final class ManagerFactory
         return $this->resolver;
     }
 
-    /**
-     * Build the identity match translator
-     *
-     * @return IdentityMatchTranslator
-     */
     private function identityMatchTranslator(): IdentityMatchTranslator
     {
         if ($this->identityMatchTranslator === null) {
@@ -408,11 +350,6 @@ final class ManagerFactory
         return $this->identityMatchTranslator;
     }
 
-    /**
-     * Build the metadatas container
-     *
-     * @return Metadatas
-     */
     private function metadatas(): Metadatas
     {
         if ($this->metadataBuilder === null) {
@@ -427,11 +364,6 @@ final class ManagerFactory
         return $this->metadataBuilder->container();
     }
 
-    /**
-     * Build the persister
-     *
-     * @return Persister
-     */
     private function persister(): Persister
     {
         if ($this->persister === null) {
@@ -466,11 +398,6 @@ final class ManagerFactory
         return $this->persister;
     }
 
-    /**
-     * Build the changeset computer
-     *
-     * @return ChangesetComputer
-     */
     private function changeset(): ChangesetComputer
     {
         if ($this->changeset === null) {
@@ -480,11 +407,6 @@ final class ManagerFactory
         return $this->changeset;
     }
 
-    /**
-     * Build the entity data extractor
-     *
-     * @return DataExtractor
-     */
     private function extractor(): DataExtractor
     {
         if ($this->extractor === null) {
@@ -494,11 +416,6 @@ final class ManagerFactory
         return $this->extractor;
     }
 
-    /**
-     * Build the repository factory
-     *
-     * @return RepositoryFactory
-     */
     private function repositoryFactory(): RepositoryFactory
     {
         if ($this->repositoryFactory === null) {

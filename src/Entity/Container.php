@@ -75,8 +75,6 @@ final class Container
     /**
      * Return all the entities of a specific state
      *
-     * @param int $state
-     *
      * @return MapInterface<Identity, object>
      */
     public function state(int $state): MapInterface
@@ -86,10 +84,6 @@ final class Container
 
     /**
      * Remove the entity with the given identity from any state
-     *
-     * @param Identity $identity
-     *
-     * @return self
      */
     public function detach(Identity $identity): self
     {
@@ -108,11 +102,7 @@ final class Container
     /**
      * Return the state for the given identity
      *
-     * @param Identity $identity
-     *
      * @throws IdentityNotManaged
-     *
-     * @return int
      */
     public function stateFor(Identity $identity): int
     {
@@ -128,8 +118,6 @@ final class Container
     /**
      * Return the entity with the given identity
      *
-     * @param Identity $identity
-     *
      * @throws IdentityNotManaged
      *
      * @return object
@@ -144,10 +132,6 @@ final class Container
 
     /**
      * Check if the given identity if known by the container
-     *
-     * @param Identity $identity
-     *
-     * @return bool
      */
     public function contains(Identity $identity): bool
     {

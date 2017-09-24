@@ -14,8 +14,6 @@ interface Type
      * Build a type instance out of a config array
      *
      * @param MapInterface<string, mixed> $config
-     *
-     * @return self
      */
     public static function fromConfig(MapInterface $config, Types $types): self;
 
@@ -39,8 +37,6 @@ interface Type
 
     /**
      * Check if the property value can be null
-     *
-     * @return bool
      */
     public function isNullable(): bool;
 
