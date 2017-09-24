@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
-    MetadataFactoryInterface,
-    Metadata\EntityInterface,
+    MetadataFactory,
+    Metadata\Entity,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -17,15 +17,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Repository as EntityRepository,
     EntityFactory\AggregateFactory as EntityFactory,
-    Types,
-    Exception\InvalidArgumentException
+    Types
 };
 use Innmind\Immutable\{
     MapInterface,
     Map
 };
 
-final class AggregateFactory implements MetadataFactoryInterface
+final class AggregateFactory implements MetadataFactory
 {
     private $types;
 
@@ -37,13 +36,13 @@ final class AggregateFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(MapInterface $config): EntityInterface
+    public function make(MapInterface $config): Entity
     {
         if (
             (string) $config->keyType() !== 'string' ||
             (string) $config->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
         $entity = new Aggregate(

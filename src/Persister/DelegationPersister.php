@@ -4,40 +4,27 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
-    PersisterInterface,
-    Entity\Container,
-    Exception\InvalidArgumentException
+    Persister,
+    Entity\Container
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
-use Innmind\Immutable\StreamInterface;
+use Innmind\Neo4j\DBAL\Connection;
 
-final class DelegationPersister implements PersisterInterface
+final class DelegationPersister implements Persister
 {
     private $persisters;
 
-    public function __construct(StreamInterface $persisters)
+    public function __construct(Persister ...$persisters)
     {
-        if ((string) $persisters->type() !== PersisterInterface::class) {
-            throw new InvalidArgumentException;
-        }
-
         $this->persisters = $persisters;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function __invoke(Connection $connection, Container $container): void
     {
-        $this
-            ->persisters
-            ->foreach(function(
-                PersisterInterface $persister
-            ) use (
-                $connection,
-                $container
-            ) {
-                $persister->persist($connection, $container);
-            });
+        foreach ($this->persisters as $persist) {
+            $persist($connection, $container);
+        }
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
-    MetadataFactoryInterface,
-    Metadata\EntityInterface,
+    MetadataFactory,
+    Metadata\Entity,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -16,15 +16,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Repository as EntityRepository,
     EntityFactory\RelationshipFactory as EntityFactory,
-    Types,
-    Exception\InvalidArgumentException
+    Types
 };
 use Innmind\Immutable\{
     MapInterface,
     Map
 };
 
-final class RelationshipFactory implements MetadataFactoryInterface
+final class RelationshipFactory implements MetadataFactory
 {
     private $types;
 
@@ -36,13 +35,13 @@ final class RelationshipFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(MapInterface $config): EntityInterface
+    public function make(MapInterface $config): Entity
     {
         if (
             (string) $config->keyType() !== 'string' ||
             (string) $config->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
         $entity = new Relationship(

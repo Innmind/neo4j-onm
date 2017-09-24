@@ -4,9 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\Visitor\CypherVisitorInterface,
+    Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\Where
 };
 use Innmind\Specification\{
@@ -20,7 +19,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class AggregateVisitor implements CypherVisitorInterface
+final class AggregateVisitor implements CypherVisitor
 {
     private $meta;
     private $count = 0;

@@ -5,9 +5,10 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister\RemovePersister,
-    PersisterInterface,
+    Persister,
     Entity\ChangesetComputer,
     Entity\Container,
+    Entity\Container\State,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
@@ -19,15 +20,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
     Identity\Uuid,
     Metadatas,
     Event\EntityAboutToBeRemoved,
     Event\EntityRemoved
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    ResultInterface,
+    Connection,
+    Result,
     Query\Parameter
 };
 use Innmind\EventBus\EventBusInterface;
@@ -90,7 +90,7 @@ class RemovePersisterTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            PersisterInterface::class,
+            Persister::class,
             new RemovePersister(
                 new ChangesetComputer,
                 $this->createMock(EventBusInterface::class),
@@ -101,14 +101,14 @@ class RemovePersisterTest extends TestCase
 
     public function testPersist()
     {
-        $persister = new RemovePersister(
+        $persist = new RemovePersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
             $this->metadatas
         );
 
         $container = new Container;
-        $conn = $this->createMock(ConnectionInterface::class);
+        $conn = $this->createMock(Connection::class);
         $aggregate = new $this->arClass;
         $rel = new class {
             public $child;
@@ -117,12 +117,12 @@ class RemovePersisterTest extends TestCase
         $aggregate->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
         $aggregate->rel = $rel;
         $rel->child = $child;
-        $container->push($aggregate->uuid, $aggregate, Container::STATE_TO_BE_REMOVED);
+        $container->push($aggregate->uuid, $aggregate, State::toBeRemoved());
         $relationship = new $this->rClass;
         $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
-        $container->push($relationship->uuid, $relationship, Container::STATE_TO_BE_REMOVED);
+        $container->push($relationship->uuid, $relationship, State::toBeRemoved());
         $count = $preCount = $postCount = 0;
 
         $conn
@@ -149,7 +149,7 @@ class RemovePersisterTest extends TestCase
                     });
                 ++$count;
 
-                return $this->createMock(ResultInterface::class);
+                return $this->createMock(Result::class);
             }));
         $bus
             ->expects($this->at(0))
@@ -180,14 +180,14 @@ class RemovePersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertNull($persister->persist($conn, $container));
+        $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $container->stateFor($aggregate->uuid)
         );
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $container->stateFor($relationship->uuid)
         );
     }

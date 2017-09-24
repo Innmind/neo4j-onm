@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Types,
-    TypeInterface,
+    Type,
     Type\ArrayType,
     Type\SetType,
     Type\BooleanType,
@@ -60,8 +60,8 @@ class TypesTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The type "stdClass" must implement TypeInterface
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
+     * @expectedExceptionMessage The type "stdClass" must implement Type
      */
     public function testThrowWhenRegisteringingInvalidType()
     {
@@ -87,7 +87,8 @@ class TypesTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenInvalidConfigMap()
     {

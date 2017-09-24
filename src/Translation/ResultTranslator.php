@@ -6,14 +6,13 @@ namespace Innmind\Neo4j\ONM\Translation;
 use Innmind\Neo4j\ONM\{
     Translation\Result\AggregateTranslator,
     Translation\Result\RelationshipTranslator,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Relationship,
-    Exception\InvalidArgumentException
+    Metadata\Relationship
 };
 use Innmind\Neo4j\DBAL\{
-    ResultInterface,
-    Result\RowInterface
+    Result,
+    Result\Row
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -27,42 +26,47 @@ final class ResultTranslator
 
     public function __construct(MapInterface $translators = null)
     {
-        $this->translators = $translators ?? (new Map('string', EntityTranslatorInterface::class))
+        $this->translators = $translators ?? (new Map('string', EntityTranslator::class))
             ->put(Aggregate::class, new AggregateTranslator)
             ->put(Relationship::class, new RelationshipTranslator);
 
         if (
             (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== EntityTranslatorInterface::class
+            (string) $this->translators->valueType() !== EntityTranslator::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<string, %s>',
+                EntityTranslator::class
+            ));
         }
     }
 
     /**
      * Translate a raw dbal result into formated data usable for entity factories
      *
-     * @param ResultInterface $result
-     * @param MapInterface<string, EntityInterface> $variables Association between query variables and entity definitions
+     * @param MapInterface<string, Entity> $variables Association between query variables and entity definitions
      *
      * @return MapInterface<string, SetInterface<MapInterface<string, mixed>>>
      */
     public function translate(
-        ResultInterface $result,
+        Result $result,
         MapInterface $variables
     ): MapInterface {
         if (
             (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== EntityInterface::class
+            (string) $variables->valueType() !== Entity::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                Entity::class
+            ));
         }
 
         return $variables
             ->filter(function(string $variable) use ($result): bool {
                 $forVariable = $result
                     ->rows()
-                    ->filter(function(RowInterface $row) use ($variable): bool {
+                    ->filter(function(Row $row) use ($variable): bool {
                         return $row->column() === $variable;
                     });
 
@@ -70,7 +74,7 @@ final class ResultTranslator
             })
             ->reduce(
                 new Map('string', SetInterface::class),
-                function(Map $carry, string $variable, EntityInterface $meta) use ($result): Map {
+                function(Map $carry, string $variable, Entity $meta) use ($result): Map {
                     $translator = $this->translators->get(get_class($meta));
 
                     return $carry->put(

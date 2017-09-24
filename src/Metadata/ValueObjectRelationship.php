@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
-    Exception\InvalidArgumentException
+    Type,
+    Exception\DomainException
 };
 use Innmind\Immutable\{
     Map,
@@ -27,7 +27,7 @@ final class ValueObjectRelationship
         string $childProperty
     ) {
         if (empty($property) || empty($childProperty)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->class = $class;
@@ -54,8 +54,6 @@ final class ValueObjectRelationship
 
     /**
      * Return the property name where to find the child
-     *
-     * @return string
      */
     public function childProperty(): string
     {
@@ -70,15 +68,7 @@ final class ValueObjectRelationship
         return $this->properties;
     }
 
-    /**
-     * Add a property to the definition
-     *
-     * @param string $name
-     * @param TypeInterface $type
-     *
-     * @return self
-     */
-    public function withProperty(string $name, TypeInterface $type): self
+    public function withProperty(string $name, Type $type): self
     {
         $valueObject = clone $this;
         $valueObject->properties = $this->properties->put(

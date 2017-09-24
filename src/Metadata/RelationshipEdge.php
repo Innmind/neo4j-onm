@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+use Innmind\Neo4j\ONM\Exception\DomainException;
 
 final class RelationshipEdge extends Identity
 {
@@ -14,7 +14,7 @@ final class RelationshipEdge extends Identity
         parent::__construct($property, $type);
 
         if (empty($target)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->target = $target;

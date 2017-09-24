@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Entity\DataExtractor;
 
 use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\RelationshipExtractor,
-    Entity\DataExtractorInterface,
+    Entity\DataExtractor,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Metadata\ClassName,
@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
@@ -59,7 +59,7 @@ class RelationshipExtractorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractorInterface::class, $this->extractor);
+        $this->assertInstanceOf(DataExtractor::class, $this->extractor);
     }
 
     /**
@@ -106,7 +106,7 @@ class RelationshipExtractorTest extends TestCase
     {
         $this->extractor->extract(
             new \stdClass,
-            $this->createMock(EntityInterface::class)
+            $this->createMock(Entity::class)
         );
     }
 

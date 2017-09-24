@@ -4,25 +4,25 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\IdentityMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\IdentityMatchTranslatorInterface,
-    IdentityInterface,
-    Metadata\EntityInterface,
+    Translation\IdentityMatchTranslator,
+    Identity,
+    Metadata\Entity,
     IdentityMatch
 };
 use Innmind\Neo4j\DBAL\{
-    Query,
+    Query\Query,
     Clause\Expression\Relationship
 };
 use Innmind\Immutable\Map;
 
-final class RelationshipTranslator implements IdentityMatchTranslatorInterface
+final class RelationshipTranslator implements IdentityMatchTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
-        EntityInterface $meta,
-        IdentityInterface $identity
+        Entity $meta,
+        Identity $identity
     ): IdentityMatch {
         $query = (new Query)
             ->match('start')
@@ -42,7 +42,7 @@ final class RelationshipTranslator implements IdentityMatchTranslatorInterface
 
         return new IdentityMatch(
             $query,
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $meta)
         );
     }

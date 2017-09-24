@@ -5,7 +5,8 @@ namespace Tests\Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Entity\Container,
-    IdentityInterface
+    Entity\Container\State,
+    Identity
 };
 use PHPUnit\Framework\TestCase;
 
@@ -14,57 +15,45 @@ class ContainerTest extends TestCase
     public function testInterface()
     {
         $c = new Container;
-        $i = $this->createMock(IdentityInterface::class);
+        $i = $this->createMock(Identity::class);
 
         $this->assertFalse($c->contains($i));
-        $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
-        $this->assertSame(0, $c->state(Container::STATE_NEW)->size());
-        $this->assertSame(0, $c->state(Container::STATE_TO_BE_REMOVED)->size());
-        $this->assertSame(0, $c->state(Container::STATE_REMOVED)->size());
+        $this->assertSame(0, $c->state(State::managed())->size());
+        $this->assertSame(0, $c->state(State::new())->size());
+        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $c->state(State::removed())->size());
         $this->assertSame(
             $c,
-            $c->push($i, $e = new \stdClass, Container::STATE_NEW)
+            $c->push($i, $e = new \stdClass, State::new())
         );
-        $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
-        $this->assertSame(1, $c->state(Container::STATE_NEW)->size());
-        $this->assertSame(0, $c->state(Container::STATE_TO_BE_REMOVED)->size());
-        $this->assertSame(0, $c->state(Container::STATE_REMOVED)->size());
-        $this->assertSame(Container::STATE_NEW, $c->stateFor($i));
+        $this->assertSame(0, $c->state(State::managed())->size());
+        $this->assertSame(1, $c->state(State::new())->size());
+        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $c->state(State::removed())->size());
+        $this->assertSame(State::new(), $c->stateFor($i));
         $this->assertSame($e, $c->get($i));
         $this->assertTrue($c->contains($i));
         $this->assertSame($c, $c->detach($i));
         $this->assertFalse($c->contains($i));
-        $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
-        $this->assertSame(0, $c->state(Container::STATE_NEW)->size());
-        $this->assertSame(0, $c->state(Container::STATE_TO_BE_REMOVED)->size());
-        $this->assertSame(0, $c->state(Container::STATE_REMOVED)->size());
+        $this->assertSame(0, $c->state(State::managed())->size());
+        $this->assertSame(0, $c->state(State::new())->size());
+        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $c->state(State::removed())->size());
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManagedException
+     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
      */
     public function testThrowWhenGettingStateForNotManagedIdentity()
     {
-        (new Container)->stateFor($this->createMock(IdentityInterface::class));
+        (new Container)->stateFor($this->createMock(Identity::class));
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManagedException
+     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
      */
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {
-        (new Container)->get($this->createMock(IdentityInterface::class));
-    }
-
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
-    public function testThrowWhenPushingToInvalidState()
-    {
-        (new Container)->push(
-            $this->createMock(IdentityInterface::class),
-            new \stdClass,
-            42
-        );
+        (new Container)->get($this->createMock(Identity::class));
     }
 }

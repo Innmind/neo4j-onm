@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+use Innmind\Neo4j\ONM\Exception\DomainException;
 
 final class ClassName
 {
@@ -12,7 +12,7 @@ final class ClassName
     public function __construct(string $class)
     {
         if (empty($class)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->class = $class;

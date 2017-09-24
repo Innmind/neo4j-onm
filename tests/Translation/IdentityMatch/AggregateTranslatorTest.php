@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\IdentityMatch;
 
 use Innmind\Neo4j\ONM\{
     Translation\IdentityMatch\AggregateTranslator,
-    Translation\IdentityMatchTranslatorInterface,
+    Translation\IdentityMatchTranslator,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -15,10 +15,10 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    IdentityInterface,
+    Identity as IdentityInterface,
     IdentityMatch,
     Types
 };
@@ -33,7 +33,7 @@ class AggregateTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            IdentityMatchTranslatorInterface::class,
+            IdentityMatchTranslator::class,
             new AggregateTranslator
         );
     }
@@ -112,7 +112,7 @@ class AggregateTranslatorTest extends TestCase
             (string) $im->variables()->keyType()
         );
         $this->assertSame(
-            EntityInterface::class,
+            Entity::class,
             (string) $im->variables()->valueType()
         );
         $this->assertCount(1, $im->variables());

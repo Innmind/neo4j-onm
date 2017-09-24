@@ -3,11 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\ONM\{
-    Metadata\EntityInterface,
-    Exception\InvalidArgumentException
-};
-use Innmind\Neo4j\DBAL\QueryInterface;
+use Innmind\Neo4j\ONM\Metadata\Entity;
+use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\MapInterface;
 
 final class IdentityMatch
@@ -16,27 +13,30 @@ final class IdentityMatch
     private $variables;
 
     public function __construct(
-        QueryInterface $query,
+        Query $query,
         MapInterface $variables
     ) {
         if (
             (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== EntityInterface::class
+            (string) $variables->valueType() !== Entity::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                Entity::class
+            ));
         }
 
         $this->query = $query;
         $this->variables = $variables;
     }
 
-    public function query(): QueryInterface
+    public function query(): Query
     {
         return $this->query;
     }
 
     /**
-     * @return MapInterface<string, EntityInterface>
+     * @return MapInterface<string, Entity>
      */
     public function variables(): MapInterface
     {

@@ -6,8 +6,6 @@
 | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=develop) |
 | [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/master) | [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/develop) |
 
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/91ce7760-85e1-4d4a-9ea5-6b2cc47c1d15/big.png)](https://insight.sensiolabs.com/projects/91ce7760-85e1-4d4a-9ea5-6b2cc47c1d15)
-
 This an _ORM_ for the [Neo4j](http://neo4j.com/) graph database, with an emphasis on Domain Driven Design (DDD). It will allow you to easily build `Entities`, `Repositories` and query them via `Specification`s. Another important aspect is that each block of this library is fully replaceable.
 
 ## Installation
@@ -31,7 +29,7 @@ Each entity is fully managed by its own `Repository`, meaning it's used to `add`
 
 **Note**: for performance issues, when you `add` an entity to its repository it's not directly inserted in the graph.
 
-To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `new`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/ConnectionInterface.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `new` allows you to generate a new identity of the specified type
+To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `new`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/Connection.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `new` allows you to generate a new identity of the specified type
 
 When you `flush` the sequence of how the modifications are persisted is as follow:
 
@@ -83,7 +81,7 @@ SomeRelationship:
         property: uuid
         type: Innmind\Neo4j\ONM\Identity\Uuid
     startNode:
-        property: startProperty # must be an IdentifierInterface
+        property: startProperty # must be an Identity
         type: Innmind\Neo4j\ONM\Identity\Uuid
         target: uuid # the node property where to look for the identity
     endNode:
@@ -131,10 +129,10 @@ Now that you a working manager, let's handle our entities:
 ```php
 $images = $manager->repository(Image::class);
 $rels = $manager->repository(SomeRelationship::class);
-$image1 = new Image($manager->new(Uuid::class));
-$image2 = new Image($manager->new(Uuid::class));
+$image1 = new Image($manager->identities()->new(Uuid::class));
+$image2 = new Image($manager->identities()->new(Uuid::class));
 $rel = new SomeRelationship(
-    $manager->new(Uuid::class),
+    $manager->identities()->new(Uuid::class),
     $image1->uuid(),
     $image2->uuid()
 );
@@ -207,14 +205,14 @@ By default there's only 7 types you can use for your entities' properties:
 * `set` (similar as `array` except it uses the immutable [`Set`](https://github.com/Innmind/Immutable#set))
 * `string`
 
-To add your own type you need to create a class implementing [`TypeInterface.php`](TypeInterface.php) and on the manager factory call `withType` with your class name as parameter.
+To add your own type you need to create a class implementing [`Type.php`](Type.php) and on the manager factory call `withType` with your class name as parameter.
 
 Example:
 
 ```php
-use Innmind\Neo4j\ONM\TypeInterface;
+use Innmind\Neo4j\ONM\Type;
 
-class MyType implements TypeInterface
+class MyType implements Type
 {
     // your implementation ...
 }
@@ -240,30 +238,30 @@ ManagerFactory::for([/* mapping */])
 
 #### Metadata factories
 
-To translate the mapping arrays of your entities into objects, the library use a set of [`MetadataFactoryInterface`](MetadataFactoryInterface.php). More precisely one for aggregates and one for relationships.
+To translate the mapping arrays of your entities into objects, the library use a set of [`MetadataFactory`](MetadataFactory.php). More precisely one for aggregates and one for relationships.
 
 If you're not satisfied with those defaults, you can create your own factories to replace them or simply new ones to create new kinds of metadata objects. To do so you need to create a class implementing the interface mentioned above and register it when building the manager.
 
 ```php
 use Innmind\Neo4j\ONM\{
-    MetadataFactoryInterface,
+    MetadataFactory,
     Metadata\Aggregate
 };
 use Innmind\Immutable\Map;
 
-class MyAggregateFactory implements MetadataFactoryInterface
+class MyAggregateFactory implements MetadataFactory
 {
     // your implementation
 }
 
 ManagerFactory::for([/* mapping */])
     ->withMetadataFactories(
-        (new Map('string', MetadataFactoryInterface::class))
+        (new Map('string', MetadataFactory::class))
             ->put(Aggregate::class, new MyAggregateFactory)
     );
 ```
 
-Here you specify to use your own factory to be used to build `Aggregate`s metadatas. If you decide to create a new type of [`EntityInterface`](Metadata/EntityInterface.php) you would need to replace `Aggregate::class` by `MyEntityMetadataType::class` (in such case you would also need to override the default configuration class, as explained in the previous section).
+Here you specify to use your own factory to be used to build `Aggregate`s metadatas. If you decide to create a new type of [`Entity`](Metadata/Entity.php) you would need to replace `Aggregate::class` by `MyEntityMetadataType::class` (in such case you would also need to override the default configuration class, as explained in the previous section).
 
 #### Entity Translators
 
@@ -272,17 +270,17 @@ When querying the graph to load your entities, there's a step where the result r
 In case you've built a new kind of entity metadata (see section above), you'll need to create a new translator.
 
 ```php
-use Innmind\Neo4jONM\Translation\EntityTranslatorInterface;
+use Innmind\Neo4jONM\Translation\EntityTranslator;
 use Innmind\Immutable\Map;
 
-class MyTranslator implements EntityTranslatorInterface
+class MyTranslator implements EntityTranslator
 {
     // your implementation ...
 }
 
 ManagerFactory::for([/* mapping */])
     ->withEntityTranslators(
-        (new Map('string', EntityTranslatorInterface::class))
+        (new Map('string', EntityTranslator::class))
             ->put(MyEntityMetadata::class, new MyTranslator)
     );
 ```
@@ -294,9 +292,9 @@ By default the library use 2 factories to translate raw data into your entities 
 In case your entity is too complex to be built via the default tools, you can build your own entity factory to resolve your limitation.
 
 ```php
-use Innmind\Neo4j\ONM\EntityFactoryInterface;
+use Innmind\Neo4j\ONM\EntityFactory;
 
-class MyEntityFactory implements EntityFactoryInterface
+class MyEntityFactory implements EntityFactory
 {
     // your implementation
 }
@@ -311,20 +309,20 @@ ManagerFactory::for([/* mapping */])
 
 By default this library only use UUIDs as identity objects. But you can easily add your own kind of identity object.
 
-You need to create the identity class implementing [`IdentityInterface`](IdentityInterface.php) and the corresponding generator implementing [`GeneratorInterface`](Identity/GeneratorInterface.php).
+You need to create the identity class implementing [`Identity`](Identity.php) and the corresponding generator implementing [`Generator`](Identity/Generator.php).
 
 ```php
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
-    Identity\GeneratorInterface
+    Identity,
+    Identity\Generator
 };
 
-class MyIdentity implements IdentityInterface
+class MyIdentity implements Identity
 {
     // your implementation ...
 }
 
-class MyIdentityGenerator implements GeneratorInterface
+class MyIdentityGenerator implements Generator
 {
     // your implementation
 }

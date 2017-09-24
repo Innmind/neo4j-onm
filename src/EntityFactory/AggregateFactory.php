@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactoryInterface,
-    IdentityInterface,
-    Metadata\EntityInterface,
+    EntityFactory as EntityFactoryInterface,
+    Identity,
+    Metadata\Entity,
     Metadata\Aggregate,
     Metadata\Property,
     Metadata\ValueObject,
@@ -39,16 +39,19 @@ final class AggregateFactory implements EntityFactoryInterface
      * {@inheritdoc}
      */
     public function make(
-        IdentityInterface $identity,
-        EntityInterface $meta,
+        Identity $identity,
+        Entity $meta,
         MapInterface $data
     ) {
+        if (!$meta instanceof Aggregate ) {
+            throw new InvalidArgumentException;
+        }
+
         if (
-            !$meta instanceof Aggregate ||
             (string) $data->keyType() !== 'string' ||
             (string) $data->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 3 must be of type MapInterface<string, mixed>');
         }
 
         $reflection = $this

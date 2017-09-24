@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\PointInTimeType,
-    TypeInterface,
+    Type,
     Types
 };
 use Innmind\TimeContinuum\{
@@ -25,7 +25,7 @@ class PointInTimeTypeTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            TypeInterface::class,
+            Type::class,
             PointInTimeType::fromConfig(
                 new Map('string', 'mixed'),
                 new Types

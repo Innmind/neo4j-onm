@@ -6,13 +6,13 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Translation\ResultTranslator,
-    Translation\IdentityMatchTranslator,
-    Translation\MatchTranslator,
-    Translation\SpecificationTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
+    Translation\Match\DelegationTranslator as MatchTranslator,
+    Translation\Specification\DelegationTranslator as SpecificationTranslator,
     Identity\Generators,
-    Identity\GeneratorInterface,
+    Identity\Generator,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
     Persister\DelegationPersister,
@@ -20,14 +20,13 @@ use Innmind\Neo4j\ONM\{
     Persister\UpdatePersister,
     Persister\RemovePersister
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\{
     EventBusInterface,
     NullEventBus
 };
 use Innmind\Immutable\{
     Set,
-    Stream,
     MapInterface,
     Map
 };
@@ -66,17 +65,13 @@ final class ManagerFactory
         $this->eventBus = new NullEventBus;
         $this->entities = $entities;
         $this->config = new Configuration;
-        $this->additionalGenerators = new Map('string', GeneratorInterface::class);
-        $this->entityFactories = new Set(EntityFactoryInterface::class);
-        $this->repositories = new Map('string', RepositoryInterface::class);
+        $this->additionalGenerators = new Map('string', Generator::class);
+        $this->entityFactories = new Set(EntityFactory::class);
+        $this->repositories = new Map('string', Repository::class);
     }
 
     /**
      * Specify the entities definitions you want to use
-     *
-     * @param array $entities
-     *
-     * @return self
      */
     public static function for(array $entities): self
     {
@@ -85,10 +80,6 @@ final class ManagerFactory
 
     /**
      * Specify the configuration object to use to validate config data
-     *
-     * @param ConfigurationInterface $config
-     *
-     * @return self
      */
     public function validatedBy(ConfigurationInterface $config): self
     {
@@ -99,12 +90,8 @@ final class ManagerFactory
 
     /**
      * Specify the connection to use
-     *
-     * @param ConnectionInterface $connection
-     *
-     * @return self
      */
-    public function withConnection(ConnectionInterface $connection): self
+    public function withConnection(Connection $connection): self
     {
         $this->connection = $connection;
 
@@ -113,10 +100,6 @@ final class ManagerFactory
 
     /**
      * Specify the event event bus to use
-     *
-     * @param EventBusInterface $eventBus
-     *
-     * @return self
      */
     public function withEventBus(EventBusInterface $eventBus): self
     {
@@ -128,9 +111,7 @@ final class ManagerFactory
     /**
      * Specify the map of translators to use in ResultTranslator
      *
-     * @param MapInterface<string, EntityTranslatorInterface> $translators
-     *
-     * @return self
+     * @param MapInterface<string, EntityTranslator> $translators
      */
     public function withEntityTranslators(MapInterface $translators): self
     {
@@ -143,11 +124,8 @@ final class ManagerFactory
      * Add an identity generator
      *
      * @param string $class The identity class the generator generates
-     * @param GeneratorInterface $generator
-     *
-     * @return self
      */
-    public function withGenerator(string $class, GeneratorInterface $generator): self
+    public function withGenerator(string $class, Generator $generator): self
     {
         $this->additionalGenerators = $this->additionalGenerators->put(
             $class,
@@ -157,14 +135,7 @@ final class ManagerFactory
         return $this;
     }
 
-    /**
-     * Add an entity factory
-     *
-     * @param EntityFactoryInterface $factory
-     *
-     * @return self
-     */
-    public function withEntityFactory(EntityFactoryInterface $factory): self
+    public function withEntityFactory(EntityFactory $factory): self
     {
         $this->entityFactories = $this->entityFactories->add($factory);
 
@@ -174,9 +145,7 @@ final class ManagerFactory
     /**
      * Set the identity match translators
      *
-     * @param MapInterface<string, IdentityMatchTranslatorInterface> $translators
-     *
-     * @return self
+     * @param MapInterface<string, IdentityMatchTranslator> $translators
      */
     public function withIdentityMatchTranslators(MapInterface $translators): self
     {
@@ -188,9 +157,7 @@ final class ManagerFactory
     /**
      * Specify the metadata factories
      *
-     * @param MapInterface<string, MetadataFactoryInterface> $factories
-     *
-     * @return self
+     * @param MapInterface<string, MetadataFactory> $factories
      */
     public function withMetadataFactories(MapInterface $factories): self
     {
@@ -201,10 +168,6 @@ final class ManagerFactory
 
     /**
      * Add a new property type
-     *
-     * @param string $class
-     *
-     * @return self
      */
     public function withType(string $class): self
     {
@@ -215,12 +178,8 @@ final class ManagerFactory
 
     /**
      * Specify the persister to use
-     *
-     * @param PersisterInterface $persister
-     *
-     * @return self
      */
-    public function withPersister(PersisterInterface $persister): self
+    public function withPersister(Persister $persister): self
     {
         $this->persister = $persister;
 
@@ -230,9 +189,7 @@ final class ManagerFactory
     /**
      * Specify the translators to use to build match queries
      *
-     * @param MapInterface<string, MatchTranslatorInterface> $translators
-     *
-     * @return self
+     * @param MapInterface<string, MatchTranslator> $translators
      */
     public function withMatchTranslators(MapInterface $translators): self
     {
@@ -244,9 +201,7 @@ final class ManagerFactory
     /**
      * Specify the translators to use to build match queries out of specifications
      *
-     * @param MapInterface<string, SpecificationTranslatorInterface> $translators
-     *
-     * @return self
+     * @param MapInterface<string, SpecificationTranslator> $translators
      */
     public function withSpecificationTranslators(MapInterface $translators): self
     {
@@ -259,11 +214,8 @@ final class ManagerFactory
      * Add a new repository instance
      *
      * @param string $class Entity class
-     * @param RepositoryInterface $repository
-     *
-     * @return self
      */
-    public function withRepository(string $class, RepositoryInterface $repository): self
+    public function withRepository(string $class, Repository $repository): self
     {
         $this->repositories = $this->repositories->put(
             $class,
@@ -275,12 +227,10 @@ final class ManagerFactory
 
     /**
      * Return the manager instance
-     *
-     * @return ManagerInterface
      */
-    public function build(): ManagerInterface
+    public function build(): Manager
     {
-        return new Manager(
+        return new Manager\Manager(
             $this->unitOfWork(),
             $this->metadatas(),
             $this->repositoryFactory(),
@@ -288,11 +238,6 @@ final class ManagerFactory
         );
     }
 
-    /**
-     * Build the unit of work
-     *
-     * @return UnitOfWork
-     */
     private function unitOfWork(): UnitOfWork
     {
         if ($this->uow === null) {
@@ -312,8 +257,6 @@ final class ManagerFactory
 
     /**
      * Build an entity container
-     *
-     * @return Container
      */
     private function container(): Container
     {
@@ -324,15 +267,10 @@ final class ManagerFactory
         return $this->container;
     }
 
-    /**
-     * Build the entity factory
-     *
-     * @return EntityFactory
-     */
-    private function entityFactory(): EntityFactory
+    private function entityFactory(): EntityFactory\EntityFactory
     {
         if ($this->entityFactory === null) {
-            $this->entityFactory = new EntityFactory(
+            $this->entityFactory = new EntityFactory\EntityFactory(
                 $this->resultTranslator(),
                 $this->generators(),
                 $this->resolver(),
@@ -345,8 +283,6 @@ final class ManagerFactory
 
     /**
      * Build the dbal query result translator
-     *
-     * @return ResultTranslator
      */
     private function resultTranslator(): ResultTranslator
     {
@@ -361,8 +297,6 @@ final class ManagerFactory
 
     /**
      * Build the identities generators
-     *
-     * @return Generators
      */
     private function generators(): Generators
     {
@@ -370,8 +304,8 @@ final class ManagerFactory
             $generators = $this
                 ->additionalGenerators
                 ->reduce(
-                    new Map('string', GeneratorInterface::class),
-                    function(Map $carry, string $class, GeneratorInterface $gen): Map {
+                    new Map('string', Generator::class),
+                    function(Map $carry, string $class, Generator $gen): Map {
                         return $carry->put($class, $gen);
                     }
                 );
@@ -383,8 +317,6 @@ final class ManagerFactory
 
     /**
      * Build the entity factory resolver
-     *
-     * @return Resolver
      */
     private function resolver(): Resolver
     {
@@ -393,7 +325,7 @@ final class ManagerFactory
                 ->entityFactories
                 ->reduce(
                     [new RelationshipFactory($this->generators())],
-                    function(array $carry, EntityFactoryInterface $factory): array {
+                    function(array $carry, EntityFactory $factory): array {
                         $carry[] = $factory;
 
                         return $carry;
@@ -405,11 +337,6 @@ final class ManagerFactory
         return $this->resolver;
     }
 
-    /**
-     * Build the identity match translator
-     *
-     * @return IdentityMatchTranslator
-     */
     private function identityMatchTranslator(): IdentityMatchTranslator
     {
         if ($this->identityMatchTranslator === null) {
@@ -421,11 +348,6 @@ final class ManagerFactory
         return $this->identityMatchTranslator;
     }
 
-    /**
-     * Build the metadatas container
-     *
-     * @return Metadatas
-     */
     private function metadatas(): Metadatas
     {
         if ($this->metadataBuilder === null) {
@@ -440,50 +362,33 @@ final class ManagerFactory
         return $this->metadataBuilder->container();
     }
 
-    /**
-     * Build the persister
-     *
-     * @return PersisterInterface
-     */
-    private function persister(): PersisterInterface
+    private function persister(): Persister
     {
         if ($this->persister === null) {
             $this->persister = new DelegationPersister(
-                (new Stream(PersisterInterface::class))
-                    ->add(
-                        new InsertPersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->extractor(),
-                            $this->metadatas()
-                        )
-                    )
-                    ->add(
-                        new UpdatePersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->extractor(),
-                            $this->metadatas()
-                        )
-                    )
-                    ->add(
-                        new RemovePersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->metadatas()
-                        )
-                    )
+                new InsertPersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->extractor(),
+                    $this->metadatas()
+                ),
+                new UpdatePersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->extractor(),
+                    $this->metadatas()
+                ),
+                new RemovePersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->metadatas()
+                )
             );
         }
 
         return $this->persister;
     }
 
-    /**
-     * Build the changeset computer
-     *
-     * @return ChangesetComputer
-     */
     private function changeset(): ChangesetComputer
     {
         if ($this->changeset === null) {
@@ -493,11 +398,6 @@ final class ManagerFactory
         return $this->changeset;
     }
 
-    /**
-     * Build the entity data extractor
-     *
-     * @return DataExtractor
-     */
     private function extractor(): DataExtractor
     {
         if ($this->extractor === null) {
@@ -507,11 +407,6 @@ final class ManagerFactory
         return $this->extractor;
     }
 
-    /**
-     * Build the repository factory
-     *
-     * @return RepositoryFactory
-     */
     private function repositoryFactory(): RepositoryFactory
     {
         if ($this->repositoryFactory === null) {
@@ -526,7 +421,7 @@ final class ManagerFactory
             );
             $this
                 ->repositories
-                ->foreach(function(string $class, RepositoryInterface $repo) {
+                ->foreach(function(string $class, Repository $repo) {
                     $this
                         ->repositoryFactory
                         ->register(

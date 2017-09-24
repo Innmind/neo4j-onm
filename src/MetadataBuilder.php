@@ -4,10 +4,9 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\EntityInterface,
+    Metadata\Entity,
     MetadataFactory\AggregateFactory,
-    MetadataFactory\RelationshipFactory,
-    Exception\InvalidArgumentException
+    MetadataFactory\RelationshipFactory
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -32,8 +31,8 @@ final class MetadataBuilder
         MapInterface $factories = null,
         ConfigurationInterface $config = null
     ) {
-        $this->definitions = new Set(EntityInterface::class);
-        $this->factories = $factories ?? (new Map('string', MetadataFactoryInterface::class))
+        $this->definitions = new Set(Entity::class);
+        $this->factories = $factories ?? (new Map('string', MetadataFactory::class))
             ->put('aggregate', new AggregateFactory($types))
             ->put('relationship', new RelationshipFactory($types));
         $this->config = $config ?? new Configuration;
@@ -41,17 +40,15 @@ final class MetadataBuilder
 
         if (
             (string) $this->factories->keyType() !== 'string' ||
-            (string) $this->factories->valueType() !== MetadataFactoryInterface::class
+            (string) $this->factories->valueType() !== MetadataFactory::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                MetadataFactory::class
+            ));
         }
     }
 
-    /**
-     * Return the metadatas container
-     *
-     * @return Metadatas
-     */
     public function container(): Metadatas
     {
         if (!$this->metadatas instanceof Metadatas) {
@@ -63,10 +60,6 @@ final class MetadataBuilder
 
     /**
      * Append the given mapping to the metadatas
-     *
-     * @param array $metas
-     *
-     * @return self
      */
     public function inject(array $metas): self
     {
@@ -90,12 +83,9 @@ final class MetadataBuilder
     /**
      * Build an entity metadata
      *
-     * @param string $class
      * @param MapInterface<string, mixed> $config
-     *
-     * @return EntityInterface
      */
-    public function build(string $class, MapInterface $config): EntityInterface
+    public function build(string $class, MapInterface $config): Entity
     {
         $config = $config->put('class', $class);
 

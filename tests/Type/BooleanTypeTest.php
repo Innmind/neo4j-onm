@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\BooleanType,
-    TypeInterface,
+    Type,
     Types
 };
 use Innmind\Immutable\{
@@ -19,7 +19,7 @@ class BooleanTypeTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            TypeInterface::class,
+            Type::class,
             BooleanType::fromConfig(
                 new Map('string', 'mixed'),
                 new Types

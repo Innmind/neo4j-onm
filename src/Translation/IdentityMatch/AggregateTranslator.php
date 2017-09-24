@@ -4,14 +4,14 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\IdentityMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\IdentityMatchTranslatorInterface,
-    IdentityInterface,
-    Metadata\EntityInterface,
+    Translation\IdentityMatchTranslator,
+    Identity,
+    Metadata\Entity,
     Metadata\ValueObject,
     IdentityMatch
 };
 use Innmind\Neo4j\DBAL\{
-    Query,
+    Query\Query,
     Clause\Expression\Relationship
 };
 use Innmind\Immutable\{
@@ -20,14 +20,14 @@ use Innmind\Immutable\{
     Set
 };
 
-final class AggregateTranslator implements IdentityMatchTranslatorInterface
+final class AggregateTranslator implements IdentityMatchTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
-        EntityInterface $meta,
-        IdentityInterface $identity
+        Entity $meta,
+        Identity $identity
     ): IdentityMatch {
         $query = (new Query)
             ->match(
@@ -75,7 +75,7 @@ final class AggregateTranslator implements IdentityMatchTranslatorInterface
 
         return new IdentityMatch(
             $query->return('entity', ...$variables->toPrimitive()),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $meta)
         );
     }

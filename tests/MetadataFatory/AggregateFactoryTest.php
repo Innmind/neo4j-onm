@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
     MetadataFactory\AggregateFactory,
-    MetadataFactoryInterface,
+    MetadataFactory,
     Metadata\Aggregate,
     Type\StringType,
     Type\DateType,
@@ -26,7 +26,7 @@ class AggregateFactoryTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            MetadataFactoryInterface::class,
+            MetadataFactory::class,
             $this->factory
         );
     }
@@ -103,7 +103,8 @@ class AggregateFactoryTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenInvalidConfigMap()
     {

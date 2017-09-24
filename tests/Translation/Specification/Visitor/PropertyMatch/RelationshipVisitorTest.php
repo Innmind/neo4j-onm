@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatc
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatch\RelationshipVisitor,
-    Translation\Specification\Visitor\PropertyMatchVisitorInterface,
+    Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -60,7 +60,7 @@ class RelationshipVisitorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->visitor);
+        $this->assertInstanceOf(PropertyMatchVisitor::class, $this->visitor);
     }
 
     public function testVisit()
@@ -97,7 +97,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNotDirectComparison()
     {
@@ -105,7 +105,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenOrOperator()
     {
@@ -116,7 +116,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNegatedSpecification()
     {

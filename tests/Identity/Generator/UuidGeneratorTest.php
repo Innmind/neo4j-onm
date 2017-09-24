@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Identity\Generator;
 
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
+    Identity,
     Identity\Uuid,
-    Identity\GeneratorInterface,
+    Identity\Generator,
     Identity\Generator\UuidGenerator
 };
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,7 @@ class UuidGeneratorTest extends TestCase
     {
         $g = new UuidGenerator;
 
-        $this->assertInstanceOf(GeneratorInterface::class, $g);
+        $this->assertInstanceOf(Generator::class, $g);
         $u = $g->new();
         $this->assertInstanceOf(Uuid::class, $u);
         $this->assertFalse($g->knows('11111111-1111-1111-1111-111111111111'));
@@ -49,7 +49,7 @@ class UuidGeneratorTest extends TestCase
 
     public function testGenerateWishedClass()
     {
-        $uuid = new class('foo') implements IdentityInterface
+        $uuid = new class('foo') implements Identity
         {
             private $value;
 
@@ -76,7 +76,7 @@ class UuidGeneratorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
      */
     public function testThrowWhenEmptyType()
     {

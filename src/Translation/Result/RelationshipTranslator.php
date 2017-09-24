@@ -4,16 +4,17 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
-    Translation\EntityTranslatorInterface,
-    Metadata\EntityInterface,
+    Translation\EntityTranslator,
+    Metadata\Entity,
     Metadata\Relationship,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
+    Exception\DomainException
 };
 use Innmind\Neo4j\DBAL\{
-    ResultInterface,
-    Result\RelationshipInterface,
-    Result\RowInterface
+    Result,
+    Result\Relationship as DBALRelationship,
+    Result\Row
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -22,28 +23,32 @@ use Innmind\Immutable\{
     Set
 };
 
-final class RelationshipTranslator implements EntityTranslatorInterface
+final class RelationshipTranslator implements EntityTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
         string $variable,
-        EntityInterface $meta,
-        ResultInterface $result
+        Entity $meta,
+        Result $result
     ): SetInterface {
-        if (empty($variable) || !$meta instanceof Relationship) {
+        if (empty($variable)) {
+            throw new DomainException;
+        }
+
+        if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 
         return $result
             ->rows()
-            ->filter(function(RowInterface $row) use ($variable) {
+            ->filter(function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
                 new Set(MapInterface::class),
-                function(Set $carry, RowInterface $row) use ($meta, $result): Set {
+                function(Set $carry, Row $row) use ($meta, $result): Set {
                     return $carry->add(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
@@ -57,12 +62,12 @@ final class RelationshipTranslator implements EntityTranslatorInterface
 
     private function translateRelationship(
         $identity,
-        EntityInterface $meta,
-        ResultInterface $result
+        Entity $meta,
+        Result $result
     ): MapInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(int $id, RelationshipInterface $relationship) use ($identity, $meta) {
+            ->filter(function(int $id, DBALRelationship $relationship) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 

@@ -3,100 +3,39 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\TypeInterface;
-use Innmind\Immutable\{
-    Map,
-    MapInterface
-};
+use Innmind\Immutable\MapInterface;
 
-abstract class Entity
+interface Entity
 {
-    private $class;
-    private $identity;
-    private $repository;
-    private $factory;
-    private $alias;
-    private $properties;
-
-    public function __construct(
-        ClassName $class,
-        Identity $id,
-        Repository $repository,
-        Factory $factory,
-        Alias $alias
-    ) {
-        $this->class = $class;
-        $this->identity = $id;
-        $this->repository = $repository;
-        $this->factory = $factory;
-        $this->alias = $alias;
-        $this->properties = new Map('string', Property::class);
-    }
-
     /**
-     * {@inheritdoc}
+     * Return the alias of the entity
      */
-    public function identity(): Identity
-    {
-        return $this->identity;
-    }
+    public function alias(): Alias;
 
     /**
-     * {@inheritdoc}
+     * Return the repository definition
      */
-    public function repository(): Repository
-    {
-        return $this->repository;
-    }
+    public function repository(): Repository;
 
     /**
-     * {@inheritdoc}
+     * Return the factory definition
      */
-    public function factory(): Factory
-    {
-        return $this->factory;
-    }
+    public function factory(): Factory;
 
     /**
-     * {@inheritdoc}
+     * Return the id property
      */
-    public function alias(): Alias
-    {
-        return $this->alias;
-    }
+    public function identity(): Identity;
 
     /**
-     * {@inheritdoc}
-     */
-    public function properties(): MapInterface
-    {
-        return $this->properties;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function class(): ClassName
-    {
-        return $this->class;
-    }
-
-    /**
-     * Add a property to the definition
+     * Return the list of properties defined for this entity
      *
-     * @param string $name
-     * @param TypeInterface $type
-     *
-     * @return EntityInterface
+     * @return MapInterface<string, Property>
      */
-    public function withProperty(string $name, TypeInterface $type): EntityInterface
-    {
-        $entity = clone $this;
-        $entity->properties = $this->properties->put(
-            $name,
-            new Property($name, $type)
-        );
+    public function properties(): MapInterface;
 
-        return $entity;
-    }
+    /**
+     * Return the class name of the entity
+     */
+    public function class(): ClassName;
 }

@@ -4,9 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
-    Exception\IdentityNotManagedException,
-    Exception\InvalidArgumentException
+    Entity\Container\State,
+    Identity,
+    Exception\IdentityNotManaged,
+    Exception\DomainException
 };
 use Innmind\Immutable\{
     Map,
@@ -15,51 +16,42 @@ use Innmind\Immutable\{
 
 final class Container
 {
-    const STATE_MANAGED = 1;
-    const STATE_NEW = 2;
-    const STATE_TO_BE_REMOVED = 3;
-    const STATE_REMOVED = 4;
-
     private $states;
 
     public function __construct()
     {
-        $this->states = (new Map('int', Map::class))
+        $this->states = (new Map(State::class, Map::class))
             ->put(
-                self::STATE_MANAGED,
-                new Map(IdentityInterface::class, 'object')
+                State::managed(),
+                new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_NEW,
-                new Map(IdentityInterface::class, 'object')
+                State::new(),
+                new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_TO_BE_REMOVED,
-                new Map(IdentityInterface::class, 'object')
+                State::toBeRemoved(),
+                new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_REMOVED,
-                new Map(IdentityInterface::class, 'object')
+                State::removed(),
+                new Map(Identity::class, 'object')
             );
     }
 
     /**
      * Inject the given entity with the wished state
      *
-     * @param IdentityInterface $identity
      * @param object $entity
-     * @param int $wished
-     *
-     * @return self
      */
-    public function push(IdentityInterface $identity, $entity, int $wished): self
+    public function push(Identity $identity, $entity, State $wished): self
     {
         if (!$this->states->contains($wished)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->states = $this->states->map(function(
-            int $state,
+            State $state,
             MapInterface $entities
         ) use (
             $identity,
@@ -79,26 +71,20 @@ final class Container
     /**
      * Return all the entities of a specific state
      *
-     * @param int $state
-     *
-     * @return MapInterface<IdentityInterface, object>
+     * @return MapInterface<Identity, object>
      */
-    public function state(int $state): MapInterface
+    public function state(State $state): MapInterface
     {
         return $this->states->get($state);
     }
 
     /**
      * Remove the entity with the given identity from any state
-     *
-     * @param IdentityInterface $identity
-     *
-     * @return self
      */
-    public function detach(IdentityInterface $identity): self
+    public function detach(Identity $identity): self
     {
         $this->states = $this->states->map(function(
-            int $state,
+            State $state,
             MapInterface $entities
         ) use (
             $identity
@@ -112,13 +98,9 @@ final class Container
     /**
      * Return the state for the given identity
      *
-     * @param IdentityInterface $identity
-     *
-     * @throws IdentityNotManagedException
-     *
-     * @return int
+     * @throws IdentityNotManaged
      */
-    public function stateFor(IdentityInterface $identity): int
+    public function stateFor(Identity $identity): State
     {
         foreach ($this->states as $state => $entities) {
             if ($entities->contains($identity)) {
@@ -126,19 +108,17 @@ final class Container
             }
         }
 
-        throw new IdentityNotManagedException;
+        throw new IdentityNotManaged;
     }
 
     /**
      * Return the entity with the given identity
      *
-     * @param IdentityInterface $identity
-     *
-     * @throws IdentityNotManagedException
+     * @throws IdentityNotManaged
      *
      * @return object
      */
-    public function get(IdentityInterface $identity)
+    public function get(Identity $identity)
     {
         return $this
             ->states
@@ -148,18 +128,14 @@ final class Container
 
     /**
      * Check if the given identity if known by the container
-     *
-     * @param IdentityInterface $identity
-     *
-     * @return bool
      */
-    public function contains(IdentityInterface $identity): bool
+    public function contains(Identity $identity): bool
     {
         try {
             $this->stateFor($identity);
 
             return true;
-        } catch (IdentityNotManagedException $e) {
+        } catch (IdentityNotManaged $e) {
             return false;
         }
     }

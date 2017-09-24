@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\Visitor\PropertyMatchVisitorInterface,
+    Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
-    IdentityInterface,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Identity,
+    Exception\SpecificationNotApplicableAsPropertyMatch,
     Query\PropertiesMatch
 };
 use Innmind\Specification\{
@@ -23,7 +23,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class RelationshipVisitor implements PropertyMatchVisitorInterface
+final class RelationshipVisitor implements PropertyMatchVisitor
 {
     private $meta;
 
@@ -40,14 +40,14 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
         switch (true) {
             case $specification instanceof ComparatorInterface:
                 if ($specification->sign() !== '=') {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->buildMapping($specification);
 
             case $specification instanceof CompositeInterface:
                 if ((string) $specification->operator() !== Operator::AND) {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->merge(
@@ -56,7 +56,7 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
                 );
         }
 
-        throw new SpecificationNotApplicableAsPropertyMatchException;
+        throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
     private function buildMapping(
@@ -117,7 +117,7 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
             ->append($edge->target());
         $value = $specification->value();
 
-        if ($value instanceof IdentityInterface) {
+        if ($value instanceof Identity) {
             $value = $value->value();
         }
 

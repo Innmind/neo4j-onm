@@ -5,9 +5,9 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     IdentityMatch,
-    Metadata\EntityInterface
+    Metadata\Entity
 };
-use Innmind\Neo4j\DBAL\Query;
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ class IdentityMatchTest extends TestCase
     {
         $i = new IdentityMatch(
             $q = new Query,
-            $v = new Map('string', EntityInterface::class)
+            $v = new Map('string', Entity::class)
         );
 
         $this->assertSame($q, $i->query());
@@ -25,7 +25,8 @@ class IdentityMatchTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>
      */
     public function testThrowWhenInvalidVariableMap()
     {

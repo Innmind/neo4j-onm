@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
     Metadata\Property,
-    TypeInterface
+    Type
 };
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class PropertyTest extends TestCase
     {
         $property = new Property(
             'foo',
-            $type = $this->createMock(TypeInterface::class)
+            $type = $this->createMock(Type::class)
         );
 
         $this->assertSame('foo', $property->name());
@@ -23,10 +23,10 @@ class PropertyTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
      */
     public function testThrowWhenEmptyName()
     {
-        new Property('', $this->createMock(TypeInterface::class));
+        new Property('', $this->createMock(Type::class));
     }
 }

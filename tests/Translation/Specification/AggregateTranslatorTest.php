@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\AggregateTranslator,
-    Translation\SpecificationTranslatorInterface,
+    Translation\SpecificationTranslator,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -83,7 +83,7 @@ class AggregateTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            SpecificationTranslatorInterface::class,
+            SpecificationTranslator::class,
             new AggregateTranslator
         );
     }

@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Identity;
 
 use Innmind\Neo4j\ONM\Identity\{
     Generators,
-    GeneratorInterface,
+    Generator,
     Uuid,
     Generator\UuidGenerator
 };
@@ -27,10 +27,10 @@ class GeneratorsTest extends TestCase
     public function testRegisterGenerator()
     {
         $generators = new Generators(
-            (new Map('string', GeneratorInterface::class))
+            (new Map('string', Generator::class))
                 ->put(
                     'foo',
-                    $mock = $this->createMock(GeneratorInterface::class)
+                    $mock = $this->createMock(Generator::class)
                 )
         );
 

@@ -5,14 +5,16 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Entity\Container,
+    Entity\Container\State,
+    EntityFactory\EntityFactory,
     Translation\IdentityMatchTranslator,
     Identity\Generators,
-    Exception\EntityNotFoundException,
-    Exception\IdentityNotManagedException
+    Exception\EntityNotFound,
+    Exception\IdentityNotManaged
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface
+    Connection,
+    Query
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -27,16 +29,16 @@ final class UnitOfWork
     private $entityFactory;
     private $identityMatchTranslator;
     private $metadatas;
-    private $persister;
+    private $persist;
     private $generators;
 
     public function __construct(
-        ConnectionInterface $connection,
+        Connection $connection,
         Container $container,
         EntityFactory $entityFactory,
         IdentityMatchTranslator $identityMatchTranslator,
         Metadatas $metadatas,
-        PersisterInterface $persister,
+        Persister $persister,
         Generators $generators
     ) {
         $this->connection = $connection;
@@ -44,16 +46,14 @@ final class UnitOfWork
         $this->entityFactory = $entityFactory;
         $this->identityMatchTranslator = $identityMatchTranslator;
         $this->metadatas = $metadatas;
-        $this->persister = $persister;
+        $this->persist = $persister;
         $this->generators = $generators;
     }
 
     /**
      * Return the connection used by this unit of work
-     *
-     * @return ConnectionInterface
      */
-    public function connection(): ConnectionInterface
+    public function connection(): Connection
     {
         return $this->connection;
     }
@@ -62,8 +62,6 @@ final class UnitOfWork
      * Add the given entity to the ones to be persisted
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function persist($entity): self
     {
@@ -74,7 +72,7 @@ final class UnitOfWork
             $this->container->push(
                 $identity,
                 $entity,
-                Container::STATE_NEW
+                State::new()
             );
             $this
                 ->generators
@@ -87,24 +85,16 @@ final class UnitOfWork
 
     /**
      * Check if the given identity already has been loaded
-     *
-     * @param IdentityInterface $identity
-     *
-     * @return bool
      */
-    public function contains(IdentityInterface $identity): bool
+    public function contains(Identity $identity): bool
     {
         return $this->container->contains($identity);
     }
 
     /**
      * Return the state for the given identity
-     *
-     * @param IdentityInterface $identity
-     *
-     * @return int
      */
-    public function stateFor(IdentityInterface $identity): int
+    public function stateFor(Identity $identity): State
     {
         return $this->container->stateFor($identity);
     }
@@ -112,14 +102,11 @@ final class UnitOfWork
     /**
      * Return the entity with the given identifier
      *
-     * @param string $class
-     * @param IdentityInterface $identity
-     *
-     * @throws EntityNotFoundException
+     * @throws EntityNotFound
      *
      * @return object
      */
-    public function get(string $class, IdentityInterface $identity)
+    public function get(string $class, Identity $identity)
     {
         $meta = $this->metadatas->get($class);
         $generator = $this
@@ -143,7 +130,7 @@ final class UnitOfWork
         );
 
         if ($entities->size() !== 1) {
-            throw new EntityNotFoundException;
+            throw new EntityNotFound;
         }
 
         return $entities->current();
@@ -153,8 +140,6 @@ final class UnitOfWork
      * Plan the given entity to be removed
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function remove($entity): self
     {
@@ -164,23 +149,23 @@ final class UnitOfWork
             $state = $this->container->stateFor($identity);
 
             switch ($state) {
-                case Container::STATE_NEW:
+                case State::new():
                     $this->container->push(
                         $identity,
                         $entity,
-                        Container::STATE_REMOVED
+                        State::removed()
                     );
                     break;
 
-                case Container::STATE_MANAGED:
+                case State::managed():
                     $this->container->push(
                         $identity,
                         $entity,
-                        Container::STATE_TO_BE_REMOVED
+                        State::toBeRemoved()
                     );
                     break;
             }
-        } catch (IdentityNotManagedException $e) {
+        } catch (IdentityNotManaged $e) {
             //pass
         }
 
@@ -191,8 +176,6 @@ final class UnitOfWork
      * Detach the given entity from the unit of work
      *
      * @param object $entity
-     *
-     * @return self
      */
     public function detach($entity): self
     {
@@ -206,13 +189,12 @@ final class UnitOfWork
     /**
      * Execute the given query
      *
-     * @param QueryInterface $query
      * @param MapInterface<string, EntityInterface> $variables
      *
      * @return SetInterface<object>
      */
     public function execute(
-        QueryInterface $query,
+        Query $query,
         MapInterface $variables
     ): SetInterface {
         return $this->entityFactory->make(
@@ -223,12 +205,10 @@ final class UnitOfWork
 
     /**
      * Send the modifications to the database
-     *
-     * @return self
      */
     public function commit(): self
     {
-        $this->persister->persist($this->connection, $this->container);
+        ($this->persist)($this->connection, $this->container);
 
         return $this;
     }
@@ -237,10 +217,8 @@ final class UnitOfWork
      * Extract the identity object from the given entity
      *
      * @param object $entity
-     *
-     * @return IdentityInterface
      */
-    private function extractIdentity($entity): IdentityInterface
+    private function extractIdentity($entity): Identity
     {
         $identity = $this
             ->metadatas

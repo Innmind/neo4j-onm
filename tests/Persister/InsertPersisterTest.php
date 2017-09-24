@@ -5,10 +5,11 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister\InsertPersister,
-    PersisterInterface,
-    Entity\DataExtractor,
+    Persister,
+    Entity\DataExtractor\DataExtractor,
     Entity\ChangesetComputer,
     Entity\Container,
+    Entity\Container\State,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
@@ -29,8 +30,8 @@ use Innmind\Neo4j\ONM\{
     Event\EntityPersisted
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    ResultInterface,
+    Connection,
+    Result,
     Query\Parameter
 };
 use Innmind\EventBus\EventBusInterface;
@@ -134,7 +135,7 @@ class InsertPersisterTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            PersisterInterface::class,
+            Persister::class,
             new InsertPersister(
                 new ChangesetComputer,
                 $this->createMock(EventBusInterface::class),
@@ -146,7 +147,7 @@ class InsertPersisterTest extends TestCase
 
     public function testPersist()
     {
-        $persister = new InsertPersister(
+        $persist = new InsertPersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
             new DataExtractor($this->metadatas),
@@ -154,7 +155,7 @@ class InsertPersisterTest extends TestCase
         );
 
         $container = new Container;
-        $conn = $this->createMock(ConnectionInterface::class);
+        $conn = $this->createMock(Connection::class);
         $aggregate = new $this->arClass;
         $rel = new class {
             public $created;
@@ -171,13 +172,13 @@ class InsertPersisterTest extends TestCase
         $rel->created = new \DateTimeImmutable('2016-01-01');
         $rel->child = $child;
         $child->content = 'foo';
-        $container->push($aggregate->uuid, $aggregate, Container::STATE_NEW);
+        $container->push($aggregate->uuid, $aggregate, State::new());
         $relationship = new $this->rClass;
         $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->created = new \DateTimeImmutable('2016-01-01');
         $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
-        $container->push($relationship->uuid, $relationship, Container::STATE_NEW);
+        $container->push($relationship->uuid, $relationship, State::new());
         $count = $preCount = $postCount = 0;
 
         $conn
@@ -226,7 +227,7 @@ class InsertPersisterTest extends TestCase
                     });
                 ++$count;
 
-                return $this->createMock(ResultInterface::class);
+                return $this->createMock(Result::class);
             }));
         $bus
             ->expects($this->at(0))
@@ -257,14 +258,14 @@ class InsertPersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertNull($persister->persist($conn, $container));
+        $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $container->stateFor($aggregate->uuid)
         );
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $container->stateFor($relationship->uuid)
         );
     }

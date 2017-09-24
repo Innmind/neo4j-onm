@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Types,
-    Exception\TypeDeclarationException,
-    Exception\RecursiveTypeDeclarationException
+    Exception\MissingFieldDeclaration,
+    Exception\RecursiveTypeDeclaration
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -15,7 +15,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-final class ArrayType implements TypeInterface
+final class ArrayType implements Type
 {
     private $nullable = false;
     private $inner;
@@ -24,16 +24,16 @@ final class ArrayType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): Type
     {
         $type = new self;
 
         if (!$config->contains('inner')) {
-            throw TypeDeclarationException::missingField('inner');
+            throw new MissingFieldDeclaration('inner');
         }
 
         if (self::identifiers()->contains($config->get('inner'))) {
-            throw new RecursiveTypeDeclarationException;
+            throw new RecursiveTypeDeclaration;
         }
 
         $type->inner = $types->build(

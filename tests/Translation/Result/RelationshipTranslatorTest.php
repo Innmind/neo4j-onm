@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
     Translation\Result\RelationshipTranslator,
-    Translation\EntityTranslatorInterface,
+    Translation\EntityTranslator,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -14,14 +14,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Types
 };
 use Innmind\Neo4j\DBAL\{
-    Result,
-    ResultInterface
+    Result\Result,
+    Result as ResultInterface
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -35,7 +35,7 @@ class RelationshipTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            EntityTranslatorInterface::class,
+            EntityTranslator::class,
             new RelationshipTranslator
         );
     }
@@ -284,13 +284,13 @@ class RelationshipTranslatorTest extends TestCase
     {
         (new RelationshipTranslator)->translate(
             'r',
-            $this->createMock(EntityInterface::class),
+            $this->createMock(Entity::class),
             $this->createMock(ResultInterface::class)
         );
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
      */
     public function testThrowWhenTranslatingWhenEmptyVariable()
     {

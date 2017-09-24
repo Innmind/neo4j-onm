@@ -14,13 +14,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    IdentityInterface,
+    Identity as IdentityInterface,
     Types,
-    EntityFactoryInterface
+    EntityFactory
 };
 use Innmind\Reflection\{
     InstanciatorInterface,
@@ -40,7 +40,7 @@ class AggregateFactoryTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            EntityFactoryInterface::class,
+            EntityFactory::class,
             new AggregateFactory
         );
     }
@@ -165,13 +165,14 @@ class AggregateFactoryTest extends TestCase
     {
         (new AggregateFactory)->make(
             $this->createMock(IdentityInterface::class),
-            $this->createMock(EntityInterface::class),
+            $this->createMock(Entity::class),
             new Map('string', 'mixed')
         );
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 3 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {

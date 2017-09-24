@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\RelationshipTranslator,
-    Translation\SpecificationTranslatorInterface,
+    Translation\SpecificationTranslator,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -57,7 +57,7 @@ class RelationshipTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            SpecificationTranslatorInterface::class,
+            SpecificationTranslator::class,
             new RelationshipTranslator
         );
     }

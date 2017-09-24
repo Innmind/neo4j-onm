@@ -4,13 +4,14 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
-    PersisterInterface,
+    Persister,
     Entity\Container,
+    Entity\Container\State,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Event\EntityAboutToBePersisted,
     Event\EntityPersisted,
-    IdentityInterface,
+    Identity,
     Metadata\Aggregate,
     Metadata\Property,
     Metadata\ValueObject,
@@ -18,8 +19,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface,
+    Connection,
     Query,
     Clause\Expression\Relationship as DBALRelationship
 };
@@ -31,7 +31,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class InsertPersister implements PersisterInterface
+final class InsertPersister implements Persister
 {
     private $changeset;
     private $eventBus;
@@ -56,15 +56,15 @@ final class InsertPersister implements PersisterInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function __invoke(Connection $connection, Container $container): void
     {
-        $entities = $container->state(Container::STATE_NEW);
+        $entities = $container->state(State::new());
 
         if ($entities->size() === 0) {
             return;
         }
 
-        $entities->foreach(function(IdentityInterface $identity, $entity) {
+        $entities->foreach(function(Identity $identity, $entity) {
             $this->eventBus->dispatch(
                 new EntityAboutToBePersisted($identity, $entity)
             );
@@ -73,12 +73,12 @@ final class InsertPersister implements PersisterInterface
         $connection->execute($this->queryFor($entities));
 
         $entities->foreach(function(
-            IdentityInterface $identity,
+            Identity $identity,
             $entity
         ) use (
             $container
         ) {
-            $container->push($identity, $entity, Container::STATE_MANAGED);
+            $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
                 $this->extractor->extract($entity)
@@ -92,17 +92,15 @@ final class InsertPersister implements PersisterInterface
     /**
      * Build the whole cypher query to insert at once all new nodes and relationships
      *
-     * @param MapInterface<IdentityInterface, object> $entities
-     *
-     * @return QueryInterface
+     * @param MapInterface<Identity, object> $entities
      */
-    private function queryFor(MapInterface $entities): QueryInterface
+    private function queryFor(MapInterface $entities): Query
     {
-        $query = new Query;
+        $query = new Query\Query;
         $this->variables = new Stream('string');
 
         $partitions = $entities->partition(function(
-            IdentityInterface $identity,
+            Identity $identity,
             $entity
         ) {
             $meta = $this->metadatas->get(get_class($entity));
@@ -113,7 +111,7 @@ final class InsertPersister implements PersisterInterface
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                function(Query $carry, Identity $identity, $entity): Query {
                     return $this->createAggregate($identity, $entity, $carry);
                 }
             );
@@ -121,7 +119,7 @@ final class InsertPersister implements PersisterInterface
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                function(Query $carry, Identity $identity, $entity): Query {
                     return $this->createRelationship($identity, $entity, $carry);
                 }
             );
@@ -133,14 +131,14 @@ final class InsertPersister implements PersisterInterface
     /**
      * Add the cypher clause to create the node corresponding to the root of the aggregate
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      * @param object $entity
      * @param Query  $query
      *
      * @return Query
      */
     private function createAggregate(
-        IdentityInterface $identity,
+        Identity $identity,
         $entity,
         Query $query
     ): Query {
@@ -334,14 +332,14 @@ final class InsertPersister implements PersisterInterface
     /**
      * Add the clause to create a relationship between nodes
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      * @param object $entity
      * @param Query $query
      *
      * @return Query
      */
     private function createRelationship(
-        IdentityInterface $identity,
+        Identity $identity,
         $entity,
         Query $query
     ): Query {

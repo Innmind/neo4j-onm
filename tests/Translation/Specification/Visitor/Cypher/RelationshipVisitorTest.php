@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\RelationshipVisitor,
-    Translation\Specification\Visitor\CypherVisitorInterface,
+    Translation\Specification\Visitor\CypherVisitor,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -59,7 +59,7 @@ class RelationshipVisitorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(CypherVisitorInterface::class, $this->visitor);
+        $this->assertInstanceOf(CypherVisitor::class, $this->visitor);
     }
 
     public function testVisit()

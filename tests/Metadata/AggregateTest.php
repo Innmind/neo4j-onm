@@ -10,11 +10,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Repository,
     Metadata\Factory,
     Metadata\Alias,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    TypeInterface
+    Type
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -35,7 +35,7 @@ class AggregateTest extends TestCase
             ['LabelA']
         );
 
-        $this->assertInstanceOf(EntityInterface::class, $ar);
+        $this->assertInstanceOf(Entity::class, $ar);
         $this->assertSame($cn, $ar->class());
         $this->assertSame($i, $ar->identity());
         $this->assertSame($r, $ar->repository());
@@ -70,7 +70,7 @@ class AggregateTest extends TestCase
 
         $ar2 = $ar->withProperty(
             'foo',
-            $this->createMock(TypeInterface::class)
+            $this->createMock(Type::class)
         );
         $this->assertNotSame($ar, $ar2);
         $this->assertCount(0, $ar->properties());

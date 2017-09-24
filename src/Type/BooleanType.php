@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Types
 };
 use Innmind\Immutable\{
@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-final class BooleanType implements TypeInterface
+final class BooleanType implements Type
 {
     private $nullable = false;
     private static $identifiers;
@@ -21,7 +21,7 @@ final class BooleanType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): Type
     {
         $type = new self;
 

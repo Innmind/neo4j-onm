@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
+    Identity,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
@@ -19,7 +19,7 @@ final class ChangesetComputer
     public function __construct()
     {
         $this->sources = new Map(
-            IdentityInterface::class,
+            Identity::class,
             MapInterface::class
         );
     }
@@ -27,20 +27,17 @@ final class ChangesetComputer
     /**
      * Use the given collection as the original data for the given entity
      *
-     * @param IdentityInterface $identity
      * @param MapInterface<string, mixed> $source
-     *
-     * @return self
      */
     public function use(
-        IdentityInterface $identity,
+        Identity $identity,
         MapInterface $source
     ): self {
         if (
             (string) $source->keyType() !== 'string' ||
             (string) $source->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         $this->sources = $this->sources->put(
@@ -54,20 +51,19 @@ final class ChangesetComputer
     /**
      * Return the collection of data that has changed for the given identity
      *
-     * @param IdentityInterface $identity
      * @param MapInterface<string, mixed> $target
      *
      * @return MapInterface<string, mixed>
      */
     public function compute(
-        IdentityInterface $identity,
+        Identity $identity,
         MapInterface $target
     ): MapInterface {
         if (
             (string) $target->keyType() !== 'string' ||
             (string) $target->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         if (!$this->sources->contains($identity)) {

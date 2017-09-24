@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Types,
     Exception\InvalidArgumentException
 };
@@ -14,7 +14,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-final class DateType implements TypeInterface
+final class DateType implements Type
 {
     private $nullable = false;
     private $format = \DateTime::ISO8601;
@@ -24,7 +24,7 @@ final class DateType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): Type
     {
         $type = new self;
 

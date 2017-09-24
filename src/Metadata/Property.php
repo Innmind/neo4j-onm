@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
-    Exception\InvalidArgumentException
+    Type,
+    Exception\DomainException
 };
 
 final class Property
@@ -13,10 +13,10 @@ final class Property
     private $name;
     private $type;
 
-    public function __construct(string $name, TypeInterface $type)
+    public function __construct(string $name, Type $type)
     {
         if (empty($name)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->name = $name;
@@ -33,7 +33,7 @@ final class Property
         return $this->name();
     }
 
-    public function type(): TypeInterface
+    public function type(): Type
     {
         return $this->type;
     }

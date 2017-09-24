@@ -6,21 +6,21 @@ namespace Tests\Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     UnitOfWork,
     Entity\Container,
-    EntityFactory,
+    Entity\Container\State,
+    EntityFactory\EntityFactory,
     Translation\ResultTranslator,
     Identity\Generators,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
     EntityFactory\AggregateFactory,
     Metadatas,
-    Translation\IdentityMatchTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
     Persister\DelegationPersister,
     Persister\InsertPersister,
     Persister\UpdatePersister,
     Persister\RemovePersister,
-    PersisterInterface,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Identity\Uuid,
     Metadata\Aggregate,
     Metadata\Relationship,
@@ -30,12 +30,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\Repository,
     Metadata\Factory,
     Metadata\Alias,
-    Metadata\EntityInterface,
-    Exception\IdentityNotManagedException
+    Metadata\Entity,
+    Exception\IdentityNotManaged
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
-    Query
+    Query\Query
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\HttpTransport\GuzzleTransport;
@@ -44,7 +44,6 @@ use Innmind\Http\{
     Factory\Header\Factories
 };
 use Innmind\Immutable\{
-    Stream,
     SetInterface,
     Map
 };
@@ -110,30 +109,23 @@ class UnitOfWorkTest extends TestCase
             new IdentityMatchTranslator,
             $this->metadatas,
             new DelegationPersister(
-                (new Stream(PersisterInterface::class))
-                    ->add(
-                        new InsertPersister(
-                            $changeset,
-                            $eventBus,
-                            $extractor,
-                            $this->metadatas
-                        )
-                    )
-                    ->add(
-                        new UpdatePersister(
-                            $changeset,
-                            $eventBus,
-                            $extractor,
-                            $this->metadatas
-                        )
-                    )
-                    ->add(
-                        new RemovePersister(
-                            $changeset,
-                            $eventBus,
-                            $this->metadatas
-                        )
-                    )
+                new InsertPersister(
+                    $changeset,
+                    $eventBus,
+                    $extractor,
+                    $this->metadatas
+                ),
+                new UpdatePersister(
+                    $changeset,
+                    $eventBus,
+                    $extractor,
+                    $this->metadatas
+                ),
+                new RemovePersister(
+                    $changeset,
+                    $eventBus,
+                    $this->metadatas
+                )
             ),
             $this->generators
         );
@@ -159,7 +151,7 @@ class UnitOfWorkTest extends TestCase
         );
         $this->assertTrue($this->uow->contains($entity->uuid));
         $this->assertSame(
-            Container::STATE_NEW,
+            State::new(),
             $this->uow->stateFor($entity->uuid)
         );
         $this->assertTrue(
@@ -181,7 +173,7 @@ class UnitOfWorkTest extends TestCase
             $uow->commit()
         );
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $uow->stateFor($entity->uuid)
         );
 
@@ -228,7 +220,7 @@ class UnitOfWorkTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
+     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
      */
     public function testThrowWhenTheEntityIsNotFound()
     {
@@ -250,7 +242,7 @@ class UnitOfWorkTest extends TestCase
                 ->match('entity', ['Label'])
                 ->withProperty('uuid', '"11111111-1111-1111-1111-111111111111"')
                 ->return('entity'),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $this->metadatas->get($this->aggregateClass))
         );
 
@@ -267,7 +259,7 @@ class UnitOfWorkTest extends TestCase
         $this->uow->persist($entity);
         $this->assertSame($this->uow, $this->uow->remove($entity));
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $this->uow->stateFor($entity->uuid)
         );
     }
@@ -284,7 +276,7 @@ class UnitOfWorkTest extends TestCase
             $uow->remove($entity)
         );
         $this->assertSame(
-            Container::STATE_TO_BE_REMOVED,
+            State::toBeRemoved(),
             $uow->stateFor($entity->uuid)
         );
         $uow->commit();
@@ -297,7 +289,7 @@ class UnitOfWorkTest extends TestCase
 
         $this->assertSame($this->uow, $this->uow->remove($entity));
 
-        $this->expectException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManaged::class);
         $this->uow->stateFor($entity->uuid);
     }
 
@@ -313,7 +305,7 @@ class UnitOfWorkTest extends TestCase
             $uow->detach($entity)
         );
         $this->assertFalse($uow->contains($entity->uuid));
-        $this->expectException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManaged::class);
         $uow->stateFor($entity->uuid);
     }
 

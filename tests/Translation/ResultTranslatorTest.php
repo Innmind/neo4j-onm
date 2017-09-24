@@ -16,14 +16,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Types
 };
 use Innmind\Neo4j\DBAL\{
-    Result,
-    ResultInterface
+    Result\Result,
+    Result as ResultInterface
 };
 use Innmind\Immutable\{
     Map,
@@ -231,7 +231,7 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );
@@ -335,7 +335,7 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );
@@ -344,7 +344,8 @@ class ResultTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>
      */
     public function testThrowWhenEmptyInvalidMap()
     {
@@ -352,7 +353,8 @@ class ResultTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>
      */
     public function testThrowWhenEmptyInvalidVariableMap()
     {

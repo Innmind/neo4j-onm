@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Event;
 
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
+    Identity,
     Exception\InvalidArgumentException
 };
 
@@ -16,7 +16,7 @@ final class EntityRemoved
     /**
      * @param object $entity
      */
-    public function __construct(IdentityInterface $identity, $entity)
+    public function __construct(Identity $identity, $entity)
     {
         if (!is_object($entity)) {
             throw new InvalidArgumentException;
@@ -26,7 +26,7 @@ final class EntityRemoved
         $this->entity = $entity;
     }
 
-    public function identity(): IdentityInterface
+    public function identity(): Identity
     {
         return $this->identity;
     }

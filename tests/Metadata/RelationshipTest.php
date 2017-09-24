@@ -10,11 +10,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Repository,
     Metadata\Factory,
     Metadata\Alias,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Metadata\ValueObject,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    TypeInterface
+    Type
 };
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +33,7 @@ class RelationshipTest extends TestCase
             $e = new RelationshipEdge('end', 'UUID', 'target')
         );
 
-        $this->assertInstanceOf(EntityInterface::class, $r);
+        $this->assertInstanceOf(Entity::class, $r);
         $this->assertSame($cn, $r->class());
         $this->assertSame($i, $r->identity());
         $this->assertSame($repo, $r->repository());
@@ -45,7 +45,7 @@ class RelationshipTest extends TestCase
 
         $r2 = $r->withProperty(
             'foo',
-            $this->createMock(TypeInterface::class)
+            $this->createMock(Type::class)
         );
         $this->assertNotSame($r, $r2);
         $this->assertSame(0, $r->properties()->count());

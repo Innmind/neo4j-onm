@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\SetType,
-    TypeInterface,
+    Type,
     Types
 };
 use Innmind\Immutable\{
@@ -21,7 +21,7 @@ class SetTypeTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            TypeInterface::class,
+            Type::class,
             SetType::fromConfig(
                 (new Map('string', 'mixed'))
                     ->put('inner', 'string'),
@@ -31,7 +31,7 @@ class SetTypeTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\TypeDeclarationException
+     * @expectedException Innmind\Neo4j\ONM\Exception\MissingFieldDeclaration
      * @expectedExceptionMessage Missing config key "inner" in type declaration
      */
     public function testThrowWhenMissingInnerType()
@@ -43,7 +43,7 @@ class SetTypeTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclarationException
+     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclaration
      */
     public function testThrowWhenInnerTypeIsArray()
     {
@@ -126,8 +126,8 @@ class SetTypeTest extends TestCase
                 return 'foo';
             }
         };
-        $mockType = new class implements TypeInterface {
-            public static function fromConfig(MapInterface $c, Types $t): TypeInterface
+        $mockType = new class implements Type {
+            public static function fromConfig(MapInterface $c, Types $t): Type
             {
                 return new self;
             }

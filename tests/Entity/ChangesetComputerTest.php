@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Entity\ChangesetComputer,
-    IdentityInterface
+    Identity
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -25,7 +25,7 @@ class ChangesetComputerTest extends TestCase
     public function testComputeWithoutSource()
     {
         $diff = $this->computer->compute(
-            $this->createMock(IdentityInterface::class),
+            $this->createMock(Identity::class),
             $data = (new Map('string', 'mixed'))
                 ->put('id', 42)
                 ->put('foo', 'bar')
@@ -45,7 +45,7 @@ class ChangesetComputerTest extends TestCase
         $this->assertSame(
             $this->computer,
             $this->computer->use(
-                $identity = $this->createMock(IdentityInterface::class),
+                $identity = $this->createMock(Identity::class),
                 (new Map('string', 'mixed'))
                     ->put('id', 42)
                     ->put('some', 'prop')
@@ -120,23 +120,25 @@ class ChangesetComputerTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenUsingInvalidSource()
     {
         $this->computer->use(
-            $this->createMock(IdentityInterface::class),
+            $this->createMock(Identity::class),
             new Map('string', 'variable')
         );
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenComputingInvalidTarget()
     {
         $this->computer->compute(
-            $this->createMock(IdentityInterface::class),
+            $this->createMock(Identity::class),
             new Map('string', 'variable')
         );
     }

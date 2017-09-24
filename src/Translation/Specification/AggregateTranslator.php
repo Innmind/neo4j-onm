@@ -4,16 +4,16 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
-    Translation\SpecificationTranslatorInterface,
+    Translation\SpecificationTranslator,
     Translation\Specification\Visitor\PropertyMatch\AggregateVisitor as AggregatePropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
     Metadata\ValueObject,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     IdentityMatch,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatch
 };
 use Innmind\Neo4j\DBAL\{
-    Query,
+    Query\Query,
     Clause\Expression\Relationship
 };
 use Innmind\Immutable\{
@@ -24,13 +24,13 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-final class AggregateTranslator implements SpecificationTranslatorInterface
+final class AggregateTranslator implements SpecificationTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
-        EntityInterface $meta,
+        Entity $meta,
         SpecificationInterface $specification
     ): IdentityMatch {
         $variables = new Set('string');
@@ -88,7 +88,7 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
                         $mapping
                     );
                 });
-        } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
+        } catch (SpecificationNotApplicableAsPropertyMatch $e) {
             $query = (new Query)
                 ->match(
                     'entity',
@@ -144,7 +144,7 @@ final class AggregateTranslator implements SpecificationTranslatorInterface
 
         return new IdentityMatch(
             $query->return('entity', ...$variables->toPrimitive()),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $meta)
         );
     }
