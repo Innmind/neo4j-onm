@@ -146,7 +146,7 @@ class InsertPersisterTest extends TestCase
 
     public function testPersist()
     {
-        $persister = new InsertPersister(
+        $persist = new InsertPersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
             new DataExtractor($this->metadatas),
@@ -257,7 +257,7 @@ class InsertPersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertNull($persister->persist($conn, $container));
+        $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_MANAGED,

@@ -24,7 +24,7 @@ class DelegationPersisterTest extends TestCase
 
     public function testPersist()
     {
-        $persister = new DelegationPersister(
+        $persist = new DelegationPersister(
             (new Stream(Persister::class))
                 ->add(
                     $mock1 = $this->createMock(Persister::class)
@@ -37,14 +37,14 @@ class DelegationPersisterTest extends TestCase
         $container = new Container;
         $mock1
             ->expects($this->once())
-            ->method('persist')
+            ->method('__invoke')
             ->with($connection, $container);
         $mock2
             ->expects($this->once())
-            ->method('persist')
+            ->method('__invoke')
             ->with($connection, $container);
 
-        $this->assertNull($persister->persist($connection, $container));
+        $this->assertNull($persist($connection, $container));
     }
 
     /**

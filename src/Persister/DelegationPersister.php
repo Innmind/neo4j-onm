@@ -29,17 +29,17 @@ final class DelegationPersister implements Persister
     /**
      * {@inheritdoc}
      */
-    public function persist(Connection $connection, Container $container): void
+    public function __invoke(Connection $connection, Container $container): void
     {
         $this
             ->persisters
             ->foreach(function(
-                Persister $persister
+                Persister $persist
             ) use (
                 $connection,
                 $container
             ) {
-                $persister->persist($connection, $container);
+                $persist($connection, $container);
             });
     }
 }

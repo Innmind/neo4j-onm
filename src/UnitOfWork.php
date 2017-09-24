@@ -28,7 +28,7 @@ final class UnitOfWork
     private $entityFactory;
     private $identityMatchTranslator;
     private $metadatas;
-    private $persister;
+    private $persist;
     private $generators;
 
     public function __construct(
@@ -45,7 +45,7 @@ final class UnitOfWork
         $this->entityFactory = $entityFactory;
         $this->identityMatchTranslator = $identityMatchTranslator;
         $this->metadatas = $metadatas;
-        $this->persister = $persister;
+        $this->persist = $persister;
         $this->generators = $generators;
     }
 
@@ -207,7 +207,7 @@ final class UnitOfWork
      */
     public function commit(): self
     {
-        $this->persister->persist($this->connection, $this->container);
+        ($this->persist)($this->connection, $this->container);
 
         return $this;
     }

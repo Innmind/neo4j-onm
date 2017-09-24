@@ -100,7 +100,7 @@ class RemovePersisterTest extends TestCase
 
     public function testPersist()
     {
-        $persister = new RemovePersister(
+        $persist = new RemovePersister(
             new ChangesetComputer,
             $bus = $this->createMock(EventBusInterface::class),
             $this->metadatas
@@ -179,7 +179,7 @@ class RemovePersisterTest extends TestCase
                     $event->identity() === $relationship->uuid;
             }));
 
-        $this->assertNull($persister->persist($conn, $container));
+        $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
             Container::STATE_REMOVED,

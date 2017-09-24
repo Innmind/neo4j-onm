@@ -60,7 +60,7 @@ class ManagerTest extends TestCase
         );
         $persister
             ->expects($this->once())
-            ->method('persist')
+            ->method('__invoke')
             ->with($conn, $container);
         $factory = new RepositoryFactory(
             $uow,

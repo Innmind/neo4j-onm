@@ -11,5 +11,5 @@ interface Persister
     /**
      * Use the given collection to persist modifications in the given container
      */
-    public function persist(Connection $connection, Container $container): void;
+    public function __invoke(Connection $connection, Container $container): void;
 }

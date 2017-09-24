@@ -52,7 +52,7 @@ final class UpdatePersister implements Persister
     /**
      * {@inheritdoc}
      */
-    public function persist(Connection $connection, Container $container): void
+    public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container->state(Container::STATE_MANAGED);
         $changesets = $entities->reduce(
