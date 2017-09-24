@@ -8,21 +8,13 @@ use Innmind\Neo4j\ONM\{
     Entity\Container
 };
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\Immutable\StreamInterface;
 
 final class DelegationPersister implements Persister
 {
     private $persisters;
 
-    public function __construct(StreamInterface $persisters)
+    public function __construct(Persister ...$persisters)
     {
-        if ((string) $persisters->type() !== Persister::class) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type StreamInterface<%s>',
-                Persister::class
-            ));
-        }
-
         $this->persisters = $persisters;
     }
 
@@ -31,15 +23,8 @@ final class DelegationPersister implements Persister
      */
     public function __invoke(Connection $connection, Container $container): void
     {
-        $this
-            ->persisters
-            ->foreach(function(
-                Persister $persist
-            ) use (
-                $connection,
-                $container
-            ) {
-                $persist($connection, $container);
-            });
+        foreach ($this->persisters as $persist) {
+            $persist($connection, $container);
+        }
     }
 }

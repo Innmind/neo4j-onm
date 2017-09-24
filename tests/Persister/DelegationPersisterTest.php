@@ -9,29 +9,21 @@ use Innmind\Neo4j\ONM\{
     Entity\Container
 };
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
 class DelegationPersisterTest extends TestCase
 {
     public function testInterface()
     {
-        $perister = new DelegationPersister(
-            new Stream(Persister::class)
-        );
+        $perister = new DelegationPersister;
         $this->assertInstanceOf(Persister::class, $perister);
     }
 
     public function testPersist()
     {
         $persist = new DelegationPersister(
-            (new Stream(Persister::class))
-                ->add(
-                    $mock1 = $this->createMock(Persister::class)
-                )
-                ->add(
-                    $mock2 = $this->createMock(Persister::class)
-                )
+            $mock1 = $this->createMock(Persister::class),
+            $mock2 = $this->createMock(Persister::class)
         );
         $connection = $this->createMock(Connection::class);
         $container = new Container;
@@ -45,14 +37,5 @@ class DelegationPersisterTest extends TestCase
             ->with($connection, $container);
 
         $this->assertNull($persist($connection, $container));
-    }
-
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type StreamInterface<Innmind\Neo4j\ONM\Persister>
-     */
-    public function testThrowWhenInvalidStream()
-    {
-        new DelegationPersister(new Stream('callable'));
     }
 }

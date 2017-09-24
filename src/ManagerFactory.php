@@ -28,7 +28,6 @@ use Innmind\EventBus\{
 };
 use Innmind\Immutable\{
     Set,
-    Stream,
     MapInterface,
     Map
 };
@@ -368,30 +367,23 @@ final class ManagerFactory
     {
         if ($this->persister === null) {
             $this->persister = new DelegationPersister(
-                (new Stream(Persister::class))
-                    ->add(
-                        new InsertPersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->extractor(),
-                            $this->metadatas()
-                        )
-                    )
-                    ->add(
-                        new UpdatePersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->extractor(),
-                            $this->metadatas()
-                        )
-                    )
-                    ->add(
-                        new RemovePersister(
-                            $this->changeset(),
-                            $this->eventBus,
-                            $this->metadatas()
-                        )
-                    )
+                new InsertPersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->extractor(),
+                    $this->metadatas()
+                ),
+                new UpdatePersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->extractor(),
+                    $this->metadatas()
+                ),
+                new RemovePersister(
+                    $this->changeset(),
+                    $this->eventBus,
+                    $this->metadatas()
+                )
             );
         }
 

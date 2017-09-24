@@ -22,7 +22,6 @@ use Innmind\Neo4j\ONM\{
     Persister\InsertPersister,
     Persister\UpdatePersister,
     Persister\RemovePersister,
-    Persister,
     Entity\ChangesetComputer,
     Entity\DataExtractor\DataExtractor,
     Identity\Uuid,
@@ -47,7 +46,6 @@ use Innmind\Http\{
     Factory\Header\Factories
 };
 use Innmind\Immutable\{
-    Stream,
     SetInterface,
     Map
 };
@@ -115,30 +113,23 @@ class RepositoryTest extends TestCase
             new IdentityMatchTranslator,
             $metadatas,
             new DelegationPersister(
-                (new Stream(Persister::class))
-                    ->add(
-                        new InsertPersister(
-                            $changeset,
-                            $eventBus,
-                            $extractor,
-                            $metadatas
-                        )
-                    )
-                    ->add(
-                        new UpdatePersister(
-                            $changeset,
-                            $eventBus,
-                            $extractor,
-                            $metadatas
-                        )
-                    )
-                    ->add(
-                        new RemovePersister(
-                            $changeset,
-                            $eventBus,
-                            $metadatas
-                        )
-                    )
+                new InsertPersister(
+                    $changeset,
+                    $eventBus,
+                    $extractor,
+                    $metadatas
+                ),
+                new UpdatePersister(
+                    $changeset,
+                    $eventBus,
+                    $extractor,
+                    $metadatas
+                ),
+                new RemovePersister(
+                    $changeset,
+                    $eventBus,
+                    $metadatas
+                )
             ),
             $generators
         );
