@@ -36,7 +36,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Type\StringType,
     Types,
-    Exception\EntityNotFoundException
+    Exception\EntityNotFound
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
@@ -168,12 +168,12 @@ class RepositoryTest extends TestCase
         $this->assertSame($this->r, $this->r->remove($entity));
         $this->assertFalse($this->r->has($entity->uuid));
 
-        $this->expectException(EntityNotFoundException::class);
+        $this->expectException(EntityNotFound::class);
         $this->r->get($entity->uuid);
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
+     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
      */
     public function testThrowWhenGettingUnknownEntity()
     {

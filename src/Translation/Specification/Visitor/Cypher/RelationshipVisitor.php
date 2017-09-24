@@ -8,7 +8,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Identity,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\Where
 };
 use Innmind\Specification\{

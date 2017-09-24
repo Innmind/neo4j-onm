@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\EntityFactory,
     Translation\IdentityMatchTranslator,
     Identity\Generators,
-    Exception\EntityNotFoundException,
-    Exception\IdentityNotManagedException
+    Exception\EntityNotFound,
+    Exception\IdentityNotManaged
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
@@ -116,7 +116,7 @@ final class UnitOfWork
      * @param string $class
      * @param Identity $identity
      *
-     * @throws EntityNotFoundException
+     * @throws EntityNotFound
      *
      * @return object
      */
@@ -144,7 +144,7 @@ final class UnitOfWork
         );
 
         if ($entities->size() !== 1) {
-            throw new EntityNotFoundException;
+            throw new EntityNotFound;
         }
 
         return $entities->current();
@@ -181,7 +181,7 @@ final class UnitOfWork
                     );
                     break;
             }
-        } catch (IdentityNotManagedException $e) {
+        } catch (IdentityNotManaged $e) {
             //pass
         }
 

@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\Entity,
     IdentityMatch,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatch
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
@@ -88,7 +88,7 @@ final class AggregateTranslator implements SpecificationTranslator
                         $mapping
                     );
                 });
-        } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
+        } catch (SpecificationNotApplicableAsPropertyMatch $e) {
             $query = (new Query)
                 ->match(
                     'entity',

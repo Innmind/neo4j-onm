@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity,
     Entity\Container,
-    Exception\EntityNotFoundException
+    Exception\EntityNotFound
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -82,7 +82,7 @@ class Repository implements RepositoryInterface
         $state = $this->unitOfWork()->stateFor($identity);
 
         if (!$this->allowedStates->contains($state)) {
-            throw new EntityNotFoundException;
+            throw new EntityNotFound;
         }
 
         return $entity;
@@ -95,7 +95,7 @@ class Repository implements RepositoryInterface
     {
         try {
             return $this->get($identity);
-        } catch (EntityNotFoundException $e) {
+        } catch (EntityNotFound $e) {
             return null;
         }
     }

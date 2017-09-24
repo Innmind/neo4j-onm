@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\Property,
     Exception\InvalidArgumentException,
-    Exception\MoreThanOneRelationshipFoundException
+    Exception\MoreThanOneRelationshipFound
 };
 use Innmind\Neo4j\DBAL\{
     Result,
@@ -113,7 +113,7 @@ final class AggregateTranslator implements EntityTranslator
                         );
                     }
                 );
-        } catch (MoreThanOneRelationshipFoundException $e) {
+        } catch (MoreThanOneRelationshipFound $e) {
             throw $e->on($meta);
         }
     }
@@ -139,7 +139,7 @@ final class AggregateTranslator implements EntityTranslator
             ->values();
 
         if ($relationships->size() > 1) {
-            throw MoreThanOneRelationshipFoundException::for($meta);
+            throw MoreThanOneRelationshipFound::for($meta);
         }
 
         return $this->translateRelationship(

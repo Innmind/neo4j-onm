@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Identity,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Exception\SpecificationNotApplicableAsPropertyMatch,
     Query\PropertiesMatch
 };
 use Innmind\Specification\{
@@ -40,14 +40,14 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         switch (true) {
             case $specification instanceof ComparatorInterface:
                 if ($specification->sign() !== '=') {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->buildMapping($specification);
 
             case $specification instanceof CompositeInterface:
                 if ((string) $specification->operator() !== Operator::AND) {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->merge(
@@ -56,7 +56,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                 );
         }
 
-        throw new SpecificationNotApplicableAsPropertyMatchException;
+        throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
     private function buildMapping(

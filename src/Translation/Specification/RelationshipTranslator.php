@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\RelationshipVisitor as RelationshipCypherVisitor,
     Metadata\Entity,
     IdentityMatch,
-    Exception\SpecificationNotApplicableAsPropertyMatchException
+    Exception\SpecificationNotApplicableAsPropertyMatch
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
@@ -54,7 +54,7 @@ final class RelationshipTranslator implements SpecificationTranslator
                 'entity',
                 $mapping
             );
-        } catch (SpecificationNotApplicableAsPropertyMatchException $e) {
+        } catch (SpecificationNotApplicableAsPropertyMatch $e) {
             $condition = (new RelationshipCypherVisitor($meta))($specification);
             $query = (new Query)
                 ->match('start')

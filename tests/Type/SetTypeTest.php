@@ -31,7 +31,7 @@ class SetTypeTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\TypeDeclarationException
+     * @expectedException Innmind\Neo4j\ONM\Exception\MissingFieldDeclaration
      * @expectedExceptionMessage Missing config key "inner" in type declaration
      */
     public function testThrowWhenMissingInnerType()
@@ -43,7 +43,7 @@ class SetTypeTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclarationException
+     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclaration
      */
     public function testThrowWhenInnerTypeIsArray()
     {

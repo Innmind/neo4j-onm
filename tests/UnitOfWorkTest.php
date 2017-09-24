@@ -31,7 +31,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Metadata\Entity,
-    Exception\IdentityNotManagedException
+    Exception\IdentityNotManaged
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
@@ -228,7 +228,7 @@ class UnitOfWorkTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFoundException
+     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
      */
     public function testThrowWhenTheEntityIsNotFound()
     {
@@ -297,7 +297,7 @@ class UnitOfWorkTest extends TestCase
 
         $this->assertSame($this->uow, $this->uow->remove($entity));
 
-        $this->expectException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManaged::class);
         $this->uow->stateFor($entity->uuid);
     }
 
@@ -313,7 +313,7 @@ class UnitOfWorkTest extends TestCase
             $uow->detach($entity)
         );
         $this->assertFalse($uow->contains($entity->uuid));
-        $this->expectException(IdentityNotManagedException::class);
+        $this->expectException(IdentityNotManaged::class);
         $uow->stateFor($entity->uuid);
     }
 

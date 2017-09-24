@@ -377,7 +377,7 @@ class AggregateTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\MoreThanOneRelationshipFoundException
+     * @expectedException Innmind\Neo4j\ONM\Exception\MoreThanOneRelationshipFound
      * @expectedExceptionMessage More than one relationship found on "FQCN::rel2"
      */
     public function testThrowWhenMoreThanOneRelationshipFound()

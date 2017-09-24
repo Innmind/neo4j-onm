@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\Metadata\{
     Entity
 };
 
-final class MoreThanOneRelationshipFoundException extends RuntimeException
+final class MoreThanOneRelationshipFound extends RuntimeException
 {
     private $child;
     private $entity;

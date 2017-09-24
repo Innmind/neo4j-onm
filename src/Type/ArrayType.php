@@ -6,8 +6,8 @@ namespace Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type,
     Types,
-    Exception\TypeDeclarationException,
-    Exception\RecursiveTypeDeclarationException
+    Exception\MissingFieldDeclaration,
+    Exception\RecursiveTypeDeclaration
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -29,11 +29,11 @@ final class ArrayType implements Type
         $type = new self;
 
         if (!$config->contains('inner')) {
-            throw TypeDeclarationException::missingField('inner');
+            throw new MissingFieldDeclaration('inner');
         }
 
         if (self::identifiers()->contains($config->get('inner'))) {
-            throw new RecursiveTypeDeclarationException;
+            throw new RecursiveTypeDeclaration;
         }
 
         $type->inner = $types->build(

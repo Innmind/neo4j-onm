@@ -6,7 +6,6 @@ namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\Where
 };
 use Innmind\Specification\{

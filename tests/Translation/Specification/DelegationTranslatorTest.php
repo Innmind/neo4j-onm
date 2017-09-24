@@ -117,7 +117,7 @@ class DelegationTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
      */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
@@ -135,7 +135,7 @@ class DelegationTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
      */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {

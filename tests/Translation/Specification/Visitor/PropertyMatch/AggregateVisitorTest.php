@@ -131,7 +131,7 @@ class AggregateVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNotDirectComparison()
     {
@@ -139,7 +139,7 @@ class AggregateVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenOrOperator()
     {
@@ -150,7 +150,7 @@ class AggregateVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNegatedSpecification()
     {

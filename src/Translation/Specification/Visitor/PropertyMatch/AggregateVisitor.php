@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatch;
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
-    Exception\SpecificationNotApplicableAsPropertyMatchException,
+    Exception\SpecificationNotApplicableAsPropertyMatch,
     Query\PropertiesMatch
 };
 use Innmind\Specification\{
@@ -38,14 +38,14 @@ final class AggregateVisitor implements PropertyMatchVisitor
         switch (true) {
             case $specification instanceof ComparatorInterface:
                 if ($specification->sign() !== '=') {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->buildMapping($specification);
 
             case $specification instanceof CompositeInterface:
                 if ((string) $specification->operator() !== Operator::AND) {
-                    throw new SpecificationNotApplicableAsPropertyMatchException;
+                    throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->merge(
@@ -54,7 +54,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
                 );
         }
 
-        throw new SpecificationNotApplicableAsPropertyMatchException;
+        throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
     private function buildMapping(

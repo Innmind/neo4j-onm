@@ -41,7 +41,7 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManagedException
+     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
      */
     public function testThrowWhenGettingStateForNotManagedIdentity()
     {
@@ -49,7 +49,7 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManagedException
+     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
      */
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {

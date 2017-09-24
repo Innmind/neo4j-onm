@@ -97,7 +97,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNotDirectComparison()
     {
@@ -105,7 +105,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenOrOperator()
     {
@@ -116,7 +116,7 @@ class RelationshipVisitorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatchException
+     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
      */
     public function testThrowWhenNegatedSpecification()
     {

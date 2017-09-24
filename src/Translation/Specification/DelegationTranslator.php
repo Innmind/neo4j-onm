@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     IdentityMatch,
     Exception\InvalidArgumentException,
-    Exception\SpecificationNotApplicableException
+    Exception\SpecificationNotApplicable
 };
 use Innmind\Immutable\{
     Map,
@@ -45,7 +45,7 @@ final class DelegationTranslator implements SpecificationTranslator
         SpecificationInterface $specification
     ): IdentityMatch {
         if (!$this->validator->validate($specification, $meta)) {
-            throw new SpecificationNotApplicableException;
+            throw new SpecificationNotApplicable;
         }
 
         return $this

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Identity,
-    Exception\IdentityNotManagedException,
+    Exception\IdentityNotManaged,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
@@ -110,7 +110,7 @@ final class Container
      *
      * @param Identity $identity
      *
-     * @throws IdentityNotManagedException
+     * @throws IdentityNotManaged
      *
      * @return int
      */
@@ -122,7 +122,7 @@ final class Container
             }
         }
 
-        throw new IdentityNotManagedException;
+        throw new IdentityNotManaged;
     }
 
     /**
@@ -130,7 +130,7 @@ final class Container
      *
      * @param Identity $identity
      *
-     * @throws IdentityNotManagedException
+     * @throws IdentityNotManaged
      *
      * @return object
      */
@@ -155,7 +155,7 @@ final class Container
             $this->stateFor($identity);
 
             return true;
-        } catch (IdentityNotManagedException $e) {
+        } catch (IdentityNotManaged $e) {
             return false;
         }
     }
