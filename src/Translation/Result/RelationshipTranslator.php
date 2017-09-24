@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Metadata\Relationship,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
+    Exception\DomainException
 };
 use Innmind\Neo4j\DBAL\{
     Result,
@@ -32,7 +33,11 @@ final class RelationshipTranslator implements EntityTranslator
         Entity $meta,
         Result $result
     ): SetInterface {
-        if (empty($variable) || !$meta instanceof Relationship) {
+        if (empty($variable)) {
+            throw new DomainException;
+        }
+
+        if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Exception\InvalidArgumentException
+    Exception\DomainException
 };
 
 final class Property
@@ -16,7 +16,7 @@ final class Property
     public function __construct(string $name, Type $type)
     {
         if (empty($name)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->name = $name;

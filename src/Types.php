@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
     Type\FloatType,
     Type\IntType,
     Type\StringType,
-    Exception\InvalidArgumentException
+    Exception\DomainException
 };
 use Innmind\Immutable\{
     Map,
@@ -53,7 +53,7 @@ final class Types
         $refl = new \ReflectionClass($type);
 
         if (!$refl->implementsInterface(Type::class)) {
-            throw new InvalidArgumentException(sprintf(
+            throw new DomainException(sprintf(
                 'The type "%s" must implement Type',
                 $type
             ));
@@ -81,7 +81,7 @@ final class Types
             (string) $config->keyType() !== 'string' ||
             (string) $config->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         return [$this->types->get($type), 'fromConfig']($config, $this);

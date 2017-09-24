@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generator,
     Identity,
-    Exception\InvalidArgumentException
+    Exception\DomainException
 };
 use Innmind\Immutable\Map;
 use Ramsey\Uuid\Uuid as Factory;
@@ -19,7 +19,7 @@ final class UuidGenerator implements Generator
     public function __construct(string $type = Uuid::class)
     {
         if (empty($type)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->identities = new Map('string', $type);

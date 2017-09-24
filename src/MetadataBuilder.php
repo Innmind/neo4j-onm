@@ -6,8 +6,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     MetadataFactory\AggregateFactory,
-    MetadataFactory\RelationshipFactory,
-    Exception\InvalidArgumentException
+    MetadataFactory\RelationshipFactory
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -43,7 +42,10 @@ final class MetadataBuilder
             (string) $this->factories->keyType() !== 'string' ||
             (string) $this->factories->valueType() !== MetadataFactory::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                MetadataFactory::class
+            ));
         }
     }
 

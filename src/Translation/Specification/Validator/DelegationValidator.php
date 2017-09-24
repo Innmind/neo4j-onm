@@ -7,8 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Relationship,
-    Exception\InvalidArgumentException
+    Metadata\Relationship
 };
 use Innmind\Specification\SpecificationInterface;
 use Innmind\Immutable\{
@@ -30,7 +29,10 @@ final class DelegationValidator implements Validator
             (string) $this->validators->keyType() !== 'string' ||
             (string) $this->validators->valueType() !== Validator::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<string, %s>',
+                Validator::class
+            ));
         }
     }
 

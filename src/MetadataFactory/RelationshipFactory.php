@@ -16,8 +16,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Repository as EntityRepository,
     EntityFactory\RelationshipFactory as EntityFactory,
-    Types,
-    Exception\InvalidArgumentException
+    Types
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -42,7 +41,7 @@ final class RelationshipFactory implements MetadataFactory
             (string) $config->keyType() !== 'string' ||
             (string) $config->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
         $entity = new Relationship(

@@ -8,8 +8,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Result\RelationshipTranslator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Relationship,
-    Exception\InvalidArgumentException
+    Metadata\Relationship
 };
 use Innmind\Neo4j\DBAL\{
     Result,
@@ -35,7 +34,10 @@ final class ResultTranslator
             (string) $this->translators->keyType() !== 'string' ||
             (string) $this->translators->valueType() !== EntityTranslator::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<string, %s>',
+                EntityTranslator::class
+            ));
         }
     }
 
@@ -54,7 +56,10 @@ final class ResultTranslator
             (string) $variables->keyType() !== 'string' ||
             (string) $variables->valueType() !== Entity::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                Entity::class
+            ));
         }
 
         return $variables

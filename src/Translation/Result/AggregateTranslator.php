@@ -10,6 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\Property,
     Exception\InvalidArgumentException,
+    Exception\DomainException,
     Exception\MoreThanOneRelationshipFound
 };
 use Innmind\Neo4j\DBAL\{
@@ -35,7 +36,11 @@ final class AggregateTranslator implements EntityTranslator
         Entity $meta,
         Result $result
     ): SetInterface {
-        if (empty($variable) || !$meta instanceof Aggregate) {
+        if (empty($variable)) {
+            throw new DomainException;
+        }
+
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

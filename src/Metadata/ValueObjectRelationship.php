@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Exception\InvalidArgumentException
+    Exception\DomainException
 };
 use Innmind\Immutable\{
     Map,
@@ -27,7 +27,7 @@ final class ValueObjectRelationship
         string $childProperty
     ) {
         if (empty($property) || empty($childProperty)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->class = $class;

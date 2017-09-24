@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+use Innmind\Neo4j\ONM\Exception\DomainException;
 
 /**
  * Holds the class name for an entity factory
@@ -15,7 +15,7 @@ final class Factory
     public function __construct(string $class)
     {
         if (empty($class)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->class = $class;

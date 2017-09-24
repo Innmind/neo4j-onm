@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\Entity,
     IdentityMatch,
-    Exception\InvalidArgumentException,
     Exception\SpecificationNotApplicable
 };
 use Innmind\Immutable\{
@@ -36,7 +35,10 @@ final class DelegationTranslator implements SpecificationTranslator
             (string) $this->translators->keyType() !== 'string' ||
             (string) $this->translators->valueType() !== SpecificationTranslator::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<string, %s>',
+                SpecificationTranslator::class
+            ));
         }
     }
 

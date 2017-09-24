@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Entity;
 use Innmind\Neo4j\ONM\{
     Identity,
     Exception\IdentityNotManaged,
-    Exception\InvalidArgumentException
+    Exception\DomainException
 };
 use Innmind\Immutable\{
     Map,
@@ -51,7 +51,7 @@ final class Container
     public function push(Identity $identity, $entity, int $wished): self
     {
         if (!$this->states->contains($wished)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->states = $this->states->map(function(

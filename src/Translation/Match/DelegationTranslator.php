@@ -8,8 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\Entity,
-    IdentityMatch,
-    Exception\InvalidArgumentException
+    IdentityMatch
 };
 use Innmind\Immutable\{
     Map,
@@ -30,7 +29,10 @@ final class DelegationTranslator implements MatchTranslator
             (string) $this->translators->keyType() !== 'string' ||
             (string) $this->translators->valueType() !== MatchTranslator::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<string, %s>',
+                MatchTranslator::class
+            ));
         }
     }
 

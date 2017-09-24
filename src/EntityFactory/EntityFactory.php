@@ -8,8 +8,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Metadata\Entity,
-    Entity\Container,
-    Exception\InvalidArgumentException
+    Entity\Container
 };
 use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
@@ -53,7 +52,10 @@ final class EntityFactory
             (string) $variables->keyType() !== 'string' ||
             (string) $variables->valueType() !== Entity::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                Entity::class
+            ));
         }
 
         $structuredData = $this->translator->translate($result, $variables);

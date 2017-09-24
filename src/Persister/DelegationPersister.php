@@ -5,8 +5,7 @@ namespace Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister,
-    Entity\Container,
-    Exception\InvalidArgumentException
+    Entity\Container
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\Immutable\StreamInterface;
@@ -18,7 +17,10 @@ final class DelegationPersister implements Persister
     public function __construct(StreamInterface $persisters)
     {
         if ((string) $persisters->type() !== Persister::class) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type StreamInterface<%s>',
+                Persister::class
+            ));
         }
 
         $this->persisters = $persisters;

@@ -37,7 +37,7 @@ final class ChangesetComputer
             (string) $source->keyType() !== 'string' ||
             (string) $source->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         $this->sources = $this->sources->put(
@@ -63,7 +63,7 @@ final class ChangesetComputer
             (string) $target->keyType() !== 'string' ||
             (string) $target->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         if (!$this->sources->contains($identity)) {

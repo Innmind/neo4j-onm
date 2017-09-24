@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Query;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+use Innmind\Neo4j\ONM\Exception\DomainException;
 use Innmind\Immutable\MapInterface;
 
 final class Where
@@ -13,12 +13,15 @@ final class Where
 
     public function __construct(string $cypher, MapInterface $parameters)
     {
+        if (empty($cypher)) {
+            throw new DomainException;
+        }
+
         if (
-            empty($cypher) ||
             (string) $parameters->keyType() !== 'string' ||
             (string) $parameters->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         $this->cypher = $cypher;

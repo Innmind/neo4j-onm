@@ -46,7 +46,8 @@ class PropertiesMatchTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedException Argument 1 must be of type MapInterface<string, string>
      */
     public function testThrowWhenInvalidPropertyMap()
     {
@@ -57,7 +58,8 @@ class PropertiesMatchTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedException Argument 2 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenInvalidParameterMap()
     {

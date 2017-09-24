@@ -344,7 +344,8 @@ class ResultTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>
      */
     public function testThrowWhenEmptyInvalidMap()
     {
@@ -352,7 +353,8 @@ class ResultTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>
      */
     public function testThrowWhenEmptyInvalidVariableMap()
     {

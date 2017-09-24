@@ -23,7 +23,7 @@ class PropertyTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
      */
     public function testThrowWhenEmptyName()
     {

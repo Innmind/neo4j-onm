@@ -48,7 +48,8 @@ class DelegationPersisterTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type StreamInterface<Innmind\Neo4j\ONM\Persister>
      */
     public function testThrowWhenInvalidStream()
     {

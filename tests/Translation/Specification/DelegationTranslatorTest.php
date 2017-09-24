@@ -109,7 +109,8 @@ class DelegationTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>
      */
     public function testThrowWhenInjectingInvalidTranslators()
     {

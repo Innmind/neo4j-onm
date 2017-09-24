@@ -29,7 +29,7 @@ use Innmind\Immutable\{
 };
 use PHPUnit\Framework\TestCase;
 
-class MatchTranslatorTest extends TestCase
+class DelegationTranslatorTest extends TestCase
 {
     public function testInterface()
     {
@@ -156,7 +156,8 @@ class MatchTranslatorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\MatchTranslator>
      */
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {

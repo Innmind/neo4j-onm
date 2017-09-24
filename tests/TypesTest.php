@@ -60,7 +60,7 @@ class TypesTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
      * @expectedExceptionMessage The type "stdClass" must implement Type
      */
     public function testThrowWhenRegisteringingInvalidType()
@@ -87,7 +87,8 @@ class TypesTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
      */
     public function testThrowWhenInvalidConfigMap()
     {

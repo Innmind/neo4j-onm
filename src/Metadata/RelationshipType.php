@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
+use Innmind\Neo4j\ONM\Exception\DomainException;
 
 final class RelationshipType
 {
@@ -12,7 +12,7 @@ final class RelationshipType
     public function __construct(string $type)
     {
         if (empty($type)) {
-            throw new InvalidArgumentException;
+            throw new DomainException;
         }
 
         $this->type = $type;

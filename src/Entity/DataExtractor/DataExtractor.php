@@ -35,7 +35,10 @@ final class DataExtractor
             (string) $this->extractors->keyType() !== 'string' ||
             (string) $this->extractors->valueType() !== DataExtractorInterface::class
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                DataExtractorInterface::class
+            ));
         }
     }
 

@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Query;
 
-use Innmind\Neo4j\ONM\Exception\InvalidArgumentException;
 use Innmind\Immutable\MapInterface;
 
 final class PropertiesMatch
@@ -15,11 +14,16 @@ final class PropertiesMatch
     {
         if (
             (string) $properties->keyType() !== 'string' ||
-            (string) $properties->valueType() !== 'string' ||
+            (string) $properties->valueType() !== 'string'
+        ) {
+            throw new \TypeError('Argument 1 must be of type MapInterface<string, string>');
+        }
+
+        if (
             (string) $parameters->keyType() !== 'string' ||
             (string) $parameters->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
         $this->properties = $properties;

@@ -17,8 +17,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Repository as EntityRepository,
     EntityFactory\AggregateFactory as EntityFactory,
-    Types,
-    Exception\InvalidArgumentException
+    Types
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -43,7 +42,7 @@ final class AggregateFactory implements MetadataFactory
             (string) $config->keyType() !== 'string' ||
             (string) $config->valueType() !== 'mixed'
         ) {
-            throw new InvalidArgumentException;
+            throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
         $entity = new Aggregate(
