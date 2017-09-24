@@ -1,29 +1,29 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM;
+namespace Tests\Innmind\Neo4j\ONM\Manager;
 
 use Innmind\Neo4j\ONM\{
-    Manager,
-    ManagerInterface,
+    Manager\Manager,
+    Manager as ManagerInterface,
     UnitOfWork,
     Metadatas,
     RepositoryFactory,
-    Translation\MatchTranslator,
-    Translation\SpecificationTranslator,
-    RepositoryInterface,
-    Metadata\EntityInterface,
+    Translation\Match\DelegationTranslator as MatchTranslator,
+    Translation\Specification\DelegationTranslator as SpecificationTranslator,
+    Repository as RepositoryInterface,
+    Metadata\Entity,
     Metadata\ClassName,
     Metadata\Alias,
     Metadata\Repository,
     Identity\Uuid,
     Identity\Generators,
     Entity\Container,
-    EntityFactory,
+    EntityFactory\EntityFactory,
     EntityFactory\Resolver,
     Translation\ResultTranslator,
-    Translation\IdentityMatchTranslator,
-    PersisterInterface
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
+    Persister
 };
 use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +34,7 @@ class ManagerTest extends TestCase
     {
         $mock = $this->createMock(RepositoryInterface::class);
         $conn = $this->createMock(Connection::class);
-        $meta = $this->createMock(EntityInterface::class);
+        $meta = $this->createMock(Entity::class);
         $meta
             ->method('class')
             ->willReturn(new ClassName('foo'));
@@ -55,7 +55,7 @@ class ManagerTest extends TestCase
             ),
             new IdentityMatchTranslator,
             $metadatas = new Metadatas($meta),
-            $persister = $this->createMock(PersisterInterface::class),
+            $persister = $this->createMock(Persister::class),
             $generators
         );
         $persister

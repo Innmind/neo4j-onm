@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactoryInterface,
+    EntityFactory,
     EntityFactory\Resolver,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Metadata\Factory
 };
 use PHPUnit\Framework\TestCase;
@@ -17,14 +17,14 @@ class ResolverTest extends TestCase
     {
         $resolver = new Resolver;
 
-        $class = $this->getMockClass(EntityFactoryInterface::class);
-        $meta = $this->createMock(EntityInterface::class);
+        $class = $this->getMockClass(EntityFactory::class);
+        $meta = $this->createMock(Entity::class);
         $meta
             ->method('factory')
             ->willReturn(new Factory($class));
 
         $this->assertInstanceOf(
-            EntityFactoryInterface::class,
+            EntityFactory::class,
             $resolver->get($meta)
         );
         $this->assertInstanceOf($class, $resolver->get($meta));
@@ -33,8 +33,8 @@ class ResolverTest extends TestCase
 
     public function testRegister()
     {
-        $class = $this->getMockClass(EntityFactoryInterface::class);
-        $meta = $this->createMock(EntityInterface::class);
+        $class = $this->getMockClass(EntityFactory::class);
+        $meta = $this->createMock(Entity::class);
         $meta
             ->method('factory')
             ->willReturn(new Factory($class));

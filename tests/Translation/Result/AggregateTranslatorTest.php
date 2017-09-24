@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
     Translation\Result\AggregateTranslator,
-    Translation\EntityTranslatorInterface,
+    Translation\EntityTranslator,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -15,7 +15,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Types
@@ -122,7 +122,7 @@ class AggregateTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            EntityTranslatorInterface::class,
+            EntityTranslator::class,
             $this->translator
         );
     }
@@ -466,7 +466,7 @@ class AggregateTranslatorTest extends TestCase
     {
         $this->translator->translate(
             'r',
-            $this->createMock(EntityInterface::class),
+            $this->createMock(Entity::class),
             $this->createMock(ResultInterface::class)
         );
     }

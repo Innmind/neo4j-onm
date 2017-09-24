@@ -5,8 +5,8 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister\UpdatePersister,
-    PersisterInterface,
-    Entity\DataExtractor,
+    Persister,
+    Entity\DataExtractor\DataExtractor,
     Entity\ChangesetComputer,
     Entity\Container,
     Metadata\Aggregate,
@@ -137,7 +137,7 @@ class UpdatePersisterTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            PersisterInterface::class,
+            Persister::class,
             new UpdatePersister(
                 new ChangesetComputer,
                 $this->createMock(EventBusInterface::class),

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\Query;
@@ -21,7 +21,7 @@ final class IdentityMatch
     ) {
         if (
             (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== EntityInterface::class
+            (string) $variables->valueType() !== Entity::class
         ) {
             throw new InvalidArgumentException;
         }
@@ -36,7 +36,7 @@ final class IdentityMatch
     }
 
     /**
-     * @return MapInterface<string, EntityInterface>
+     * @return MapInterface<string, Entity>
      */
     public function variables(): MapInterface
     {

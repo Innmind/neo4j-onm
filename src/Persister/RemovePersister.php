@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
-    PersisterInterface,
+    Persister,
     Entity\Container,
     Entity\ChangesetComputer,
-    IdentityInterface,
+    Identity,
     Event\EntityAboutToBeRemoved,
     Event\EntityRemoved,
     Metadatas,
@@ -27,7 +27,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class RemovePersister implements PersisterInterface
+final class RemovePersister implements Persister
 {
     private $changeset;
     private $eventBus;
@@ -53,7 +53,7 @@ final class RemovePersister implements PersisterInterface
     {
         $entities = $container
             ->state(Container::STATE_TO_BE_REMOVED)
-            ->foreach(function(IdentityInterface $identity, $object) {
+            ->foreach(function(Identity $identity, $object) {
                 $this->eventBus->dispatch(
                     new EntityAboutToBeRemoved($identity, $object)
                 );
@@ -66,7 +66,7 @@ final class RemovePersister implements PersisterInterface
         $connection->execute($this->queryFor($entities));
 
         $entities->foreach(function(
-            IdentityInterface $identity,
+            Identity $identity,
             $object
         ) use (
             $container
@@ -82,14 +82,14 @@ final class RemovePersister implements PersisterInterface
     /**
      * Build the query to delete all entities at once
      *
-     * @param MapInterface<IdentityInterface, object> $entities
+     * @param MapInterface<Identity, object> $entities
      */
     private function queryFor(MapInterface $entities): Query
     {
         $query = new Query\Query;
         $this->variables = new Stream('string');
         $partitions = $entities->partition(function(
-            IdentityInterface $identity,
+            Identity $identity,
             $entity
         ) {
             $meta = $this->metadatas->get(get_class($entity));
@@ -101,7 +101,7 @@ final class RemovePersister implements PersisterInterface
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                function(Query $carry, Identity $identity, $entity): Query {
                     return $this->matchRelationship($identity, $entity, $carry);
                 }
             );
@@ -109,7 +109,7 @@ final class RemovePersister implements PersisterInterface
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, IdentityInterface $identity, $entity): Query {
+                function(Query $carry, Identity $identity, $entity): Query {
                     return $this->matchAggregate($identity, $entity, $carry);
                 }
             );
@@ -129,14 +129,14 @@ final class RemovePersister implements PersisterInterface
     /**
      * Add clause to match the relationship we want to delete
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      * @param $object $entity
      * @param Query  $query
      *
      * @return Query
      */
     private function matchRelationship(
-        IdentityInterface $identity,
+        Identity $identity,
         $entity,
         Query $query
     ): Query {
@@ -166,14 +166,14 @@ final class RemovePersister implements PersisterInterface
     /**
      * Add clause to match the node we want to delete and all of its children
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      * @param object $entity
      * @param Query  $query
      *
      * @return Query
      */
     private function matchAggregate(
-        IdentityInterface $identity,
+        Identity $identity,
         $entity,
         Query $query
     ): Query {

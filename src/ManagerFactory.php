@@ -6,15 +6,16 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Translation\ResultTranslator,
-    Translation\IdentityMatchTranslator,
-    Translation\MatchTranslator,
-    Translation\SpecificationTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
+    Translation\Match\DelegationTranslator as MatchTranslator,
+    Translation\Specification\DelegationTranslator as SpecificationTranslator,
     Identity\Generators,
-    Identity\GeneratorInterface,
+    Identity\Generator,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
+    EntityFactory,
     Persister\DelegationPersister,
     Persister\InsertPersister,
     Persister\UpdatePersister,
@@ -66,9 +67,9 @@ final class ManagerFactory
         $this->eventBus = new NullEventBus;
         $this->entities = $entities;
         $this->config = new Configuration;
-        $this->additionalGenerators = new Map('string', GeneratorInterface::class);
-        $this->entityFactories = new Set(EntityFactoryInterface::class);
-        $this->repositories = new Map('string', RepositoryInterface::class);
+        $this->additionalGenerators = new Map('string', Generator::class);
+        $this->entityFactories = new Set(EntityFactory::class);
+        $this->repositories = new Map('string', Repository::class);
     }
 
     /**
@@ -124,7 +125,7 @@ final class ManagerFactory
     /**
      * Specify the map of translators to use in ResultTranslator
      *
-     * @param MapInterface<string, EntityTranslatorInterface> $translators
+     * @param MapInterface<string, EntityTranslator> $translators
      *
      * @return self
      */
@@ -139,11 +140,8 @@ final class ManagerFactory
      * Add an identity generator
      *
      * @param string $class The identity class the generator generates
-     * @param GeneratorInterface $generator
-     *
-     * @return self
      */
-    public function withGenerator(string $class, GeneratorInterface $generator): self
+    public function withGenerator(string $class, Generator $generator): self
     {
         $this->additionalGenerators = $this->additionalGenerators->put(
             $class,
@@ -156,11 +154,11 @@ final class ManagerFactory
     /**
      * Add an entity factory
      *
-     * @param EntityFactoryInterface $factory
+     * @param EntityFactory $factory
      *
      * @return self
      */
-    public function withEntityFactory(EntityFactoryInterface $factory): self
+    public function withEntityFactory(EntityFactory $factory): self
     {
         $this->entityFactories = $this->entityFactories->add($factory);
 
@@ -170,7 +168,7 @@ final class ManagerFactory
     /**
      * Set the identity match translators
      *
-     * @param MapInterface<string, IdentityMatchTranslatorInterface> $translators
+     * @param MapInterface<string, IdentityMatchTranslator> $translators
      *
      * @return self
      */
@@ -184,7 +182,7 @@ final class ManagerFactory
     /**
      * Specify the metadata factories
      *
-     * @param MapInterface<string, MetadataFactoryInterface> $factories
+     * @param MapInterface<string, MetadataFactory> $factories
      *
      * @return self
      */
@@ -212,11 +210,11 @@ final class ManagerFactory
     /**
      * Specify the persister to use
      *
-     * @param PersisterInterface $persister
+     * @param Persister $persister
      *
      * @return self
      */
-    public function withPersister(PersisterInterface $persister): self
+    public function withPersister(Persister $persister): self
     {
         $this->persister = $persister;
 
@@ -226,7 +224,7 @@ final class ManagerFactory
     /**
      * Specify the translators to use to build match queries
      *
-     * @param MapInterface<string, MatchTranslatorInterface> $translators
+     * @param MapInterface<string, MatchTranslator> $translators
      *
      * @return self
      */
@@ -240,7 +238,7 @@ final class ManagerFactory
     /**
      * Specify the translators to use to build match queries out of specifications
      *
-     * @param MapInterface<string, SpecificationTranslatorInterface> $translators
+     * @param MapInterface<string, SpecificationTranslator> $translators
      *
      * @return self
      */
@@ -255,11 +253,8 @@ final class ManagerFactory
      * Add a new repository instance
      *
      * @param string $class Entity class
-     * @param RepositoryInterface $repository
-     *
-     * @return self
      */
-    public function withRepository(string $class, RepositoryInterface $repository): self
+    public function withRepository(string $class, Repository $repository): self
     {
         $this->repositories = $this->repositories->put(
             $class,
@@ -271,12 +266,10 @@ final class ManagerFactory
 
     /**
      * Return the manager instance
-     *
-     * @return ManagerInterface
      */
-    public function build(): ManagerInterface
+    public function build(): Manager
     {
-        return new Manager(
+        return new Manager\Manager(
             $this->unitOfWork(),
             $this->metadatas(),
             $this->repositoryFactory(),
@@ -322,13 +315,11 @@ final class ManagerFactory
 
     /**
      * Build the entity factory
-     *
-     * @return EntityFactory
      */
-    private function entityFactory(): EntityFactory
+    private function entityFactory(): EntityFactory\EntityFactory
     {
         if ($this->entityFactory === null) {
-            $this->entityFactory = new EntityFactory(
+            $this->entityFactory = new EntityFactory\EntityFactory(
                 $this->resultTranslator(),
                 $this->generators(),
                 $this->resolver(),
@@ -366,8 +357,8 @@ final class ManagerFactory
             $generators = $this
                 ->additionalGenerators
                 ->reduce(
-                    new Map('string', GeneratorInterface::class),
-                    function(Map $carry, string $class, GeneratorInterface $gen): Map {
+                    new Map('string', Generator::class),
+                    function(Map $carry, string $class, Generator $gen): Map {
                         return $carry->put($class, $gen);
                     }
                 );
@@ -389,7 +380,7 @@ final class ManagerFactory
                 ->entityFactories
                 ->reduce(
                     [new RelationshipFactory($this->generators())],
-                    function(array $carry, EntityFactoryInterface $factory): array {
+                    function(array $carry, EntityFactory $factory): array {
                         $carry[] = $factory;
 
                         return $carry;
@@ -439,13 +430,13 @@ final class ManagerFactory
     /**
      * Build the persister
      *
-     * @return PersisterInterface
+     * @return Persister
      */
-    private function persister(): PersisterInterface
+    private function persister(): Persister
     {
         if ($this->persister === null) {
             $this->persister = new DelegationPersister(
-                (new Stream(PersisterInterface::class))
+                (new Stream(Persister::class))
                     ->add(
                         new InsertPersister(
                             $this->changeset(),
@@ -522,7 +513,7 @@ final class ManagerFactory
             );
             $this
                 ->repositories
-                ->foreach(function(string $class, RepositoryInterface $repo) {
+                ->foreach(function(string $class, Repository $repo) {
                     $this
                         ->repositoryFactory
                         ->register(

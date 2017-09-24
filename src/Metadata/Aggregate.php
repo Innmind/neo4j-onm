@@ -10,7 +10,7 @@ use Innmind\Immutable\{
     MapInterface
 };
 
-final class Aggregate extends Entity implements EntityInterface
+final class Aggregate extends AbstractEntity implements Entity
 {
     private $labels;
     private $children;

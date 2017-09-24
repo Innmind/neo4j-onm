@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Exception;
 
 use Innmind\Neo4j\ONM\Metadata\{
     ValueObject,
-    EntityInterface
+    Entity
 };
 
 final class MoreThanOneRelationshipFoundException extends RuntimeException
@@ -21,7 +21,7 @@ final class MoreThanOneRelationshipFoundException extends RuntimeException
         return $exception;
     }
 
-    public function on(EntityInterface $entity): self
+    public function on(Entity $entity): self
     {
         $exception = new self(sprintf(
             'More than one relationship found on "%s::%s"',
@@ -39,7 +39,7 @@ final class MoreThanOneRelationshipFoundException extends RuntimeException
         return $this->child;
     }
 
-    public function entity(): EntityInterface
+    public function entity(): Entity
     {
         return $this->entity;
     }

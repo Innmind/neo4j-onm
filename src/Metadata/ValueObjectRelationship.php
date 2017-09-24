@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
@@ -74,11 +74,11 @@ final class ValueObjectRelationship
      * Add a property to the definition
      *
      * @param string $name
-     * @param TypeInterface $type
+     * @param Type $type
      *
      * @return self
      */
-    public function withProperty(string $name, TypeInterface $type): self
+    public function withProperty(string $name, Type $type): self
     {
         $valueObject = clone $this;
         $valueObject->properties = $this->properties->put(

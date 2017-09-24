@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Validator;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\ValidatorInterface,
-    Metadata\EntityInterface,
+    Translation\Specification\Validator,
+    Metadata\Entity,
     Metadata\Aggregate,
     Exception\InvalidArgumentException
 };
@@ -17,14 +17,14 @@ use Innmind\Specification\{
 };
 use Innmind\Immutable\Str;
 
-final class AggregateValidator implements ValidatorInterface
+final class AggregateValidator implements Validator
 {
     /**
      * {@inheritdoc}
      */
     public function validate(
         SpecificationInterface $specification,
-        EntityInterface $meta
+        Entity $meta
     ): bool {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
@@ -53,7 +53,7 @@ final class AggregateValidator implements ValidatorInterface
 
     private function isValidProperty(
         string $property,
-        EntityInterface $meta
+        Entity $meta
     ): bool {
         if ($meta->properties()->contains($property)) {
             return true;

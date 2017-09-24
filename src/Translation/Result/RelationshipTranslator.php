@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
-    Translation\EntityTranslatorInterface,
-    Metadata\EntityInterface,
+    Translation\EntityTranslator,
+    Metadata\Entity,
     Metadata\Relationship,
     Metadata\Property,
     Exception\InvalidArgumentException
@@ -22,14 +22,14 @@ use Innmind\Immutable\{
     Set
 };
 
-final class RelationshipTranslator implements EntityTranslatorInterface
+final class RelationshipTranslator implements EntityTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
         string $variable,
-        EntityInterface $meta,
+        Entity $meta,
         Result $result
     ): SetInterface {
         if (empty($variable) || !$meta instanceof Relationship) {
@@ -57,7 +57,7 @@ final class RelationshipTranslator implements EntityTranslatorInterface
 
     private function translateRelationship(
         $identity,
-        EntityInterface $meta,
+        Entity $meta,
         Result $result
     ): MapInterface {
         $relationship = $result

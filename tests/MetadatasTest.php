@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Alias,
     Metadata\ClassName,
-    Metadata\EntityInterface
+    Metadata\Entity
 };
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class MetadatasTest extends TestCase
 {
     public function testAdd()
     {
-        $meta = $this->createMock(EntityInterface::class);
+        $meta = $this->createMock(Entity::class);
         $meta
             ->method('alias')
             ->willReturn(new Alias('foo'));

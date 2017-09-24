@@ -14,8 +14,8 @@ final class Generators
 
     public function __construct(MapInterface $mapping = null)
     {
-        $mapping = $mapping ?? new Map('string', GeneratorInterface::class);
-        $this->mapping = (new Map('string', GeneratorInterface::class))
+        $mapping = $mapping ?? new Map('string', Generator::class);
+        $this->mapping = (new Map('string', Generator::class))
             ->put(Uuid::class, new Generator\UuidGenerator)
             ->merge($mapping);
     }
@@ -25,9 +25,9 @@ final class Generators
      *
      * @param string $class
      *
-     * @return GeneratorInterface
+     * @return Generator
      */
-    public function get(string $class): GeneratorInterface
+    public function get(string $class): Generator
     {
         return $this->mapping->get($class);
     }

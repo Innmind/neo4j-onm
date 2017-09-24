@@ -4,12 +4,12 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Identity;
 
 use Innmind\Neo4j\ONM\{
-    IdentityInterface,
+    Identity,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\Str;
 
-class Uuid implements IdentityInterface
+class Uuid implements Identity
 {
     const PATTERN = '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/';
 

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Types,
     Exception\TypeDeclarationException,
     Exception\RecursiveTypeDeclarationException,
@@ -16,7 +16,7 @@ use Innmind\Immutable\{
     Set
 };
 
-final class SetType implements TypeInterface
+final class SetType implements Type
 {
     private $nullable = false;
     private $inner;
@@ -26,7 +26,7 @@ final class SetType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): Type
     {
         $type = new self;
 

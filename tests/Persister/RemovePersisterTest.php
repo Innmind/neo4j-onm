@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister\RemovePersister,
-    PersisterInterface,
+    Persister,
     Entity\ChangesetComputer,
     Entity\Container,
     Metadata\Aggregate,
@@ -19,7 +19,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
     Identity\Uuid,
     Metadatas,
     Event\EntityAboutToBeRemoved,
@@ -90,7 +89,7 @@ class RemovePersisterTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            PersisterInterface::class,
+            Persister::class,
             new RemovePersister(
                 new ChangesetComputer,
                 $this->createMock(EventBusInterface::class),

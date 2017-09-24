@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactoryInterface,
-    IdentityInterface,
-    Metadata\EntityInterface,
+    EntityFactory as EntityFactoryInterface,
+    Identity,
+    Metadata\Entity,
     Metadata\Aggregate,
     Metadata\Property,
     Metadata\ValueObject,
@@ -39,8 +39,8 @@ final class AggregateFactory implements EntityFactoryInterface
      * {@inheritdoc}
      */
     public function make(
-        IdentityInterface $identity,
-        EntityInterface $meta,
+        Identity $identity,
+        Entity $meta,
         MapInterface $data
     ) {
         if (

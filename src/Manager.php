@@ -3,64 +3,31 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\ONM\Identity\Generators;
 use Innmind\Neo4j\DBAL\Connection;
 
-final class Manager implements ManagerInterface
+interface Manager
 {
-    private $unitOfWork;
-    private $metadatas;
-    private $repositoryFactory;
-    private $generators;
-
-    public function __construct(
-        UnitOfWork $unitOfWork,
-        Metadatas $metadatas,
-        RepositoryFactory $repositoryFactory,
-        Generators $generators
-    ) {
-        $this->unitOfWork = $unitOfWork;
-        $this->metadatas = $metadatas;
-        $this->repositoryFactory = $repositoryFactory;
-        $this->generators = $generators;
-    }
+    /**
+     * Return the connection used by this manager
+     */
+    public function connection(): Connection;
 
     /**
-     * {@inheritdoc}
+     * Return an entity repository
+     *
+     * @param string $class
      */
-    public function connection(): Connection
-    {
-        return $this->unitOfWork->connection();
-    }
+    public function repository(string $class): Repository;
 
     /**
-     * {@inheritdoc}
+     * Persist all the entities' modifications
      */
-    public function repository(string $class): RepositoryInterface
-    {
-        return $this->repositoryFactory->make(
-            $this->metadatas->get($class)
-        );
-    }
+    public function flush(): self;
 
     /**
-     * {@inheritdoc}
+     * Return a new identity of the wished type
+     *
+     * @param string $class
      */
-    public function flush(): ManagerInterface
-    {
-        $this->unitOfWork->commit();
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function new(string $class): IdentityInterface
-    {
-        return $this
-            ->generators
-            ->get($class)
-            ->new();
-    }
+    public function new(string $class): Identity;
 }

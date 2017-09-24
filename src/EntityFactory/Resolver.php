@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactoryInterface,
-    Metadata\EntityInterface
+    EntityFactory as EntityFactoryInterface,
+    Metadata\Entity
 };
 use Innmind\Immutable\Map;
 
@@ -24,10 +24,6 @@ final class Resolver
 
     /**
      * Register the given entity factory instance
-     *
-     * @param EntityFactoryInterface $factory
-     *
-     * @return self
      */
     private function register(EntityFactoryInterface $factory): self
     {
@@ -41,12 +37,8 @@ final class Resolver
 
     /**
      * Return the factory for the given entity definition
-     *
-     * @param EntityInterface $meta
-     *
-     * @return EntityFactoryInterface
      */
-    public function get(EntityInterface $meta): EntityFactoryInterface
+    public function get(Entity $meta): EntityFactoryInterface
     {
         $class = (string) $meta->factory();
 

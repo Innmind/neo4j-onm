@@ -5,20 +5,20 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     ManagerFactory,
-    ManagerInterface,
+    Manager,
     Configuration,
-    Translation\EntityTranslatorInterface,
-    Translation\IdentityMatchTranslatorInterface,
-    Translation\MatchTranslatorInterface,
-    Translation\SpecificationTranslatorInterface,
+    Translation\EntityTranslator,
+    Translation\IdentityMatchTranslator,
+    Translation\MatchTranslator,
+    Translation\SpecificationTranslator,
     Identity\Uuid,
     Identity\Generator\UuidGenerator,
-    EntityFactoryInterface,
-    MetadataFactoryInterface,
-    TypeInterface,
+    EntityFactory,
+    MetadataFactory,
+    Type,
     Types,
-    PersisterInterface,
-    RepositoryInterface
+    Persister,
+    Repository
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\EventBusInterface;
@@ -42,7 +42,7 @@ class ManagerFactoryTest extends TestCase
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
         $this->assertSame($m, $manager->connection());
     }
 
@@ -56,7 +56,7 @@ class ManagerFactoryTest extends TestCase
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenEntityTranslators()
@@ -65,11 +65,11 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withEntityTranslators(new Map('string', EntityTranslatorInterface::class))
+            ->withEntityTranslators(new Map('string', EntityTranslator::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenGenerator()
@@ -82,7 +82,7 @@ class ManagerFactoryTest extends TestCase
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenEntityFactory()
@@ -91,11 +91,11 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withEntityFactory($this->createMock(EntityFactoryInterface::class))
+            ->withEntityFactory($this->createMock(EntityFactory::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenIdentityMatchTranslators()
@@ -104,29 +104,29 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withIdentityMatchTranslators(new Map('string', IdentityMatchTranslatorInterface::class))
+            ->withIdentityMatchTranslators(new Map('string', IdentityMatchTranslator::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenMetadataFactories()
     {
         $manager = ManagerFactory::for([])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withMetadataFactories(new Map('string', MetadataFactoryInterface::class))
+            ->withMetadataFactories(new Map('string', MetadataFactory::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenAdditionalType()
     {
-        $mock = new class implements TypeInterface
+        $mock = new class implements Type
         {
-            public static function fromConfig(MapInterface $c, Types $types): TypeInterface
+            public static function fromConfig(MapInterface $c, Types $types): Type
             {
             }
 
@@ -155,7 +155,7 @@ class ManagerFactoryTest extends TestCase
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenPersister()
@@ -164,11 +164,11 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withPersister($this->createMock(PersisterInterface::class))
+            ->withPersister($this->createMock(Persister::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenMatchTranslators()
@@ -177,11 +177,11 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withMatchTranslators(new Map('string', MatchTranslatorInterface::class))
+            ->withMatchTranslators(new Map('string', MatchTranslator::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenSpecificationTranslators()
@@ -190,16 +190,16 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withSpecificationTranslators(new Map('string', SpecificationTranslatorInterface::class))
+            ->withSpecificationTranslators(new Map('string', SpecificationTranslator::class))
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
     }
 
     public function testBuildWithGivenRepository()
     {
-        $mock = $this->createMock(RepositoryInterface::class);
+        $mock = $this->createMock(Repository::class);
         $manager = ManagerFactory::for([
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
@@ -208,7 +208,7 @@ class ManagerFactoryTest extends TestCase
             ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
-        $this->assertInstanceOf(ManagerInterface::class, $manager);
+        $this->assertInstanceOf(Manager::class, $manager);
         $this->assertSame($mock, $manager->repository('Image'));
     }
 }

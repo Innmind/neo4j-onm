@@ -5,20 +5,20 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     RepositoryFactory,
-    RepositoryInterface,
-    Metadata\EntityInterface,
+    Repository as RepositoryInterface,
+    Metadata\Entity,
     Metadata\Repository,
     Metadatas,
     UnitOfWork,
-    Translation\MatchTranslator,
-    Translation\SpecificationTranslator,
+    Translation\Match\DelegationTranslator as MatchTranslator,
+    Translation\Specification\DelegationTranslator as SpecificationTranslator,
     Translation\ResultTranslator,
-    Translation\IdentityMatchTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
     Entity\Container,
     Identity\Generators,
     EntityFactory\Resolver,
-    PersisterInterface,
-    EntityFactory
+    Persister,
+    EntityFactory\EntityFactory
 };
 use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +41,7 @@ class RepositoryFactoryTest extends TestCase
                 ),
                 new IdentityMatchTranslator,
                 $metadatas = new Metadatas,
-                $persister = $this->createMock(PersisterInterface::class),
+                $persister = $this->createMock(Persister::class),
                 $generators
             ),
             new MatchTranslator,
@@ -52,7 +52,7 @@ class RepositoryFactoryTest extends TestCase
     public function testMake()
     {
         $mock = $this->createMock(RepositoryInterface::class);
-        $meta = $this->createMock(EntityInterface::class);
+        $meta = $this->createMock(Entity::class);
         $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
@@ -64,7 +64,7 @@ class RepositoryFactoryTest extends TestCase
 
     public function testRegister()
     {
-        $meta = $this->createMock(EntityInterface::class);
+        $meta = $this->createMock(Entity::class);
         $repo = $this->createMock(RepositoryInterface::class);
 
         $this->assertSame($this->factory, $this->factory->register($meta, $repo));

@@ -16,7 +16,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Types
@@ -231,7 +231,7 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );
@@ -335,7 +335,7 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );

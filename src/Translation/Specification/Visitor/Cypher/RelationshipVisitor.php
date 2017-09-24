@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\Visitor\CypherVisitorInterface,
+    Translation\Specification\Visitor\CypherVisitor,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
-    IdentityInterface,
+    Identity,
     Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\Where
 };
@@ -24,7 +24,7 @@ use Innmind\Immutable\{
     Collection
 };
 
-final class RelationshipVisitor implements CypherVisitorInterface
+final class RelationshipVisitor implements CypherVisitor
 {
     private $meta;
     private $count = 0;
@@ -112,7 +112,7 @@ final class RelationshipVisitor implements CypherVisitorInterface
             ->append((string) $this->count);
         $value = $specification->value();
 
-        if ($value instanceof IdentityInterface) {
+        if ($value instanceof Identity) {
             $value = $value->value();
         }
 

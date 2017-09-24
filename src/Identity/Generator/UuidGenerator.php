@@ -5,14 +5,14 @@ namespace Innmind\Neo4j\ONM\Identity\Generator;
 
 use Innmind\Neo4j\ONM\{
     Identity\Uuid,
-    Identity\GeneratorInterface,
-    IdentityInterface,
+    Identity\Generator,
+    Identity,
     Exception\InvalidArgumentException
 };
 use Innmind\Immutable\Map;
-use Ramsey\Uuid\Uuid as Generator;
+use Ramsey\Uuid\Uuid as Factory;
 
-final class UuidGenerator implements GeneratorInterface
+final class UuidGenerator implements Generator
 {
     private $identities;
 
@@ -28,10 +28,10 @@ final class UuidGenerator implements GeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function new(): IdentityInterface
+    public function new(): Identity
     {
         $class = (string) $this->identities->valueType();
-        $uuid = new $class((string) Generator::uuid4());
+        $uuid = new $class((string) Factory::uuid4());
         $this->identities = $this->identities->put(
             $uuid->value(),
             $uuid
@@ -51,7 +51,7 @@ final class UuidGenerator implements GeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function get($value): IdentityInterface
+    public function get($value): Identity
     {
         return $this->identities->get($value);
     }
@@ -59,7 +59,7 @@ final class UuidGenerator implements GeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function add(IdentityInterface $identity): GeneratorInterface
+    public function add(Identity $identity): Generator
     {
         $this->identities = $this->identities->put(
             $identity->value(),
@@ -72,7 +72,7 @@ final class UuidGenerator implements GeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function for($value): IdentityInterface
+    public function for($value): Identity
     {
         if ($this->knows($value)) {
             return $this->get($value);

@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Entity\Container,
-    IdentityInterface
+    Identity
 };
 use PHPUnit\Framework\TestCase;
 
@@ -14,7 +14,7 @@ class ContainerTest extends TestCase
     public function testInterface()
     {
         $c = new Container;
-        $i = $this->createMock(IdentityInterface::class);
+        $i = $this->createMock(Identity::class);
 
         $this->assertFalse($c->contains($i));
         $this->assertSame(0, $c->state(Container::STATE_MANAGED)->size());
@@ -45,7 +45,7 @@ class ContainerTest extends TestCase
      */
     public function testThrowWhenGettingStateForNotManagedIdentity()
     {
-        (new Container)->stateFor($this->createMock(IdentityInterface::class));
+        (new Container)->stateFor($this->createMock(Identity::class));
     }
 
     /**
@@ -53,7 +53,7 @@ class ContainerTest extends TestCase
      */
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {
-        (new Container)->get($this->createMock(IdentityInterface::class));
+        (new Container)->get($this->createMock(Identity::class));
     }
 
     /**
@@ -62,7 +62,7 @@ class ContainerTest extends TestCase
     public function testThrowWhenPushingToInvalidState()
     {
         (new Container)->push(
-            $this->createMock(IdentityInterface::class),
+            $this->createMock(Identity::class),
             new \stdClass,
             42
         );

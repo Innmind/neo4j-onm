@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Translation\SpecificationTranslator,
-    Metadata\EntityInterface
+    Metadata\Entity
 };
 use Innmind\Immutable\Map;
 
@@ -26,8 +26,8 @@ class RepositoryFactory
         $this->matchTranslator = $matchTranslator;
         $this->specificationTranslator = $specificationTranslator;
         $this->repositories = new Map(
-            EntityInterface::class,
-            RepositoryInterface::class
+            Entity::class,
+            Repository::class
         );
     }
 
@@ -35,15 +35,10 @@ class RepositoryFactory
      * Register a new repository instance
      *
      * To be used in case the repository can't be instanciated automatically
-     *
-     * @param EntityInterface $meta
-     * @param RepositoryInterface $repository
-     *
-     * @return self
      */
     public function register(
-        EntityInterface $meta,
-        RepositoryInterface $repository
+        Entity $meta,
+        Repository $repository
     ): self {
         $this->repositories = $this->repositories->put(
             $meta,
@@ -55,12 +50,8 @@ class RepositoryFactory
 
     /**
      * Return the instance of the given entity metadata
-     *
-     * @param EntityInterface $meta
-     *
-     * @return RepositoryInterface
      */
-    public function make(EntityInterface $meta): RepositoryInterface
+    public function make(Entity $meta): Repository
     {
         if ($this->repositories->contains($meta)) {
             return $this->repositories->get($meta);

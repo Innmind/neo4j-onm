@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
     MetadataFactory\AggregateFactory,
-    MetadataFactoryInterface,
+    MetadataFactory,
     Metadata\Aggregate,
     Type\StringType,
     Type\DateType,
@@ -26,7 +26,7 @@ class AggregateFactoryTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            MetadataFactoryInterface::class,
+            MetadataFactory::class,
             $this->factory
         );
     }

@@ -1,15 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Translation;
+namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
+    Translation\Specification\DelegationTranslator,
     Translation\SpecificationTranslator,
-    Translation\SpecificationTranslatorInterface,
-    Translation\Specification\ValidatorInterface,
-    Translation\Specification\Validator,
-    Translation\Specification\Validator\AggregateValidator,
-    Translation\Specification\Validator\RelationshipValidator,
     Metadata\Aggregate,
     Metadata\Relationship,
     IdentityMatch,
@@ -22,7 +18,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
@@ -30,13 +26,21 @@ use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
-class SpecificationTranslatorTest extends TestCase
+class DelegationTranslatorTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            SpecificationTranslator::class,
+            new DelegationTranslator
+        );
+    }
+
     public function testTranslate()
     {
         $expected = new Property('created', '=', null);
         $count = 0;
-        $m1 = $this->createMock(SpecificationTranslatorInterface::class);
+        $m1 = $this->createMock(SpecificationTranslator::class);
         $m1
             ->method('translate')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
@@ -46,10 +50,10 @@ class SpecificationTranslatorTest extends TestCase
 
                 return new IdentityMatch(
                     $this->createMock(Query::class),
-                    new Map('string', EntityInterface::class)
+                    new Map('string', Entity::class)
                 );
             }));
-        $m2 = $this->createMock(SpecificationTranslatorInterface::class);
+        $m2 = $this->createMock(SpecificationTranslator::class);
         $m2
             ->method('translate')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
@@ -59,12 +63,12 @@ class SpecificationTranslatorTest extends TestCase
 
                 return new IdentityMatch(
                     $this->createMock(Query::class),
-                    new Map('string', EntityInterface::class)
+                    new Map('string', Entity::class)
                 );
             }));
 
-        $t = new SpecificationTranslator(
-            (new Map('string', SpecificationTranslatorInterface::class))
+        $t = new DelegationTranslator(
+            (new Map('string', SpecificationTranslator::class))
                 ->put(Aggregate::class, $m1)
                 ->put(Relationship::class, $m2)
         );
@@ -109,7 +113,7 @@ class SpecificationTranslatorTest extends TestCase
      */
     public function testThrowWhenInjectingInvalidTranslators()
     {
-        new SpecificationTranslator(new Map('int', 'int'));
+        new DelegationTranslator(new Map('int', 'int'));
     }
 
     /**
@@ -117,7 +121,7 @@ class SpecificationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
-        (new SpecificationTranslator)->translate(
+        (new DelegationTranslator)->translate(
             new Aggregate(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
@@ -135,7 +139,7 @@ class SpecificationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
-        (new SpecificationTranslator)->translate(
+        (new DelegationTranslator)->translate(
             new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),

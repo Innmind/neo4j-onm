@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Entity\Container;
 use Innmind\Neo4j\DBAL\Connection;
 
-interface PersisterInterface
+interface Persister
 {
     /**
      * Use the given collection to persist modifications in the given container

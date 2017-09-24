@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Result;
 
 use Innmind\Neo4j\ONM\{
-    Translation\EntityTranslatorInterface,
-    Metadata\EntityInterface,
+    Translation\EntityTranslator,
+    Metadata\Entity,
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Property,
@@ -25,14 +25,14 @@ use Innmind\Immutable\{
     Set
 };
 
-final class AggregateTranslator implements EntityTranslatorInterface
+final class AggregateTranslator implements EntityTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
         string $variable,
-        EntityInterface $meta,
+        Entity $meta,
         Result $result
     ): SetInterface {
         if (empty($variable) || !$meta instanceof Aggregate) {
@@ -58,7 +58,7 @@ final class AggregateTranslator implements EntityTranslatorInterface
 
     private function translateNode(
         $identity,
-        EntityInterface $meta,
+        Entity $meta,
         Result $result
     ): MapInterface {
         $node = $result

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\Visitor\PropertyMatchVisitorInterface,
+    Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
     Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\PropertiesMatch
@@ -21,7 +21,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class AggregateVisitor implements PropertyMatchVisitorInterface
+final class AggregateVisitor implements PropertyMatchVisitor
 {
     private $meta;
 

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatch;
 
 use Innmind\Neo4j\ONM\{
-    Translation\Specification\Visitor\PropertyMatchVisitorInterface,
+    Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
-    IdentityInterface,
+    Identity,
     Exception\SpecificationNotApplicableAsPropertyMatchException,
     Query\PropertiesMatch
 };
@@ -23,7 +23,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class RelationshipVisitor implements PropertyMatchVisitorInterface
+final class RelationshipVisitor implements PropertyMatchVisitor
 {
     private $meta;
 
@@ -117,7 +117,7 @@ final class RelationshipVisitor implements PropertyMatchVisitorInterface
             ->append($edge->target());
         $value = $specification->value();
 
-        if ($value instanceof IdentityInterface) {
+        if ($value instanceof Identity) {
             $value = $value->value();
         }
 

@@ -5,6 +5,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Entity\Container,
+    EntityFactory\EntityFactory,
     Translation\IdentityMatchTranslator,
     Identity\Generators,
     Exception\EntityNotFoundException,
@@ -36,7 +37,7 @@ final class UnitOfWork
         EntityFactory $entityFactory,
         IdentityMatchTranslator $identityMatchTranslator,
         Metadatas $metadatas,
-        PersisterInterface $persister,
+        Persister $persister,
         Generators $generators
     ) {
         $this->connection = $connection;
@@ -88,11 +89,11 @@ final class UnitOfWork
     /**
      * Check if the given identity already has been loaded
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      *
      * @return bool
      */
-    public function contains(IdentityInterface $identity): bool
+    public function contains(Identity $identity): bool
     {
         return $this->container->contains($identity);
     }
@@ -100,11 +101,11 @@ final class UnitOfWork
     /**
      * Return the state for the given identity
      *
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      *
      * @return int
      */
-    public function stateFor(IdentityInterface $identity): int
+    public function stateFor(Identity $identity): int
     {
         return $this->container->stateFor($identity);
     }
@@ -113,13 +114,13 @@ final class UnitOfWork
      * Return the entity with the given identifier
      *
      * @param string $class
-     * @param IdentityInterface $identity
+     * @param Identity $identity
      *
      * @throws EntityNotFoundException
      *
      * @return object
      */
-    public function get(string $class, IdentityInterface $identity)
+    public function get(string $class, Identity $identity)
     {
         $meta = $this->metadatas->get($class);
         $generator = $this
@@ -237,9 +238,9 @@ final class UnitOfWork
      *
      * @param object $entity
      *
-     * @return IdentityInterface
+     * @return Identity
      */
-    private function extractIdentity($entity): IdentityInterface
+    private function extractIdentity($entity): Identity
     {
         $identity = $this
             ->metadatas

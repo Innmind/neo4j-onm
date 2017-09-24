@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM;
+namespace Tests\Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
-    EntityFactory,
+    EntityFactory\EntityFactory,
     Translation\ResultTranslator,
     Identity\Generators,
     Identity\Uuid,
@@ -22,7 +22,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Relationship,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Entity\Container,
@@ -241,7 +241,7 @@ class EntityFactoryTest extends TestCase
                 ],
             ]],
         ]);
-        $variables = (new Map('string', EntityInterface::class))
+        $variables = (new Map('string', Entity::class))
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
@@ -370,7 +370,7 @@ class EntityFactoryTest extends TestCase
                 ],
             ]],
         ]);
-        $variables = (new Map('string', EntityInterface::class))
+        $variables = (new Map('string', Entity::class))
             ->put('n', $aggregate)
             ->put('r', $relationship);
 

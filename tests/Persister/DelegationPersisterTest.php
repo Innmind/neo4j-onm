@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister\DelegationPersister,
-    PersisterInterface,
+    Persister,
     Entity\Container
 };
 use Innmind\Neo4j\DBAL\Connection;
@@ -17,20 +17,20 @@ class DelegationPersisterTest extends TestCase
     public function testInterface()
     {
         $perister = new DelegationPersister(
-            new Stream(PersisterInterface::class)
+            new Stream(Persister::class)
         );
-        $this->assertInstanceOf(PersisterInterface::class, $perister);
+        $this->assertInstanceOf(Persister::class, $perister);
     }
 
     public function testPersist()
     {
         $persister = new DelegationPersister(
-            (new Stream(PersisterInterface::class))
+            (new Stream(Persister::class))
                 ->add(
-                    $mock1 = $this->createMock(PersisterInterface::class)
+                    $mock1 = $this->createMock(Persister::class)
                 )
                 ->add(
-                    $mock2 = $this->createMock(PersisterInterface::class)
+                    $mock2 = $this->createMock(Persister::class)
                 )
         );
         $connection = $this->createMock(Connection::class);

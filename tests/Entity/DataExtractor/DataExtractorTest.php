@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Entity;
+namespace Tests\Innmind\Neo4j\ONM\Entity\DataExtractor;
 
 use Innmind\Neo4j\ONM\{
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
@@ -16,7 +16,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Metadata\EntityInterface,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,

@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
+    Translation\Specification\Validator\DelegationValidator,
     Translation\Specification\Validator,
-    Translation\Specification\ValidatorInterface,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -26,7 +26,7 @@ use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
-class ValidatorTest extends TestCase
+class DelegationValidatorTest extends TestCase
 {
     private $aggregate;
     private $relationship;
@@ -104,8 +104,8 @@ class ValidatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            ValidatorInterface::class,
-            new Validator
+            Validator::class,
+            new DelegationValidator
         );
     }
 
@@ -116,25 +116,25 @@ class ValidatorTest extends TestCase
         $compChildContent = new Property('rel.child.content', '=', null);
 
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $compCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $compRelCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $compChildContent,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $compCreated
                     ->and($compRelCreated)
                     ->or($compChildContent->not()),
@@ -151,25 +151,25 @@ class ValidatorTest extends TestCase
         $comp4 = new Property('rel.child.foo.tooDeep', '=', null);
 
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp2,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp3,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not())
@@ -186,25 +186,25 @@ class ValidatorTest extends TestCase
         $comp3 = new Property('end', '=', null);
 
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),
@@ -220,25 +220,25 @@ class ValidatorTest extends TestCase
         $comp3 = new Property('start.id', '=', null);
 
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new Validator)->validate(
+            (new DelegationValidator)->validate(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),
@@ -252,6 +252,6 @@ class ValidatorTest extends TestCase
      */
     public function testThrowWhenInjectingInvalidValidator()
     {
-        new Validator(new Map('int', 'int'));
+        new DelegationValidator(new Map('int', 'int'));
     }
 }

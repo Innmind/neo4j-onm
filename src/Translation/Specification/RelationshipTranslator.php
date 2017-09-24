@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\{
-    Translation\SpecificationTranslatorInterface,
+    Translation\SpecificationTranslator,
     Translation\Specification\Visitor\PropertyMatch\RelationshipVisitor as RelationshipPropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\RelationshipVisitor as RelationshipCypherVisitor,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     IdentityMatch,
     Exception\SpecificationNotApplicableAsPropertyMatchException
 };
@@ -21,13 +21,13 @@ use Innmind\Immutable\{
 };
 use Innmind\Specification\SpecificationInterface;
 
-final class RelationshipTranslator implements SpecificationTranslatorInterface
+final class RelationshipTranslator implements SpecificationTranslator
 {
     /**
      * {@inheritdoc}
      */
     public function translate(
-        EntityInterface $meta,
+        Entity $meta,
         SpecificationInterface $specification
     ): IdentityMatch {
         try {
@@ -81,7 +81,7 @@ final class RelationshipTranslator implements SpecificationTranslatorInterface
 
         return new IdentityMatch(
             $query->return('start', 'end', 'entity'),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $meta)
         );
     }

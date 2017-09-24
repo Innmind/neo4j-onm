@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     IdentityMatch,
-    Metadata\EntityInterface
+    Metadata\Entity
 };
 use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\Map;
@@ -17,7 +17,7 @@ class IdentityMatchTest extends TestCase
     {
         $i = new IdentityMatch(
             $q = new Query,
-            $v = new Map('string', EntityInterface::class)
+            $v = new Map('string', Entity::class)
         );
 
         $this->assertSame($q, $i->query());

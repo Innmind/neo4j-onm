@@ -1,10 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Translation;
+namespace Tests\Innmind\Neo4j\ONM\Translation\Match;
 
 use Innmind\Neo4j\ONM\{
-    Translation\IdentityMatchTranslator,
+    Translation\Match\DelegationTranslator,
+    Translation\MatchTranslator,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\ClassName,
@@ -16,10 +17,9 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    IdentityInterface,
     IdentityMatch,
     Types
 };
@@ -29,11 +29,19 @@ use Innmind\Immutable\{
 };
 use PHPUnit\Framework\TestCase;
 
-class IdentityMatchTranslatorTest extends TestCase
+class MatchTranslatorTest extends TestCase
 {
+    public function testInterface()
+    {
+        $this->assertInstanceOf(
+            MatchTranslator::class,
+            new DelegationTranslator
+        );
+    }
+
     public function testTranslateAggregate()
     {
-        $translator = new IdentityMatchTranslator;
+        $translator = new DelegationTranslator;
         $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -82,29 +90,21 @@ class IdentityMatchTranslatorTest extends TestCase
                         )
                     )
             );
-        $identity = $this->createMock(IdentityInterface::class);
-        $identity
-            ->method('value')
-            ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
-            'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
+            'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $im->query()->cypher()
         );
-        $this->assertCount(1, $im->query()->parameters());
-        $this->assertSame(
-            'foobar',
-            $im->query()->parameters()->get('entity_identity')->value()
-        );
+        $this->assertCount(0, $im->query()->parameters());
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
             'string',
             (string) $im->variables()->keyType()
         );
         $this->assertSame(
-            EntityInterface::class,
+            Entity::class,
             (string) $im->variables()->valueType()
         );
         $this->assertCount(1, $im->variables());
@@ -113,7 +113,7 @@ class IdentityMatchTranslatorTest extends TestCase
 
     public function testTranslateRelationship()
     {
-        $translator = new IdentityMatchTranslator;
+        $translator = new DelegationTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -134,29 +134,21 @@ class IdentityMatchTranslatorTest extends TestCase
                     new Types
                 )
             );
-        $identity = $this->createMock(IdentityInterface::class);
-        $identity
-            ->method('value')
-            ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translator->translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
-            'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
+            'MATCH (start)-[entity:type]->(end) RETURN start, end, entity',
             $im->query()->cypher()
         );
-        $this->assertCount(1, $im->query()->parameters());
-        $this->assertSame(
-            'foobar',
-            $im->query()->parameters()->get('entity_identity')->value()
-        );
+        $this->assertCount(0, $im->query()->parameters());
         $this->assertInstanceOf(MapInterface::class, $im->variables());
         $this->assertSame(
             'string',
             (string) $im->variables()->keyType()
         );
         $this->assertSame(
-            EntityInterface::class,
+            Entity::class,
             (string) $im->variables()->valueType()
         );
         $this->assertCount(1, $im->variables());
@@ -168,6 +160,6 @@ class IdentityMatchTranslatorTest extends TestCase
      */
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {
-        new IdentityMatchTranslator(new Map('int', 'int'));
+        new DelegationTranslator(new Map('int', 'int'));
     }
 }

@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Match;
 
 use Innmind\Neo4j\ONM\{
     Translation\Match\RelationshipTranslator,
-    Translation\MatchTranslatorInterface,
+    Translation\MatchTranslator,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Type\DateType,
     Type\StringType,
     IdentityMatch,
@@ -31,7 +31,7 @@ class RelationshipTranslatorTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            MatchTranslatorInterface::class,
+            MatchTranslator::class,
             new RelationshipTranslator
         );
     }
@@ -74,7 +74,7 @@ class RelationshipTranslatorTest extends TestCase
             (string) $im->variables()->keyType()
         );
         $this->assertSame(
-            EntityInterface::class,
+            Entity::class,
             (string) $im->variables()->valueType()
         );
         $this->assertSame(1, $im->variables()->size());

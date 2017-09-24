@@ -8,7 +8,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-interface TypeInterface
+interface Type
 {
     /**
      * Build a type instance out of a config array

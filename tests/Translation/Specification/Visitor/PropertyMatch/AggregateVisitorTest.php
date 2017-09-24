@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification\Visitor\PropertyMatc
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatch\AggregateVisitor,
-    Translation\Specification\Visitor\PropertyMatchVisitorInterface,
+    Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -86,7 +86,7 @@ class AggregateVisitorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(PropertyMatchVisitorInterface::class, $this->visitor);
+        $this->assertInstanceOf(PropertyMatchVisitor::class, $this->visitor);
     }
 
     public function testVisit()

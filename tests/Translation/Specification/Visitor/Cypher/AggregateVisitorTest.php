@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\AggregateVisitor,
-    Translation\Specification\Visitor\CypherVisitorInterface,
+    Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -82,7 +82,7 @@ class AggregateVisitorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(CypherVisitorInterface::class, $this->visitor);
+        $this->assertInstanceOf(CypherVisitor::class, $this->visitor);
     }
 
     public function testVisit()

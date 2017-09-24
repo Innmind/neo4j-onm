@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\RelationshipType,
     Metadata\Property,
-    TypeInterface
+    Type
 };
 use Innmind\Immutable\MapInterface;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +33,7 @@ class ValueObjectRelationshipTest extends TestCase
         $this->assertSame(Property::class, (string) $vor->properties()->valueType());
         $this->assertSame(0, $vor->properties()->count());
 
-        $vor2 = $vor->withProperty('foo', $this->createMock(TypeInterface::class));
+        $vor2 = $vor->withProperty('foo', $this->createMock(Type::class));
 
         $this->assertNotSame($vor, $vor2);
         $this->assertInstanceOf(ValueObjectRelationship::class, $vor2);

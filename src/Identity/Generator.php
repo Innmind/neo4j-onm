@@ -3,18 +3,16 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Identity;
 
-use Innmind\Neo4j\ONM\IdentityInterface;
+use Innmind\Neo4j\ONM\Identity;
 
-interface GeneratorInterface
+interface Generator
 {
-    public function new(): IdentityInterface;
+    public function new(): Identity;
 
     /**
      * Check if the generator already generated an identity with th given raw value
      *
      * @param mixed $value
-     *
-     * @return bool
      */
     public function knows($value): bool;
 
@@ -22,19 +20,13 @@ interface GeneratorInterface
      * Return the identity object with the given raw value
      *
      * @param mixed $value
-     *
-     * @return IdentityInterface
      */
-    public function get($value): IdentityInterface;
+    public function get($value): Identity;
 
     /**
-     * Add the given identity to the known ones by this geenrator
-     *
-     * @param IdentityInterface $identity
-     *
-     * @return self
+     * Add the given identity to the known ones by this generator
      */
-    public function add(IdentityInterface $identity): self;
+    public function add(Identity $identity): self;
 
     /**
      * Return an identity instance with the given value
@@ -43,8 +35,6 @@ interface GeneratorInterface
      * known yet
      *
      * @param mixed $value
-     *
-     * @return IdentityInterface
      */
-    public function for($value): IdentityInterface;
+    public function for($value): Identity;
 }

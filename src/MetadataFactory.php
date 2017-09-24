@@ -3,13 +3,13 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\ONM\Metadata\EntityInterface;
+use Innmind\Neo4j\ONM\Metadata\Entity;
 use Innmind\Immutable\MapInterface;
 
-interface MetadataFactoryInterface
+interface MetadataFactory
 {
     /**
      * @param  MapInterface<string, mixed> $config
      */
-    public function make(MapInterface $config): EntityInterface;
+    public function make(MapInterface $config): Entity;
 }

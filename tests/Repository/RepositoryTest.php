@@ -1,30 +1,30 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM;
+namespace Tests\Innmind\Neo4j\ONM\Repository;
 
 use Innmind\Neo4j\ONM\{
-    Repository,
-    RepositoryInterface,
+    Repository\Repository,
+    Repository as RepositoryInterface,
     UnitOfWork,
     Entity\Container,
-    EntityFactory,
+    EntityFactory\EntityFactory,
     Translation\ResultTranslator,
-    Translation\MatchTranslator,
-    Translation\SpecificationTranslator,
+    Translation\Match\DelegationTranslator as MatchTranslator,
+    Translation\Specification\DelegationTranslator as SpecificationTranslator,
     Identity\Generators,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
     EntityFactory\AggregateFactory,
     Metadatas,
-    Translation\IdentityMatchTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
     Persister\DelegationPersister,
     Persister\InsertPersister,
     Persister\UpdatePersister,
     Persister\RemovePersister,
-    PersisterInterface,
+    Persister,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Identity\Uuid,
     Metadata\Aggregate,
     Metadata\Relationship,
@@ -115,7 +115,7 @@ class RepositoryTest extends TestCase
             new IdentityMatchTranslator,
             $metadatas,
             new DelegationPersister(
-                (new Stream(PersisterInterface::class))
+                (new Stream(Persister::class))
                     ->add(
                         new InsertPersister(
                             $changeset,

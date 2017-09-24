@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Entity\DataExtractor;
 
 use Innmind\Neo4j\ONM\{
-    Entity\DataExtractorInterface,
-    Metadata\EntityInterface,
+    Entity\DataExtractor as DataExtractorInterface,
+    Metadata\Entity,
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Property,
@@ -32,7 +32,7 @@ final class AggregateExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, EntityInterface $meta): MapInterface
+    public function extract($entity, Entity $meta): MapInterface
     {
         if (!is_object($entity) || !$meta instanceof Aggregate) {
             throw new InvalidArgumentException;

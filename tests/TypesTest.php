@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Types,
-    TypeInterface,
+    Type,
     Type\ArrayType,
     Type\SetType,
     Type\BooleanType,
@@ -61,7 +61,7 @@ class TypesTest extends TestCase
 
     /**
      * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The type "stdClass" must implement TypeInterface
+     * @expectedExceptionMessage The type "stdClass" must implement Type
      */
     public function testThrowWhenRegisteringingInvalidType()
     {

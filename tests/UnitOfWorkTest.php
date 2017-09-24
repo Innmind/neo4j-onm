@@ -6,21 +6,21 @@ namespace Tests\Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     UnitOfWork,
     Entity\Container,
-    EntityFactory,
+    EntityFactory\EntityFactory,
     Translation\ResultTranslator,
     Identity\Generators,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
     EntityFactory\AggregateFactory,
     Metadatas,
-    Translation\IdentityMatchTranslator,
+    Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
     Persister\DelegationPersister,
     Persister\InsertPersister,
     Persister\UpdatePersister,
     Persister\RemovePersister,
-    PersisterInterface,
+    Persister,
     Entity\ChangesetComputer,
-    Entity\DataExtractor,
+    Entity\DataExtractor\DataExtractor,
     Identity\Uuid,
     Metadata\Aggregate,
     Metadata\Relationship,
@@ -30,7 +30,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Repository,
     Metadata\Factory,
     Metadata\Alias,
-    Metadata\EntityInterface,
+    Metadata\Entity,
     Exception\IdentityNotManagedException
 };
 use Innmind\Neo4j\DBAL\{
@@ -110,7 +110,7 @@ class UnitOfWorkTest extends TestCase
             new IdentityMatchTranslator,
             $this->metadatas,
             new DelegationPersister(
-                (new Stream(PersisterInterface::class))
+                (new Stream(Persister::class))
                     ->add(
                         new InsertPersister(
                             $changeset,
@@ -250,7 +250,7 @@ class UnitOfWorkTest extends TestCase
                 ->match('entity', ['Label'])
                 ->withProperty('uuid', '"11111111-1111-1111-1111-111111111111"')
                 ->return('entity'),
-            (new Map('string', EntityInterface::class))
+            (new Map('string', Entity::class))
                 ->put('entity', $this->metadatas->get($this->aggregateClass))
         );
 

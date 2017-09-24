@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\MetadataFactory;
 
 use Innmind\Neo4j\ONM\{
-    MetadataFactoryInterface,
-    Metadata\EntityInterface,
+    MetadataFactory,
+    Metadata\Entity,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
@@ -25,7 +25,7 @@ use Innmind\Immutable\{
     Map
 };
 
-final class AggregateFactory implements MetadataFactoryInterface
+final class AggregateFactory implements MetadataFactory
 {
     private $types;
 
@@ -37,7 +37,7 @@ final class AggregateFactory implements MetadataFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(MapInterface $config): EntityInterface
+    public function make(MapInterface $config): Entity
     {
         if (
             (string) $config->keyType() !== 'string' ||

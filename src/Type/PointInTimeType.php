@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
-    TypeInterface,
+    Type,
     Types,
     Exception\InvalidArgumentException
 };
@@ -19,7 +19,7 @@ use Innmind\Immutable\{
     SetInterface
 };
 
-final class PointInTimeType implements TypeInterface
+final class PointInTimeType implements Type
 {
     private $nullable = false;
     private $format;
@@ -34,7 +34,7 @@ final class PointInTimeType implements TypeInterface
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): TypeInterface
+    public static function fromConfig(MapInterface $config, Types $types): Type
     {
         $type = new self;
 
