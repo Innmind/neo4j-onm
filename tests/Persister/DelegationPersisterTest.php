@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     PersisterInterface,
     Entity\Container
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +33,7 @@ class DelegationPersisterTest extends TestCase
                     $mock2 = $this->createMock(PersisterInterface::class)
                 )
         );
-        $connection = $this->createMock(ConnectionInterface::class);
+        $connection = $this->createMock(Connection::class);
         $container = new Container;
         $mock1
             ->expects($this->once())

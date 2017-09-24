@@ -25,7 +25,7 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     PersisterInterface
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
 class ManagerTest extends TestCase
@@ -33,7 +33,7 @@ class ManagerTest extends TestCase
     public function testInterface()
     {
         $mock = $this->createMock(RepositoryInterface::class);
-        $conn = $this->createMock(ConnectionInterface::class);
+        $conn = $this->createMock(Connection::class);
         $meta = $this->createMock(EntityInterface::class);
         $meta
             ->method('class')

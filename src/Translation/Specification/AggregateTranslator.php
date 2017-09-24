@@ -13,7 +13,7 @@ use Innmind\Neo4j\ONM\{
     Exception\SpecificationNotApplicableAsPropertyMatchException
 };
 use Innmind\Neo4j\DBAL\{
-    Query,
+    Query\Query,
     Clause\Expression\Relationship
 };
 use Innmind\Immutable\{

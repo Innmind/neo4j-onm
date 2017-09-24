@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Metadata\EntityInterface
 };
-use Innmind\Neo4j\DBAL\Query;
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 

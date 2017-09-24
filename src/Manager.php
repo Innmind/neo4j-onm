@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Identity\Generators;
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 
 final class Manager implements ManagerInterface
 {
@@ -28,7 +28,7 @@ final class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function connection(): ConnectionInterface
+    public function connection(): Connection
     {
         return $this->unitOfWork->connection();
     }

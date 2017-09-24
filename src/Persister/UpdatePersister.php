@@ -17,8 +17,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface,
+    Connection,
     Query
 };
 use Innmind\EventBus\EventBusInterface;
@@ -53,7 +52,7 @@ final class UpdatePersister implements PersisterInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function persist(Connection $connection, Container $container)
     {
         $entities = $container->state(Container::STATE_MANAGED);
         $changesets = $entities->reduce(
@@ -117,17 +116,15 @@ final class UpdatePersister implements PersisterInterface
      *
      * @param MapInterface<IdentityInterface, MapInterface<string, mixed>> $changesets
      * @param MapInterface<IdentityInterface, object> $entities
-     *
-     * @return QueryInterface
      */
     private function queryFor(
         MapInterface $changesets,
         MapInterface $entities
-    ): QueryInterface {
+    ): Query {
         $this->variables = new Map(Str::class, MapInterface::class);
 
         $query = $changesets->reduce(
-            new Query,
+            new Query\Query,
             function(Query $carry, IdentityInterface $identity, MapInterface $changeset) use ($entities): Query {
                 $entity = $entities->get($identity);
                 $meta = $this->metadatas->get(get_class($entity));

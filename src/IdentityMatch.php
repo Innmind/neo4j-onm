@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\EntityInterface,
     Exception\InvalidArgumentException
 };
-use Innmind\Neo4j\DBAL\QueryInterface;
+use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\MapInterface;
 
 final class IdentityMatch
@@ -16,7 +16,7 @@ final class IdentityMatch
     private $variables;
 
     public function __construct(
-        QueryInterface $query,
+        Query $query,
         MapInterface $variables
     ) {
         if (
@@ -30,7 +30,7 @@ final class IdentityMatch
         $this->variables = $variables;
     }
 
-    public function query(): QueryInterface
+    public function query(): Query
     {
         return $this->query;
     }

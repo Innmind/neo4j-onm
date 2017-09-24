@@ -29,8 +29,8 @@ use Innmind\Neo4j\ONM\{
     Event\EntityUpdated
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    ResultInterface,
+    Connection,
+    Result,
     Query\Parameter
 };
 use Innmind\EventBus\EventBusInterface;
@@ -157,7 +157,7 @@ class UpdatePersisterTest extends TestCase
         );
 
         $container = new Container;
-        $conn = $this->createMock(ConnectionInterface::class);
+        $conn = $this->createMock(Connection::class);
         $aggregate = new $this->arClass;
         $rel = new class {
             public $created;
@@ -240,7 +240,7 @@ class UpdatePersisterTest extends TestCase
                     });
                 ++$count;
 
-                return $this->createMock(ResultInterface::class);
+                return $this->createMock(Result::class);
             }));
         $bus
             ->expects($this->at(0))

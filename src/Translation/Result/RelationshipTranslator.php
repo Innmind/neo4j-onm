@@ -11,9 +11,9 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\{
-    ResultInterface,
-    Result\RelationshipInterface,
-    Result\RowInterface
+    Result,
+    Result\Relationship as DBALRelationship,
+    Result\Row
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -30,7 +30,7 @@ final class RelationshipTranslator implements EntityTranslatorInterface
     public function translate(
         string $variable,
         EntityInterface $meta,
-        ResultInterface $result
+        Result $result
     ): SetInterface {
         if (empty($variable) || !$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -38,12 +38,12 @@ final class RelationshipTranslator implements EntityTranslatorInterface
 
         return $result
             ->rows()
-            ->filter(function(RowInterface $row) use ($variable) {
+            ->filter(function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
                 new Set(MapInterface::class),
-                function(Set $carry, RowInterface $row) use ($meta, $result): Set {
+                function(Set $carry, Row $row) use ($meta, $result): Set {
                     return $carry->add(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
@@ -58,11 +58,11 @@ final class RelationshipTranslator implements EntityTranslatorInterface
     private function translateRelationship(
         $identity,
         EntityInterface $meta,
-        ResultInterface $result
+        Result $result
     ): MapInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(int $id, RelationshipInterface $relationship) use ($identity, $meta) {
+            ->filter(function(int $id, DBALRelationship $relationship) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 

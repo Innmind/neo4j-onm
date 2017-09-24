@@ -20,7 +20,7 @@ use Innmind\Neo4j\ONM\{
     PersisterInterface,
     EntityFactory
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryFactoryTest extends TestCase
@@ -31,7 +31,7 @@ class RepositoryFactoryTest extends TestCase
     {
         $this->factory = new RepositoryFactory(
             new UnitOfWork(
-                $this->createMock(ConnectionInterface::class),
+                $this->createMock(Connection::class),
                 $container = new Container,
                 new EntityFactory(
                     new ResultTranslator,

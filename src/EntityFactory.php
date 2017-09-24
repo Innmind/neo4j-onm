@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Exception\InvalidArgumentException
 };
-use Innmind\Neo4j\DBAL\ResultInterface;
+use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -41,13 +41,12 @@ final class EntityFactory
     /**
      * Translate the dbal result into a set of entities
      *
-     * @param ResultInterface $result
      * @param MapInterface<string, EntityInterface> $variables
      *
      * @return SetInterface<object>
      */
     public function make(
-        ResultInterface $result,
+        Result $result,
         MapInterface $variables
     ): SetInterface {
         if (

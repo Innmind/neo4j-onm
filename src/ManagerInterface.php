@@ -3,16 +3,14 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 
 interface ManagerInterface
 {
     /**
      * Return the connection used by this manager
-     *
-     * @return ConnectionInterface
      */
-    public function connection(): ConnectionInterface;
+    public function connection(): Connection;
 
     /**
      * Return an entity repository

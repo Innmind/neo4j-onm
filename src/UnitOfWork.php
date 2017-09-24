@@ -11,8 +11,8 @@ use Innmind\Neo4j\ONM\{
     Exception\IdentityNotManagedException
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface
+    Connection,
+    Query
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -31,7 +31,7 @@ final class UnitOfWork
     private $generators;
 
     public function __construct(
-        ConnectionInterface $connection,
+        Connection $connection,
         Container $container,
         EntityFactory $entityFactory,
         IdentityMatchTranslator $identityMatchTranslator,
@@ -51,9 +51,9 @@ final class UnitOfWork
     /**
      * Return the connection used by this unit of work
      *
-     * @return ConnectionInterface
+     * @return Connection
      */
-    public function connection(): ConnectionInterface
+    public function connection(): Connection
     {
         return $this->connection;
     }
@@ -206,13 +206,12 @@ final class UnitOfWork
     /**
      * Execute the given query
      *
-     * @param QueryInterface $query
      * @param MapInterface<string, EntityInterface> $variables
      *
      * @return SetInterface<object>
      */
     public function execute(
-        QueryInterface $query,
+        Query $query,
         MapInterface $variables
     ): SetInterface {
         return $this->entityFactory->make(

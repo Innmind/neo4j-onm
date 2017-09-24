@@ -26,7 +26,7 @@ use Innmind\Neo4j\ONM\{
     Type\DateType
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Neo4j\DBAL\QueryInterface;
+use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -45,7 +45,7 @@ class SpecificationTranslatorTest extends TestCase
                 $this->assertSame($expected, $spec);
 
                 return new IdentityMatch(
-                    $this->createMock(QueryInterface::class),
+                    $this->createMock(Query::class),
                     new Map('string', EntityInterface::class)
                 );
             }));
@@ -58,7 +58,7 @@ class SpecificationTranslatorTest extends TestCase
                 $this->assertSame($expected, $spec);
 
                 return new IdentityMatch(
-                    $this->createMock(QueryInterface::class),
+                    $this->createMock(Query::class),
                     new Map('string', EntityInterface::class)
                 );
             }));

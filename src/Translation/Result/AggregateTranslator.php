@@ -13,10 +13,10 @@ use Innmind\Neo4j\ONM\{
     Exception\MoreThanOneRelationshipFoundException
 };
 use Innmind\Neo4j\DBAL\{
-    ResultInterface,
-    Result\NodeInterface,
-    Result\RelationshipInterface,
-    Result\RowInterface
+    Result,
+    Result\Node,
+    Result\Relationship,
+    Result\Row
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -33,7 +33,7 @@ final class AggregateTranslator implements EntityTranslatorInterface
     public function translate(
         string $variable,
         EntityInterface $meta,
-        ResultInterface $result
+        Result $result
     ): SetInterface {
         if (empty($variable) || !$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
@@ -41,12 +41,12 @@ final class AggregateTranslator implements EntityTranslatorInterface
 
         return $result
             ->rows()
-            ->filter(function(RowInterface $row) use ($variable) {
+            ->filter(function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
                 new Set(MapInterface::class),
-                function(Set $carry, RowInterface $row) use ($meta, $result): Set {
+                function(Set $carry, Row $row) use ($meta, $result): Set {
                     return $carry->add($this->translateNode(
                         $row->value()[$meta->identity()->property()],
                         $meta,
@@ -59,11 +59,11 @@ final class AggregateTranslator implements EntityTranslatorInterface
     private function translateNode(
         $identity,
         EntityInterface $meta,
-        ResultInterface $result
+        Result $result
     ): MapInterface {
         $node = $result
             ->nodes()
-            ->filter(function(int $id, NodeInterface $node) use ($identity, $meta) {
+            ->filter(function(int $id, Node $node) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $node->properties();
 
@@ -120,15 +120,15 @@ final class AggregateTranslator implements EntityTranslatorInterface
 
     private function translateChild(
         ValueObject $meta,
-        ResultInterface $result,
-        NodeInterface $node
+        Result $result,
+        Node $node
     ): MapInterface {
         $relMeta = $meta->relationship();
         $relationships = $result
             ->relationships()
             ->filter(function(
                 int $id,
-                RelationshipInterface $relationship
+                Relationship $relationship
             ) use (
                 $node,
                 $relMeta
@@ -151,8 +151,8 @@ final class AggregateTranslator implements EntityTranslatorInterface
 
     private function translateRelationship(
         ValueObject $meta,
-        ResultInterface $result,
-        RelationshipInterface $relationship
+        Result $result,
+        Relationship $relationship
     ): MapInterface {
         return $meta
             ->relationship()
@@ -188,8 +188,8 @@ final class AggregateTranslator implements EntityTranslatorInterface
 
     private function translateValueObject(
         ValueObject $meta,
-        ResultInterface $result,
-        RelationshipInterface $relationship
+        Result $result,
+        Relationship $relationship
     ): MapInterface {
         $node = $result
             ->nodes()

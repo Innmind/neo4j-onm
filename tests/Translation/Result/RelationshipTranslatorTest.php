@@ -20,8 +20,8 @@ use Innmind\Neo4j\ONM\{
     Types
 };
 use Innmind\Neo4j\DBAL\{
-    Result,
-    ResultInterface
+    Result\Result,
+    Result as ResultInterface
 };
 use Innmind\Immutable\{
     MapInterface,

@@ -35,7 +35,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
-    Query
+    Query\Query
 };
 use Innmind\EventBus\EventBusInterface;
 use Innmind\HttpTransport\GuzzleTransport;

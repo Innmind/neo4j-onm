@@ -12,8 +12,8 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException
 };
 use Innmind\Neo4j\DBAL\{
-    ResultInterface,
-    Result\RowInterface
+    Result,
+    Result\Row
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -42,13 +42,12 @@ final class ResultTranslator
     /**
      * Translate a raw dbal result into formated data usable for entity factories
      *
-     * @param ResultInterface $result
      * @param MapInterface<string, EntityInterface> $variables Association between query variables and entity definitions
      *
      * @return MapInterface<string, SetInterface<MapInterface<string, mixed>>>
      */
     public function translate(
-        ResultInterface $result,
+        Result $result,
         MapInterface $variables
     ): MapInterface {
         if (
@@ -62,7 +61,7 @@ final class ResultTranslator
             ->filter(function(string $variable) use ($result): bool {
                 $forVariable = $result
                     ->rows()
-                    ->filter(function(RowInterface $row) use ($variable): bool {
+                    ->filter(function(Row $row) use ($variable): bool {
                         return $row->column() === $variable;
                     });
 

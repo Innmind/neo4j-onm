@@ -20,7 +20,7 @@ use Innmind\Neo4j\ONM\{
     PersisterInterface,
     RepositoryInterface
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\EventBusInterface;
 use Innmind\Immutable\{
     Map,
@@ -39,7 +39,7 @@ class ManagerFactoryTest extends TestCase
             Yaml::parse(file_get_contents('fixtures/mapping.yml'))
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -53,7 +53,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->validatedBy(new Configuration)
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -66,7 +66,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withEntityTranslators(new Map('string', EntityTranslatorInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -79,7 +79,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withGenerator(Uuid::class, new UuidGenerator)
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -92,7 +92,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withEntityFactory($this->createMock(EntityFactoryInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -105,7 +105,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withIdentityMatchTranslators(new Map('string', IdentityMatchTranslatorInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -116,7 +116,7 @@ class ManagerFactoryTest extends TestCase
         $manager = ManagerFactory::for([])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withMetadataFactories(new Map('string', MetadataFactoryInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -152,7 +152,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withType(get_class($mock))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -165,7 +165,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withPersister($this->createMock(PersisterInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -178,7 +178,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withMatchTranslators(new Map('string', MatchTranslatorInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -191,7 +191,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withSpecificationTranslators(new Map('string', SpecificationTranslatorInterface::class))
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
@@ -205,7 +205,7 @@ class ManagerFactoryTest extends TestCase
         ])
             ->withEventBus($this->createMock(EventBusInterface::class))
             ->withRepository('Image', $mock)
-            ->withConnection($m = $this->createMock(ConnectionInterface::class))
+            ->withConnection($m = $this->createMock(Connection::class))
             ->build();
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);

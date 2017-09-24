@@ -16,8 +16,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface,
+    Connection,
     Query
 };
 use Innmind\EventBus\EventBusInterface;
@@ -50,7 +49,7 @@ final class RemovePersister implements PersisterInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function persist(Connection $connection, Container $container)
     {
         $entities = $container
             ->state(Container::STATE_TO_BE_REMOVED)
@@ -84,12 +83,10 @@ final class RemovePersister implements PersisterInterface
      * Build the query to delete all entities at once
      *
      * @param MapInterface<IdentityInterface, object> $entities
-     *
-     * @return QueryInterface
      */
-    private function queryFor(MapInterface $entities): QueryInterface
+    private function queryFor(MapInterface $entities): Query
     {
-        $query = new Query;
+        $query = new Query\Query;
         $this->variables = new Stream('string');
         $partitions = $entities->partition(function(
             IdentityInterface $identity,

@@ -26,8 +26,8 @@ use Innmind\Neo4j\ONM\{
     Event\EntityRemoved
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    ResultInterface,
+    Connection,
+    Result,
     Query\Parameter
 };
 use Innmind\EventBus\EventBusInterface;
@@ -108,7 +108,7 @@ class RemovePersisterTest extends TestCase
         );
 
         $container = new Container;
-        $conn = $this->createMock(ConnectionInterface::class);
+        $conn = $this->createMock(Connection::class);
         $aggregate = new $this->arClass;
         $rel = new class {
             public $child;
@@ -149,7 +149,7 @@ class RemovePersisterTest extends TestCase
                     });
                 ++$count;
 
-                return $this->createMock(ResultInterface::class);
+                return $this->createMock(Result::class);
             }));
         $bus
             ->expects($this->at(0))

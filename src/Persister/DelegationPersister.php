@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Exception\InvalidArgumentException
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use Innmind\Immutable\StreamInterface;
 
 final class DelegationPersister implements PersisterInterface
@@ -27,7 +27,7 @@ final class DelegationPersister implements PersisterInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function persist(Connection $connection, Container $container)
     {
         $this
             ->persisters

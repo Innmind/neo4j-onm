@@ -18,8 +18,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas
 };
 use Innmind\Neo4j\DBAL\{
-    ConnectionInterface,
-    QueryInterface,
+    Connection,
     Query,
     Clause\Expression\Relationship as DBALRelationship
 };
@@ -56,7 +55,7 @@ final class InsertPersister implements PersisterInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(ConnectionInterface $connection, Container $container)
+    public function persist(Connection $connection, Container $container)
     {
         $entities = $container->state(Container::STATE_NEW);
 
@@ -93,12 +92,10 @@ final class InsertPersister implements PersisterInterface
      * Build the whole cypher query to insert at once all new nodes and relationships
      *
      * @param MapInterface<IdentityInterface, object> $entities
-     *
-     * @return QueryInterface
      */
-    private function queryFor(MapInterface $entities): QueryInterface
+    private function queryFor(MapInterface $entities): Query
     {
-        $query = new Query;
+        $query = new Query\Query;
         $this->variables = new Stream('string');
 
         $partitions = $entities->partition(function(

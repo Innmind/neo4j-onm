@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "~7.1",
-        "innmind/neo4j-dbal": "~3.0",
+        "innmind/neo4j-dbal": "~4.0",
         "innmind/immutable": "~2.0",
         "symfony/config": "~3.0",
         "ramsey/uuid": "^3.2",

@@ -20,7 +20,7 @@ use Innmind\Neo4j\ONM\{
     Persister\UpdatePersister,
     Persister\RemovePersister
 };
-use Innmind\Neo4j\DBAL\ConnectionInterface;
+use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\{
     EventBusInterface,
     NullEventBus
@@ -99,12 +99,8 @@ final class ManagerFactory
 
     /**
      * Specify the connection to use
-     *
-     * @param ConnectionInterface $connection
-     *
-     * @return self
      */
-    public function withConnection(ConnectionInterface $connection): self
+    public function withConnection(Connection $connection): self
     {
         $this->connection = $connection;
 
