@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM\Persister;
 use Innmind\Neo4j\ONM\{
     Persister,
     Entity\Container,
+    Entity\Container\State,
     Entity\ChangesetComputer,
     Entity\DataExtractor\DataExtractor,
     Identity,
@@ -54,7 +55,7 @@ final class UpdatePersister implements Persister
      */
     public function __invoke(Connection $connection, Container $container): void
     {
-        $entities = $container->state(Container::STATE_MANAGED);
+        $entities = $container->state(State::managed());
         $changesets = $entities->reduce(
             new Map(Identity::class, MapInterface::class),
             function(Map $carry, Identity $identity, $entity): Map {

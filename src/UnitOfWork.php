@@ -5,6 +5,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     Entity\Container,
+    Entity\Container\State,
     EntityFactory\EntityFactory,
     Translation\IdentityMatchTranslator,
     Identity\Generators,
@@ -71,7 +72,7 @@ final class UnitOfWork
             $this->container->push(
                 $identity,
                 $entity,
-                Container::STATE_NEW
+                State::new()
             );
             $this
                 ->generators
@@ -93,7 +94,7 @@ final class UnitOfWork
     /**
      * Return the state for the given identity
      */
-    public function stateFor(Identity $identity): int
+    public function stateFor(Identity $identity): State
     {
         return $this->container->stateFor($identity);
     }
@@ -148,19 +149,19 @@ final class UnitOfWork
             $state = $this->container->stateFor($identity);
 
             switch ($state) {
-                case Container::STATE_NEW:
+                case State::new():
                     $this->container->push(
                         $identity,
                         $entity,
-                        Container::STATE_REMOVED
+                        State::removed()
                     );
                     break;
 
-                case Container::STATE_MANAGED:
+                case State::managed():
                     $this->container->push(
                         $identity,
                         $entity,
-                        Container::STATE_TO_BE_REMOVED
+                        State::toBeRemoved()
                     );
                     break;
             }

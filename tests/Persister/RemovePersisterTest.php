@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\{
     Persister,
     Entity\ChangesetComputer,
     Entity\Container,
+    Entity\Container\State,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
@@ -116,12 +117,12 @@ class RemovePersisterTest extends TestCase
         $aggregate->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
         $aggregate->rel = $rel;
         $rel->child = $child;
-        $container->push($aggregate->uuid, $aggregate, Container::STATE_TO_BE_REMOVED);
+        $container->push($aggregate->uuid, $aggregate, State::toBeRemoved());
         $relationship = new $this->rClass;
         $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
-        $container->push($relationship->uuid, $relationship, Container::STATE_TO_BE_REMOVED);
+        $container->push($relationship->uuid, $relationship, State::toBeRemoved());
         $count = $preCount = $postCount = 0;
 
         $conn
@@ -182,11 +183,11 @@ class RemovePersisterTest extends TestCase
         $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $container->stateFor($aggregate->uuid)
         );
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $container->stateFor($relationship->uuid)
         );
     }

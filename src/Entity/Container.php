@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
+    Entity\Container\State,
     Identity,
     Exception\IdentityNotManaged,
     Exception\DomainException
@@ -15,30 +16,25 @@ use Innmind\Immutable\{
 
 final class Container
 {
-    const STATE_MANAGED = 1;
-    const STATE_NEW = 2;
-    const STATE_TO_BE_REMOVED = 3;
-    const STATE_REMOVED = 4;
-
     private $states;
 
     public function __construct()
     {
-        $this->states = (new Map('int', Map::class))
+        $this->states = (new Map(State::class, Map::class))
             ->put(
-                self::STATE_MANAGED,
+                State::managed(),
                 new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_NEW,
+                State::new(),
                 new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_TO_BE_REMOVED,
+                State::toBeRemoved(),
                 new Map(Identity::class, 'object')
             )
             ->put(
-                self::STATE_REMOVED,
+                State::removed(),
                 new Map(Identity::class, 'object')
             );
     }
@@ -48,14 +44,14 @@ final class Container
      *
      * @param object $entity
      */
-    public function push(Identity $identity, $entity, int $wished): self
+    public function push(Identity $identity, $entity, State $wished): self
     {
         if (!$this->states->contains($wished)) {
             throw new DomainException;
         }
 
         $this->states = $this->states->map(function(
-            int $state,
+            State $state,
             MapInterface $entities
         ) use (
             $identity,
@@ -77,7 +73,7 @@ final class Container
      *
      * @return MapInterface<Identity, object>
      */
-    public function state(int $state): MapInterface
+    public function state(State $state): MapInterface
     {
         return $this->states->get($state);
     }
@@ -88,7 +84,7 @@ final class Container
     public function detach(Identity $identity): self
     {
         $this->states = $this->states->map(function(
-            int $state,
+            State $state,
             MapInterface $entities
         ) use (
             $identity
@@ -104,7 +100,7 @@ final class Container
      *
      * @throws IdentityNotManaged
      */
-    public function stateFor(Identity $identity): int
+    public function stateFor(Identity $identity): State
     {
         foreach ($this->states as $state => $entities) {
             if ($entities->contains($identity)) {

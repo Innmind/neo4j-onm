@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM\Persister;
 use Innmind\Neo4j\ONM\{
     Persister,
     Entity\Container,
+    Entity\Container\State,
     Entity\ChangesetComputer,
     Identity,
     Event\EntityAboutToBeRemoved,
@@ -52,7 +53,7 @@ final class RemovePersister implements Persister
     public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container
-            ->state(Container::STATE_TO_BE_REMOVED)
+            ->state(State::toBeRemoved())
             ->foreach(function(Identity $identity, $object) {
                 $this->eventBus->dispatch(
                     new EntityAboutToBeRemoved($identity, $object)
@@ -71,7 +72,7 @@ final class RemovePersister implements Persister
         ) use (
             $container
         ) {
-            $container->push($identity, $object, Container::STATE_REMOVED);
+            $container->push($identity, $object, State::removed());
             $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
             $this->eventBus->dispatch(
                 new EntityRemoved($identity, $object)

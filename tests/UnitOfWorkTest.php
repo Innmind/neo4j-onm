@@ -6,6 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     UnitOfWork,
     Entity\Container,
+    Entity\Container\State,
     EntityFactory\EntityFactory,
     Translation\ResultTranslator,
     Identity\Generators,
@@ -150,7 +151,7 @@ class UnitOfWorkTest extends TestCase
         );
         $this->assertTrue($this->uow->contains($entity->uuid));
         $this->assertSame(
-            Container::STATE_NEW,
+            State::new(),
             $this->uow->stateFor($entity->uuid)
         );
         $this->assertTrue(
@@ -172,7 +173,7 @@ class UnitOfWorkTest extends TestCase
             $uow->commit()
         );
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $uow->stateFor($entity->uuid)
         );
 
@@ -258,7 +259,7 @@ class UnitOfWorkTest extends TestCase
         $this->uow->persist($entity);
         $this->assertSame($this->uow, $this->uow->remove($entity));
         $this->assertSame(
-            Container::STATE_REMOVED,
+            State::removed(),
             $this->uow->stateFor($entity->uuid)
         );
     }
@@ -275,7 +276,7 @@ class UnitOfWorkTest extends TestCase
             $uow->remove($entity)
         );
         $this->assertSame(
-            Container::STATE_TO_BE_REMOVED,
+            State::toBeRemoved(),
             $uow->stateFor($entity->uuid)
         );
         $uow->commit();

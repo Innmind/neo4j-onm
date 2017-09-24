@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM\Persister;
 use Innmind\Neo4j\ONM\{
     Persister,
     Entity\Container,
+    Entity\Container\State,
     Entity\ChangesetComputer,
     Entity\DataExtractor\DataExtractor,
     Event\EntityAboutToBePersisted,
@@ -57,7 +58,7 @@ final class InsertPersister implements Persister
      */
     public function __invoke(Connection $connection, Container $container): void
     {
-        $entities = $container->state(Container::STATE_NEW);
+        $entities = $container->state(State::new());
 
         if ($entities->size() === 0) {
             return;
@@ -77,7 +78,7 @@ final class InsertPersister implements Persister
         ) use (
             $container
         ) {
-            $container->push($identity, $entity, Container::STATE_MANAGED);
+            $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
                 $this->extractor->extract($entity)

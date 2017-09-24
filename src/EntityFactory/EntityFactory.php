@@ -8,7 +8,8 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Metadata\Entity,
-    Entity\Container
+    Entity\Container,
+    Entity\Container\State
 };
 use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
@@ -105,7 +106,7 @@ final class EntityFactory
         $this->entities = $this->entities->push(
             $identity,
             $entity,
-            Container::STATE_MANAGED
+            State::managed()
         );
 
         return $entity;

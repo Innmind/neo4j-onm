@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\DataExtractor,
     Entity\ChangesetComputer,
     Entity\Container,
+    Entity\Container\State,
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
@@ -171,13 +172,13 @@ class InsertPersisterTest extends TestCase
         $rel->created = new \DateTimeImmutable('2016-01-01');
         $rel->child = $child;
         $child->content = 'foo';
-        $container->push($aggregate->uuid, $aggregate, Container::STATE_NEW);
+        $container->push($aggregate->uuid, $aggregate, State::new());
         $relationship = new $this->rClass;
         $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->created = new \DateTimeImmutable('2016-01-01');
         $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
-        $container->push($relationship->uuid, $relationship, Container::STATE_NEW);
+        $container->push($relationship->uuid, $relationship, State::new());
         $count = $preCount = $postCount = 0;
 
         $conn
@@ -260,11 +261,11 @@ class InsertPersisterTest extends TestCase
         $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $container->stateFor($aggregate->uuid)
         );
         $this->assertSame(
-            Container::STATE_MANAGED,
+            State::managed(),
             $container->stateFor($relationship->uuid)
         );
     }

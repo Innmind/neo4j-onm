@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Translation\SpecificationTranslator,
     Metadata\Entity,
-    Entity\Container,
+    Entity\Container\State,
     Exception\EntityNotFound
 };
 use Innmind\Immutable\{
@@ -37,9 +37,9 @@ class Repository implements RepositoryInterface
         $this->matchTranslator = $matchTranslator;
         $this->specificationTranslator = $specificationTranslator;
         $this->metadata = $metadata;
-        $this->allowedStates = (new Set('int'))
-            ->add(Container::STATE_NEW)
-            ->add(Container::STATE_MANAGED);
+        $this->allowedStates = (new Set(State::class))
+            ->add(State::new())
+            ->add(State::managed());
     }
 
     /**
