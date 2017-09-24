@@ -29,7 +29,7 @@ final class DelegationPersister implements Persister
     /**
      * {@inheritdoc}
      */
-    public function persist(Connection $connection, Container $container)
+    public function persist(Connection $connection, Container $container): void
     {
         $this
             ->persisters

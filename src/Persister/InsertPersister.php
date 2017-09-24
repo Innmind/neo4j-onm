@@ -55,7 +55,7 @@ final class InsertPersister implements Persister
     /**
      * {@inheritdoc}
      */
-    public function persist(Connection $connection, Container $container)
+    public function persist(Connection $connection, Container $container): void
     {
         $entities = $container->state(Container::STATE_NEW);
 

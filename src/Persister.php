@@ -10,8 +10,6 @@ interface Persister
 {
     /**
      * Use the given collection to persist modifications in the given container
-     *
-     * @return void
      */
-    public function persist(Connection $connection, Container $container);
+    public function persist(Connection $connection, Container $container): void;
 }
