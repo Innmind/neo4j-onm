@@ -15,7 +15,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Repository as EntityRepository,
+    Repository\Repository as EntityRepository,
     EntityFactory\AggregateFactory as EntityFactory,
     Types
 };
