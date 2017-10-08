@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Repository as EntityRepository,
+    Repository\Repository as EntityRepository,
     EntityFactory\RelationshipFactory as EntityFactory,
     Types
 };
