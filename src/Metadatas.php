@@ -24,6 +24,13 @@ final class Metadatas
         }
     }
 
+    public static function build(
+        MetadataBuilder $builder,
+        array $metas
+    ): self {
+        return $builder->inject($metas)->container();
+    }
+
     /**
      * Register a new entity metadata
      */
