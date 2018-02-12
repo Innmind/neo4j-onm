@@ -62,6 +62,8 @@ final class ManagerFactory
 
     private function __construct(array $entities)
     {
+        @trigger_error('Use the service container instead',E_USER_DEPRECATED);
+
         $this->eventBus = new NullEventBus;
         $this->entities = $entities;
         $this->config = new Configuration;

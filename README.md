@@ -112,16 +112,26 @@ The first step is to create a manager:
 
 ```php
 use Innmind\Neo4j\ONM\ManagerFactory;
-use Innmind\Neo4j\DBAL\ConnectionFactory;
-use Symfony\Component\Yaml\Yaml;
+use Innmind\Neo4j\DBAL\Connection;
+use Innmind\Compose\{
+    ContainerBuilder\ContainerBuilder,
+    Loader\Yaml
+};
+use Innmind\Url\Path;
+use Innmind\Immutable\Map;
+use Symfony\Component\Yaml\Yaml as Parser;
 
-$manager = ManagerFactory::for([Yaml::parse(file_get_contents('path/to/entity_mapping.yml'))])
-    ->withConnection(
-        ConnectionFactory::on('localhost')
-            ->for('neo4j', 'pwd')
-            ->build()
-    )
-    ->build();
+$container = (new ContainerBuilder(new Yaml))(
+    new Path('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', /* instance of Connection */)
+        ->put(
+            'metas',
+            [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))]
+        )
+);
+
+$manager = $container->get('manager');
 ```
 
 Now that you a working manager, let's handle our entities:
@@ -217,10 +227,15 @@ class MyType implements Type
     // your implementation ...
 }
 
-$manager = ManagerFactory::for([/* your mapping */])
-    ->withConnection($conn)
-    ->withType(MyType::class)
-    ->build();
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put('additionalTypes', Set::of('string', MyType::class))
+);
+
+$manager = $container->get('manager');
 ```
 
 #### Configuration
@@ -230,10 +245,13 @@ By default the mapping of your entities is validated against the class [`Configu
 Once done, you need to specify your config object when building your manager:
 
 ```php
-ManagerFactory::for([/* mapping */])
-    ->validatedBy(new MyConfigurationClass)
-    ->withConnection($conn)
-    ->build();
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put('configuration', new MyConfiguration)
+);
 ```
 
 #### Metadata factories
@@ -254,11 +272,17 @@ class MyAggregateFactory implements MetadataFactory
     // your implementation
 }
 
-ManagerFactory::for([/* mapping */])
-    ->withMetadataFactories(
-        (new Map('string', MetadataFactory::class))
-            ->put(Aggregate::class, new MyAggregateFactory)
-    );
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put(
+            'metadataFactories',
+            (new Map('string', MetadataFactory::class))
+                ->put(Aggregate::class, new MyAggregateFactory)
+        )
+);
 ```
 
 Here you specify to use your own factory to be used to build `Aggregate`s metadatas. If you decide to create a new type of [`Entity`](Metadata/Entity.php) you would need to replace `Aggregate::class` by `MyEntityMetadataType::class` (in such case you would also need to override the default configuration class, as explained in the previous section).
@@ -278,11 +302,17 @@ class MyTranslator implements EntityTranslator
     // your implementation ...
 }
 
-ManagerFactory::for([/* mapping */])
-    ->withEntityTranslators(
-        (new Map('string', EntityTranslator::class))
-            ->put(MyEntityMetadata::class, new MyTranslator)
-    );
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put(
+            'resultTranslators',
+            (new Map('string', EntityTranslator::class))
+                ->put(MyEntityMetadata::class, new MyTranslator)
+        )
+);
 ```
 
 #### Entity factories
@@ -299,8 +329,16 @@ class MyEntityFactory implements EntityFactory
     // your implementation
 }
 
-ManagerFactory::for([/* mapping */])
-    ->withEntityFactory(new MyEntityFactory);
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put(
+            'entityFactories',
+            Set::of(EntityTranslator::class, new MyEntityFactory)
+        )
+);
 ```
 
 **Note**: for your factory to be really used, you'll need in the mapping of your entity to specify the class of your factory.
@@ -327,6 +365,15 @@ class MyIdentityGenerator implements Generator
     // your implementation
 }
 
-ManagerFactory::for([/* mapping */])
-    ->withGenerator(MyIdentity::class, new MyIdentityGenerator);
+$container = (new ContainerBuilder(new Yaml))(
+    new Map('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put('connection', $connection)
+        ->put('metas', /* your mapping */)
+        ->put(
+            'additionalGenerators',
+            (new Map('string', Generator::class))
+                ->put(MyIdentity::class, new MyIdentityGenerator)
+        )
+);
 ```

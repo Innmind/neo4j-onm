@@ -8,7 +8,10 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity
 };
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    MapInterface,
+    Map
+};
 
 class RepositoryFactory
 {
@@ -20,15 +23,26 @@ class RepositoryFactory
     public function __construct(
         UnitOfWork $unitOfWork,
         MatchTranslator $matchTranslator,
-        SpecificationTranslator $specificationTranslator
+        SpecificationTranslator $specificationTranslator,
+        MapInterface $repositories = null
     ) {
+        $repositories = $repositories ?? new Map(Entity::class, Repository::class);
+
+        if (
+            (string) $repositories->keyType() !== Entity::class ||
+            (string) $repositories->valueType() !== Repository::class
+        ) {
+            throw new \TypeError(sprintf(
+                'Argument 4 must be of type MapInterface<%s, %s>',
+                Entity::class,
+                Repository::class
+            ));
+        }
+
         $this->unitOfWork = $unitOfWork;
         $this->matchTranslator = $matchTranslator;
         $this->specificationTranslator = $specificationTranslator;
-        $this->repositories = new Map(
-            Entity::class,
-            Repository::class
-        );
+        $this->repositories = $repositories;
     }
 
     /**
@@ -40,6 +54,8 @@ class RepositoryFactory
         Entity $meta,
         Repository $repository
     ): self {
+        @trigger_error('Inject repositories in the constructor', E_USER_DEPRECATED);
+
         $this->repositories = $this->repositories->put(
             $meta,
             $repository
