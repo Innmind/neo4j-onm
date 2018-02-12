@@ -15,7 +15,7 @@
         "issues": "http://github.com/Innmind/neo4j-onm/issues"
     },
     "require": {
-        "php": "~7.1",
+        "php": "~7.2",
         "innmind/neo4j-dbal": "~4.0",
         "innmind/immutable": "~2.0",
         "symfony/config": "~3.0|~4.0",
