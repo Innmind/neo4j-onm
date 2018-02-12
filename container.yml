@@ -1,0 +1,191 @@
+arguments:
+    connection: Innmind\Neo4j\DBAL\Connection
+    metas: array # entities metadatas
+    eventBus: Innmind\EventBus\EventBusInterface ?? $nullEventBus
+    additionalTypes: '?set<string>'
+    repositories: '?map<Innmind\Neo4j\ONM\Metadata\Identity, Innmind\Neo4j\ONM\Repository>'
+    persister: Innmind\Neo4j\ONM\Persister ?? $persister.delegation
+    configuration: Symfony\Component\Config\Definition\ConfigurationInterface ?? $configuration
+    entityFactories: set<Innmind\Neo4j\ONM\EntityFactory> ?? $entityFactory.factories
+    resultTranslators: map<string, Innmind\Neo4j\ONM\Translation\EntityTranslator> ?? $translation.result.map
+    identityMatchTranslators: map<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator> ?? $translation.identityMatch.map
+    matchTranslators: map<string, Innmind\Neo4j\ONM\Translation\MatchTranslator> ?? $translation.match.map
+    specificationTranslators: map<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator> ?? $translation.specification.map
+    metadataFactories: map<string, Innmind\Neo4j\ONM\MetadataFactory> ?? $metadataFactory.map
+    dataExtractors: map<string, Innmind\Neo4j\ONM\Entity\DataExtractor> ?? $entity.dataExtractors.map
+    extractionStrategy: '?Innmind\Reflection\ExtractionStrategyInterface'
+    injectionStrategy: '?Innmind\Reflection\InjectionStrategyInterface'
+    instanciator: '?Innmind\Reflection\InstanciatorInterface'
+    additionalGenerators: '?map<string, Innmind\Neo4j\ONM\Identity\Generator>'
+
+expose:
+    manager: '$manager'
+    container: '$entity.container'
+
+services:
+    manager Innmind\Neo4j\ONM\Manager\Manager:
+        - '$unitOfWork'
+        - '$metadatas'
+        - '$repositoryFactory'
+        - '$identity.generators'
+
+    unitOfWork Innmind\Neo4j\ONM\UnitOfWork:
+        - '$connection'
+        - '$entity.container'
+        - '$entityFactory.factory'
+        - '$translation.identityMatch'
+        - '$metadatas'
+        - '$persister'
+        - '$identity.generators'
+
+    metadatas Innmind\Neo4j\ONM\Metadatas::build:
+        - '$metadataBuilder'
+        - '$metas'
+
+    repositoryFactory Innmind\Neo4j\ONM\RepositoryFactory:
+        - '$unitOfWork'
+        - '$translation.match'
+        - '$translation.specification'
+        - '$repositories'
+
+    metadataBuilder Innmind\Neo4j\ONM\MetadataBuilder:
+        - '$types'
+        - '$metadataFactories'
+        - '$configuration'
+
+    types Innmind\Neo4j\ONM\Types:
+        - '...$additionalTypes'
+
+    configuration Innmind\Neo4j\ONM\Configuration: []
+
+    nullEventBus Innmind\EventBus\NullEventBus: []
+
+    metadataFactory:
+        aggregate Innmind\Neo4j\ONM\MetadataFactory\AggregateFactory:
+            - '$types'
+
+        relationship Innmind\Neo4j\ONM\MetadataFactory\RelationshipFactory:
+            - '$types'
+
+        map map<string, Innmind\Neo4j\ONM\MetadataFactory>:
+            - '<aggregate, $metadataFactory.aggregate>'
+            - '<relationship, $metadataFactory.relationship>'
+
+    entity:
+        container Innmind\Neo4j\ONM\Entity\Container: []
+
+        changeset Innmind\Neo4j\ONM\Entity\ChangesetComputer: []
+
+        dataExtractor Innmind\Neo4j\ONM\Entity\DataExtractor\DataExtractor:
+            - '$metadatas'
+            - '$dataExtractors'
+
+        dataExtractors:
+            aggregate Innmind\Neo4j\ONM\Entity\DataExtractor\AggregateExtractor:
+                - '$extractionStrategy'
+
+            relationship Innmind\Neo4j\ONM\Entity\DataExtractor\RelationshipExtractor:
+                - '$extractionStrategy'
+
+            map map<string, Innmind\Neo4j\ONM\Entity\DataExtractor>:
+                - '<Innmind\Neo4j\ONM\Metadata\Aggregate, $entity.dataExtractors.aggregate>'
+                - '<Innmind\Neo4j\ONM\Metadata\Relationship, $entity.dataExtractors.relationship>'
+
+    entityFactory:
+        factory Innmind\Neo4j\ONM\EntityFactory\EntityFactory:
+            - '$translation.result'
+            - '$identity.generators'
+            - '$entityFactory.resolver'
+            - '$entity.container'
+
+        resolver Innmind\Neo4j\ONM\EntityFactory\Resolver:
+            - '...$entityFactories'
+
+        aggregate Innmind\Neo4j\ONM\EntityFactory\AggregateFactory:
+            - '$instanciator'
+            - '$injectionStrategy'
+
+        relationship Innmind\Neo4j\ONM\EntityFactory\RelationshipFactory:
+            - '$identity.generators'
+            - '$instanciator'
+            - '$injectionStrategy'
+
+        factories set<Innmind\Neo4j\ONM\EntityFactory>:
+            - $entityFactory.aggregate
+            - $entityFactory.relationship
+
+    translation:
+        result Innmind\Neo4j\ONM\Translation\ResultTranslator:
+            - '$resultTranslators'
+
+        result:
+            aggregate Innmind\Neo4j\ONM\Translation\Result\AggregateTranslator: []
+
+            relationship Innmind\Neo4j\ONM\Translation\Result\RelationshipTranslator: []
+
+            map map<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>:
+                - '<Innmind\Neo4j\ONM\Metadata\Aggregate, $translation.result.aggregate>'
+                - '<Innmind\Neo4j\ONM\Metadata\Relationship, $translation.result.relationship>'
+
+        identityMatch Innmind\Neo4j\ONM\Translation\IdentityMatch\DelegationTranslator:
+            - '$identityMatchTranslators'
+
+        identityMatch:
+            aggregate Innmind\Neo4j\ONM\Translation\IdentityMatch\AggregateTranslator: []
+
+            relationship Innmind\Neo4j\ONM\Translation\IdentityMatch\RelationshipTranslator: []
+
+            map map<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>:
+                - '<Innmind\Neo4j\ONM\Metadata\Aggregate, $translation.identityMatch.aggregate>'
+                - '<Innmind\Neo4j\ONM\Metadata\Relationship, $translation.identityMatch.relationship>'
+
+        match Innmind\Neo4j\ONM\Translation\Match\DelegationTranslator:
+            - '$matchTranslators'
+
+        match:
+            aggregate Innmind\Neo4j\ONM\Translation\Match\AggregateTranslator: []
+
+            relationship Innmind\Neo4j\ONM\Translation\Match\RelationshipTranslator: []
+
+            map map<string, Innmind\Neo4j\ONM\Translation\MatchTranslator>:
+                - <Innmind\Neo4j\ONM\Metadata\Aggregate, $translation.match.aggregate>
+                - <Innmind\Neo4j\ONM\Metadata\Relationship, $translation.match.relationship>
+
+        specification Innmind\Neo4j\ONM\Translation\Specification\DelegationTranslator:
+            - '$specificationTranslators'
+
+        specification:
+            aggregate Innmind\Neo4j\ONM\Translation\Specification\AggregateTranslator: []
+
+            relationship Innmind\Neo4j\ONM\Translation\Specification\RelationshipTranslator: []
+
+            map map<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>:
+                - '<Innmind\Neo4j\ONM\Metadata\Aggregate, $translation.specification.aggregate>'
+                - '<Innmind\Neo4j\ONM\Metadata\Relationship, $translation.specification.relationship>'
+
+    persister:
+        delegation Innmind\Neo4j\ONM\Persister\DelegationPersister:
+            - '$persister.insert'
+            - '$persister.update'
+            - '$persister.remove'
+
+        insert Innmind\Neo4j\ONM\Persister\InsertPersister:
+            - '$entity.changeset'
+            - '$eventBus'
+            - '$entity.dataExtractor'
+            - '$metadatas'
+
+        update Innmind\Neo4j\ONM\Persister\UpdatePersister:
+            - '$entity.changeset'
+            - '$eventBus'
+            - '$entity.dataExtractor'
+            - '$metadatas'
+
+        remove Innmind\Neo4j\ONM\Persister\RemovePersister:
+            - '$entity.changeset'
+            - '$eventBus'
+            - '$metadatas'
+
+    identity:
+        generators Innmind\Neo4j\ONM\Identity\Generators:
+            - '$additionalGenerators'
