@@ -39,12 +39,14 @@
     "require-dev": {
         "symfony/yaml": "~3.0|~4.0",
         "phpunit/phpunit": "~6.0",
-        "innmind/time-continuum": "^1.0"
+        "innmind/time-continuum": "^1.0",
+        "innmind/command-bus": "^2.1"
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors=always"
     },
     "suggest": {
-        "innmind/time-continuum": "To be able to use point_in_time type"
+        "innmind/time-continuum": "To be able to use point_in_time type",
+        "innmind/command-bus": "To dispatch entities domain events"
     }
 }
