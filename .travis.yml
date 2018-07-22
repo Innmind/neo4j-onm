@@ -2,6 +2,8 @@ language: php
 php:
     - 7.2
     - nightly
+allow_failures:
+    - php: nightly
 jdk:
     - oraclejdk7
 before_script:
