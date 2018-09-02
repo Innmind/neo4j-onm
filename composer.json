@@ -22,8 +22,7 @@
         "ramsey/uuid": "^3.2",
         "innmind/reflection": "~2.0",
         "innmind/specification": "^1.0",
-        "innmind/event-bus": "~2.0",
-        "innmind/compose": "^1.0"
+        "innmind/event-bus": "~2.0"
     },
     "autoload": {
         "psr-4": {
@@ -41,7 +40,8 @@
         "symfony/yaml": "~3.0|~4.0",
         "phpunit/phpunit": "~6.0",
         "innmind/time-continuum": "^1.0",
-        "innmind/command-bus": "^2.1"
+        "innmind/command-bus": "^2.1",
+        "innmind/compose": "^1.0"
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors=always"
