@@ -163,7 +163,7 @@ function bootstrap(
 
     return [
         'manager' => $manager,
-        'commandBus' => [
+        'command_bus' => [
             'clear_domain_events' => static function(CommandBusInterface $bus) use ($entityContainer): CommandBusInterface {
                 return new CommandBus\ClearDomainEvents($bus, $entityContainer);
             },

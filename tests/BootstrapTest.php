@@ -27,25 +27,25 @@ class BootstrapTest extends TestCase
 
         $this->assertInstanceOf(Manager::class, $services['manager']);
         $bus = $this->createMock(CommandBusInterface::class);
-        $this->assertInternalType('callable', $services['commandBus']['clear_domain_events']);
+        $this->assertInternalType('callable', $services['command_bus']['clear_domain_events']);
         $this->assertInstanceOf(
             ClearDomainEvents::class,
-            $services['commandBus']['clear_domain_events']($bus)
+            $services['command_bus']['clear_domain_events']($bus)
         );
-        $this->assertInternalType('callable', $services['commandBus']['dispatch_domain_events']);
+        $this->assertInternalType('callable', $services['command_bus']['dispatch_domain_events']);
         $this->assertInstanceOf(
             DispatchDomainEvents::class,
-            $services['commandBus']['dispatch_domain_events']($bus)
+            $services['command_bus']['dispatch_domain_events']($bus)
         );
-        $this->assertInternalType('callable', $services['commandBus']['flush']);
+        $this->assertInternalType('callable', $services['command_bus']['flush']);
         $this->assertInstanceOf(
             Flush::class,
-            $services['commandBus']['flush']($bus)
+            $services['command_bus']['flush']($bus)
         );
-        $this->assertInternalType('callable', $services['commandBus']['transaction']);
+        $this->assertInternalType('callable', $services['command_bus']['transaction']);
         $this->assertInstanceOf(
             Transaction::class,
-            $services['commandBus']['transaction']($bus)
+            $services['command_bus']['transaction']($bus)
         );
     }
 }
