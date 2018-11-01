@@ -8,7 +8,6 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Aggregate,
     Metadata\Relationship,
-    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -43,16 +42,10 @@ final class DataExtractor
     /**
      * Extract raw data from entity based on the defined mapping
      *
-     * @param object $entity
-     *
      * @return MapInterface<string, mixed>
      */
-    public function extract($entity): MapInterface
+    public function extract(object $entity): MapInterface
     {
-        if (!is_object($entity)) {
-            throw new InvalidArgumentException;
-        }
-
         $meta = $this->metadatas->get(get_class($entity));
 
         return $this

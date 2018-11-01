@@ -50,7 +50,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
             ) use (
                 &$query,
                 &$variables
-            ) {
+            ): void {
                 $relName = (new Str('entity_'))->append($property);
                 $childName = $relName
                     ->append('_')

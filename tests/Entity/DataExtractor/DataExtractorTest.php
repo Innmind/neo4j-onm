@@ -213,14 +213,6 @@ class DataExtractorTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
-    public function testThrowWhenInvalidEntity()
-    {
-        $this->extractor->extract('');
-    }
-
-    /**
      * @expectedException TypeError
      * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>
      */

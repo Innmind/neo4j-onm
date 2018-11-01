@@ -42,8 +42,8 @@ final class AggregateFactory implements EntityFactoryInterface
         Identity $identity,
         Entity $meta,
         MapInterface $data
-    ) {
-        if (!$meta instanceof Aggregate ) {
+    ): object {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 

@@ -51,7 +51,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Set(MapInterface::class),
-                function(Set $carry, Row $row) use ($meta, $result): Set {
+                function(SetInterface $carry, Row $row) use ($meta, $result): SetInterface {
                     return $carry->add($this->translateNode(
                         $row->value()[$meta->identity()->property()],
                         $meta,
@@ -98,7 +98,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                function(Map $carry, string $name, Property $property) use ($node): Map {
+                function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)
@@ -111,7 +111,7 @@ final class AggregateTranslator implements EntityTranslator
                 ->children()
                 ->reduce(
                     $data,
-                    function(Map $carry, string $name, ValueObject $meta) use ($node, $result): Map {
+                    function(MapInterface $carry, string $name, ValueObject $meta) use ($node, $result): MapInterface {
                         return $carry->put(
                             $name,
                             $this->translateChild($meta, $result, $node)
@@ -137,7 +137,7 @@ final class AggregateTranslator implements EntityTranslator
             ) use (
                 $node,
                 $relMeta
-            ) {
+            ): bool {
                 return (string) $relationship->type() === (string) $relMeta->type() &&
                     $relationship->endNode()->value() === $node->id()->value();
             })
@@ -174,7 +174,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                function(Map $carry, string $name, Property $property) use ($relationship): Map {
+                function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)
@@ -216,7 +216,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                function(Map $carry, string $name, Property $property) use ($node): Map {
+                function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)

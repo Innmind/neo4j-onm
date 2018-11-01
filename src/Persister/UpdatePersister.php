@@ -58,7 +58,7 @@ final class UpdatePersister implements Persister
         $entities = $container->state(State::managed());
         $changesets = $entities->reduce(
             new Map(Identity::class, MapInterface::class),
-            function(Map $carry, Identity $identity, $entity): Map {
+            function(MapInterface $carry, Identity $identity, object $entity): MapInterface {
                 $data = $this->extractor->extract($entity);
                 $changeset = $this->changeset->compute($identity, $data);
 
@@ -74,12 +74,7 @@ final class UpdatePersister implements Persister
             return;
         }
 
-        $changesets->foreach(function(
-            Identity $identity,
-            MapInterface $changeset
-        ) use (
-            $entities
-        ) {
+        $changesets->foreach(function(Identity $identity, MapInterface $changeset) use ($entities): void {
             ($this->dispatch)(
                 new EntityAboutToBeUpdated(
                     $identity,
@@ -91,12 +86,7 @@ final class UpdatePersister implements Persister
 
         $connection->execute($this->queryFor($changesets, $entities));
 
-        $changesets->foreach(function(
-            Identity $identity,
-            MapInterface $changeset
-        ) use (
-            $entities
-        ) {
+        $changesets->foreach(function(Identity $identity, MapInterface $changeset) use ($entities): void {
             $entity = $entities->get($identity);
             $this->changeset->use(
                 $identity,
@@ -165,17 +155,11 @@ final class UpdatePersister implements Persister
     /**
      * Add match clause to match all parts of the aggregate that needs to be updated
      *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Aggregate $meta
      * @param MapInterface<string, mixed> $changeset
-     * @param Query $query
-     *
-     * @return Query
      */
     private function matchAggregate(
         Identity $identity,
-        $entity,
+        object $entity,
         Aggregate $meta,
         MapInterface $changeset,
         Query $query
@@ -256,17 +240,11 @@ final class UpdatePersister implements Persister
     /**
      * Add the match clause for a relationship
      *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Relationship $meta
      * @param MapInterface<string, mixed> $changeset
-     * @param Query $query
-     *
-     * @return Query
      */
     private function matchRelationship(
         Identity $identity,
-        $entity,
+        object $entity,
         Relationship $meta,
         MapInterface $changeset,
         Query $query

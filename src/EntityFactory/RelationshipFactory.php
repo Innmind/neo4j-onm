@@ -42,8 +42,8 @@ final class RelationshipFactory implements EntityFactoryInterface
         Identity $identity,
         Entity $meta,
         MapInterface $data
-    ) {
-        if (!$meta instanceof Relationship ) {
+    ): object {
+        if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 

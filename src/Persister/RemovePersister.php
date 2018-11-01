@@ -54,7 +54,7 @@ final class RemovePersister implements Persister
     {
         $entities = $container
             ->state(State::toBeRemoved())
-            ->foreach(function(Identity $identity, $object) {
+            ->foreach(function(Identity $identity, object $object): void {
                 ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
             });
 
@@ -64,12 +64,7 @@ final class RemovePersister implements Persister
 
         $connection->execute($this->queryFor($entities));
 
-        $entities->foreach(function(
-            Identity $identity,
-            $object
-        ) use (
-            $container
-        ) {
+        $entities->foreach(function(Identity $identity, object $object) use ($container): void {
             $container->push($identity, $object, State::removed());
             $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
             ($this->dispatch)(new EntityRemoved($identity, $object));
@@ -85,10 +80,7 @@ final class RemovePersister implements Persister
     {
         $query = new Query\Query;
         $this->variables = new Stream('string');
-        $partitions = $entities->partition(function(
-            Identity $identity,
-            $entity
-        ) {
+        $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = $this->metadatas->get(get_class($entity));
 
             return $meta instanceof Relationship;
@@ -98,7 +90,7 @@ final class RemovePersister implements Persister
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchRelationship($identity, $entity, $carry);
                 }
             );
@@ -106,7 +98,7 @@ final class RemovePersister implements Persister
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchAggregate($identity, $entity, $carry);
                 }
             );
@@ -125,16 +117,10 @@ final class RemovePersister implements Persister
 
     /**
      * Add clause to match the relationship we want to delete
-     *
-     * @param Identity $identity
-     * @param $object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function matchRelationship(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
         $meta = $this->metadatas->get(get_class($entity));
@@ -162,16 +148,10 @@ final class RemovePersister implements Persister
 
     /**
      * Add clause to match the node we want to delete and all of its children
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function matchAggregate(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
         $meta = $this->metadatas->get(get_class($entity));

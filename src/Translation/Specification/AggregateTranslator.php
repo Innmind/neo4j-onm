@@ -58,7 +58,7 @@ final class AggregateTranslator implements SpecificationTranslator
                     &$query,
                     $mapping,
                     &$variables
-                ) {
+                ): void {
                     $relName = (new Str('entity_'))->append($property);
                     $childName = $relName
                         ->append('_')
@@ -104,7 +104,7 @@ final class AggregateTranslator implements SpecificationTranslator
                 ) use (
                     &$query,
                     &$variables
-                ) {
+                ): void {
                     $relName = (new Str('entity_'))->append($property);
                     $childName = $relName
                         ->append('_')

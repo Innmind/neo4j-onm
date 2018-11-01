@@ -32,9 +32,9 @@ final class AggregateExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, Entity $meta): MapInterface
+    public function extract(object $entity, Entity $meta): MapInterface
     {
-        if (!is_object($entity) || !$meta instanceof Aggregate) {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
@@ -66,13 +66,11 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @param object $entity
-     *
      * @return MapInterface<string, mixed>
      */
     private function extractRelationship(
         ValueObject $child,
-        $entity
+        object $entity
     ): MapInterface {
         $rel = $this
             ->reflection($entity)
@@ -98,13 +96,12 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @param object $object
      * @param MapInterface<string, Property> $properties
      *
      * @return MapInterface<string, mixed>
      */
     private function extractProperties(
-        $object,
+        object $object,
         MapInterface $properties
     ): MapInterface {
         $refl = $this->reflection($object);
@@ -124,10 +121,7 @@ final class AggregateExtractor implements DataExtractorInterface
         );
     }
 
-    /**
-     * @param object $object
-     */
-    private function reflection($object): ReflectionObject
+    private function reflection(object $object): ReflectionObject
     {
         return new ReflectionObject(
             $object,

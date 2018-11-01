@@ -172,17 +172,6 @@ class AggregateExtractorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
-    public function testThrowWhenExtractingInvalidEntity()
-    {
-        $this->extractor->extract(
-            '',
-            $this->meta
-        );
-    }
-
     public function extractionStrategies(): array
     {
         return [

@@ -64,18 +64,13 @@ final class InsertPersister implements Persister
             return;
         }
 
-        $entities->foreach(function(Identity $identity, $entity) {
+        $entities->foreach(function(Identity $identity, $entity): void {
             ($this->dispatch)(new EntityAboutToBePersisted($identity, $entity));
         });
 
         $connection->execute($this->queryFor($entities));
 
-        $entities->foreach(function(
-            Identity $identity,
-            $entity
-        ) use (
-            $container
-        ) {
+        $entities->foreach(function(Identity $identity, object $entity) use ($container): void {
             $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
@@ -95,10 +90,7 @@ final class InsertPersister implements Persister
         $query = new Query\Query;
         $this->variables = new Stream('string');
 
-        $partitions = $entities->partition(function(
-            Identity $identity,
-            $entity
-        ) {
+        $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = $this->metadatas->get(get_class($entity));
 
             return $meta instanceof Aggregate;
@@ -107,7 +99,7 @@ final class InsertPersister implements Persister
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createAggregate($identity, $entity, $carry);
                 }
             );
@@ -115,7 +107,7 @@ final class InsertPersister implements Persister
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createRelationship($identity, $entity, $carry);
                 }
             );
@@ -126,16 +118,10 @@ final class InsertPersister implements Persister
 
     /**
      * Add the cypher clause to create the node corresponding to the root of the aggregate
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function createAggregate(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
         $meta = $this->metadatas->get(get_class($entity));
@@ -211,12 +197,7 @@ final class InsertPersister implements Persister
      * Add the cypher clause to build the relationship and the node corresponding
      * to a child of the aggregate
      *
-     * @param ValueObject $meta
-     * @param Str $nodeName
      * @param MapInterface<string, mixed> $data
-     * @param Query $query
-     *
-     * @return Query
      */
     private function createAggregateChild(
         ValueObject $meta,
@@ -304,7 +285,6 @@ final class InsertPersister implements Persister
      * Build the collection of properties to be injected in the query
      *
      * @param MapInterface<string, Property> $properties
-     * @param Str $name
      *
      * @return MapInterface<string, string>
      */
@@ -316,7 +296,7 @@ final class InsertPersister implements Persister
 
         return $properties->reduce(
             new Map('string', 'string'),
-            function(Map $carry, string $property) use ($name): Map {
+            function(MapInterface $carry, string $property) use ($name): MapInterface {
                 return $carry->put(
                     $property,
                     (string) $name->append($property)
@@ -327,16 +307,10 @@ final class InsertPersister implements Persister
 
     /**
      * Add the clause to create a relationship between nodes
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query $query
-     *
-     * @return Query
      */
     private function createRelationship(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
         $meta = $this->metadatas->get(get_class($entity));
@@ -407,12 +381,7 @@ final class InsertPersister implements Persister
      * Add the clause to match the target node in case it's node that is not
      * persisted via the current query
      *
-     * @param Str $name
-     * @param RelationshipEdge $meta
      * @param mixed $value
-     * @param Query $query
-     *
-     * @return Query
      */
     private function matchEdge(
         Str $name,

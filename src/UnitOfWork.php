@@ -60,10 +60,8 @@ final class UnitOfWork
 
     /**
      * Add the given entity to the ones to be persisted
-     *
-     * @param object $entity
      */
-    public function persist($entity): self
+    public function persist(object $entity): self
     {
         $identity = $this->extractIdentity($entity);
 
@@ -103,10 +101,8 @@ final class UnitOfWork
      * Return the entity with the given identifier
      *
      * @throws EntityNotFound
-     *
-     * @return object
      */
-    public function get(string $class, Identity $identity)
+    public function get(string $class, Identity $identity): object
     {
         $meta = $this->metadatas->get($class);
         $generator = $this
@@ -138,10 +134,8 @@ final class UnitOfWork
 
     /**
      * Plan the given entity to be removed
-     *
-     * @param object $entity
      */
-    public function remove($entity): self
+    public function remove(object $entity): self
     {
         $identity = $this->extractIdentity($entity);
 
@@ -174,10 +168,8 @@ final class UnitOfWork
 
     /**
      * Detach the given entity from the unit of work
-     *
-     * @param object $entity
      */
-    public function detach($entity): self
+    public function detach(object $entity): self
     {
         $this->container->detach(
             $this->extractIdentity($entity)
@@ -215,10 +207,8 @@ final class UnitOfWork
 
     /**
      * Extract the identity object from the given entity
-     *
-     * @param object $entity
      */
-    private function extractIdentity($entity): Identity
+    private function extractIdentity(object $entity): Identity
     {
         $identity = $this
             ->metadatas

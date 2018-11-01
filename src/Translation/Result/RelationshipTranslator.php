@@ -48,7 +48,7 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 new Set(MapInterface::class),
-                function(Set $carry, Row $row) use ($meta, $result): Set {
+                function(SetInterface $carry, Row $row) use ($meta, $result): SetInterface {
                     return $carry->add(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
@@ -67,7 +67,7 @@ final class RelationshipTranslator implements EntityTranslator
     ): MapInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(int $id, DBALRelationship $relationship) use ($identity, $meta) {
+            ->filter(function(int $id, DBALRelationship $relationship) use ($identity, $meta): bool {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 
@@ -113,7 +113,7 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                function(Map $carry, string $name, Property $property) use ($relationship): Map {
+                function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)

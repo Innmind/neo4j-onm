@@ -3,20 +3,14 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Event;
 
-use Innmind\Neo4j\ONM\{
-    Identity,
-    Exception\InvalidArgumentException
-};
+use Innmind\Neo4j\ONM\Identity;
 
 final class EntityPersisted
 {
     private $identity;
     private $entity;
 
-    /**
-     * @param object $entity
-     */
-    public function __construct(Identity $identity, $entity)
+    public function __construct(Identity $identity, object $entity)
     {
         if (!is_object($entity)) {
             throw new InvalidArgumentException;
@@ -31,10 +25,7 @@ final class EntityPersisted
         return $this->identity;
     }
 
-    /**
-     * @return object
-     */
-    public function entity()
+    public function entity(): object
     {
         return $this->entity;
     }

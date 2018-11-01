@@ -10,10 +10,8 @@ interface Repository
 {
     /**
      * Add a new entity to the repository
-     *
-     * @param object $entity
      */
-    public function add($entity): self;
+    public function add(object $entity): self;
 
     /**
      * Check if the repository has an entity with the given id
@@ -24,24 +22,18 @@ interface Repository
      * Return the entity with the given id
      *
      * @throws EntityNotFoundException
-     *
-     * @return object
      */
-    public function get(Identity $identity);
+    public function get(Identity $identity): object;
 
     /**
      * Try to find the entity with the given id
-     *
-     * @return object|null
      */
-    public function find(Identity $identity);
+    public function find(Identity $identity): ?object;
 
     /**
      * Remove the given entity from the repository
-     *
-     * @param object $entity
      */
-    public function remove($entity): self;
+    public function remove(object $entity): self;
 
     /**
      * Return all the entities from the repository

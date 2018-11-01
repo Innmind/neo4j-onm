@@ -45,7 +45,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function add($entity): RepositoryInterface
+    public function add(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->persist($entity);
 
@@ -73,7 +73,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get(Identity $identity)
+    public function get(Identity $identity): object
     {
         $entity = $this->unitOfWork()->get(
             (string) $this->metadata()->class(),
@@ -91,7 +91,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function find(Identity $identity)
+    public function find(Identity $identity): ?object
     {
         try {
             return $this->get($identity);
@@ -103,7 +103,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($entity): RepositoryInterface
+    public function remove(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->remove($entity);
 

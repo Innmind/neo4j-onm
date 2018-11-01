@@ -41,10 +41,8 @@ final class Container
 
     /**
      * Inject the given entity with the wished state
-     *
-     * @param object $entity
      */
-    public function push(Identity $identity, $entity, State $wished): self
+    public function push(Identity $identity, object $entity, State $wished): self
     {
         if (!$this->states->contains($wished)) {
             throw new DomainException;
@@ -115,10 +113,8 @@ final class Container
      * Return the entity with the given identity
      *
      * @throws IdentityNotManaged
-     *
-     * @return object
      */
-    public function get(Identity $identity)
+    public function get(Identity $identity): object
     {
         return $this
             ->states

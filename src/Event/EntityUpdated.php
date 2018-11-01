@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Event;
 
-use Innmind\Neo4j\ONM\{
-    Identity,
-    Exception\InvalidArgumentException
-};
+use Innmind\Neo4j\ONM\Identity;
 use Innmind\Immutable\MapInterface;
 
 final class EntityUpdated
@@ -15,18 +12,11 @@ final class EntityUpdated
     private $entity;
     private $changeset;
 
-    /**
-     * @param object $entity
-     */
     public function __construct(
         Identity $identity,
-        $entity,
+        object $entity,
         MapInterface $changeset
     ) {
-        if (!is_object($entity)) {
-            throw new InvalidArgumentException;
-        }
-
         $this->identity = $identity;
         $this->entity = $entity;
         $this->changeset = $changeset;
@@ -37,10 +27,7 @@ final class EntityUpdated
         return $this->identity;
     }
 
-    /**
-     * @return object
-     */
-    public function entity()
+    public function entity(): object
     {
         return $this->entity;
     }
