@@ -63,24 +63,24 @@ function bootstrap(
     $types = new Types(...($additionalTypes ?? []));
 
     $configuration = $configuration ?? new Configuration;
-    $resultTranslators = $resultTranslators ?? (new Map('string', Translation\EntityTranslator::class))
-        ->put(Aggregate::class, new Translation\Result\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Result\RelationshipTranslator);
-    $identityMatchTranslators = $identityMatchTranslators ?? (new Map('string', Translation\IdentityMatchTranslator::class))
-        ->put(Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
-        ->put(Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
-    $matchTranslators = $matchTranslators ?? (new Map('string', Translation\MatchTranslator::class))
-        ->put(Aggregate::class, new Translation\Match\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Match\RelationshipTranslator);
-    $specificationTranslators = $specificationTranslators ?? (new Map('string', Translation\SpecificationTranslator::class))
-        ->put(Aggregate::class, new Translation\Specification\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Specification\RelationshipTranslator);
-    $metadataFactories = $metadataFactories ?? (new Map('string', MetadataFactory::class))
-        ->put('aggregate', new MetadataFactory\AggregateFactory($types))
-        ->put('relationship', new MetadataFactory\RelationshipFactory($types));
-    $dataExtractors = $dataExtractors ?? (new Map('string', Entity\DataExtractor::class))
-        ->put(Aggregate::class, new Entity\DataExtractor\AggregateExtractor($extractionStrategy))
-        ->put(Relationship::class, new Entity\DataExtractor\RelationshipExtractor($extractionStrategy));
+    $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
+        (Aggregate::class, new Translation\Result\AggregateTranslator)
+        (Relationship::class, new Translation\Result\RelationshipTranslator);
+    $identityMatchTranslators = $identityMatchTranslators ?? Map::of('string', Translation\IdentityMatchTranslator::class)
+        (Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
+        (Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
+    $matchTranslators = $matchTranslators ?? Map::of('string', Translation\MatchTranslator::class)
+        (Aggregate::class, new Translation\Match\AggregateTranslator)
+        (Relationship::class, new Translation\Match\RelationshipTranslator);
+    $specificationTranslators = $specificationTranslators ?? Map::of('string', Translation\SpecificationTranslator::class)
+        (Aggregate::class, new Translation\Specification\AggregateTranslator)
+        (Relationship::class, new Translation\Specification\RelationshipTranslator);
+    $metadataFactories = $metadataFactories ?? Map::of('string', MetadataFactory::class)
+        ('aggregate', new MetadataFactory\AggregateFactory($types))
+        ('relationship', new MetadataFactory\RelationshipFactory($types));
+    $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
+        (Aggregate::class, new Entity\DataExtractor\AggregateExtractor($extractionStrategy))
+        (Relationship::class, new Entity\DataExtractor\RelationshipExtractor($extractionStrategy));
 
     $identityGenerators = new Identity\Generators($additionalGenerators);
 
