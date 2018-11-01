@@ -23,7 +23,7 @@ use Innmind\Neo4j\DBAL\{
     Query,
     Clause\Expression\Relationship as DBALRelationship
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
     Str,
     MapInterface,
@@ -34,7 +34,7 @@ use Innmind\Immutable\{
 final class InsertPersister implements Persister
 {
     private $changeset;
-    private $eventBus;
+    private $dispatch;
     private $extractor;
     private $metadatas;
     private $name;
@@ -42,12 +42,12 @@ final class InsertPersister implements Persister
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventBusInterface $eventBus,
+        EventBus $dispatch,
         DataExtractor $extractor,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->eventBus = $eventBus;
+        $this->dispatch = $dispatch;
         $this->extractor = $extractor;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
@@ -65,9 +65,7 @@ final class InsertPersister implements Persister
         }
 
         $entities->foreach(function(Identity $identity, $entity) {
-            $this->eventBus->dispatch(
-                new EntityAboutToBePersisted($identity, $entity)
-            );
+            ($this->dispatch)(new EntityAboutToBePersisted($identity, $entity));
         });
 
         $connection->execute($this->queryFor($entities));
@@ -83,9 +81,7 @@ final class InsertPersister implements Persister
                 $identity,
                 $this->extractor->extract($entity)
             );
-            $this->eventBus->dispatch(
-                new EntityPersisted($identity, $entity)
-            );
+            ($this->dispatch)(new EntityPersisted($identity, $entity));
         });
     }
 

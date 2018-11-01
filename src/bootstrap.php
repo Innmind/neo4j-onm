@@ -9,14 +9,14 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\{
-    EventBusInterface,
-    NullEventBus,
+    EventBus,
+    EventBus\NullEventBus,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus as CommandBusInterface;
 use Innmind\Reflection\{
-    ExtractionStrategyInterface,
-    InjectionStrategyInterface,
-    InstanciatorInterface,
+    ExtractionStrategy,
+    InjectionStrategy,
+    Instanciator,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -40,13 +40,13 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 function bootstrap(
     Connection $connection,
-    array $metas,
+    array $metas, // to be replaced by a set<PathInterface>
     SetInterface $additionalTypes = null,
     MapInterface $additionalGenerators = null,
-    ExtractionStrategyInterface $extractionStrategy = null,
-    InjectionStrategyInterface $injectionStrategy = null,
-    InstanciatorInterface $instanciator = null,
-    EventBusInterface $eventBus = null,
+    ExtractionStrategy $extractionStrategy = null,
+    InjectionStrategy $injectionStrategy = null,
+    Instanciator $instanciator = null,
+    EventBus $eventBus = null,
     MapInterface $repositories = null,
     Persister $persister = null,
     ConfigurationInterface $configuration = null,

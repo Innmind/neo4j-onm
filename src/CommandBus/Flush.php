@@ -4,24 +4,22 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\CommandBus;
 
 use Innmind\Neo4j\ONM\Manager;
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 
-final class Flush implements CommandBusInterface
+final class Flush implements CommandBus
 {
-    private $commandBus;
+    private $handle;
     private $manager;
 
-    public function __construct(
-        CommandBusInterface $commandBus,
-        Manager $manager
-    ) {
-        $this->commandBus = $commandBus;
+    public function __construct(CommandBus $handle, Manager $manager)
+    {
+        $this->handle = $handle;
         $this->manager = $manager;
     }
 
-    public function handle($command)
+    public function __invoke(object $command): void
     {
-        $this->commandBus->handle($command);
+        ($this->handle)($command);
         $this->manager->flush();
     }
 }

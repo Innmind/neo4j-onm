@@ -23,8 +23,8 @@ use Innmind\Neo4j\ONM\{
     EntityFactory
 };
 use Innmind\Reflection\{
-    InstanciatorInterface,
-    InjectionStrategyInterface
+    Instanciator,
+    InjectionStrategy
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -192,11 +192,24 @@ class AggregateFactoryTest extends TestCase
 
     public function reflection(): array
     {
+        $injection = $this->createMock(InjectionStrategy::class);
+        $return = null;
+        $injection
+            ->method('inject')
+            ->with($this->callback(static function($object) use (&$return) {
+                $return = $object;
+
+                return true;
+            }))
+            ->will($this->returnCallback(static function() use (&$return) {
+                return $return;
+            }));
+
         return [
             [null, null],
             [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
+                new class implements Instanciator {
+                    public function build(string $class, MapInterface $properties): object
                     {
                         return new $class;
                     }
@@ -209,8 +222,8 @@ class AggregateFactoryTest extends TestCase
                 null,
             ],
             [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
+                new class implements Instanciator {
+                    public function build(string $class, MapInterface $properties): object
                     {
                         $object = new $class;
                         $properties->foreach(function($name, $value) use ($object) {
@@ -225,7 +238,7 @@ class AggregateFactoryTest extends TestCase
                         return new Set('string');
                     }
                 },
-                $this->createMock(InjectionStrategyInterface::class)
+                $injection
             ],
         ];
     }

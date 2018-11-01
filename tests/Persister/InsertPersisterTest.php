@@ -34,7 +34,7 @@ use Innmind\Neo4j\DBAL\{
     Result,
     Query\Parameter
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -138,7 +138,7 @@ class InsertPersisterTest extends TestCase
             Persister::class,
             new InsertPersister(
                 new ChangesetComputer,
-                $this->createMock(EventBusInterface::class),
+                $this->createMock(EventBus::class),
                 new DataExtractor($this->metadatas),
                 $this->metadatas
             )
@@ -149,7 +149,7 @@ class InsertPersisterTest extends TestCase
     {
         $persist = new InsertPersister(
             new ChangesetComputer,
-            $bus = $this->createMock(EventBusInterface::class),
+            $bus = $this->createMock(EventBus::class),
             new DataExtractor($this->metadatas),
             $this->metadatas
         );
@@ -231,28 +231,28 @@ class InsertPersisterTest extends TestCase
             }));
         $bus
             ->expects($this->at(0))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBePersisted $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(1))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBePersisted $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;
             }));
         $bus
             ->expects($this->at(2))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityPersisted $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(3))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityPersisted $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;

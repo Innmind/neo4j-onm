@@ -17,14 +17,14 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategyInterface
+    ExtractionStrategy
 };
 
 final class AggregateExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
+    public function __construct(ExtractionStrategy $extractionStrategy = null)
     {
         $this->extractionStrategy = $extractionStrategy;
     }
@@ -44,7 +44,7 @@ final class AggregateExtractor implements DataExtractorInterface
                 $id = $meta->identity()->property(),
                 $this
                     ->reflection($entity)
-                    ->extract([$id])
+                    ->extract($id)
                     ->get($id)
                     ->value()
             );
@@ -76,9 +76,7 @@ final class AggregateExtractor implements DataExtractorInterface
     ): MapInterface {
         $rel = $this
             ->reflection($entity)
-            ->extract([
-                $prop = $child->relationship()->property()
-            ])
+            ->extract($prop = $child->relationship()->property())
             ->get($prop);
         $data = $this
             ->extractProperties(
@@ -90,7 +88,7 @@ final class AggregateExtractor implements DataExtractorInterface
                 $this->extractProperties(
                     $this
                         ->reflection($rel)
-                        ->extract([$prop])
+                        ->extract($prop)
                         ->get($prop),
                     $child->properties()
                 )
@@ -119,7 +117,7 @@ final class AggregateExtractor implements DataExtractorInterface
                     $property
                         ->type()
                         ->forDatabase(
-                            $refl->extract([$name])->get($name)
+                            $refl->extract($name)->get($name)
                         )
                 );
             }

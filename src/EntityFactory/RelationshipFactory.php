@@ -15,8 +15,8 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionClass,
-    InstanciatorInterface,
-    InjectionStrategyInterface
+    Instanciator,
+    InjectionStrategy
 };
 
 final class RelationshipFactory implements EntityFactoryInterface
@@ -27,8 +27,8 @@ final class RelationshipFactory implements EntityFactoryInterface
 
     public function __construct(
         Generators $generators,
-        InstanciatorInterface $instanciator = null,
-        InjectionStrategyInterface $injectionStrategy = null
+        Instanciator $instanciator = null,
+        InjectionStrategy $injectionStrategy = null
     ) {
         $this->generators = $generators;
         $this->instanciator = $instanciator;

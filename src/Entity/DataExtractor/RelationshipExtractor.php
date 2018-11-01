@@ -13,14 +13,14 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategyInterface
+    ExtractionStrategy
 };
 
 final class RelationshipExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
+    public function __construct(ExtractionStrategy $extractionStrategy = null)
     {
         $this->extractionStrategy = $extractionStrategy;
     }
@@ -40,11 +40,11 @@ final class RelationshipExtractor implements DataExtractorInterface
             null,
             $this->extractionStrategy
         );
-        $data = $refl->extract([
+        $data = $refl->extract(
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),
-            $end = $meta->endNode()->property(),
-        ]);
+            $end = $meta->endNode()->property()
+        );
         $data = $data
             ->put(
                 $id,
@@ -69,7 +69,7 @@ final class RelationshipExtractor implements DataExtractorInterface
                         $property
                             ->type()
                             ->forDatabase(
-                                $refl->extract([$name])->get($name)
+                                $refl->extract($name)->get($name)
                             )
                     );
                 }

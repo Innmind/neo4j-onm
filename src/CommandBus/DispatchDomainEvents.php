@@ -8,32 +8,32 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Identity,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use Innmind\EventBus\{
-    EventBusInterface,
-    ContainsRecordedEventsInterface,
+    EventBus,
+    ContainsRecordedEvents,
 };
 use Innmind\Immutable\Stream;
 
-final class DispatchDomainEvents implements CommandBusInterface
+final class DispatchDomainEvents implements CommandBus
 {
-    private $commandBus;
-    private $eventBus;
+    private $handle;
+    private $dispatch;
     private $entities;
 
     public function __construct(
-        CommandBusInterface $commandBus,
-        EventBusInterface $eventBus,
+        CommandBus $handle,
+        EventBus $dispatch,
         Container $entities
     ) {
-        $this->commandBus = $commandBus;
-        $this->eventBus = $eventBus;
+        $this->handle = $handle;
+        $this->dispatch = $dispatch;
         $this->entities = $entities;
     }
 
-    public function handle($command)
+    public function __invoke(object $command): void
     {
-        $this->commandBus->handle($command);
+        ($this->handle)($command);
         $this
             ->entities
             ->state(State::new())
@@ -41,20 +41,20 @@ final class DispatchDomainEvents implements CommandBusInterface
             ->merge($this->entities->state(State::toBeRemoved()))
             ->merge($this->entities->state(State::removed()))
             ->filter(function(Identity $identity, $entity): bool {
-                return $entity instanceof ContainsRecordedEventsInterface;
+                return $entity instanceof ContainsRecordedEvents;
             })
             ->reduce(
                 new Stream('object'),
                 function(
                     Stream $carry,
                     Identity $identity,
-                    ContainsRecordedEventsInterface $entity
+                    ContainsRecordedEvents $entity
                 ): Stream {
                     return $carry->append($entity->recordedEvents());
                 }
             )
             ->foreach(function($event): void {
-                $this->eventBus->dispatch($event);
+                ($this->dispatch)($event);
             });
     }
 }

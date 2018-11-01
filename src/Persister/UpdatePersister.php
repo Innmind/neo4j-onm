@@ -21,7 +21,7 @@ use Innmind\Neo4j\DBAL\{
     Connection,
     Query
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
     Str,
     Map,
@@ -31,7 +31,7 @@ use Innmind\Immutable\{
 final class UpdatePersister implements Persister
 {
     private $changeset;
-    private $eventBus;
+    private $dispatch;
     private $extractor;
     private $metadatas;
     private $name;
@@ -39,12 +39,12 @@ final class UpdatePersister implements Persister
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventBusInterface $eventBus,
+        EventBus $dispatch,
         DataExtractor $extractor,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->eventBus = $eventBus;
+        $this->dispatch = $dispatch;
         $this->extractor = $extractor;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
@@ -80,7 +80,7 @@ final class UpdatePersister implements Persister
         ) use (
             $entities
         ) {
-            $this->eventBus->dispatch(
+            ($this->dispatch)(
                 new EntityAboutToBeUpdated(
                     $identity,
                     $entities->get($identity),
@@ -102,7 +102,7 @@ final class UpdatePersister implements Persister
                 $identity,
                 $this->extractor->extract($entity)
             );
-            $this->eventBus->dispatch(
+            ($this->dispatch)(
                 new EntityUpdated(
                     $identity,
                     $entity,

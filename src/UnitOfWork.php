@@ -227,7 +227,7 @@ final class UnitOfWork
             ->property();
 
         return (new ReflectionObject($entity))
-            ->extract([$identity])
+            ->extract($identity)
             ->get($identity);
     }
 }

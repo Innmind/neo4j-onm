@@ -9,9 +9,9 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Identity,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use Innmind\EventBus\{
-    ContainsRecordedEventsInterface,
+    ContainsRecordedEvents,
     EventRecorder,
 };
 use PHPUnit\Framework\TestCase;
@@ -21,9 +21,9 @@ class ClearDomainEventsTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            CommandBusInterface::class,
+            CommandBus::class,
             new ClearDomainEvents(
-                $this->createMock(CommandBusInterface::class),
+                $this->createMock(CommandBus::class),
                 new Container
             )
         );
@@ -32,10 +32,10 @@ class ClearDomainEventsTest extends TestCase
     public function testHandle()
     {
         $command = new \stdClass;
-        $commandBus = $this->createMock(CommandBusInterface::class);
+        $commandBus = $this->createMock(CommandBus::class);
         $commandBus
             ->expects($this->once())
-            ->method('handle')
+            ->method('__invoke')
             ->with($command);
         $container = new Container;
         $container
@@ -46,7 +46,7 @@ class ClearDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                $entity1 = new class implements ContainsRecordedEventsInterface {
+                $entity1 = new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -63,7 +63,7 @@ class ClearDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                $entity2 = new class implements ContainsRecordedEventsInterface {
+                $entity2 = new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -80,7 +80,7 @@ class ClearDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                $entity3 = new class implements ContainsRecordedEventsInterface {
+                $entity3 = new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -97,7 +97,7 @@ class ClearDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                $entity4 = new class implements ContainsRecordedEventsInterface {
+                $entity4 = new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -107,9 +107,9 @@ class ClearDomainEventsTest extends TestCase
                 },
                 State::removed()
             );
-        $bus = new ClearDomainEvents($commandBus, $container);
+        $handle = new ClearDomainEvents($commandBus, $container);
 
-        $this->assertNull($bus->handle($command));
+        $this->assertNull($handle($command));
         $this->assertCount(0, $entity1->recordedEvents());
         $this->assertCount(0, $entity2->recordedEvents());
         $this->assertCount(0, $entity3->recordedEvents());

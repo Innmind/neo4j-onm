@@ -18,8 +18,8 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\{
     ReflectionClass,
-    InstanciatorInterface,
-    InjectionStrategyInterface
+    Instanciator,
+    InjectionStrategy
 };
 
 final class AggregateFactory implements EntityFactoryInterface
@@ -28,8 +28,8 @@ final class AggregateFactory implements EntityFactoryInterface
     private $injectionStrategy;
 
     public function __construct(
-        InstanciatorInterface $instanciator = null,
-        InjectionStrategyInterface $injectionStrategy = null
+        Instanciator $instanciator = null,
+        InjectionStrategy $injectionStrategy = null
     ) {
         $this->instanciator = $instanciator;
         $this->injectionStrategy = $injectionStrategy;

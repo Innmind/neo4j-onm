@@ -37,7 +37,7 @@ use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
     Query\Query
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
@@ -100,7 +100,7 @@ class UnitOfWorkTest extends TestCase
         );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($this->metadatas);
-        $eventBus = $this->createMock(EventBusInterface::class);
+        $eventBus = $this->createMock(EventBus::class);
 
         $this->uow = new UnitOfWork(
             $this->conn,

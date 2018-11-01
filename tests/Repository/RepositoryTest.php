@@ -39,7 +39,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
@@ -104,7 +104,7 @@ class RepositoryTest extends TestCase
         );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($metadatas);
-        $eventBus = $this->createMock(EventBusInterface::class);
+        $eventBus = $this->createMock(EventBus::class);
 
         $uow = new UnitOfWork(
             $conn,

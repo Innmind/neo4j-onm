@@ -25,8 +25,8 @@ use Innmind\Neo4j\ONM\{
     EntityFactory
 };
 use Innmind\Reflection\{
-    InstanciatorInterface,
-    InjectionStrategyInterface,
+    Instanciator,
+    InjectionStrategy,
     InjectionStrategy\DelegationStrategy
 };
 use Innmind\Immutable\{
@@ -153,8 +153,8 @@ class RelationshipFactoryTest extends TestCase
         return [
             [null, null],
             [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
+                new class implements Instanciator {
+                    public function build(string $class, MapInterface $properties): object
                     {
                         return new $class;
                     }
@@ -167,8 +167,8 @@ class RelationshipFactoryTest extends TestCase
                 null,
             ],
             [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
+                new class implements Instanciator {
+                    public function build(string $class, MapInterface $properties): object
                     {
                         $object = new $class;
                         $properties->foreach(function($name, $value) use ($object) {
@@ -187,9 +187,7 @@ class RelationshipFactoryTest extends TestCase
                             ->add('end');
                     }
                 },
-                new DelegationStrategy(
-                    new Stream(InjectionStrategyInterface::class)
-                ),
+                new DelegationStrategy,
             ],
         ];
     }

@@ -4,26 +4,24 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\CommandBus;
 
 use Innmind\Neo4j\ONM\Manager;
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 
-final class Transaction implements CommandBusInterface
+final class Transaction implements CommandBus
 {
-    private $commandBus;
+    private $handle;
     private $connection;
 
-    public function __construct(
-        CommandBusInterface $commandBus,
-        Manager $manager
-    ) {
-        $this->commandBus = $commandBus;
+    public function __construct(CommandBus $handle, Manager $manager)
+    {
+        $this->handle = $handle;
         $this->connection = $manager->connection();
     }
 
-    public function handle($command)
+    public function __invoke(object $command): void
     {
         try {
             $this->connection->openTransaction();
-            $this->commandBus->handle($command);
+            ($this->handle)($command);
             $this->connection->commit();
         } catch (\Throwable $e) {
             $this->connection->rollback();

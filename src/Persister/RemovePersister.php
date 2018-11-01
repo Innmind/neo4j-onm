@@ -20,7 +20,7 @@ use Innmind\Neo4j\DBAL\{
     Connection,
     Query
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
     Str,
     Stream,
@@ -31,18 +31,18 @@ use Innmind\Immutable\{
 final class RemovePersister implements Persister
 {
     private $changeset;
-    private $eventBus;
+    private $dispatch;
     private $metadatas;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventBusInterface $eventBus,
+        EventBus $dispatch,
         Metadatas $metadatas
     ) {
         $this->changeset = $changeset;
-        $this->eventBus = $eventBus;
+        $this->dispatch = $dispatch;
         $this->metadatas = $metadatas;
         $this->name = new Str('e%s');
     }
@@ -55,9 +55,7 @@ final class RemovePersister implements Persister
         $entities = $container
             ->state(State::toBeRemoved())
             ->foreach(function(Identity $identity, $object) {
-                $this->eventBus->dispatch(
-                    new EntityAboutToBeRemoved($identity, $object)
-                );
+                ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
             });
 
         if ($entities->size() === 0) {
@@ -74,9 +72,7 @@ final class RemovePersister implements Persister
         ) {
             $container->push($identity, $object, State::removed());
             $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
-            $this->eventBus->dispatch(
-                new EntityRemoved($identity, $object)
-            );
+            ($this->dispatch)(new EntityRemoved($identity, $object));
         });
     }
 

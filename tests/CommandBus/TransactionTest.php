@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Manager,
 };
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use PHPUnit\Framework\TestCase;
 
 class TransactionTest extends TestCase
@@ -16,9 +16,9 @@ class TransactionTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            CommandBusInterface::class,
+            CommandBus::class,
             new Transaction(
-                $this->createMock(CommandBusInterface::class),
+                $this->createMock(CommandBus::class),
                 $this->createMock(Manager::class)
             )
         );
@@ -27,10 +27,10 @@ class TransactionTest extends TestCase
     public function testCommit()
     {
         $command = new \stdClass;
-        $commandBus = $this->createMock(CommandBusInterface::class);
+        $commandBus = $this->createMock(CommandBus::class);
         $commandBus
             ->expects($this->once())
-            ->method('handle')
+            ->method('__invoke')
             ->with($command);
         $manager = $this->createMock(Manager::class);
         $manager
@@ -43,9 +43,9 @@ class TransactionTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('commit');
-        $bus = new Transaction($commandBus, $manager);
+        $handle = new Transaction($commandBus, $manager);
 
-        $this->assertNull($bus->handle($command));
+        $this->assertNull($handle($command));
     }
 
     public function testRollback()
@@ -53,10 +53,10 @@ class TransactionTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $command = new \stdClass;
-        $commandBus = $this->createMock(CommandBusInterface::class);
+        $commandBus = $this->createMock(CommandBus::class);
         $commandBus
             ->expects($this->once())
-            ->method('handle')
+            ->method('__invoke')
             ->with($command)
             ->will($this->throwException(new \RuntimeException));
         $manager = $this->createMock(Manager::class);
@@ -70,8 +70,8 @@ class TransactionTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('rollback');
-        $bus = new Transaction($commandBus, $manager);
+        $handle = new Transaction($commandBus, $manager);
 
-        $this->assertNull($bus->handle($command));
+        $this->assertNull($handle($command));
     }
 }

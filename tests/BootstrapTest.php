@@ -12,7 +12,7 @@ use Innmind\Neo4j\ONM\{
     CommandBus\Transaction,
 };
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use Symfony\Component\Yaml\Yaml;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +26,7 @@ class BootstrapTest extends TestCase
         );
 
         $this->assertInstanceOf(Manager::class, $services['manager']);
-        $bus = $this->createMock(CommandBusInterface::class);
+        $bus = $this->createMock(CommandBus::class);
         $this->assertInternalType('callable', $services['command_bus']['clear_domain_events']);
         $this->assertInstanceOf(
             ClearDomainEvents::class,

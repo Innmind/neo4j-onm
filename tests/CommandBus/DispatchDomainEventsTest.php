@@ -9,10 +9,10 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Identity,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use Innmind\EventBus\{
-    EventBusInterface,
-    ContainsRecordedEventsInterface,
+    EventBus,
+    ContainsRecordedEvents,
     EventRecorder,
 };
 use PHPUnit\Framework\TestCase;
@@ -22,10 +22,10 @@ class DispatchDomainEventsTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            CommandBusInterface::class,
+            CommandBus::class,
             new DispatchDomainEvents(
-                $this->createMock(CommandBusInterface::class),
-                $this->createMock(EventBusInterface::class),
+                $this->createMock(CommandBus::class),
+                $this->createMock(EventBus::class),
                 new Container
             )
         );
@@ -34,15 +34,15 @@ class DispatchDomainEventsTest extends TestCase
     public function testHandle()
     {
         $command = new \stdClass;
-        $commandBus = $this->createMock(CommandBusInterface::class);
+        $commandBus = $this->createMock(CommandBus::class);
         $commandBus
             ->expects($this->once())
-            ->method('handle')
+            ->method('__invoke')
             ->with($command);
-        $eventBus = $this->createMock(EventBusInterface::class);
+        $eventBus = $this->createMock(EventBus::class);
         $eventBus
             ->expects($this->exactly(4))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function($event): bool {
                 return $event instanceof \stdClass;
             }));
@@ -55,7 +55,7 @@ class DispatchDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                new class implements ContainsRecordedEventsInterface {
+                new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -72,7 +72,7 @@ class DispatchDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                new class implements ContainsRecordedEventsInterface {
+                new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -89,7 +89,7 @@ class DispatchDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                new class implements ContainsRecordedEventsInterface {
+                new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -106,7 +106,7 @@ class DispatchDomainEventsTest extends TestCase
             )
             ->push(
                 $this->createMock(Identity::class),
-                new class implements ContainsRecordedEventsInterface {
+                new class implements ContainsRecordedEvents {
                     use EventRecorder;
 
                     public function __construct()
@@ -116,8 +116,8 @@ class DispatchDomainEventsTest extends TestCase
                 },
                 State::removed()
             );
-        $bus = new DispatchDomainEvents($commandBus, $eventBus, $container);
+        $handle = new DispatchDomainEvents($commandBus, $eventBus, $container);
 
-        $this->assertNull($bus->handle($command));
+        $this->assertNull($handle($command));
     }
 }
