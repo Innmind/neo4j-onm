@@ -40,8 +40,7 @@
         "symfony/yaml": "~3.0|~4.0",
         "phpunit/phpunit": "~6.0",
         "innmind/time-continuum": "^1.0",
-        "innmind/command-bus": "^2.1",
-        "innmind/compose": "^1.0"
+        "innmind/command-bus": "^2.1"
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors=always"

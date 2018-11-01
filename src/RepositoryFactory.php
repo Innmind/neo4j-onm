@@ -46,25 +46,6 @@ class RepositoryFactory
     }
 
     /**
-     * Register a new repository instance
-     *
-     * To be used in case the repository can't be instanciated automatically
-     */
-    public function register(
-        Entity $meta,
-        Repository $repository
-    ): self {
-        @trigger_error('Inject repositories in the constructor', E_USER_DEPRECATED);
-
-        $this->repositories = $this->repositories->put(
-            $meta,
-            $repository
-        );
-
-        return $this;
-    }
-
-    /**
      * Return the instance of the given entity metadata
      */
     public function make(Entity $meta): Repository
@@ -83,5 +64,22 @@ class RepositoryFactory
         $this->register($meta, $repository);
 
         return $repository;
+    }
+
+    /**
+     * Register a new repository instance
+     *
+     * To be used in case the repository can't be instanciated automatically
+     */
+    private function register(
+        Entity $meta,
+        Repository $repository
+    ): self {
+        $this->repositories = $this->repositories->put(
+            $meta,
+            $repository
+        );
+
+        return $this;
     }
 }

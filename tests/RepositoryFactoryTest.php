@@ -63,15 +63,6 @@ class RepositoryFactoryTest extends TestCase
         $this->assertSame($repo, $this->factory->make($meta));
     }
 
-    public function testRegister()
-    {
-        $meta = $this->createMock(Entity::class);
-        $repo = $this->createMock(RepositoryInterface::class);
-
-        $this->assertSame($this->factory, $this->factory->register($meta, $repo));
-        $this->assertSame($repo, $this->factory->make($meta));
-    }
-
     public function testRegisterRepositoryAtConstruct()
     {
         $meta = $this->createMock(Entity::class);
