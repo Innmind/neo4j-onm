@@ -45,11 +45,11 @@ class MetadataBuilderTest extends TestCase
         );
         $this->assertInstanceOf(
             Aggregate::class,
-            $this->builder->container()->get('Image')
+            $this->builder->container()('Image')
         );
         $this->assertInstanceOf(
             Relationship::class,
-            $this->builder->container()->get('SomeRelationship')
+            $this->builder->container()('SomeRelationship')
         );
     }
 

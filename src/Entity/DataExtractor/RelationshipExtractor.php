@@ -28,7 +28,7 @@ final class RelationshipExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function extract(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): MapInterface
     {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;

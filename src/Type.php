@@ -15,7 +15,7 @@ interface Type
      *
      * @param MapInterface<string, mixed> $config
      */
-    public static function fromConfig(MapInterface $config, Types $types): self;
+    public static function fromConfig(MapInterface $config, Types $build): self;
 
     /**
      * Format the given value as a valid database value

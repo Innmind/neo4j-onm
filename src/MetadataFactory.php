@@ -11,5 +11,5 @@ interface MetadataFactory
     /**
      * @param MapInterface<string, mixed> $config
      */
-    public function make(MapInterface $config): Entity;
+    public function __invoke(MapInterface $config): Entity;
 }

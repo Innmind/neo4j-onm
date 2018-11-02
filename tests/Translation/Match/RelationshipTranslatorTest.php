@@ -37,7 +37,7 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
         $meta = new Relationship(
             new ClassName('foo'),
@@ -58,7 +58,7 @@ class RelationshipTranslatorTest extends TestCase
                     new Types
                 )
             );
-        $im = $translator->translate($meta);
+        $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

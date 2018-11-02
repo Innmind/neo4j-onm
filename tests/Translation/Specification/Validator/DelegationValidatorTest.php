@@ -113,25 +113,25 @@ class DelegationValidatorTest extends TestCase
         $compChildContent = new Property('rel.child.content', '=', null);
 
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compRelCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compChildContent,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compCreated
                     ->and($compRelCreated)
                     ->or($compChildContent->not()),
@@ -148,25 +148,25 @@ class DelegationValidatorTest extends TestCase
         $comp4 = new Property('rel.child.foo.tooDeep', '=', null);
 
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not())
@@ -183,25 +183,25 @@ class DelegationValidatorTest extends TestCase
         $comp3 = new Property('end', '=', null);
 
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),
@@ -217,25 +217,25 @@ class DelegationValidatorTest extends TestCase
         $comp3 = new Property('start.id', '=', null);
 
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),

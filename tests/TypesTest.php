@@ -22,7 +22,7 @@ class TypesTest extends TestCase
 {
     public function testAll()
     {
-        $types = new Types;
+        $build = new Types;
 
         $defaults = [
             'array' => ArrayType::class,
@@ -38,7 +38,7 @@ class TypesTest extends TestCase
         ];
 
         foreach ($defaults as $key => $value) {
-            $this->assertInstanceOf($value, $types->build(
+            $this->assertInstanceOf($value, $build(
                 $key,
                 (new Map('string', 'mixed'))
                     ->put('inner', 'string')
@@ -48,11 +48,11 @@ class TypesTest extends TestCase
 
     public function testRegisterCustomType()
     {
-        $types = new Types(PointInTimeType::class);
+        $build = new Types(PointInTimeType::class);
 
         $this->assertInstanceOf(
             PointInTimeType::class,
-            $types->build(
+            $build(
                 'point_in_time',
                 new Map('string', 'mixed')
             )
@@ -70,15 +70,15 @@ class TypesTest extends TestCase
 
     public function testBuild()
     {
-        $types = new Types;
+        $build = new Types;
 
         $this->assertInstanceOf(
             StringType::class,
-            $types->build('string', new Map('string', 'mixed'))
+            $build('string', new Map('string', 'mixed'))
         );
         $this->assertInstanceOf(
             ArrayType::class,
-            $types->build(
+            $build(
                 'array',
                 (new Map('string', 'mixed'))
                     ->put('inner', 'string')
@@ -92,6 +92,6 @@ class TypesTest extends TestCase
      */
     public function testThrowWhenInvalidConfigMap()
     {
-        (new Types)->build('string', new Map('string', 'variable'));
+        (new Types)('string', new Map('string', 'variable'));
     }
 }

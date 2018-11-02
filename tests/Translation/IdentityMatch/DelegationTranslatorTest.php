@@ -41,7 +41,7 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslateAggregate()
     {
-        $translator = new DelegationTranslator;
+        $translate = new DelegationTranslator;
         $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -93,7 +93,7 @@ class DelegationTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
@@ -120,7 +120,7 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslateRelationship()
     {
-        $translator = new DelegationTranslator;
+        $translate = new DelegationTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -144,7 +144,7 @@ class DelegationTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

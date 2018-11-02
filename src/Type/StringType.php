@@ -21,7 +21,7 @@ final class StringType implements Type
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public static function fromConfig(MapInterface $config, Types $build): Type
     {
         $type = new self;
 

@@ -33,12 +33,12 @@ use PHPUnit\Framework\TestCase;
 
 class AggregateTranslatorTest extends TestCase
 {
-    private $translator;
+    private $translate;
     private $meta;
 
     public function setUp()
     {
-        $this->translator = new AggregateTranslator;
+        $this->translate = new AggregateTranslator;
         $this->meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -122,13 +122,13 @@ class AggregateTranslatorTest extends TestCase
     {
         $this->assertInstanceOf(
             EntityTranslator::class,
-            $this->translator
+            $this->translate
         );
     }
 
     public function testTranslate()
     {
-        $data = $this->translator->translate(
+        $data = ($this->translate)(
             'n',
             $this->meta,
             Result::fromRaw([
@@ -293,7 +293,7 @@ class AggregateTranslatorTest extends TestCase
                 )
             );
 
-        $data = $this->translator->translate(
+        $data = ($this->translate)(
             'n',
             $meta,
             Result::fromRaw([
@@ -380,7 +380,7 @@ class AggregateTranslatorTest extends TestCase
      */
     public function testThrowWhenMoreThanOneRelationshipFound()
     {
-        $this->translator->translate(
+        ($this->translate)(
             'n',
             $this->meta,
             Result::fromRaw([
@@ -462,7 +462,7 @@ class AggregateTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
-        $this->translator->translate(
+        ($this->translate)(
             'r',
             $this->createMock(Entity::class),
             $this->createMock(ResultInterface::class)
@@ -474,7 +474,7 @@ class AggregateTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingEmptyVariable()
     {
-        $this->translator->translate(
+        ($this->translate)(
             '',
             $this->meta,
             $this->createMock(ResultInterface::class)

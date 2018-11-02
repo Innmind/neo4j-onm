@@ -39,7 +39,7 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new AggregateTranslator;
+        $translate = new AggregateTranslator;
 
         $meta = new Aggregate(
             new ClassName('FQCN'),
@@ -92,7 +92,7 @@ class AggregateTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

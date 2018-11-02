@@ -13,7 +13,7 @@ interface EntityFactory
      *
      * @param MapInterface<string, mixed> $data
      */
-    public function make(
+    public function __invoke(
         Identity $identity,
         Entity $meta,
         MapInterface $data

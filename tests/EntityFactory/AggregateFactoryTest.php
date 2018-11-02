@@ -49,7 +49,7 @@ class AggregateFactoryTest extends TestCase
      */
     public function testMake($instanciator, $injectionStrategies)
     {
-        $f = new AggregateFactory($instanciator, $injectionStrategies);
+        $make = new AggregateFactory($instanciator, $injectionStrategies);
 
         $entity = new class {
             public $uuid;
@@ -114,7 +114,7 @@ class AggregateFactoryTest extends TestCase
                     )
             );
 
-        $ar = $f->make(
+        $ar = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
             (new Map('string', 'mixed'))
@@ -161,7 +161,7 @@ class AggregateFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildNonAggregate()
     {
-        (new AggregateFactory)->make(
+        (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
             new Map('string', 'mixed')
@@ -174,7 +174,7 @@ class AggregateFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
-        (new AggregateFactory)->make(
+        (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             new Aggregate(
                 new ClassName('foo'),

@@ -88,9 +88,9 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslateWithPropertyMatch()
     {
-        $translator = new AggregateTranslator;
+        $translate = new AggregateTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))
@@ -131,9 +131,9 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslateWithWhereClause()
     {
-        $translator = new AggregateTranslator;
+        $translate = new AggregateTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->and(new Property('empty', '=', 20))

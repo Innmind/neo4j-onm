@@ -28,7 +28,7 @@ final class RelationshipTranslator implements EntityTranslator
     /**
      * {@inheritdoc}
      */
-    public function translate(
+    public function __invoke(
         string $variable,
         Entity $meta,
         Result $result

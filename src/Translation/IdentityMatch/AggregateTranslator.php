@@ -25,7 +25,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
     /**
      * {@inheritdoc}
      */
-    public function translate(
+    public function __invoke(
         Entity $meta,
         Identity $identity
     ): IdentityMatch {

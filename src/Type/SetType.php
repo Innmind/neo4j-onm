@@ -26,7 +26,7 @@ final class SetType implements Type
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public static function fromConfig(MapInterface $config, Types $build): Type
     {
         $type = new self;
 
@@ -47,7 +47,7 @@ final class SetType implements Type
 
         $type->type = $config->contains('set_type') ?
             $config->get('set_type') : $config->get('inner');
-        $type->inner = $types->build(
+        $type->inner = $build(
             $config->get('inner'),
             $innerConfig
         );

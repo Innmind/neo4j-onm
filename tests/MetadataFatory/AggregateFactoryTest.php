@@ -16,24 +16,24 @@ use PHPUnit\Framework\TestCase;
 
 class AggregateFactoryTest extends TestCase
 {
-    private $factory;
+    private $make;
 
     public function setUp()
     {
-        $this->factory = new AggregateFactory(new Types);
+        $this->make = new AggregateFactory(new Types);
     }
 
     public function testInterface()
     {
         $this->assertInstanceOf(
             MetadataFactory::class,
-            $this->factory
+            $this->make
         );
     }
 
     public function testMake()
     {
-        $ar = $this->factory->make((new Map('string', 'mixed'))
+        $ar = ($this->make)((new Map('string', 'mixed'))
             ->put('class', 'Image')
             ->put('repository', 'ImageRepository')
             ->put('factory', 'ImageFactory')
@@ -106,6 +106,6 @@ class AggregateFactoryTest extends TestCase
      */
     public function testThrowWhenInvalidConfigMap()
     {
-        $this->factory->make(new Map('string', 'variable'));
+        ($this->make)(new Map('string', 'variable'));
     }
 }

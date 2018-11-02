@@ -32,18 +32,18 @@ final class RemovePersister implements Persister
 {
     private $changeset;
     private $dispatch;
-    private $metadatas;
+    private $metadata;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
         EventBus $dispatch,
-        Metadatas $metadatas
+        Metadatas $metadata
     ) {
         $this->changeset = $changeset;
         $this->dispatch = $dispatch;
-        $this->metadatas = $metadatas;
+        $this->metadata = $metadata;
         $this->name = new Str('e%s');
     }
 
@@ -81,7 +81,7 @@ final class RemovePersister implements Persister
         $query = new Query\Query;
         $this->variables = new Stream('string');
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
-            $meta = $this->metadatas->get(\get_class($entity));
+            $meta = ($this->metadata)(\get_class($entity));
 
             return $meta instanceof Relationship;
         });
@@ -123,7 +123,7 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(\get_class($entity));
+        $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
@@ -154,7 +154,7 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(\get_class($entity));
+        $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 

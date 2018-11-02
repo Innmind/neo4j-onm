@@ -150,7 +150,7 @@ class UpdatePersisterTest extends TestCase
         $persist = new UpdatePersister(
             $changeset = new ChangesetComputer,
             $bus = $this->createMock(EventBus::class),
-            $extractor = new DataExtractor($this->metadatas),
+            $extract = new DataExtractor($this->metadatas),
             $this->metadatas
         );
 
@@ -283,14 +283,14 @@ class UpdatePersisterTest extends TestCase
             0,
             $changeset->compute(
                 $aggregate->uuid,
-                $extractor->extract($aggregate)
+                $extract($aggregate)
             )
         );
         $this->assertCount(
             0,
             $changeset->compute(
                 $relationship->uuid,
-                $extractor->extract($relationship)
+                $extract($relationship)
             )
         );
     }

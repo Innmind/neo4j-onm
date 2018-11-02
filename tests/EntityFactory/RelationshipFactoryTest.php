@@ -52,7 +52,7 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testMake($instanciator, $injectionStrategies)
     {
-        $factory = new RelationshipFactory(
+        $make = new RelationshipFactory(
             new Generators,
             $instanciator,
             $injectionStrategies
@@ -85,7 +85,7 @@ class RelationshipFactoryTest extends TestCase
                 )
             );
 
-        $rel = $factory->make(
+        $rel = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
             (new Map('string', 'mixed'))
@@ -117,7 +117,7 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildNonRelationship()
     {
-        (new RelationshipFactory(new Generators))->make(
+        (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
             new Map('string', 'mixed')
@@ -130,7 +130,7 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
-        (new RelationshipFactory(new Generators))->make(
+        (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             new Relationship(
                 new ClassName('foo'),

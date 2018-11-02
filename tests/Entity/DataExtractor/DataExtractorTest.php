@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
 
 class DataExtractorTest extends TestCase
 {
-    private $extractor;
+    private $extract;
     private $arClass;
     private $rClass;
     private $metadatas;
@@ -119,7 +119,7 @@ class DataExtractorTest extends TestCase
                     )
                 )
         );
-        $this->extractor = new DataExtractor($this->metadatas);
+        $this->extract = new DataExtractor($this->metadatas);
     }
 
     public function testExtractAggregateRoot()
@@ -141,7 +141,7 @@ class DataExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $data = $this->extractor->extract($entity);
+        $data = ($this->extract)($entity);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -190,7 +190,7 @@ class DataExtractorTest extends TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $data = $this->extractor->extract($entity);
+        $data = ($this->extract)($entity);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());

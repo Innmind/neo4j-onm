@@ -46,7 +46,7 @@ final class Types
      *
      * @param MapInterface<string, mixed> $config
      */
-    public function build(string $type, MapInterface $config): Type
+    public function __invoke(string $type, MapInterface $config): Type
     {
         if (
             (string) $config->keyType() !== 'string' ||

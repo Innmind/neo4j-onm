@@ -29,12 +29,12 @@ use PHPUnit\Framework\TestCase;
 
 class AggregateExtractorTest extends TestCase
 {
-    private $extractor;
+    private $extract;
     private $meta;
 
     public function setUp()
     {
-        $this->extractor = new AggregateExtractor;
+        $this->extract = new AggregateExtractor;
         $this->meta = new Aggregate(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
@@ -87,7 +87,7 @@ class AggregateExtractorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractor::class, $this->extractor);
+        $this->assertInstanceOf(DataExtractor::class, $this->extract);
     }
 
     /**
@@ -117,8 +117,8 @@ class AggregateExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $extractor = new AggregateExtractor($strategies);
-        $data = $extractor->extract($entity, $this->meta);
+        $extract = new AggregateExtractor($strategies);
+        $data = $extract($entity, $this->meta);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -164,7 +164,7 @@ class AggregateExtractorTest extends TestCase
      */
     public function testThrowWhenExtractingInvalidMeta()
     {
-        $this->extractor->extract(
+        ($this->extract)(
             new \stdClass,
             $this->createMock(Entity::class)
         );

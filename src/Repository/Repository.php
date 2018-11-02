@@ -22,20 +22,20 @@ use Innmind\Specification\SpecificationInterface;
 final class Repository implements RepositoryInterface
 {
     private $unitOfWork;
-    private $matchTranslator;
-    private $specificationTranslator;
+    private $all;
+    private $matching;
     private $metadata;
     private $allowedStates;
 
     public function __construct(
         UnitOfWork $unitOfWork,
-        MatchTranslator $matchTranslator,
-        SpecificationTranslator $specificationTranslator,
+        MatchTranslator $all,
+        SpecificationTranslator $matching,
         Entity $metadata
     ) {
         $this->unitOfWork = $unitOfWork;
-        $this->matchTranslator = $matchTranslator;
-        $this->specificationTranslator = $specificationTranslator;
+        $this->all = $all;
+        $this->matching = $matching;
         $this->metadata = $metadata;
         $this->allowedStates = Set::of(
             State::class,
@@ -117,7 +117,7 @@ final class Repository implements RepositoryInterface
      */
     public function all(): SetInterface
     {
-        $match = $this->matchTranslator->translate($this->metadata());
+        $match = ($this->all)($this->metadata());
 
         return $this->unitOfWork()->execute(
             $match->query(),
@@ -130,7 +130,7 @@ final class Repository implements RepositoryInterface
      */
     public function matching(SpecificationInterface $specification): SetInterface
     {
-        $match = $this->specificationTranslator->translate(
+        $match = ($this->matching)(
             $this->metadata(),
             $specification
         );

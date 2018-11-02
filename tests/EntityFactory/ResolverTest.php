@@ -15,7 +15,7 @@ class ResolverTest extends TestCase
 {
     public function testInterface()
     {
-        $resolver = new Resolver;
+        $resolve = new Resolver;
 
         $class = $this->getMockClass(EntityFactory::class);
         $meta = $this->createMock(Entity::class);
@@ -25,10 +25,10 @@ class ResolverTest extends TestCase
 
         $this->assertInstanceOf(
             EntityFactory::class,
-            $resolver->get($meta)
+            $resolve($meta)
         );
-        $this->assertInstanceOf($class, $resolver->get($meta));
-        $this->assertSame($resolver->get($meta), $resolver->get($meta));
+        $this->assertInstanceOf($class, $resolve($meta));
+        $this->assertSame($resolve($meta), $resolve($meta));
     }
 
     public function testRegister()
@@ -40,8 +40,8 @@ class ResolverTest extends TestCase
             ->willReturn(new Factory($class));
         $factory = new $class;
 
-        $resolver = new Resolver($factory);
+        $resolve = new Resolver($factory);
 
-        $this->assertSame($factory, $resolver->get($meta));
+        $this->assertSame($factory, $resolve($meta));
     }
 }

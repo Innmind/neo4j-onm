@@ -26,7 +26,7 @@ final class RelationshipTranslator implements SpecificationTranslator
     /**
      * {@inheritdoc}
      */
-    public function translate(
+    public function __invoke(
         Entity $meta,
         SpecificationInterface $specification
     ): IdentityMatch {

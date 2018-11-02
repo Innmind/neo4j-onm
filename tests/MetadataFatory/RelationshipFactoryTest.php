@@ -15,24 +15,24 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipFactoryTest extends TestCase
 {
-    private $factory;
+    private $make;
 
     public function setUp()
     {
-        $this->factory = new RelationshipFactory(new Types);
+        $this->make = new RelationshipFactory(new Types);
     }
 
     public function testInterface()
     {
         $this->assertInstanceOf(
             MetadataFactory::class,
-            $this->factory
+            $this->make
         );
     }
 
     public function testMake()
     {
-        $ar = $this->factory->make((new Map('string', 'mixed'))
+        $ar = ($this->make)((new Map('string', 'mixed'))
             ->put('class', 'SomeRelationship')
             ->put('repository', 'SRRepository')
             ->put('factory', 'SRFactory')
@@ -83,6 +83,6 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testThrowWhenInvalidConfigMap()
     {
-        $this->factory->make(new Map('string', 'variable'));
+        ($this->make)(new Map('string', 'variable'));
     }
 }

@@ -24,17 +24,17 @@ use Innmind\Immutable\{
 
 final class RelationshipFactory implements MetadataFactory
 {
-    private $types;
+    private $build;
 
-    public function __construct(Types $types)
+    public function __construct(Types $build)
     {
-        $this->types = $types;
+        $this->build = $build;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function make(MapInterface $config): Entity
+    public function __invoke(MapInterface $config): Entity
     {
         if (
             (string) $config->keyType() !== 'string' ||
@@ -91,7 +91,7 @@ final class RelationshipFactory implements MetadataFactory
 
                 return $carry->withProperty(
                     $name,
-                    $this->types->build(
+                    ($this->build)(
                         $config->get('type'),
                         $config
                     )

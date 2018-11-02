@@ -32,7 +32,7 @@ final class AggregateExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function extract(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): MapInterface
     {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;

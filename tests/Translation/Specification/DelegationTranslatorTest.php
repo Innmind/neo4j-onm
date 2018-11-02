@@ -41,7 +41,7 @@ class DelegationTranslatorTest extends TestCase
         $count = 0;
         $m1 = $this->createMock(SpecificationTranslator::class);
         $m1
-            ->method('translate')
+            ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
                 $this->assertInstanceOf(Aggregate::class, $meta);
@@ -54,7 +54,7 @@ class DelegationTranslatorTest extends TestCase
             }));
         $m2 = $this->createMock(SpecificationTranslator::class);
         $m2
-            ->method('translate')
+            ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
                 $this->assertInstanceOf(Relationship::class, $meta);
@@ -66,7 +66,7 @@ class DelegationTranslatorTest extends TestCase
                 );
             }));
 
-        $t = new DelegationTranslator(
+        $translate = new DelegationTranslator(
             (new Map('string', SpecificationTranslator::class))
                 ->put(Aggregate::class, $m1)
                 ->put(Relationship::class, $m2)
@@ -74,7 +74,7 @@ class DelegationTranslatorTest extends TestCase
 
         $this->assertInstanceOf(
             IdentityMatch::class,
-            $t->translate(
+            $translate(
                 (new Aggregate(
                     new ClassName('FQCN'),
                     new Identity('id', 'foo'),
@@ -88,7 +88,7 @@ class DelegationTranslatorTest extends TestCase
         );
         $this->assertInstanceOf(
             IdentityMatch::class,
-            $t->translate(
+            $translate(
                 (new Relationship(
                     new ClassName('foo'),
                     new Identity('id', 'foo'),
@@ -119,7 +119,7 @@ class DelegationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
-        (new DelegationTranslator)->translate(
+        (new DelegationTranslator)(
             new Aggregate(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
@@ -136,7 +136,7 @@ class DelegationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
-        (new DelegationTranslator)->translate(
+        (new DelegationTranslator)(
             new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),

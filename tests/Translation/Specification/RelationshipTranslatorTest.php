@@ -62,9 +62,9 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateWithPropertyMatch()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 1))
                 ->and(new Property('empty', '=', 2))
@@ -101,9 +101,9 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateWithWhereClause()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))

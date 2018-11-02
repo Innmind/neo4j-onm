@@ -48,7 +48,7 @@ final class ResultTranslator
      *
      * @return MapInterface<string, SetInterface<MapInterface<string, mixed>>>
      */
-    public function translate(
+    public function __invoke(
         Result $result,
         MapInterface $variables
     ): MapInterface {
@@ -75,11 +75,11 @@ final class ResultTranslator
             ->reduce(
                 new Map('string', SetInterface::class),
                 function(MapInterface $carry, string $variable, Entity $meta) use ($result): MapInterface {
-                    $translator = $this->translators->get(get_class($meta));
+                    $translate = $this->translators->get(get_class($meta));
 
                     return $carry->put(
                         $variable,
-                        $translator->translate($variable, $meta, $result)
+                        $translate($variable, $meta, $result)
                     );
                 }
             );

@@ -38,7 +38,7 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new AggregateTranslator;
+        $translate = new AggregateTranslator;
 
         $meta = new Aggregate(
             new ClassName('FQCN'),
@@ -87,7 +87,7 @@ class AggregateTranslatorTest extends TestCase
                         )
                     )
             );
-        $im = $translator->translate($meta);
+        $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

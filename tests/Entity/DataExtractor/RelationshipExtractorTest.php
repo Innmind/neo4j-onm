@@ -28,12 +28,12 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipExtractorTest extends TestCase
 {
-    private $extractor;
+    private $extract;
     private $meta;
 
     public function setUp()
     {
-        $this->extractor = new RelationshipExtractor;
+        $this->extract = new RelationshipExtractor;
         $this->meta = new Relationship(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
@@ -57,7 +57,7 @@ class RelationshipExtractorTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractor::class, $this->extractor);
+        $this->assertInstanceOf(DataExtractor::class, $this->extract);
     }
 
     /**
@@ -77,8 +77,8 @@ class RelationshipExtractorTest extends TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $extractor = new RelationshipExtractor($strategies);
-        $data = $extractor->extract($entity, $this->meta);
+        $extract = new RelationshipExtractor($strategies);
+        $data = $extract($entity, $this->meta);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -102,7 +102,7 @@ class RelationshipExtractorTest extends TestCase
      */
     public function testThrowWhenExtractingInvalidMeta()
     {
-        $this->extractor->extract(
+        ($this->extract)(
             new \stdClass,
             $this->createMock(Entity::class)
         );

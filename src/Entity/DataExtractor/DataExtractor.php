@@ -16,14 +16,14 @@ use Innmind\Immutable\{
 
 final class DataExtractor
 {
-    private $metadatas;
+    private $metadata;
     private $extractors;
 
     public function __construct(
-        Metadatas $metadatas,
+        Metadatas $metadata,
         MapInterface $extractors = null
     ) {
-        $this->metadatas = $metadatas;
+        $this->metadata = $metadata;
         $this->extractors = $extractors ?? Map::of('string', DataExtractorInterface::class)
             (Aggregate::class, new AggregateExtractor)
             (Relationship::class, new RelationshipExtractor);
@@ -44,13 +44,11 @@ final class DataExtractor
      *
      * @return MapInterface<string, mixed>
      */
-    public function extract(object $entity): MapInterface
+    public function __invoke(object $entity): MapInterface
     {
-        $meta = $this->metadatas->get(get_class($entity));
+        $meta = ($this->metadata)(get_class($entity));
+        $extract = $this->extractors->get(get_class($meta));
 
-        return $this
-            ->extractors
-            ->get(get_class($meta))
-            ->extract($entity, $meta);
+        return $extract($entity, $meta);
     }
 }

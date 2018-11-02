@@ -24,7 +24,7 @@ final class ArrayType implements Type
     /**
      * {@inheritdoc}
      */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public static function fromConfig(MapInterface $config, Types $build): Type
     {
         $type = new self;
 
@@ -36,7 +36,7 @@ final class ArrayType implements Type
             throw new RecursiveTypeDeclaration;
         }
 
-        $type->inner = $types->build(
+        $type->inner = $build(
             $config->get('inner'),
             $config
                 ->remove('inner')

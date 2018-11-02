@@ -38,7 +38,7 @@ final class AggregateFactory implements EntityFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function make(
+    public function __invoke(
         Identity $identity,
         Entity $meta,
         MapInterface $data

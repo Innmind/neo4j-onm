@@ -32,7 +32,7 @@ final class Metadatas
     /**
      * Return the metadata for an entity
      */
-    public function get(string $class): Entity
+    public function __invoke(string $class): Entity
     {
         return $this->mapping->get($class);
     }

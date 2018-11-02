@@ -32,21 +32,21 @@ final class UpdatePersister implements Persister
 {
     private $changeset;
     private $dispatch;
-    private $extractor;
-    private $metadatas;
+    private $extract;
+    private $metadata;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
         EventBus $dispatch,
-        DataExtractor $extractor,
-        Metadatas $metadatas
+        DataExtractor $extract,
+        Metadatas $metadata
     ) {
         $this->changeset = $changeset;
         $this->dispatch = $dispatch;
-        $this->extractor = $extractor;
-        $this->metadatas = $metadatas;
+        $this->extract = $extract;
+        $this->metadata = $metadata;
         $this->name = new Str('e%s');
     }
 
@@ -59,7 +59,7 @@ final class UpdatePersister implements Persister
         $changesets = $entities->reduce(
             new Map(Identity::class, MapInterface::class),
             function(MapInterface $carry, Identity $identity, object $entity): MapInterface {
-                $data = $this->extractor->extract($entity);
+                $data = ($this->extract)($entity);
                 $changeset = $this->changeset->compute($identity, $data);
 
                 if ($changeset->size() === 0) {
@@ -90,7 +90,7 @@ final class UpdatePersister implements Persister
             $entity = $entities->get($identity);
             $this->changeset->use(
                 $identity,
-                $this->extractor->extract($entity)
+                ($this->extract)($entity)
             );
             ($this->dispatch)(
                 new EntityUpdated(
@@ -118,7 +118,7 @@ final class UpdatePersister implements Persister
             new Query\Query,
             function(Query $carry, Identity $identity, MapInterface $changeset) use ($entities): Query {
                 $entity = $entities->get($identity);
-                $meta = $this->metadatas->get(\get_class($entity));
+                $meta = ($this->metadata)(\get_class($entity));
 
                 if ($meta instanceof Aggregate) {
                     return $this->matchAggregate(

@@ -39,13 +39,12 @@ final class DelegationValidator implements Validator
     /**
      * {@inheritdoc}
      */
-    public function validate(
+    public function __invoke(
         SpecificationInterface $specification,
         Entity $meta
     ): bool {
-        return $this
-            ->validators
-            ->get(get_class($meta))
-            ->validate($specification, $meta);
+        $validate = $this->validators->get(get_class($meta));
+
+        return $validate($specification, $meta);
     }
 }

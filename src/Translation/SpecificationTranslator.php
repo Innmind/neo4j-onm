@@ -14,7 +14,7 @@ interface SpecificationTranslator
     /**
      * Translate a specification into a query to match the expected elements
      */
-    public function translate(
+    public function __invoke(
         Entity $meta,
         SpecificationInterface $specification
     ): IdentityMatch;

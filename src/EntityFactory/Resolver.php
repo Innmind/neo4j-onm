@@ -25,7 +25,7 @@ final class Resolver
     /**
      * Return the factory for the given entity definition
      */
-    public function get(Entity $meta): EntityFactoryInterface
+    public function __invoke(Entity $meta): EntityFactoryInterface
     {
         $class = (string) $meta->factory();
 

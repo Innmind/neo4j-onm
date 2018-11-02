@@ -41,7 +41,7 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -62,7 +62,7 @@ class RelationshipTranslatorTest extends TestCase
                 )
             );
 
-        $data = $translator->translate(
+        $data = $translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -126,7 +126,7 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateMultipleRelationships()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
         $meta = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -147,7 +147,7 @@ class RelationshipTranslatorTest extends TestCase
                 )
             );
 
-        $data = $translator->translate(
+        $data = $translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -279,7 +279,7 @@ class RelationshipTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
-        (new RelationshipTranslator)->translate(
+        (new RelationshipTranslator)(
             'r',
             $this->createMock(Entity::class),
             $this->createMock(ResultInterface::class)
@@ -291,7 +291,7 @@ class RelationshipTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingWhenEmptyVariable()
     {
-        (new RelationshipTranslator)->translate(
+        (new RelationshipTranslator)(
             '',
             new Relationship(
                 new ClassName('foo'),

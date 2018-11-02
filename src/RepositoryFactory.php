@@ -48,7 +48,7 @@ class RepositoryFactory
     /**
      * Return the instance of the given entity metadata
      */
-    public function make(Entity $meta): Repository
+    public function __invoke(Entity $meta): Repository
     {
         if ($this->repositories->contains($meta)) {
             return $this->repositories->get($meta);

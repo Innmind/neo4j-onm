@@ -20,16 +20,16 @@ use Innmind\Specification\SpecificationInterface;
 final class DelegationTranslator implements SpecificationTranslator
 {
     private $translators;
-    private $validator;
+    private $validate;
 
     public function __construct(
         MapInterface $translators = null,
-        Validator $validator = null
+        Validator $validate = null
     ) {
         $this->translators = $translators ?? Map::of('string', SpecificationTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
-        $this->validator = $validator ?? new Validator\DelegationValidator;
+        $this->validate = $validate ?? new Validator\DelegationValidator;
 
         if (
             (string) $this->translators->keyType() !== 'string' ||
@@ -42,17 +42,16 @@ final class DelegationTranslator implements SpecificationTranslator
         }
     }
 
-    public function translate(
+    public function __invoke(
         Entity $meta,
         SpecificationInterface $specification
     ): IdentityMatch {
-        if (!$this->validator->validate($specification, $meta)) {
+        if (!($this->validate)($specification, $meta)) {
             throw new SpecificationNotApplicable;
         }
 
-        return $this
-            ->translators
-            ->get(get_class($meta))
-            ->translate($meta, $specification);
+        $translate = $this->translators->get(get_class($meta));
+
+        return $translate($meta, $specification);
     }
 }

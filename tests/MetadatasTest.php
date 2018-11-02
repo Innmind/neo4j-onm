@@ -23,21 +23,21 @@ class MetadatasTest extends TestCase
         $meta
             ->method('class')
             ->willReturn(new ClassName('bar'));
-        $metadatas = new Metadatas($meta);
+        $metadata = new Metadatas($meta);
 
-        $this->assertSame($meta, $metadatas->get('bar'));
+        $this->assertSame($meta, $metadata('bar'));
     }
 
     public function testBuild()
     {
-        $metadatas = Metadatas::build(
+        $metadata = Metadatas::build(
             new MetadataBuilder(new Types),
             [Yaml::parse(file_get_contents('fixtures/mapping.yml'))]
         );
 
         $this->assertInstanceOf(
             Aggregate::class,
-            $metadatas->get('Image')
+            $metadata('Image')
         );
     }
 }

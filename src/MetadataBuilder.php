@@ -84,11 +84,9 @@ final class MetadataBuilder
     public function build(string $class, MapInterface $config): Entity
     {
         $config = $config->put('class', $class);
+        $make = $this->factories->get($config->get('type'));
 
-        return $this
-            ->factories
-            ->get($config->get('type'))
-            ->make($config->remove('type'));
+        return $make($config->remove('type'));
     }
 
     /**

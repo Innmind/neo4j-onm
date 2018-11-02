@@ -19,7 +19,7 @@ final class RelationshipTranslator implements MatchTranslator
     /**
      * {@inheritdoc}
      */
-    public function translate(Entity $meta): IdentityMatch
+    public function __invoke(Entity $meta): IdentityMatch
     {
         $query = (new Query)
             ->match('start')

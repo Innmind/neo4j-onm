@@ -20,20 +20,20 @@ use Innmind\Immutable\{
 
 final class EntityFactory
 {
-    private $translator;
+    private $translate;
     private $generators;
-    private $resolver;
+    private $resolve;
     private $entities;
 
     public function __construct(
-        ResultTranslator $translator,
+        ResultTranslator $translate,
         Generators $generators,
-        Resolver $resolver,
+        Resolver $resolve,
         Container $entities
     ) {
-        $this->translator = $translator;
+        $this->translate = $translate;
         $this->generators = $generators;
-        $this->resolver = $resolver;
+        $this->resolve = $resolve;
         $this->entities = $entities;
     }
 
@@ -44,7 +44,7 @@ final class EntityFactory
      *
      * @return SetInterface<object>
      */
-    public function make(
+    public function __invoke(
         Result $result,
         MapInterface $variables
     ): SetInterface {
@@ -58,7 +58,7 @@ final class EntityFactory
             ));
         }
 
-        $structuredData = $this->translator->translate($result, $variables);
+        $structuredData = ($this->translate)($result, $variables);
         $entities = new Set('object');
 
         return $variables
@@ -98,10 +98,8 @@ final class EntityFactory
             return $this->entities->get($identity);
         }
 
-        $entity = $this
-            ->resolver
-            ->get($meta)
-            ->make($identity, $meta, $data);
+        $entity = ($this->resolve)($meta)($identity, $meta, $data);
+
         $this->entities = $this->entities->push(
             $identity,
             $entity,

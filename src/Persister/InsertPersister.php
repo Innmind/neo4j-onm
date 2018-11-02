@@ -35,21 +35,21 @@ final class InsertPersister implements Persister
 {
     private $changeset;
     private $dispatch;
-    private $extractor;
-    private $metadatas;
+    private $extract;
+    private $metadata;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
         EventBus $dispatch,
-        DataExtractor $extractor,
-        Metadatas $metadatas
+        DataExtractor $extract,
+        Metadatas $metadata
     ) {
         $this->changeset = $changeset;
         $this->dispatch = $dispatch;
-        $this->extractor = $extractor;
-        $this->metadatas = $metadatas;
+        $this->extract = $extract;
+        $this->metadata = $metadata;
         $this->name = new Str('e%s');
     }
 
@@ -74,7 +74,7 @@ final class InsertPersister implements Persister
             $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
-                $this->extractor->extract($entity)
+                ($this->extract)($entity)
             );
             ($this->dispatch)(new EntityPersisted($identity, $entity));
         });
@@ -91,7 +91,7 @@ final class InsertPersister implements Persister
         $this->variables = new Stream('string');
 
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
-            $meta = $this->metadatas->get(\get_class($entity));
+            $meta = ($this->metadata)(\get_class($entity));
 
             return $meta instanceof Aggregate;
         });
@@ -124,8 +124,8 @@ final class InsertPersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(\get_class($entity));
-        $data = $this->extractor->extract($entity);
+        $meta = ($this->metadata)(\get_class($entity));
+        $data = ($this->extract)($entity);
         $varName = $this->name->sprintf(\md5($identity->value()));
 
         $query = $query->create(
@@ -307,8 +307,8 @@ final class InsertPersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(\get_class($entity));
-        $data = $this->extractor->extract($entity);
+        $meta = ($this->metadata)(\get_class($entity));
+        $data = ($this->extract)($entity);
         $start = $data->get($meta->startNode()->property());
         $end = $data->get($meta->endNode()->property());
         $varName = $this->name->sprintf(\md5($identity->value()));

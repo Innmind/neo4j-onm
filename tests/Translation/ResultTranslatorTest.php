@@ -35,7 +35,7 @@ class ResultTranslatorTest extends TestCase
 {
     public function testTranslate()
     {
-        $translator = new ResultTranslator;
+        $translate = new ResultTranslator;
         $aggregate = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -133,7 +133,7 @@ class ResultTranslatorTest extends TestCase
                 )
             );
 
-        $data = $translator->translate(
+        $data = $translate(
             Result::fromRaw([
                 'columns' => ['n', 'r'],
                 'data' => [[
@@ -302,7 +302,7 @@ class ResultTranslatorTest extends TestCase
 
     public function testTranslateWithoutExpectedVariable()
     {
-        $translator = new ResultTranslator;
+        $translate = new ResultTranslator;
         $aggregate = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
@@ -319,7 +319,7 @@ class ResultTranslatorTest extends TestCase
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')
         );
-        $data = $translator->translate(
+        $data = $translate(
             Result::fromRaw([
                 'columns' => [],
                 'data' => [[
@@ -353,7 +353,7 @@ class ResultTranslatorTest extends TestCase
      */
     public function testThrowWhenEmptyInvalidVariableMap()
     {
-        (new ResultTranslator)->translate(
+        (new ResultTranslator)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')
         );

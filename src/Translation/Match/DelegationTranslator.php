@@ -36,11 +36,10 @@ final class DelegationTranslator implements MatchTranslator
         }
     }
 
-    public function translate(Entity $meta): IdentityMatch
+    public function __invoke(Entity $meta): IdentityMatch
     {
-        return $this
-            ->translators
-            ->get(get_class($meta))
-            ->translate($meta);
+        $translate = $this->translators->get(get_class($meta));
+
+        return $translate($meta);
     }
 }

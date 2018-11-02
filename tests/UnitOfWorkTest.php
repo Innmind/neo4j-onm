@@ -56,7 +56,7 @@ class UnitOfWorkTest extends TestCase
     private $conn;
     private $container;
     private $entityFactory;
-    private $metadatas;
+    private $metadata;
     private $generators;
 
     public function setUp()
@@ -87,7 +87,7 @@ class UnitOfWorkTest extends TestCase
             ),
             $this->container
         );
-        $this->metadatas = new Metadatas(
+        $this->metadata = new Metadatas(
             new Aggregate(
                 new ClassName($this->aggregateClass),
                 new Identity('uuid', Uuid::class),
@@ -97,7 +97,7 @@ class UnitOfWorkTest extends TestCase
             )
         );
         $changeset = new ChangesetComputer;
-        $extractor = new DataExtractor($this->metadatas);
+        $extractor = new DataExtractor($this->metadata);
         $eventBus = $this->createMock(EventBus::class);
 
         $this->uow = new UnitOfWork(
@@ -105,24 +105,24 @@ class UnitOfWorkTest extends TestCase
             $this->container,
             $this->entityFactory,
             new IdentityMatchTranslator,
-            $this->metadatas,
+            $this->metadata,
             new DelegationPersister(
                 new InsertPersister(
                     $changeset,
                     $eventBus,
                     $extractor,
-                    $this->metadatas
+                    $this->metadata
                 ),
                 new UpdatePersister(
                     $changeset,
                     $eventBus,
                     $extractor,
-                    $this->metadatas
+                    $this->metadata
                 ),
                 new RemovePersister(
                     $changeset,
                     $eventBus,
-                    $this->metadatas
+                    $this->metadata
                 )
             ),
             $this->generators
@@ -241,7 +241,7 @@ class UnitOfWorkTest extends TestCase
                 ->withProperty('uuid', '"11111111-1111-1111-1111-111111111111"')
                 ->return('entity'),
             (new Map('string', Entity::class))
-                ->put('entity', $this->metadatas->get($this->aggregateClass))
+                ->put('entity', ($this->metadata)($this->aggregateClass))
         );
 
         $this->assertInstanceOf(SetInterface::class, $data);

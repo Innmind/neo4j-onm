@@ -39,11 +39,11 @@ use PHPUnit\Framework\TestCase;
 
 class EntityFactoryTest extends TestCase
 {
-    private $factory;
+    private $make;
 
     public function setUp()
     {
-        $this->factory = new EntityFactory(
+        $this->make = new EntityFactory(
             new ResultTranslator,
             $generators = new Generators,
             new Resolver(
@@ -242,7 +242,7 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->factory->make(
+        $entities = ($this->make)(
             $result,
             $variables
         );
@@ -325,7 +325,7 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertTrue(
-            $this->factory->make($result, $variables)->equals($entities)
+            ($this->make)($result, $variables)->equals($entities)
         );
     }
 
@@ -369,7 +369,7 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->factory->make(
+        $entities = ($this->make)(
             $result,
             $variables
         );
@@ -383,7 +383,7 @@ class EntityFactoryTest extends TestCase
      */
     public function testThrowWhenInvalidVariableMap()
     {
-        $this->factory->make(
+        ($this->make)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')
         );
