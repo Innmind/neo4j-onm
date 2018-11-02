@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     MetadataFactory\AggregateFactory,
     MetadataFactory,
     Metadata\Aggregate,
+    EntityFactory\AggregateFactory as EntityFactory,
     Type\StringType,
     Type\DateType,
     Types,
@@ -73,7 +74,7 @@ class AggregateFactoryTest extends TestCase
         $this->assertInstanceOf(Aggregate::class, $ar);
         $this->assertSame('Image', (string) $ar->class());
         $this->assertSame('ImageRepository', (string) $ar->repository());
-        $this->assertSame('ImageFactory', (string) $ar->factory());
+        $this->assertSame(EntityFactory::class, (string) $ar->factory());
         $this->assertSame(['Image'], $ar->labels()->toPrimitive());
         $this->assertSame('uuid', $ar->identity()->property());
         $this->assertSame('UUID', $ar->identity()->type());

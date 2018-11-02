@@ -28,7 +28,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\Entity,
     Exception\IdentityNotManaged,
 };
@@ -92,7 +91,6 @@ class UnitOfWorkTest extends TestCase
                 new ClassName($this->aggregateClass),
                 new Identity('uuid', Uuid::class),
                 new Repository('foo'),
-                new Factory(AggregateFactory::class),
                 ['Label']
             )
         );

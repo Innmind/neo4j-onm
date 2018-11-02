@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
+use Innmind\Neo4j\ONM\EntityFactory\RelationshipFactory;
+
 final class Relationship extends AbstractEntity implements Entity
 {
     private $type;
@@ -13,12 +15,16 @@ final class Relationship extends AbstractEntity implements Entity
         ClassName $class,
         Identity $id,
         Repository $repository,
-        Factory $factory,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode
     ) {
-        parent::__construct($class, $id, $repository, $factory);
+        parent::__construct(
+            $class,
+            $id,
+            $repository,
+            new Factory(RelationshipFactory::class)
+        );
 
         $this->type = $type;
         $this->startNode = $startNode;

@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\Relationship,
@@ -40,7 +39,6 @@ class ResultTranslatorTest extends TestCase
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             ['Label']
         );
         $aggregate = $aggregate
@@ -117,7 +115,6 @@ class ResultTranslatorTest extends TestCase
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')
@@ -307,14 +304,12 @@ class ResultTranslatorTest extends TestCase
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             ['Label']
         );
         $relationship = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')

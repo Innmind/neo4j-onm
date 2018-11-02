@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -57,7 +56,6 @@ class RemovePersisterTest extends TestCase
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
-                new Factory('foo'),
                 ['Label']
             ))
                 ->withChild(
@@ -76,7 +74,6 @@ class RemovePersisterTest extends TestCase
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
-                new Factory('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'uuid'),
                 new RelationshipEdge('end', Uuid::class, 'uuid')

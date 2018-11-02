@@ -1,7 +1,6 @@
 Image:
     type: aggregate
     repository: ImageRepository #optional
-    factory: ImageFactory # optional
     labels: [Image]
     identity:
         property: uuid
@@ -27,7 +26,6 @@ Image:
 SomeRelationship:
     type: relationship
     repository: SRRepository # optional
-    factory: SRFactory # optional
     rel_type: SOME_RELATIONSHIP
     identity:
         property: uuid

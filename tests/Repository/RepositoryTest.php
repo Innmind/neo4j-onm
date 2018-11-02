@@ -31,7 +31,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository as MetaRepository,
-    Metadata\Factory,
     Type\StringType,
     Types,
     Exception\EntityNotFound,
@@ -91,7 +90,6 @@ class RepositoryTest extends TestCase
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
                 new MetaRepository(Repository::class),
-                new Factory(AggregateFactory::class),
                 ['Label']
             ))
                 ->withProperty('content', StringType::fromConfig(

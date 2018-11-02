@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -69,7 +68,6 @@ class RelationshipFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'target'),
             new RelationshipEdge('end', Uuid::class, 'target')
@@ -136,7 +134,6 @@ class RelationshipFactoryTest extends TestCase
                 new ClassName('foo'),
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
-                new Factory('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
                 new RelationshipEdge('end', Uuid::class, 'target')

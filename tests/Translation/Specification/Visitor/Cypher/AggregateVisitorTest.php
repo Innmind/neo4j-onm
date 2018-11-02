@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -33,7 +32,6 @@ class AggregateVisitorTest extends TestCase
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
                 new Repository('foo'),
-                new Factory('foo'),
                 ['Label']
             ))
                 ->withProperty('created', new DateType)

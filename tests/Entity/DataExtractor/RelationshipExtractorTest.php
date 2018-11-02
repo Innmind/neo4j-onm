@@ -11,7 +11,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -38,7 +37,6 @@ class RelationshipExtractorTest extends TestCase
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'target'),
             new RelationshipEdge('end', Uuid::class, 'target')

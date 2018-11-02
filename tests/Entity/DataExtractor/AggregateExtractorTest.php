@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -39,7 +38,6 @@ class AggregateExtractorTest extends TestCase
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             ['Label']
         );
         $this->meta = $this->meta

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
+use Innmind\Neo4j\ONM\EntityFactory\AggregateFactory;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -19,10 +20,14 @@ final class Aggregate extends AbstractEntity implements Entity
         ClassName $class,
         Identity $id,
         Repository $repository,
-        Factory $factory,
         array $labels
     ) {
-        parent::__construct($class, $id, $repository, $factory);
+        parent::__construct(
+            $class,
+            $id,
+            $repository,
+            new Factory(AggregateFactory::class)
+        );
 
         $this->labels = Set::of('string', ...$labels);
         $this->children = new Map('string', ValueObject::class);

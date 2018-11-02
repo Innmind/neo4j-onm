@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Repository\Repository as EntityRepository,
-    EntityFactory\AggregateFactory as EntityFactory,
     Types,
 };
 use Innmind\Immutable\{
@@ -53,10 +52,6 @@ final class AggregateFactory implements MetadataFactory
             new Repository(
                 $config->contains('repository') ?
                     $config->get('repository') : EntityRepository::class
-            ),
-            new Factory(
-                $config->contains('factory') ?
-                    $config->get('factory') : EntityFactory::class
             ),
             $config->get('labels')
         );

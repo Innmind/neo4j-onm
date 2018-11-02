@@ -11,7 +11,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Repository,
-    Metadata\Factory,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -46,7 +45,6 @@ class DelegationTranslatorTest extends TestCase
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             ['Label']
         );
         $meta = $meta
@@ -125,7 +123,6 @@ class DelegationTranslatorTest extends TestCase
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new Repository('foo'),
-            new Factory('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')

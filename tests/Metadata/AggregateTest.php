@@ -14,6 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type,
+    EntityFactory\AggregateFactory,
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -29,7 +30,6 @@ class AggregateTest extends TestCase
             $cn = new ClassName('foo'),
             $i = new Identity('uuid', 'UUID'),
             $r = new Repository('Class'),
-            $f = new Factory('AnotherClass'),
             ['LabelA']
         );
 
@@ -37,7 +37,7 @@ class AggregateTest extends TestCase
         $this->assertSame($cn, $ar->class());
         $this->assertSame($i, $ar->identity());
         $this->assertSame($r, $ar->repository());
-        $this->assertSame($f, $ar->factory());
+        $this->assertSame(AggregateFactory::class, (string) $ar->factory());
         $this->assertInstanceOf(SetInterface::class, $ar->labels());
         $this->assertSame('string', (string) $ar->labels()->type());
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());

@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     MetadataFactory\RelationshipFactory,
     MetadataFactory,
     Metadata\Relationship,
+    EntityFactory\RelationshipFactory as EntityFactory,
     Type\DateType,
     Types,
 };
@@ -61,7 +62,7 @@ class RelationshipFactoryTest extends TestCase
         $this->assertInstanceOf(Relationship::class, $ar);
         $this->assertSame('SomeRelationship', (string) $ar->class());
         $this->assertSame('SRRepository', (string) $ar->repository());
-        $this->assertSame('SRFactory', (string) $ar->factory());
+        $this->assertSame(EntityFactory::class, (string) $ar->factory());
         $this->assertSame('SOME_RELATIONSHIP', (string) $ar->type());
         $this->assertSame('uuid', $ar->identity()->property());
         $this->assertSame('UUID', $ar->identity()->type());

@@ -14,6 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Type,
+    EntityFactory\RelationshipFactory,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +26,6 @@ class RelationshipTest extends TestCase
             $cn = new ClassName('foo'),
             $i = new Identity('uuid', 'UUID'),
             $repo = new Repository('Class'),
-            $f = new Factory('AnotherClass'),
             $t = new RelationshipType('foo'),
             $s = new RelationshipEdge('start', 'UUID', 'target'),
             $e = new RelationshipEdge('end', 'UUID', 'target')
@@ -35,7 +35,7 @@ class RelationshipTest extends TestCase
         $this->assertSame($cn, $r->class());
         $this->assertSame($i, $r->identity());
         $this->assertSame($repo, $r->repository());
-        $this->assertSame($f, $r->factory());
+        $this->assertSame(RelationshipFactory::class, (string) $r->factory());
         $this->assertSame($t, $r->type());
         $this->assertSame($s, $r->startNode());
         $this->assertSame($e, $r->endNode());

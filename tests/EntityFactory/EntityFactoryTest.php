@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
-    EntityFactory\AggregateFactory,
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
@@ -74,7 +73,6 @@ class EntityFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new Repository('foo'),
-            new Factory(AggregateFactory::class),
             ['Label']
         );
         $aggregate = $aggregate
@@ -129,7 +127,6 @@ class EntityFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new Repository('foo'),
-            new Factory(RelationshipFactory::class),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
             new RelationshipEdge('end', Uuid::class, 'uuid')
@@ -338,7 +335,6 @@ class EntityFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new Repository('foo'),
-            new Factory(AggregateFactory::class),
             ['Label']
         );
         $entity = new class {
@@ -350,7 +346,6 @@ class EntityFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new Repository('foo'),
-            new Factory(RelationshipFactory::class),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
             new RelationshipEdge('end', Uuid::class, 'uuid')
