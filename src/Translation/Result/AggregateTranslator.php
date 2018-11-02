@@ -99,7 +99,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
+                static function(MapInterface $carry, string $name) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)
@@ -175,7 +175,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                static function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
+                static function(MapInterface $carry, string $name) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)
@@ -215,7 +215,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                static function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
+                static function(MapInterface $carry, string $name) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)

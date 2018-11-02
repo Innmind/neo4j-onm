@@ -113,7 +113,7 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
+                static function(MapInterface $carry, string $name) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)
