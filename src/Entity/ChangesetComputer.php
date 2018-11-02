@@ -69,23 +69,16 @@ final class ChangesetComputer
         MapInterface $source,
         MapInterface $target
     ): MapInterface {
-        $changeset = $target
-            ->filter(static function(string $property, $value) use ($source): bool {
-                if (
-                    !$source->contains($property) ||
-                    $value !== $source->get($property)
-                ) {
-                    return true;
-                }
+        $changeset = $target->filter(static function(string $property, $value) use ($source): bool {
+            if (
+                !$source->contains($property) ||
+                $value !== $source->get($property)
+            ) {
+                return true;
+            }
 
-                return false;
-            })
-            ->reduce(
-                new Map('string', 'mixed'),
-                static function(MapInterface $carry, string $property, $value) use ($source): MapInterface {
-                    return $carry->put($property, $value);
-                }
-            );
+            return false;
+        });
 
         return $source
             ->filter(static function(string $property) use ($target): bool {
