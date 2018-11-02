@@ -20,18 +20,18 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity as IdentityInterface,
     Types,
-    EntityFactory
+    EntityFactory,
 };
 use Innmind\Reflection\{
     Instanciator,
-    InjectionStrategy
+    InjectionStrategy,
 };
 use Innmind\Immutable\{
     SetInterface,
     Set,
     MapInterface,
     Map,
-    Stream
+    Stream,
 };
 use PHPUnit\Framework\TestCase;
 

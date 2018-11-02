@@ -7,7 +7,7 @@ use Symfony\Component\Config\Definition\{
     ConfigurationInterface,
     Builder\TreeBuilder,
     Builder\NodeDefinition,
-    Exception\InvalidConfigurationException
+    Exception\InvalidConfigurationException,
 };
 
 final class Configuration implements ConfigurationInterface

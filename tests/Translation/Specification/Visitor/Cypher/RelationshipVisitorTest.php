@@ -18,13 +18,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Type\DateType,
     Type\StringType,
-    Types
+    Types,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    SequenceInterface,
-    MapInterface
 };
 use PHPUnit\Framework\TestCase;
 

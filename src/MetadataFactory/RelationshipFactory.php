@@ -16,11 +16,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Repository\Repository as EntityRepository,
     EntityFactory\RelationshipFactory as EntityFactory,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class RelationshipFactory implements MetadataFactory
@@ -110,12 +110,11 @@ final class RelationshipFactory implements MetadataFactory
      */
     private function map(array $data): MapInterface
     {
-        $map = new Map('string', 'mixed');
-
-        foreach ($data as $key => $value) {
-            $map = $map->put($key, $value);
-        }
-
-        return $map;
+        return Map::of(
+            'string',
+            'mixed',
+            array_keys($data),
+            array_values($data)
+        );
     }
 }

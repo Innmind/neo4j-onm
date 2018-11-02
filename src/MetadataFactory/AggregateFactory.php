@@ -17,11 +17,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Repository\Repository as EntityRepository,
     EntityFactory\AggregateFactory as EntityFactory,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class AggregateFactory implements MetadataFactory
@@ -88,12 +88,12 @@ final class AggregateFactory implements MetadataFactory
     }
 
     private function appendProperties(
-        $object,
+        object $object,
         MapInterface $properties
-    ) {
+    ): object {
         return $properties->reduce(
             $object,
-            function($carry, string $name, array $config) {
+            function(object $carry, string $name, array $config): object {
                 $config = $this->map($config);
 
                 return $carry->withProperty(
@@ -155,12 +155,11 @@ final class AggregateFactory implements MetadataFactory
      */
     private function map(array $data): MapInterface
     {
-        $map = new Map('string', 'mixed');
-
-        foreach ($data as $key => $value) {
-            $map = $map->put($key, $value);
-        }
-
-        return $map;
+        return Map::of(
+            'string',
+            'mixed',
+            array_keys($data),
+            array_values($data)
+        );
     }
 }

@@ -8,12 +8,12 @@ use Innmind\Neo4j\ONM\{
     Types,
     Exception\MissingFieldDeclaration,
     Exception\RecursiveTypeDeclaration,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
     SetInterface,
-    Set
+    Set,
 };
 
 final class SetType implements Type
@@ -111,10 +111,6 @@ final class SetType implements Type
      */
     public static function identifiers(): SetInterface
     {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('set');
-        }
-
-        return self::$identifiers;
+        return self::$identifiers ?? self::$identifiers = Set::of('string', 'set');
     }
 }

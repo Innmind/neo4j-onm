@@ -11,19 +11,20 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException,
     Exception\DomainException,
-    Exception\MoreThanOneRelationshipFound
+    Exception\MoreThanOneRelationshipFound,
 };
 use Innmind\Neo4j\DBAL\{
     Result,
     Result\Node,
     Result\Relationship,
-    Result\Row
+    Result\Row,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
     SetInterface,
-    Set
+    Set,
+    Str,
 };
 
 final class AggregateTranslator implements EntityTranslator
@@ -36,7 +37,7 @@ final class AggregateTranslator implements EntityTranslator
         Entity $meta,
         Result $result
     ): SetInterface {
-        if (empty($variable)) {
+        if (Str::of($variable)->empty()) {
             throw new DomainException;
         }
 
@@ -46,7 +47,7 @@ final class AggregateTranslator implements EntityTranslator
 
         return $result
             ->rows()
-            ->filter(function(Row $row) use ($variable) {
+            ->filter(static function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
@@ -68,7 +69,7 @@ final class AggregateTranslator implements EntityTranslator
     ): MapInterface {
         $node = $result
             ->nodes()
-            ->filter(function(int $id, Node $node) use ($identity, $meta) {
+            ->filter(static function(int $id, Node $node) use ($identity, $meta) {
                 $id = $meta->identity()->property();
                 $properties = $node->properties();
 
@@ -76,8 +77,8 @@ final class AggregateTranslator implements EntityTranslator
                     $properties->get($id) === $identity;
             })
             ->current();
-        $data = (new Map('string', 'mixed'))
-            ->put(
+        $data = Map::of('string', 'mixed')
+            (
                 $meta->identity()->property(),
                 $node->properties()->get(
                     $meta->identity()->property()
@@ -86,7 +87,7 @@ final class AggregateTranslator implements EntityTranslator
 
         $data = $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($node): bool {
+            ->filter(static function(string $name, Property $property) use ($node): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$node->properties()->contains($name)
@@ -98,7 +99,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)
@@ -131,7 +132,7 @@ final class AggregateTranslator implements EntityTranslator
         $relMeta = $meta->relationship();
         $relationships = $result
             ->relationships()
-            ->filter(function(
+            ->filter(static function(
                 int $id,
                 Relationship $relationship
             ) use (
@@ -162,7 +163,7 @@ final class AggregateTranslator implements EntityTranslator
         return $meta
             ->relationship()
             ->properties()
-            ->filter(function(string $name, Property $property) use ($relationship): bool {
+            ->filter(static function(string $name, Property $property) use ($relationship): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$relationship->properties()->contains($name)
@@ -174,7 +175,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)
@@ -198,13 +199,11 @@ final class AggregateTranslator implements EntityTranslator
     ): MapInterface {
         $node = $result
             ->nodes()
-            ->get(
-                $relationship->startNode()->value()
-            );
+            ->get($relationship->startNode()->value());
 
         return $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($node): bool {
+            ->filter(static function(string $name, Property $property) use ($node): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$node->properties()->contains($name)
@@ -216,7 +215,7 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->reduce(
                 new Map('string', 'mixed'),
-                function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($node): MapInterface {
                     return $carry->put(
                         $name,
                         $node->properties()->get($name)

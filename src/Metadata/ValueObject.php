@@ -5,10 +5,10 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Type;
 use Innmind\Immutable\{
-    Set,
+    MapInterface,
     Map,
     SetInterface,
-    MapInterface
+    Set,
 };
 
 final class ValueObject
@@ -24,13 +24,9 @@ final class ValueObject
         ValueObjectRelationship $relationship
     ) {
         $this->class = $class;
-        $this->labels = new Set('string');
+        $this->labels = Set::of('string', ...$labels);
         $this->relationship = $relationship;
         $this->properties = new Map('string', Property::class);
-
-        foreach ($labels as $label) {
-            $this->labels = $this->labels->add($label);
-        }
     }
 
     public function class(): ClassName

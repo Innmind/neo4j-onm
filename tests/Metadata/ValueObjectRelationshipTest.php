@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\RelationshipType,
     Metadata\Property,
-    Type
+    Type,
 };
 use Innmind\Immutable\MapInterface;
 use PHPUnit\Framework\TestCase;

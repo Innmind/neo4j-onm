@@ -6,7 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Entity;
 use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\Container\State,
-    Identity
+    Identity,
 };
 use PHPUnit\Framework\TestCase;
 

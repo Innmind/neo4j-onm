@@ -8,11 +8,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship,
     Metadata\Entity,
-    IdentityMatch
+    IdentityMatch,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 
 final class DelegationTranslator implements MatchTranslator
@@ -21,9 +21,9 @@ final class DelegationTranslator implements MatchTranslator
 
     public function __construct(MapInterface $translators = null)
     {
-        $this->translators = $translators ?? (new Map('string', MatchTranslator::class))
-            ->put(Aggregate::class, new AggregateTranslator)
-            ->put(Relationship::class, new RelationshipTranslator);
+        $this->translators = $translators ?? Map::of('string', MatchTranslator::class)
+            (Aggregate::class, new AggregateTranslator)
+            (Relationship::class, new RelationshipTranslator);
 
         if (
             (string) $this->translators->keyType() !== 'string' ||

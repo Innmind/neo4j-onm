@@ -6,16 +6,16 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     MetadataFactory\AggregateFactory,
-    MetadataFactory\RelationshipFactory
+    MetadataFactory\RelationshipFactory,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
-    Set
+    Set,
 };
 use Symfony\Component\Config\Definition\{
     ConfigurationInterface,
-    Processor
+    Processor,
 };
 
 final class MetadataBuilder
@@ -32,9 +32,9 @@ final class MetadataBuilder
         ConfigurationInterface $config = null
     ) {
         $this->definitions = new Set(Entity::class);
-        $this->factories = $factories ?? (new Map('string', MetadataFactory::class))
-            ->put('aggregate', new AggregateFactory($types))
-            ->put('relationship', new RelationshipFactory($types));
+        $this->factories = $factories ?? Map::of('string', MetadataFactory::class)
+            ('aggregate', new AggregateFactory($types))
+            ('relationship', new RelationshipFactory($types));
         $this->config = $config ?? new Configuration;
         $this->processor = new Processor;
 
@@ -51,11 +51,7 @@ final class MetadataBuilder
 
     public function container(): Metadatas
     {
-        if (!$this->metadatas instanceof Metadatas) {
-            $this->metadatas = new Metadatas(...$this->definitions);
-        }
-
-        return $this->metadatas;
+        return $this->metadatas ?? $this->metadatas = new Metadatas(...$this->definitions);
     }
 
     /**
@@ -100,12 +96,11 @@ final class MetadataBuilder
      */
     private function map(array $data): MapInterface
     {
-        $map = new Map('string', 'mixed');
-
-        foreach ($data as $key => $value) {
-            $map = $map->put($key, $value);
-        }
-
-        return $map;
+        return Map::of(
+            'string',
+            'mixed',
+            array_keys($data),
+            array_values($data)
+        );
     }
 }

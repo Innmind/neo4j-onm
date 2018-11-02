@@ -7,18 +7,18 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
     Exception\SpecificationNotApplicableAsPropertyMatch,
-    Query\PropertiesMatch
+    Query\PropertiesMatch,
 };
 use Innmind\Specification\{
     SpecificationInterface,
     ComparatorInterface,
     CompositeInterface,
-    Operator
+    Operator,
 };
 use Innmind\Immutable\{
     MapInterface,
+    Map,
     Str,
-    Map
 };
 
 final class AggregateVisitor implements PropertyMatchVisitor
@@ -75,21 +75,16 @@ final class AggregateVisitor implements PropertyMatchVisitor
         ComparatorInterface $specification
     ): MapInterface {
         $prop = $specification->property();
-        $key = (new Str('entity_'))->append($prop);
+        $key = Str::of('entity_')->append($prop);
 
-        return (new Map('string', PropertiesMatch::class))
-            ->put(
+        return Map::of('string', PropertiesMatch::class)
+            (
                 'entity',
                 new PropertiesMatch(
-                    (new Map('string', 'string'))
-                        ->put(
-                            $prop,
-                            (string) $key
-                                ->prepend('{')
-                                ->append('}')
-                        ),
-                    (new Map('string', 'mixed'))
-                        ->put((string) $key, $specification->value())
+                    Map::of('string', 'string')
+                        ($prop, (string) $key->prepend('{')->append('}')),
+                    Map::of('string', 'mixed')
+                        ((string) $key, $specification->value())
                 )
             );
     }
@@ -99,24 +94,24 @@ final class AggregateVisitor implements PropertyMatchVisitor
     ): MapInterface {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
-        $var = (new Str('entity_'))->append(
+        $var = Str::of('entity_')->append(
             (string) $pieces->dropEnd(1)->join('_')
         );
         $key = $var->append('_')->append((string) $pieces->last());
 
-        return (new Map('string', PropertiesMatch::class))
-            ->put(
+        return Map::of('string', PropertiesMatch::class)
+            (
                 (string) $var,
                 new PropertiesMatch(
-                    (new Map('string', 'string'))
-                        ->put(
+                    Map::of('string', 'string')
+                        (
                             (string) $pieces->last(),
                             (string) $key
                                 ->prepend('{')
                                 ->append('}')
                         ),
-                    (new Map('string', 'mixed'))
-                        ->put((string) $key, $specification->value())
+                    Map::of('string', 'mixed')
+                        ((string) $key, $specification->value())
                 )
             );
     }
@@ -127,7 +122,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
     ): MapInterface {
         return $right->reduce(
             $left,
-            function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
                 if (!$carry->contains($var)) {
                     return $carry->put($var, $data);
                 }

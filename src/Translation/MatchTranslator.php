@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\{
     Metadata\Entity,
-    IdentityMatch
+    IdentityMatch,
 };
 
 interface MatchTranslator

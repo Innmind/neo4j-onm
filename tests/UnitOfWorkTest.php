@@ -31,21 +31,21 @@ use Innmind\Neo4j\ONM\{
     Metadata\Factory,
     Metadata\Alias,
     Metadata\Entity,
-    Exception\IdentityNotManaged
+    Exception\IdentityNotManaged,
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
-    Query\Query
+    Query\Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
-    Factory\Header\Factories
+    Factory\Header\Factories,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Map,
 };
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;

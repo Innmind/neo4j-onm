@@ -7,9 +7,12 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generator,
     Identity,
-    Exception\DomainException
+    Exception\DomainException,
 };
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Str,
+};
 use Ramsey\Uuid\Uuid as Factory;
 
 final class UuidGenerator implements Generator
@@ -18,7 +21,7 @@ final class UuidGenerator implements Generator
 
     public function __construct(string $type = Uuid::class)
     {
-        if (empty($type)) {
+        if (Str::of($type)->empty()) {
             throw new DomainException;
         }
 

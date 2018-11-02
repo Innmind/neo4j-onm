@@ -11,11 +11,11 @@ use Innmind\Neo4j\ONM\{
     Type\FloatType,
     Type\IntType,
     Type\StringType,
-    Exception\DomainException
+    Exception\DomainException,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 
 final class Types
@@ -34,11 +34,28 @@ final class Types
             StringType::class,
         ];
         $types = array_merge($defaults, $types);
-        $this->types = (new Map('string', 'string'));
+        $this->types = new Map('string', 'string');
 
         foreach ($types as $type) {
             $this->register($type);
         }
+    }
+
+    /**
+     * Build a new type instance of the wished type
+     *
+     * @param MapInterface<string, mixed> $config
+     */
+    public function build(string $type, MapInterface $config): Type
+    {
+        if (
+            (string) $config->keyType() !== 'string' ||
+            (string) $config->valueType() !== 'mixed'
+        ) {
+            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
+        }
+
+        return [$this->types->get($type), 'fromConfig']($config, $this);
     }
 
     /**
@@ -66,22 +83,5 @@ final class Types
             });
 
         return $this;
-    }
-
-    /**
-     * Build a new type instance of the wished type
-     *
-     * @param MapInterface<string, mixed> $config
-     */
-    public function build(string $type, MapInterface $config): Type
-    {
-        if (
-            (string) $config->keyType() !== 'string' ||
-            (string) $config->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
-        }
-
-        return [$this->types->get($type), 'fromConfig']($config, $this);
     }
 }

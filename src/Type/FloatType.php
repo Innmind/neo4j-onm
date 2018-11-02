@@ -5,12 +5,12 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     MapInterface,
+    SetInterface,
     Set,
-    SetInterface
 };
 
 final class FloatType implements Type
@@ -65,10 +65,6 @@ final class FloatType implements Type
      */
     public static function identifiers(): SetInterface
     {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('float');
-        }
-
-        return self::$identifiers;
+        return self::$identifiers ?? self::$identifiers = Set::of('string', 'float');
     }
 }

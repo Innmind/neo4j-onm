@@ -22,7 +22,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     Identity as IdentityInterface,
     Types,
-    EntityFactory
+    EntityFactory,
 };
 use Innmind\Reflection\{
     Instanciator,
@@ -34,7 +34,7 @@ use Innmind\Immutable\{
     MapInterface,
     SetInterface,
     Set,
-    Stream
+    Stream,
 };
 use PHPUnit\Framework\TestCase;
 

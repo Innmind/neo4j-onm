@@ -7,12 +7,12 @@ use Innmind\Neo4j\ONM\{
     Type,
     Types,
     Exception\MissingFieldDeclaration,
-    Exception\RecursiveTypeDeclaration
+    Exception\RecursiveTypeDeclaration,
 };
 use Innmind\Immutable\{
     MapInterface,
+    SetInterface,
     Set,
-    SetInterface
 };
 
 final class ArrayType implements Type
@@ -95,10 +95,6 @@ final class ArrayType implements Type
      */
     public static function identifiers(): SetInterface
     {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('array');
-        }
-
-        return self::$identifiers;
+        return self::$identifiers ?? self::$identifiers = Set::of('string', 'array');
     }
 }

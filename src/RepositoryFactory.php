@@ -6,11 +6,11 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Translation\SpecificationTranslator,
-    Metadata\Entity
+    Metadata\Entity,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 class RepositoryFactory

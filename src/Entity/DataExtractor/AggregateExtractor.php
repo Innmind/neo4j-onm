@@ -9,15 +9,15 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy
+    ExtractionStrategy,
 };
 
 final class AggregateExtractor implements DataExtractorInterface
@@ -74,20 +74,20 @@ final class AggregateExtractor implements DataExtractorInterface
     ): MapInterface {
         $rel = $this
             ->reflection($entity)
-            ->extract($prop = $child->relationship()->property())
-            ->get($prop);
+            ->extract($property = $child->relationship()->property())
+            ->get($property);
         $data = $this
             ->extractProperties(
                 $rel,
                 $child->relationship()->properties()
             )
             ->put(
-                $prop = $child->relationship()->childProperty(),
+                $property = $child->relationship()->childProperty(),
                 $this->extractProperties(
                     $this
                         ->reflection($rel)
-                        ->extract($prop)
-                        ->get($prop),
+                        ->extract($property)
+                        ->get($property),
                     $child->properties()
                 )
             );
@@ -108,7 +108,7 @@ final class AggregateExtractor implements DataExtractorInterface
 
         return $properties->reduce(
             new Map('string', 'mixed'),
-            function(Map $carry, string $name, Property $property) use ($refl): Map {
+            static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
                 return $carry->put(
                     $name,
                     $property

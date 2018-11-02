@@ -9,18 +9,18 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Identity,
     Exception\SpecificationNotApplicableAsPropertyMatch,
-    Query\PropertiesMatch
+    Query\PropertiesMatch,
 };
 use Innmind\Specification\{
     SpecificationInterface,
     ComparatorInterface,
     CompositeInterface,
-    Operator
+    Operator,
 };
 use Innmind\Immutable\{
     MapInterface,
+    Map,
     Str,
-    Map
 };
 
 final class RelationshipVisitor implements PropertyMatchVisitor
@@ -88,21 +88,16 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         ComparatorInterface $specification
     ): MapInterface {
         $prop = $specification->property();
-        $key = (new Str('entity_'))->append($prop);
+        $key = Str::of('entity_')->append($prop);
 
-        return (new Map('string', PropertiesMatch::class))
-            ->put(
+        return Map::of('string', PropertiesMatch::class)
+            (
                 'entity',
                 new PropertiesMatch(
-                    (new Map('string', 'string'))
-                        ->put(
-                            $prop,
-                            (string) $key
-                                ->prepend('{')
-                                ->append('}')
-                        ),
-                    (new Map('string', 'mixed'))
-                        ->put((string) $key, $specification->value())
+                    Map::of('string', 'string')
+                        ($prop, (string) $key->prepend('{')->append('}')),
+                    Map::of('string', 'mixed')
+                        ((string) $key, $specification->value())
                 )
             );
     }
@@ -112,7 +107,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         RelationshipEdge $edge,
         string $side
     ): MapInterface {
-        $key = (new Str($side))
+        $key = Str::of($side)
             ->append('_')
             ->append($edge->target());
         $value = $specification->value();
@@ -121,19 +116,19 @@ final class RelationshipVisitor implements PropertyMatchVisitor
             $value = $value->value();
         }
 
-        return (new Map('string', PropertiesMatch::class))
-            ->put(
+        return Map::of('string', PropertiesMatch::class)
+            (
                 $side,
                 new PropertiesMatch(
-                    (new Map('string', 'string'))
-                        ->put(
+                    Map::of('string', 'string')
+                        (
                             $edge->target(),
                             (string) $key
                                 ->prepend('{')
                                 ->append('}')
                         ),
-                    (new Map('string', 'mixed'))
-                        ->put((string) $key, $value)
+                    Map::of('string', 'mixed')
+                        ((string) $key, $value)
                 )
             );
     }
@@ -144,7 +139,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     ): MapInterface {
         return $right->reduce(
             $left,
-            function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
                 if (!$carry->contains($var)) {
                     return $carry->put($var, $data);
                 }

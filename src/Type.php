@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Immutable\{
     MapInterface,
-    SetInterface
+    SetInterface,
 };
 
 interface Type

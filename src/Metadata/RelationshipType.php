@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
+use Innmind\Immutable\Str;
 
 final class RelationshipType
 {
@@ -11,7 +12,7 @@ final class RelationshipType
 
     public function __construct(string $type)
     {
-        if (empty($type)) {
+        if (Str::of($type)->empty()) {
             throw new DomainException;
         }
 

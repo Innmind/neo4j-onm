@@ -23,7 +23,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\Resolver,
     Translation\ResultTranslator,
     Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
-    Persister
+    Persister,
 };
 use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

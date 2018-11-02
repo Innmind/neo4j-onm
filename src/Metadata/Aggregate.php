@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Immutable\{
-    Set,
+    MapInterface,
     Map,
     SetInterface,
-    MapInterface
+    Set,
 };
 
 final class Aggregate extends AbstractEntity implements Entity
@@ -25,12 +25,7 @@ final class Aggregate extends AbstractEntity implements Entity
     ) {
         parent::__construct($class, $id, $repository, $factory, $alias);
 
-        $this->labels = new Set('string');
-
-        foreach ($labels as $label) {
-            $this->labels = $this->labels->add($label);
-        }
-
+        $this->labels = Set::of('string', ...$labels);
         $this->children = new Map('string', ValueObject::class);
     }
 

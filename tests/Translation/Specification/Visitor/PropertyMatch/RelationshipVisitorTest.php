@@ -20,12 +20,12 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Types,
-    Query\PropertiesMatch
+    Query\PropertiesMatch,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 use PHPUnit\Framework\TestCase;
 

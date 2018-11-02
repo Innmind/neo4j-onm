@@ -35,7 +35,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Alias,
     Type\StringType,
     Types,
-    Exception\EntityNotFound
+    Exception\EntityNotFound,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
@@ -43,11 +43,11 @@ use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
-    Factory\Header\Factories
+    Factory\Header\Factories,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Map,
 };
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;

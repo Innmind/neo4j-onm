@@ -6,7 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Persister;
 use Innmind\Neo4j\ONM\{
     Persister\DelegationPersister,
     Persister,
-    Entity\Container
+    Entity\Container,
 };
 use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

@@ -5,11 +5,12 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Exception\DomainException
+    Exception\DomainException,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
+    Str,
 };
 
 final class ValueObjectRelationship
@@ -26,7 +27,7 @@ final class ValueObjectRelationship
         string $property,
         string $childProperty
     ) {
-        if (empty($property) || empty($childProperty)) {
+        if (Str::of($property)->empty() || Str::of($childProperty)->empty()) {
             throw new DomainException;
         }
 

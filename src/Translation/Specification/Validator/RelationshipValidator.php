@@ -7,13 +7,13 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
     Metadata\Entity,
     Metadata\Relationship,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Specification\{
     ComparatorInterface,
     CompositeInterface,
     NotInterface,
-    SpecificationInterface
+    SpecificationInterface,
 };
 
 final class RelationshipValidator implements Validator

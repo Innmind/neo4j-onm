@@ -7,11 +7,11 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Identity,
     Exception\IdentityNotManaged,
-    Exception\DomainException
+    Exception\DomainException,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 
 final class Container
@@ -20,23 +20,11 @@ final class Container
 
     public function __construct()
     {
-        $this->states = (new Map(State::class, Map::class))
-            ->put(
-                State::managed(),
-                new Map(Identity::class, 'object')
-            )
-            ->put(
-                State::new(),
-                new Map(Identity::class, 'object')
-            )
-            ->put(
-                State::toBeRemoved(),
-                new Map(Identity::class, 'object')
-            )
-            ->put(
-                State::removed(),
-                new Map(Identity::class, 'object')
-            );
+        $this->states = Map::of(State::class, Map::class)
+            (State::managed(), Map::of(Identity::class, 'object'))
+            (State::new(), Map::of(Identity::class, 'object'))
+            (State::toBeRemoved(), Map::of(Identity::class, 'object'))
+            (State::removed(), Map::of(Identity::class, 'object'));
     }
 
     /**
@@ -48,7 +36,7 @@ final class Container
             throw new DomainException;
         }
 
-        $this->states = $this->states->map(function(
+        $this->states = $this->states->map(static function(
             State $state,
             MapInterface $entities
         ) use (
@@ -81,7 +69,7 @@ final class Container
      */
     public function detach(Identity $identity): self
     {
-        $this->states = $this->states->map(function(
+        $this->states = $this->states->map(static function(
             State $state,
             MapInterface $entities
         ) use (

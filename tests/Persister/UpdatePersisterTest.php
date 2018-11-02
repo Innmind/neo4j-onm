@@ -27,17 +27,17 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Types,
     Event\EntityAboutToBeUpdated,
-    Event\EntityUpdated
+    Event\EntityUpdated,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Result,
-    Query\Parameter
+    Query\Parameter,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 

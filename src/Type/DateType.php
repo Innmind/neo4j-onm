@@ -6,12 +6,12 @@ namespace Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type,
     Types,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
+    SetInterface,
     Set,
-    SetInterface
 };
 
 final class DateType implements Type
@@ -91,12 +91,6 @@ final class DateType implements Type
      */
     public static function identifiers(): SetInterface
     {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))
-                ->add('date')
-                ->add('datetime');
-        }
-
-        return self::$identifiers;
+        return self::$identifiers ?? self::$identifiers = Set::of('string', 'date', 'datetime');
     }
 }

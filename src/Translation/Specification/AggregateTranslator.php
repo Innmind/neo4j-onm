@@ -10,17 +10,17 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\Entity,
     IdentityMatch,
-    Exception\SpecificationNotApplicableAsPropertyMatch
+    Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
-    Clause\Expression\Relationship
+    Clause\Expression\Relationship,
 };
 use Innmind\Immutable\{
-    Map,
-    Str,
     MapInterface,
-    Set
+    Map,
+    Set,
+    Str,
 };
 use Innmind\Specification\SpecificationInterface;
 
@@ -59,7 +59,7 @@ final class AggregateTranslator implements SpecificationTranslator
                     $mapping,
                     &$variables
                 ): void {
-                    $relName = (new Str('entity_'))->append($property);
+                    $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
@@ -105,7 +105,7 @@ final class AggregateTranslator implements SpecificationTranslator
                     &$query,
                     &$variables
                 ): void {
-                    $relName = (new Str('entity_'))->append($property);
+                    $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
@@ -126,26 +126,19 @@ final class AggregateTranslator implements SpecificationTranslator
                         );
                 });
             $condition = (new AggregateCypherVisitor($meta))($specification);
-            $query = $query
-                ->where($condition->cypher())
-                ->withParameters(
-                    $condition
-                        ->parameters()
-                        ->reduce(
-                            [],
-                            function(array $carry, string $key, $value): array {
-                                $carry[$key] = $value;
-
-                                return $carry;
-                            }
-                        )
-                );
+            $query = $query->where($condition->cypher());
+            $query = $condition->parameters()->reduce(
+                $query,
+                static function(Query $query, string $key, $value): Query {
+                    return $query->withParameter($key, $value);
+                }
+            );
         }
 
         return new IdentityMatch(
             $query->return('entity', ...$variables->toPrimitive()),
-            (new Map('string', Entity::class))
-                ->put('entity', $meta)
+            Map::of('string', Entity::class)
+                ('entity', $meta)
         );
     }
 
@@ -158,33 +151,19 @@ final class AggregateTranslator implements SpecificationTranslator
         MapInterface $mapping
     ): Query {
         if ($mapping->contains($name)) {
-            $query = $query
-                ->withProperties(
-                    $mapping
-                        ->get($name)
-                        ->properties()
-                        ->reduce(
-                            [],
-                            function(array $carry, string $property, string $cypher): array {
-                                $carry[$property] = $cypher;
-
-                                return $carry;
-                            }
-                        )
-                )
-                ->withParameters(
-                    $mapping
-                        ->get($name)
-                        ->parameters()
-                        ->reduce(
-                            [],
-                            function(array $carry, string $key, $value): array {
-                                $carry[$key] = $value;
-
-                                return $carry;
-                            }
-                        )
-                );
+            $match = $mapping->get($name);
+            $query = $match->properties()->reduce(
+                $query,
+                static function(Query $query, string $property, string $cypher): Query {
+                    return $query->withProperty($property, $cypher);
+                }
+            );
+            $query = $match->parameters()->reduce(
+                $query,
+                static function(Query $query, string $key, $value): Query {
+                    return $query->withParameter($key, $value);
+                }
+            );
         }
 
         return $query;

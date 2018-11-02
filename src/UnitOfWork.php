@@ -10,15 +10,15 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity\Generators,
     Exception\EntityNotFound,
-    Exception\IdentityNotManaged
+    Exception\IdentityNotManaged,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query
+    Query,
 };
 use Innmind\Immutable\{
     MapInterface,
-    SetInterface
+    SetInterface,
 };
 use Innmind\Reflection\ReflectionObject;
 
@@ -216,7 +216,7 @@ final class UnitOfWork
             ->identity()
             ->property();
 
-        return (new ReflectionObject($entity))
+        return ReflectionObject::of($entity)
             ->extract($identity)
             ->get($identity);
     }

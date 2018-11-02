@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Exception;
 
 use Innmind\Neo4j\ONM\Metadata\{
     ValueObject,
-    Entity
+    Entity,
 };
 
 final class MoreThanOneRelationshipFound extends RuntimeException

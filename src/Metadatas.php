@@ -5,8 +5,8 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Metadata\Entity;
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 
 final class Metadatas
@@ -32,20 +32,6 @@ final class Metadatas
     }
 
     /**
-     * Register a new entity metadata
-     */
-    private function register(Entity $meta): self
-    {
-        $this->aliases = $this->aliases->put(
-            (string) $meta->alias(),
-            (string) $meta->class()
-        );
-        $this->mapping = $this->mapping->put((string) $meta->class(), $meta);
-
-        return $this;
-    }
-
-    /**
      * Return the metadata for an entity
      *
      * @param string $name Class or alias
@@ -57,5 +43,19 @@ final class Metadatas
         }
 
         return $this->mapping->get($name);
+    }
+
+    /**
+     * Register a new entity metadata
+     */
+    private function register(Entity $meta): self
+    {
+        $this->aliases = $this->aliases->put(
+            (string) $meta->alias(),
+            (string) $meta->class()
+        );
+        $this->mapping = $this->mapping->put((string) $meta->class(), $meta);
+
+        return $this;
     }
 }

@@ -12,7 +12,7 @@ final class EntityPersisted
 
     public function __construct(Identity $identity, object $entity)
     {
-        if (!is_object($entity)) {
+        if (!\is_object($entity)) {
             throw new InvalidArgumentException;
         }
 

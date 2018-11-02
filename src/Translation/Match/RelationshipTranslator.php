@@ -6,11 +6,11 @@ namespace Innmind\Neo4j\ONM\Translation\Match;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Metadata\Entity,
-    IdentityMatch
+    IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
-    Clause\Expression\Relationship
+    Clause\Expression\Relationship,
 };
 use Innmind\Immutable\Map;
 
@@ -34,8 +34,8 @@ final class RelationshipTranslator implements MatchTranslator
 
         return new IdentityMatch(
             $query,
-            (new Map('string', Entity::class))
-                ->put('entity', $meta)
+            Map::of('string', Entity::class)
+                ('entity', $meta)
         );
     }
 }

@@ -10,13 +10,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\Property,
     Identity\Generators,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionClass,
     Instanciator,
-    InjectionStrategy
+    InjectionStrategy,
 };
 
 final class RelationshipFactory implements EntityFactoryInterface
@@ -54,12 +54,12 @@ final class RelationshipFactory implements EntityFactoryInterface
             throw new \TypeError('Argument 3 must be of type MapInterface<string, mixed>');
         }
 
-        $reflection = (new ReflectionClass(
+        $reflection = ReflectionClass::of(
             (string) $meta->class(),
             null,
             $this->injectionStrategy,
             $this->instanciator
-        ))
+        )
             ->withProperty(
                 $meta->identity()->property(),
                 $identity
@@ -85,7 +85,7 @@ final class RelationshipFactory implements EntityFactoryInterface
 
         return $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($data): bool {
+            ->filter(static function(string $name, Property $property) use ($data): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$data->contains($name)
@@ -97,7 +97,7 @@ final class RelationshipFactory implements EntityFactoryInterface
             })
             ->reduce(
                 $reflection,
-                function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
+                static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(

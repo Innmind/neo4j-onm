@@ -18,11 +18,11 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;

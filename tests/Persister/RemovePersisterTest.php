@@ -23,12 +23,12 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Metadatas,
     Event\EntityAboutToBeRemoved,
-    Event\EntityRemoved
+    Event\EntityRemoved,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Result,
-    Query\Parameter
+    Query\Parameter,
 };
 use Innmind\EventBus\EventBus;
 use PHPUnit\Framework\TestCase;

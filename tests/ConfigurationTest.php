@@ -6,7 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Configuration;
 use Symfony\Component\{
     Config\Definition\Processor,
-    Yaml\Yaml
+    Yaml\Yaml,
 };
 use PHPUnit\Framework\TestCase;
 

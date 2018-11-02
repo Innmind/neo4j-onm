@@ -9,11 +9,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\Entity,
     IdentityMatch,
-    Exception\SpecificationNotApplicable
+    Exception\SpecificationNotApplicable,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 use Innmind\Specification\SpecificationInterface;
 
@@ -26,9 +26,9 @@ final class DelegationTranslator implements SpecificationTranslator
         MapInterface $translators = null,
         Validator $validator = null
     ) {
-        $this->translators = $translators ?? (new Map('string', SpecificationTranslator::class))
-            ->put(Aggregate::class, new AggregateTranslator)
-            ->put(Relationship::class, new RelationshipTranslator);
+        $this->translators = $translators ?? Map::of('string', SpecificationTranslator::class)
+            (Aggregate::class, new AggregateTranslator)
+            (Relationship::class, new RelationshipTranslator);
         $this->validator = $validator ?? new Validator\DelegationValidator;
 
         if (

@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\Identity\{
     Generators,
     Generator,
     Uuid,
-    Generator\UuidGenerator
+    Generator\UuidGenerator,
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;

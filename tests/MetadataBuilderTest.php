@@ -8,7 +8,7 @@ use Innmind\Neo4j\ONM\{
     Types,
     Metadatas,
     Metadata\Aggregate,
-    Metadata\Relationship
+    Metadata\Relationship,
 };
 use Innmind\Immutable\Map;
 use Symfony\Component\Yaml\Yaml;

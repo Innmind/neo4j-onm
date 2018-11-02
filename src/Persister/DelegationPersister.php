@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Persister;
 
 use Innmind\Neo4j\ONM\{
     Persister,
-    Entity\Container
+    Entity\Container,
 };
 use Innmind\Neo4j\DBAL\Connection;
 

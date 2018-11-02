@@ -18,7 +18,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Persister,
-    EntityFactory\EntityFactory
+    EntityFactory\EntityFactory,
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\Immutable\Map;

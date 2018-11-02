@@ -11,15 +11,15 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity,
     Entity\Container\State,
-    Exception\EntityNotFound
+    Exception\EntityNotFound,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Set
+    Set,
 };
 use Innmind\Specification\SpecificationInterface;
 
-class Repository implements RepositoryInterface
+final class Repository implements RepositoryInterface
 {
     private $unitOfWork;
     private $matchTranslator;
@@ -37,9 +37,11 @@ class Repository implements RepositoryInterface
         $this->matchTranslator = $matchTranslator;
         $this->specificationTranslator = $specificationTranslator;
         $this->metadata = $metadata;
-        $this->allowedStates = (new Set(State::class))
-            ->add(State::new())
-            ->add(State::managed());
+        $this->allowedStates = Set::of(
+            State::class,
+            State::new(),
+            State::managed()
+        );
     }
 
     /**

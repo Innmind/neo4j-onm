@@ -26,15 +26,15 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Entity\Container,
-    Types
+    Types,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
-    Result as ResultInterface
+    Result as ResultInterface,
 };
 use Innmind\Immutable\{
     Map,
-    SetInterface
+    SetInterface,
 };
 use PHPUnit\Framework\TestCase;
 

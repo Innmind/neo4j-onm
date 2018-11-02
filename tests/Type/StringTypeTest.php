@@ -6,11 +6,11 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type\StringType,
     Type,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 

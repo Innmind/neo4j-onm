@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Type
+    Type,
 };
 use PHPUnit\Framework\TestCase;
 

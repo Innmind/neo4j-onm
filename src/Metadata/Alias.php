@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
+use Innmind\Immutable\Str;
 
 /**
  * Entity alias
@@ -14,7 +15,7 @@ final class Alias
 
     public function __construct(string $value)
     {
-        if (empty($value)) {
+        if (Str::of($value)->empty()) {
             throw new DomainException;
         }
 

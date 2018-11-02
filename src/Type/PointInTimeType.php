@@ -6,17 +6,17 @@ namespace Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type,
     Types,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
     Format\ISO8601,
     PointInTimeInterface,
-    PointInTime\Earth\PointInTime
+    PointInTime\Earth\PointInTime,
 };
 use Innmind\Immutable\{
     MapInterface,
+    SetInterface,
     Set,
-    SetInterface
 };
 
 final class PointInTimeType implements Type
@@ -90,11 +90,6 @@ final class PointInTimeType implements Type
      */
     public static function identifiers(): SetInterface
     {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))
-                ->add('point_in_time');
-        }
-
-        return self::$identifiers;
+        return self::$identifiers ?? self::$identifiers = Set::of('string', 'point_in_time');
     }
 }

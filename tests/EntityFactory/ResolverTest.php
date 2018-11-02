@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory,
     EntityFactory\Resolver,
     Metadata\Entity,
-    Metadata\Factory
+    Metadata\Factory,
 };
 use PHPUnit\Framework\TestCase;
 

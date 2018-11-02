@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Identity;
 
 use Innmind\Neo4j\ONM\{
     Identity\Uuid,
-    Identity
+    Identity,
 };
 use PHPUnit\Framework\TestCase;
 

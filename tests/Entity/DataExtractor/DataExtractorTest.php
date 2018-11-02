@@ -20,11 +20,11 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Metadatas,
-    Types
+    Types,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 

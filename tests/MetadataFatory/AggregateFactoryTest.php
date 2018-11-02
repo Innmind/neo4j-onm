@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Type\StringType,
     Type\DateType,
-    Types
+    Types,
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;

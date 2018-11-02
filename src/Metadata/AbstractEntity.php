@@ -5,8 +5,8 @@ namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Type;
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 
 abstract class AbstractEntity

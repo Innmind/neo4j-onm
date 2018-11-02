@@ -14,18 +14,18 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Relationship,
     Metadata\Aggregate,
-    Metadata\ValueObject
+    Metadata\ValueObject,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query
+    Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    Str,
-    Stream,
     MapInterface,
-    Map
+    Map,
+    Stream,
+    Str,
 };
 
 final class RemovePersister implements Persister
@@ -81,7 +81,7 @@ final class RemovePersister implements Persister
         $query = new Query\Query;
         $this->variables = new Stream('string');
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
-            $meta = $this->metadatas->get(get_class($entity));
+            $meta = $this->metadatas->get(\get_class($entity));
 
             return $meta instanceof Relationship;
         });
@@ -106,7 +106,7 @@ final class RemovePersister implements Persister
             ->variables
             ->reduce(
                 $query,
-                function(Query $carry, string $variable): Query {
+                static function(Query $carry, string $variable): Query {
                     return $carry->delete($variable);
                 }
             );
@@ -123,8 +123,8 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $name = $this->name->sprintf(md5($identity->value()));
+        $meta = $this->metadatas->get(\get_class($entity));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
         return $query
@@ -154,8 +154,8 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $name = $this->name->sprintf(md5($identity->value()));
+        $meta = $this->metadatas->get(\get_class($entity));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
         $query = $query

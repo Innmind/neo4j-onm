@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     RepositoryFactory,
     Repository,
     Identity,
-    Identity\Generators
+    Identity\Generators,
 };
 use Innmind\Neo4j\DBAL\Connection;
 

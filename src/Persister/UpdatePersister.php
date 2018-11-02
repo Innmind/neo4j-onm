@@ -15,17 +15,17 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\Relationship,
-    Metadatas
+    Metadatas,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query
+    Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    Str,
+    MapInterface,
     Map,
-    MapInterface
+    Str,
 };
 
 final class UpdatePersister implements Persister
@@ -118,7 +118,7 @@ final class UpdatePersister implements Persister
             new Query\Query,
             function(Query $carry, Identity $identity, MapInterface $changeset) use ($entities): Query {
                 $entity = $entities->get($identity);
-                $meta = $this->metadatas->get(get_class($entity));
+                $meta = $this->metadatas->get(\get_class($entity));
 
                 if ($meta instanceof Aggregate) {
                     return $this->matchAggregate(
@@ -164,7 +164,7 @@ final class UpdatePersister implements Persister
         MapInterface $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(md5($identity->value()));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $query = $query
             ->match(
                 (string) $name,
@@ -190,7 +190,7 @@ final class UpdatePersister implements Persister
 
         return $meta
             ->children()
-            ->filter(function(string $property) use ($changeset): bool {
+            ->filter(static function(string $property) use ($changeset): bool {
                 return $changeset->contains($property);
             })
             ->reduce(
@@ -249,7 +249,7 @@ final class UpdatePersister implements Persister
         MapInterface $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(md5($identity->value()));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->put(
             $name,
             $this->buildProperties(
@@ -289,7 +289,7 @@ final class UpdatePersister implements Persister
         MapInterface $changeset,
         MapInterface $properties
     ): MapInterface {
-        return $changeset->filter(function(string $property) use ($properties) {
+        return $changeset->filter(static function(string $property) use ($properties) {
             return $properties->contains($property);
         });
     }
@@ -318,7 +318,7 @@ final class UpdatePersister implements Persister
                 (string) $variable->append('_props'),
                 $changeset->reduce(
                     [],
-                    function(array $carry, string $key, $value): array {
+                    static function(array $carry, string $key, $value): array {
                         $carry[$key] = $value;
 
                         return $carry;

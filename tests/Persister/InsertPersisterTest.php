@@ -27,12 +27,12 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Types,
     Event\EntityAboutToBePersisted,
-    Event\EntityPersisted
+    Event\EntityPersisted,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Result,
-    Query\Parameter
+    Query\Parameter,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\Map;

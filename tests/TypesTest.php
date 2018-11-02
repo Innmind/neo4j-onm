@@ -13,7 +13,7 @@ use Innmind\Neo4j\ONM\{
     Type\FloatType,
     Type\IntType,
     Type\StringType,
-    Type\PointInTimeType
+    Type\PointInTimeType,
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\EntityFactory;
 
 use Innmind\Neo4j\ONM\{
     EntityFactory as EntityFactoryInterface,
-    Metadata\Entity
+    Metadata\Entity,
 };
 use Innmind\Immutable\Map;
 
@@ -23,19 +23,6 @@ final class Resolver
     }
 
     /**
-     * Register the given entity factory instance
-     */
-    private function register(EntityFactoryInterface $factory): self
-    {
-        $this->mapping = $this->mapping->put(
-            get_class($factory),
-            $factory
-        );
-
-        return $this;
-    }
-
-    /**
      * Return the factory for the given entity definition
      */
     public function get(Entity $meta): EntityFactoryInterface
@@ -50,5 +37,18 @@ final class Resolver
         $this->register($factory);
 
         return $factory;
+    }
+
+    /**
+     * Register the given entity factory instance
+     */
+    private function register(EntityFactoryInterface $factory): self
+    {
+        $this->mapping = $this->mapping->put(
+            get_class($factory),
+            $factory
+        );
+
+        return $this;
     }
 }

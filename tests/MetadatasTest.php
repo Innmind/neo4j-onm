@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Entity,
     Metadata\Aggregate,
-    Types
+    Types,
 };
 use Symfony\Component\Yaml\Yaml;
 use PHPUnit\Framework\TestCase;

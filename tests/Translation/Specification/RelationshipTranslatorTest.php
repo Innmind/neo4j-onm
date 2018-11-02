@@ -20,7 +20,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     IdentityMatch,
     Identity\Uuid,
-    Types
+    Types,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;

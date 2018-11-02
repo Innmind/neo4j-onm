@@ -8,14 +8,14 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     Metadata\Entity,
     Entity\Container,
-    Entity\Container\State
+    Entity\Container\State,
 };
 use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
     Map,
     Set,
     SetInterface,
-    MapInterface
+    MapInterface,
 };
 
 final class EntityFactory
@@ -62,17 +62,17 @@ final class EntityFactory
         $entities = new Set('object');
 
         return $variables
-            ->filter(function(string $variable) use ($structuredData): bool {
+            ->filter(static function(string $variable) use ($structuredData): bool {
                 return $structuredData->contains($variable);
             })
             ->reduce(
                 new Set('object'),
-                function(Set $carry, string $variable, Entity $meta) use ($structuredData): Set {
+                function(SetInterface $carry, string $variable, Entity $meta) use ($structuredData): SetInterface {
                     return $structuredData
                         ->get($variable)
                         ->reduce(
                             $carry,
-                            function(Set $carry, MapInterface $data) use ($meta): Set {
+                            function(SetInterface $carry, MapInterface $data) use ($meta): SetInterface {
                                 return $carry->add(
                                     $this->makeEntity($meta, $data)
                                 );

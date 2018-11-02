@@ -8,12 +8,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Metadata\Relationship,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy
+    ExtractionStrategy,
 };
 
 final class RelationshipExtractor implements DataExtractorInterface
@@ -63,7 +63,7 @@ final class RelationshipExtractor implements DataExtractorInterface
             ->properties()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
                     return $carry->put(
                         $name,
                         $property

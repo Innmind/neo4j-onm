@@ -11,7 +11,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class DataExtractor
@@ -24,9 +24,9 @@ final class DataExtractor
         MapInterface $extractors = null
     ) {
         $this->metadatas = $metadatas;
-        $this->extractors = $extractors ?? (new Map('string', DataExtractorInterface::class))
-            ->put(Aggregate::class, new AggregateExtractor)
-            ->put(Relationship::class, new RelationshipExtractor);
+        $this->extractors = $extractors ?? Map::of('string', DataExtractorInterface::class)
+            (Aggregate::class, new AggregateExtractor)
+            (Relationship::class, new RelationshipExtractor);
 
         if (
             (string) $this->extractors->keyType() !== 'string' ||

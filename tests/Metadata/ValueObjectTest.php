@@ -9,11 +9,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\ClassName,
     Metadata\Property,
-    Type
+    Type,
 };
 use Innmind\Immutable\{
     SetInterface,
-    MapInterface
+    MapInterface,
 };
 use PHPUnit\Framework\TestCase;
 

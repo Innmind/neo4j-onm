@@ -8,19 +8,18 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Identity,
-    Query\Where
+    Query\Where,
 };
 use Innmind\Specification\{
     SpecificationInterface,
     ComparatorInterface,
     CompositeInterface,
-    NotInterface
+    NotInterface,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Str,
     Map,
-    Collection
+    Str,
 };
 
 final class RelationshipVisitor implements CypherVisitor
@@ -47,7 +46,7 @@ final class RelationshipVisitor implements CypherVisitor
             case $specification instanceof CompositeInterface:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = strtolower((string) $specification->operator());
+                $operator = (string) Str::of((string) $specification->operator())->toLower();
 
                 return $left->{$operator}($right);
 
@@ -84,19 +83,19 @@ final class RelationshipVisitor implements CypherVisitor
         ComparatorInterface $specification
     ): Where {
         $prop = $specification->property();
-        $key = (new Str('entity_'))
+        $key = Str::of('entity_')
             ->append($prop)
             ->append((string) $this->count);
 
         return new Where(
-            sprintf(
+            \sprintf(
                 'entity.%s %s %s',
                 $prop,
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            (new Map('string', 'mixed'))
-                ->put((string) $key, $specification->value())
+            Map::of('string', 'mixed')
+                ((string) $key, $specification->value())
         );
     }
 
@@ -105,7 +104,7 @@ final class RelationshipVisitor implements CypherVisitor
         RelationshipEdge $edge,
         string $side
     ): Where {
-        $key = (new Str($side))
+        $key = Str::of($side)
             ->append('_')
             ->append($edge->target())
             ->append((string) $this->count);
@@ -116,15 +115,15 @@ final class RelationshipVisitor implements CypherVisitor
         }
 
         return new Where(
-            sprintf(
+            \sprintf(
                 '%s.%s %s %s',
                 $side,
                 $edge->target(),
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            (new Map('string', 'mixed'))
-                ->put((string) $key, $value)
+            Map::of('string', 'mixed')
+                ((string) $key, $value)
         );
     }
 }

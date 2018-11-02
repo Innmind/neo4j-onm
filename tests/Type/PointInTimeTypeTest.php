@@ -6,17 +6,17 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type\PointInTimeType,
     Type,
-    Types
+    Types,
 };
 use Innmind\TimeContinuum\{
     PointInTimeInterface,
     PointInTime\Earth\PointInTime,
     PointInTime\Earth\Now,
-    Format\RSS
+    Format\RSS,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 

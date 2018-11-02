@@ -8,16 +8,16 @@ use Innmind\Neo4j\ONM\{
     Translation\Result\RelationshipTranslator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Relationship
+    Metadata\Relationship,
 };
 use Innmind\Neo4j\DBAL\{
     Result,
-    Result\Row
+    Result\Row,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
-    SetInterface
+    SetInterface,
 };
 
 final class ResultTranslator
@@ -26,9 +26,9 @@ final class ResultTranslator
 
     public function __construct(MapInterface $translators = null)
     {
-        $this->translators = $translators ?? (new Map('string', EntityTranslator::class))
-            ->put(Aggregate::class, new AggregateTranslator)
-            ->put(Relationship::class, new RelationshipTranslator);
+        $this->translators = $translators ?? Map::of('string', EntityTranslator::class)
+            (Aggregate::class, new AggregateTranslator)
+            (Relationship::class, new RelationshipTranslator);
 
         if (
             (string) $this->translators->keyType() !== 'string' ||
@@ -63,10 +63,10 @@ final class ResultTranslator
         }
 
         return $variables
-            ->filter(function(string $variable) use ($result): bool {
+            ->filter(static function(string $variable) use ($result): bool {
                 $forVariable = $result
                     ->rows()
-                    ->filter(function(Row $row) use ($variable): bool {
+                    ->filter(static function(Row $row) use ($variable): bool {
                         return $row->column() === $variable;
                     });
 
@@ -74,7 +74,7 @@ final class ResultTranslator
             })
             ->reduce(
                 new Map('string', SetInterface::class),
-                function(Map $carry, string $variable, Entity $meta) use ($result): Map {
+                function(MapInterface $carry, string $variable, Entity $meta) use ($result): MapInterface {
                     $translator = $this->translators->get(get_class($meta));
 
                     return $carry->put(

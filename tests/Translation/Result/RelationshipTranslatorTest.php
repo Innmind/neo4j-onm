@@ -17,16 +17,16 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types
+    Types,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
-    Result as ResultInterface
+    Result as ResultInterface,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
-    SetInterface
+    SetInterface,
 };
 use PHPUnit\Framework\TestCase;
 

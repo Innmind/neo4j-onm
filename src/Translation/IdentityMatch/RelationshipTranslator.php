@@ -7,11 +7,11 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity,
     Metadata\Entity,
-    IdentityMatch
+    IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
-    Clause\Expression\Relationship
+    Clause\Expression\Relationship,
 };
 use Innmind\Immutable\Map;
 
@@ -42,8 +42,8 @@ final class RelationshipTranslator implements IdentityMatchTranslator
 
         return new IdentityMatch(
             $query,
-            (new Map('string', Entity::class))
-                ->put('entity', $meta)
+            Map::of('string', Entity::class)
+                ('entity', $meta)
         );
     }
 }

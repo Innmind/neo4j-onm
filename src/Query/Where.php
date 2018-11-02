@@ -4,7 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Query;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\{
+    MapInterface,
+    Str,
+};
 
 final class Where
 {
@@ -13,7 +16,7 @@ final class Where
 
     public function __construct(string $cypher, MapInterface $parameters)
     {
-        if (empty($cypher)) {
+        if (Str::of($cypher)->empty()) {
             throw new DomainException;
         }
 
@@ -44,7 +47,7 @@ final class Where
     public function and(self $where): self
     {
         return new self(
-            sprintf('(%s AND %s)', $this->cypher(), $where->cypher()),
+            \sprintf('(%s AND %s)', $this->cypher(), $where->cypher()),
             $this->parameters()->merge($where->parameters())
         );
     }
@@ -52,7 +55,7 @@ final class Where
     public function or(self $where): self
     {
         return new self(
-            sprintf('(%s OR %s)', $this->cypher(), $where->cypher()),
+            \sprintf('(%s OR %s)', $this->cypher(), $where->cypher()),
             $this->parameters()->merge($where->parameters())
         );
     }
@@ -60,7 +63,7 @@ final class Where
     public function not(): self
     {
         return new self(
-            sprintf('NOT (%s)', $this->cypher()),
+            \sprintf('NOT (%s)', $this->cypher()),
             $this->parameters()
         );
     }

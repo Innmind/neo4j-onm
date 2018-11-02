@@ -17,7 +17,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
-    Types
+    Types,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\Map;

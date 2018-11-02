@@ -31,13 +31,10 @@ final class ClearDomainEvents implements CommandBus
             ->merge($this->entities->state(State::managed()))
             ->merge($this->entities->state(State::toBeRemoved()))
             ->merge($this->entities->state(State::removed()))
-            ->filter(function(Identity $identity, $entity): bool {
+            ->filter(static function(Identity $identity, $entity): bool {
                 return $entity instanceof ContainsRecordedEvents;
             })
-            ->foreach(function(
-                Identity $identity,
-                ContainsRecordedEvents $entity
-            ): void {
+            ->foreach(static function(Identity $identity, ContainsRecordedEvents $entity): void {
                 $entity->clearEvents();
             });
     }

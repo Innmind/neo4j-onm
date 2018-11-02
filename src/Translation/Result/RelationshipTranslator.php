@@ -9,18 +9,18 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\Property,
     Exception\InvalidArgumentException,
-    Exception\DomainException
+    Exception\DomainException,
 };
 use Innmind\Neo4j\DBAL\{
     Result,
     Result\Relationship as DBALRelationship,
-    Result\Row
+    Result\Row,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
     SetInterface,
-    Set
+    Set,
 };
 
 final class RelationshipTranslator implements EntityTranslator
@@ -43,7 +43,7 @@ final class RelationshipTranslator implements EntityTranslator
 
         return $result
             ->rows()
-            ->filter(function(Row $row) use ($variable) {
+            ->filter(static function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
@@ -67,7 +67,7 @@ final class RelationshipTranslator implements EntityTranslator
     ): MapInterface {
         $relationship = $result
             ->relationships()
-            ->filter(function(int $id, DBALRelationship $relationship) use ($identity, $meta): bool {
+            ->filter(static function(int $id, DBALRelationship $relationship) use ($identity, $meta): bool {
                 $id = $meta->identity()->property();
                 $properties = $relationship->properties();
 
@@ -75,14 +75,14 @@ final class RelationshipTranslator implements EntityTranslator
                     $properties->get($id) === $identity;
             })
             ->current();
-        $data = (new Map('string', 'mixed'))
-            ->put(
+        $data = Map::of('string', 'mixed')
+            (
                 $meta->identity()->property(),
                 $relationship->properties()->get(
                     $meta->identity()->property()
                 )
             )
-            ->put(
+            (
                 $meta->startNode()->property(),
                 $result
                     ->nodes()
@@ -90,7 +90,7 @@ final class RelationshipTranslator implements EntityTranslator
                     ->properties()
                     ->get($meta->startNode()->target())
             )
-            ->put(
+            (
                 $meta->endNode()->property(),
                 $result
                     ->nodes()
@@ -101,7 +101,7 @@ final class RelationshipTranslator implements EntityTranslator
 
         return $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($relationship): bool {
+            ->filter(static function(string $name, Property $property) use ($relationship): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$relationship->properties()->contains($name)
@@ -113,7 +113,7 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($relationship): MapInterface {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)

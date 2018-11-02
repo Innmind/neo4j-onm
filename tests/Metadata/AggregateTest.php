@@ -14,11 +14,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Type
+    Type,
 };
 use Innmind\Immutable\{
     SetInterface,
-    MapInterface
+    MapInterface,
 };
 use PHPUnit\Framework\TestCase;
 
