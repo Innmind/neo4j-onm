@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\Entity,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
@@ -31,7 +30,6 @@ class AggregateTest extends TestCase
             $i = new Identity('uuid', 'UUID'),
             $r = new Repository('Class'),
             $f = new Factory('AnotherClass'),
-            $a = new Alias('CanBeClassName'),
             ['LabelA']
         );
 
@@ -40,7 +38,6 @@ class AggregateTest extends TestCase
         $this->assertSame($i, $ar->identity());
         $this->assertSame($r, $ar->repository());
         $this->assertSame($f, $ar->factory());
-        $this->assertSame($a, $ar->alias());
         $this->assertInstanceOf(SetInterface::class, $ar->labels());
         $this->assertSame('string', (string) $ar->labels()->type());
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());

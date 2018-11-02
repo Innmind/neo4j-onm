@@ -14,12 +14,11 @@ final class Relationship extends AbstractEntity implements Entity
         Identity $id,
         Repository $repository,
         Factory $factory,
-        Alias $alias,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode
     ) {
-        parent::__construct($class, $id, $repository, $factory, $alias);
+        parent::__construct($class, $id, $repository, $factory);
 
         $this->type = $type;
         $this->startNode = $startNode;

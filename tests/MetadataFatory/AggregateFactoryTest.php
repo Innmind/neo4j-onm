@@ -35,7 +35,6 @@ class AggregateFactoryTest extends TestCase
     {
         $ar = $this->factory->make((new Map('string', 'mixed'))
             ->put('class', 'Image')
-            ->put('alias', 'I')
             ->put('repository', 'ImageRepository')
             ->put('factory', 'ImageFactory')
             ->put('labels', ['Image'])
@@ -73,7 +72,6 @@ class AggregateFactoryTest extends TestCase
 
         $this->assertInstanceOf(Aggregate::class, $ar);
         $this->assertSame('Image', (string) $ar->class());
-        $this->assertSame('I', (string) $ar->alias());
         $this->assertSame('ImageRepository', (string) $ar->repository());
         $this->assertSame('ImageFactory', (string) $ar->factory());
         $this->assertSame(['Image'], $ar->labels()->toPrimitive());

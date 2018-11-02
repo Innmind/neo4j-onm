@@ -44,7 +44,6 @@ class AggregateTranslatorTest extends TestCase
             new Identity('id', 'foo'),
             new Repository('foo'),
             new Factory('foo'),
-            new Alias('foo'),
             ['Label']
         );
         $this->meta = $this->meta
@@ -281,7 +280,6 @@ class AggregateTranslatorTest extends TestCase
             new Identity('id', 'foo'),
             new Repository('foo'),
             new Factory('foo'),
-            new Alias('foo'),
             ['Label']
         );
         $meta = $meta

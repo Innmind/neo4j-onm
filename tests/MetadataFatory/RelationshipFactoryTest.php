@@ -34,7 +34,6 @@ class RelationshipFactoryTest extends TestCase
     {
         $ar = $this->factory->make((new Map('string', 'mixed'))
             ->put('class', 'SomeRelationship')
-            ->put('alias', 'SR')
             ->put('repository', 'SRRepository')
             ->put('factory', 'SRFactory')
             ->put('rel_type', 'SOME_RELATIONSHIP')
@@ -61,7 +60,6 @@ class RelationshipFactoryTest extends TestCase
 
         $this->assertInstanceOf(Relationship::class, $ar);
         $this->assertSame('SomeRelationship', (string) $ar->class());
-        $this->assertSame('SR', (string) $ar->alias());
         $this->assertSame('SRRepository', (string) $ar->repository());
         $this->assertSame('SRFactory', (string) $ar->factory());
         $this->assertSame('SOME_RELATIONSHIP', (string) $ar->type());

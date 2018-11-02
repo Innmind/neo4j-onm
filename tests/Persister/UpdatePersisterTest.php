@@ -17,7 +17,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -71,7 +70,6 @@ class UpdatePersisterTest extends TestCase
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
                 new Factory('foo'),
-                new Alias('foo'),
                 ['Label']
             ))
                 ->withProperty('created', new DateType)
@@ -118,7 +116,6 @@ class UpdatePersisterTest extends TestCase
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
                 new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'uuid'),
                 new RelationshipEdge('end', Uuid::class, 'uuid')

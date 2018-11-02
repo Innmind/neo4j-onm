@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\Entity,
     Metadata\ValueObject,
     Metadata\RelationshipType,
@@ -27,7 +26,6 @@ class RelationshipTest extends TestCase
             $i = new Identity('uuid', 'UUID'),
             $repo = new Repository('Class'),
             $f = new Factory('AnotherClass'),
-            $a = new Alias('CanBeClassName'),
             $t = new RelationshipType('foo'),
             $s = new RelationshipEdge('start', 'UUID', 'target'),
             $e = new RelationshipEdge('end', 'UUID', 'target')
@@ -38,7 +36,6 @@ class RelationshipTest extends TestCase
         $this->assertSame($i, $r->identity());
         $this->assertSame($repo, $r->repository());
         $this->assertSame($f, $r->factory());
-        $this->assertSame($a, $r->alias());
         $this->assertSame($t, $r->type());
         $this->assertSame($s, $r->startNode());
         $this->assertSame($e, $r->endNode());

@@ -15,21 +15,18 @@ abstract class AbstractEntity
     private $identity;
     private $repository;
     private $factory;
-    private $alias;
     private $properties;
 
     public function __construct(
         ClassName $class,
         Identity $id,
         Repository $repository,
-        Factory $factory,
-        Alias $alias
+        Factory $factory
     ) {
         $this->class = $class;
         $this->identity = $id;
         $this->repository = $repository;
         $this->factory = $factory;
-        $this->alias = $alias;
         $this->properties = new Map('string', Property::class);
     }
 
@@ -55,14 +52,6 @@ abstract class AbstractEntity
     public function factory(): Factory
     {
         return $this->factory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function alias(): Alias
-    {
-        return $this->alias;
     }
 
     /**

@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
@@ -58,10 +57,6 @@ final class AggregateFactory implements MetadataFactory
             new Factory(
                 $config->contains('factory') ?
                     $config->get('factory') : EntityFactory::class
-            ),
-            new Alias(
-                $config->contains('alias') ?
-                    $config->get('alias') : $config->get('class')
             ),
             $config->get('labels')
         );

@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -72,7 +71,6 @@ class AggregateFactoryTest extends TestCase
             new Identity('uuid', 'foo'),
             new Repository('foo'),
             new Factory('foo'),
-            new Alias('foo'),
             ['Label']
         );
         $meta = $meta
@@ -183,7 +181,6 @@ class AggregateFactoryTest extends TestCase
                 new Identity('uuid', 'foo'),
                 new Repository('foo'),
                 new Factory('foo'),
-                new Alias('foo'),
                 ['Label']
             ),
             new Map('string', 'variable')

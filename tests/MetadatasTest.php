@@ -21,14 +21,10 @@ class MetadatasTest extends TestCase
     {
         $meta = $this->createMock(Entity::class);
         $meta
-            ->method('alias')
-            ->willReturn(new Alias('foo'));
-        $meta
             ->method('class')
             ->willReturn(new ClassName('bar'));
         $metadatas = new Metadatas($meta);
 
-        $this->assertSame($meta, $metadatas->get('foo'));
         $this->assertSame($meta, $metadatas->get('bar'));
     }
 

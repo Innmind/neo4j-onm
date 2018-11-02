@@ -11,12 +11,10 @@ use Innmind\Immutable\{
 
 final class Metadatas
 {
-    private $aliases;
     private $mapping;
 
     public function __construct(Entity ...$metas)
     {
-        $this->aliases = new Map('string', 'string');
         $this->mapping = new Map('string', Entity::class);
 
         foreach ($metas as $meta) {
@@ -33,16 +31,10 @@ final class Metadatas
 
     /**
      * Return the metadata for an entity
-     *
-     * @param string $name Class or alias
      */
-    public function get(string $name): Entity
+    public function get(string $class): Entity
     {
-        if ($this->aliases->contains($name)) {
-            $name = $this->aliases->get($name);
-        }
-
-        return $this->mapping->get($name);
+        return $this->mapping->get($class);
     }
 
     /**
@@ -50,10 +42,6 @@ final class Metadatas
      */
     private function register(Entity $meta): self
     {
-        $this->aliases = $this->aliases->put(
-            (string) $meta->alias(),
-            (string) $meta->class()
-        );
         $this->mapping = $this->mapping->put((string) $meta->class(), $meta);
 
         return $this;

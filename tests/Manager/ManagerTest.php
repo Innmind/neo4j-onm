@@ -39,9 +39,6 @@ class ManagerTest extends TestCase
             ->method('class')
             ->willReturn(new ClassName('foo'));
         $meta
-            ->method('alias')
-            ->willReturn(new Alias('foo'));
-        $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
         $uow = new UnitOfWork(

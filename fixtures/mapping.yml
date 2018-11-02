@@ -1,6 +1,5 @@
 Image:
     type: aggregate
-    alias: I # optional
     repository: ImageRepository #optional
     factory: ImageFactory # optional
     labels: [Image]
@@ -27,7 +26,6 @@ Image:
 
 SomeRelationship:
     type: relationship
-    alias: SR # optional
     repository: SRRepository # optional
     factory: SRFactory # optional
     rel_type: SOME_RELATIONSHIP

@@ -11,7 +11,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Repository\Repository as EntityRepository,
@@ -57,10 +56,6 @@ final class RelationshipFactory implements MetadataFactory
             new Factory(
                 $config->contains('factory') ?
                     $config->get('factory') : EntityFactory::class
-            ),
-            new Alias(
-                $config->contains('alias') ?
-                    $config->get('alias') : $config->get('class')
             ),
             new RelationshipType($config->get('rel_type')),
             new RelationshipEdge(

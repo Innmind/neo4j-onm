@@ -20,10 +20,9 @@ final class Aggregate extends AbstractEntity implements Entity
         Identity $id,
         Repository $repository,
         Factory $factory,
-        Alias $alias,
         array $labels
     ) {
-        parent::__construct($class, $id, $repository, $factory, $alias);
+        parent::__construct($class, $id, $repository, $factory);
 
         $this->labels = Set::of('string', ...$labels);
         $this->children = new Map('string', ValueObject::class);

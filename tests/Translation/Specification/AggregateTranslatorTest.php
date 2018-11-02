@@ -11,7 +11,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Repository,
     Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -36,7 +35,6 @@ class AggregateTranslatorTest extends TestCase
             new Identity('id', 'foo'),
             new Repository('foo'),
             new Factory('foo'),
-            new Alias('foo'),
             ['Label']
         ))
             ->withProperty('created', new DateType)

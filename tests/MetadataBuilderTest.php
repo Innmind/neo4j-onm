@@ -48,16 +48,8 @@ class MetadataBuilderTest extends TestCase
             $this->builder->container()->get('Image')
         );
         $this->assertInstanceOf(
-            Aggregate::class,
-            $this->builder->container()->get('I')
-        );
-        $this->assertInstanceOf(
             Relationship::class,
             $this->builder->container()->get('SomeRelationship')
-        );
-        $this->assertInstanceOf(
-            Relationship::class,
-            $this->builder->container()->get('SR')
         );
     }
 
