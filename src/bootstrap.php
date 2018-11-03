@@ -22,7 +22,6 @@ use Innmind\Immutable\{
 
 /**
  * @param  SetInterface<Metadata\Entity> $metas
- * @param  SetInterface<string>|null $additionalTypes
  * @param  MapInterface<string, Generator>|null $additionalGenerators
  * @param  MapInterface<Identity, Repository>|null $repositories
  * @param  SetInterface<EntityFactory>|null $entityFactories
@@ -30,7 +29,6 @@ use Innmind\Immutable\{
  * @param  MapInterface<string, IdentityMatchTranslator>|null $identityMatchTranslators
  * @param  MapInterface<string, MatchTranslator>|null $matchTranslators
  * @param  MapInterface<string, SpecificationTranslator>|null $specificationTranslators
- * @param  MapInterface<string, MetadataFactory>|null $metadataFactories
  * @param  MapInterface<string, DataExtractor>|null $dataExtractors
  */
 function bootstrap(
