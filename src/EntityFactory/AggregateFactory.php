@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Metadata\Entity,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Property,
-    Metadata\Child,
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{

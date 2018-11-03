@@ -1,9 +1,13 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Metadata;
+namespace Innmind\Neo4j\ONM\Metadata\Aggregate;
 
-use Innmind\Neo4j\ONM\Type;
+use Innmind\Neo4j\ONM\{
+    Metadata\ClassName,
+    Metadata\Property,
+    Type,
+};
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -21,7 +25,7 @@ final class Child
     public function __construct(
         ClassName $class,
         SetInterface $labels,
-        ChildRelationship $relationship,
+        Child\Relationship $relationship,
         SetInterface $properties
     ) {
         if ((string) $labels->type() !== 'string') {
@@ -49,7 +53,7 @@ final class Child
     public static function of(
         ClassName $class,
         SetInterface $labels,
-        ChildRelationship $relationship,
+        Child\Relationship $relationship,
         MapInterface $properties = null
     ): self {
         return new self(
@@ -70,7 +74,7 @@ final class Child
         return $this->class;
     }
 
-    public function relationship(): ChildRelationship
+    public function relationship(): Child\Relationship
     {
         return $this->relationship;
     }

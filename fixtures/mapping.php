@@ -3,13 +3,12 @@ declare(strict_types = 1);
 
 use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Type,
     Type\StringType,
     Type\DateType,
@@ -31,7 +30,7 @@ return [
             Child::of(
                 new ClassName('Description'),
                 Set::of('string', 'Description'),
-                ChildRelationship::of(
+                Child\Relationship::of(
                     new ClassName('DescriptionOf'),
                     new RelationshipType('DESCRIPTION_OF'),
                     'rel',

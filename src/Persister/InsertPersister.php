@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Metadata\Aggregate,
     Metadata\Property,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     Metadata\RelationshipEdge,
     Metadatas,
 };

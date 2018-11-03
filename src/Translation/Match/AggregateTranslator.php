@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Translation\Match;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Metadata\Entity,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{

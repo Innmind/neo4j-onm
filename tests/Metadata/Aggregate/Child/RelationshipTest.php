@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Metadata;
+namespace Tests\Innmind\Neo4j\ONM\Metadata\Aggregate\Child;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\ChildRelationship,
+    Metadata\Aggregate\Child\Relationship,
     Metadata\ClassName,
     Metadata\RelationshipType,
     Metadata\Property,
@@ -16,11 +16,11 @@ use Innmind\Immutable\{
 };
 use PHPUnit\Framework\TestCase;
 
-class ChildRelationshipTest extends TestCase
+class RelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $vor = ChildRelationship::of(
+        $vor = Relationship::of(
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
@@ -45,7 +45,7 @@ class ChildRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyProperty()
     {
-        ChildRelationship::of(
+        Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             '',
@@ -58,7 +58,7 @@ class ChildRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyChildProperty()
     {
-        ChildRelationship::of(
+        Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             'relationship',

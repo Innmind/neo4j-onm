@@ -7,11 +7,10 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatch\DelegationTranslator,
     Translation\IdentityMatchTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
@@ -53,7 +52,7 @@ class DelegationTranslatorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',

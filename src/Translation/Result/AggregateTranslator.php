@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\EntityTranslator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     Metadata\Property,
     Exception\InvalidArgumentException,
     Exception\DomainException,

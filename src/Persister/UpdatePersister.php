@@ -13,7 +13,7 @@ use Innmind\Neo4j\ONM\{
     Event\EntityAboutToBeUpdated,
     Event\EntityUpdated,
     Metadata\Aggregate,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadatas,
 };

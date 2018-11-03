@@ -11,10 +11,9 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Relationship,
@@ -80,7 +79,7 @@ class EntityFactoryTest extends TestCase
                 Child::of(
                     new ClassName(get_class($child)),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('CHILD1_OF'),
                         'rel',

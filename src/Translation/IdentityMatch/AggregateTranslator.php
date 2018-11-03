@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity,
     Metadata\Entity,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{

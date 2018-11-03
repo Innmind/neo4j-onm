@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Relationship,
     Metadata\Aggregate,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,

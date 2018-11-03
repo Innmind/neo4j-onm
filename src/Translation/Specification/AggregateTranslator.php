@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Translation\Specification\Visitor\PropertyMatch\AggregateVisitor as AggregatePropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     Metadata\Entity,
     IdentityMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,

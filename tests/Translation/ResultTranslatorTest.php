@@ -6,10 +6,9 @@ namespace Tests\Innmind\Neo4j\ONM\Translation;
 use Innmind\Neo4j\ONM\{
     Translation\ResultTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\Relationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
@@ -47,7 +46,7 @@ class ResultTranslatorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
@@ -63,7 +62,7 @@ class ResultTranslatorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
                         'rel2',

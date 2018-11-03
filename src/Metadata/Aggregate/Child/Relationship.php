@@ -1,9 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Neo4j\ONM\Metadata;
+namespace Innmind\Neo4j\ONM\Metadata\Aggregate\Child;
 
 use Innmind\Neo4j\ONM\{
+    Metadata\ClassName,
+    Metadata\RelationshipType,
+    Metadata\Property,
     Type,
     Exception\DomainException,
 };
@@ -15,7 +18,7 @@ use Innmind\Immutable\{
     Str,
 };
 
-final class ChildRelationship
+final class Relationship
 {
     private $class;
     private $type;

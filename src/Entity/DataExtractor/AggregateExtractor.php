@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor as DataExtractorInterface,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Child,
+    Metadata\Aggregate\Child,
     Metadata\Property,
     Exception\InvalidArgumentException,
 };

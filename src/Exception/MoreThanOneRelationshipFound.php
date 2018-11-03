@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Exception;
 
 use Innmind\Neo4j\ONM\Metadata\{
-    Child,
+    Aggregate\Child,
     Entity,
 };
 

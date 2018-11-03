@@ -6,12 +6,11 @@ namespace Tests\Innmind\Neo4j\ONM\Entity\DataExtractor;
 use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\DataExtractor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
@@ -64,7 +63,7 @@ class DataExtractorTest extends TestCase
                     Child::of(
                         new ClassName('foo'),
                         Set::of('string', 'AnotherLabel'),
-                        ChildRelationship::of(
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('foo'),
                             'rel',

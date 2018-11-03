@@ -7,10 +7,9 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\AggregateExtractor,
     Entity\DataExtractor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -45,7 +44,7 @@ class AggregateExtractorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('foo'),
                         'rel',

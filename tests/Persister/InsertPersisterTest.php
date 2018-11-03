@@ -15,8 +15,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
+    Metadata\Aggregate\Child,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
@@ -75,7 +74,7 @@ class InsertPersisterTest extends TestCase
                     Child::of(
                         new ClassName('foo'),
                         Set::of('string', 'AnotherLabel'),
-                        ChildRelationship::of(
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
                             'rel',

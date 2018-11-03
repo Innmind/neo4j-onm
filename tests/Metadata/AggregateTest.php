@@ -8,8 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Entity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
+    Metadata\Aggregate\Child,
     Metadata\RelationshipType,
     Type,
     EntityFactory\AggregateFactory,
@@ -38,7 +37,7 @@ class AggregateTest extends TestCase
                 $vo = Child::of(
                     new ClassName('whatever'),
                     Set::of('string', 'whatever'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('whatever'),
                         new RelationshipType('whatever'),
                         'foo',

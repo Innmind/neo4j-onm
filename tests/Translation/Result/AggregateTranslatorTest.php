@@ -7,10 +7,9 @@ use Innmind\Neo4j\ONM\{
     Translation\Result\AggregateTranslator,
     Translation\EntityTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -49,7 +48,7 @@ class AggregateTranslatorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
@@ -65,7 +64,7 @@ class AggregateTranslatorTest extends TestCase
                 Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
                         'rel2',

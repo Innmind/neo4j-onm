@@ -1,11 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Metadata;
+namespace Tests\Innmind\Neo4j\ONM\Metadata\Aggregate;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\Child,
-    Metadata\ChildRelationship,
+    Metadata\Aggregate\Child,
+    Metadata\Aggregate\Child\Relationship,
     Metadata\RelationshipType,
     Metadata\ClassName,
     Metadata\Property,
@@ -26,7 +26,7 @@ class ChildTest extends TestCase
         $vo = Child::of(
             $cn = new ClassName('foo'),
             Set::of('string', 'LabelA', 'LabelB'),
-            $vor = ChildRelationship::of(
+            $vor = Relationship::of(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),
                 'foo',

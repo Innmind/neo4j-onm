@@ -6,10 +6,9 @@ namespace Tests\Innmind\Neo4j\ONM\EntityFactory;
 use Innmind\Neo4j\ONM\{
     EntityFactory\AggregateFactory,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -69,7 +68,7 @@ class AggregateFactoryTest extends TestCase
                 Child::of(
                     new ClassName(get_class($child)),
                     Set::of('string', 'AnotherLabel'),
-                    ChildRelationship::of(
+                    Child\Relationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',

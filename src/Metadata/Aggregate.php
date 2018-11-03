@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
+    Metadata\Aggregate\Child,
     EntityFactory\AggregateFactory,
     Repository\Repository as ConcreteRepository,
     Type,

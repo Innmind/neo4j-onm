@@ -7,10 +7,9 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatch\AggregateVisitor,
     Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Child,
-    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
@@ -44,7 +43,7 @@ class AggregateVisitorTest extends TestCase
                     Child::of(
                         new ClassName('foo'),
                         Set::of('string', 'AnotherLabel'),
-                        ChildRelationship::of(
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('CHILD1_OF'),
                             'rel',
