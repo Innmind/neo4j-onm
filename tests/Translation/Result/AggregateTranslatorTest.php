@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types,
     Type,
 };
 use Innmind\Neo4j\DBAL\{
@@ -246,11 +245,7 @@ class AggregateTranslatorTest extends TestCase
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
 
         $data = ($this->translate)(

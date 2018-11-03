@@ -6,11 +6,6 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type\StringType,
     Type,
-    Types,
-};
-use Innmind\Immutable\{
-    SetInterface,
-    Map,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -20,46 +15,23 @@ class StringTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             Type::class,
-            StringType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
+            new StringType
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            StringType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
-                ->isNullable()
+            (new StringType)->isNullable()
         );
         $this->assertTrue(
-            StringType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->isNullable()
+            StringType::nullable()->isNullable()
         );
-    }
-
-    public function testIdentifiers()
-    {
-        $this->assertInstanceOf(SetInterface::class, StringType::identifiers());
-        $this->assertSame('string', (string) StringType::identifiers()->type());
-        $this->assertSame(StringType::identifiers(), StringType::identifiers());
-        $this->assertSame(['string'], StringType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
     {
-        $t = StringType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $t = new StringType;
 
         $this->assertSame(
             'foo',
@@ -76,33 +48,20 @@ class StringTypeTest extends TestCase
 
         $this->assertSame(
             null,
-            StringType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->forDatabase(null)
+            StringType::nullable()->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $t = StringType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $t = new StringType;
 
         $this->assertSame('foo', $t->fromDatabase('foo'));
         $this->assertSame('', $t->fromDatabase(null));
 
         $this->assertSame(
             '',
-            StringType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->fromDatabase(null)
+            StringType::nullable()->fromDatabase(null)
         );
     }
 }

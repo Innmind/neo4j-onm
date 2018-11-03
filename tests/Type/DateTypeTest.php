@@ -6,11 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type,
-    Types,
-};
-use Innmind\Immutable\{
-    SetInterface,
-    Map,
+    Exception\InvalidArgumentException,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -20,47 +16,24 @@ class DateTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             Type::class,
-            DateType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
+            new DateType
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            DateType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
-                ->isNullable()
+            (new DateType)->isNullable()
         );
         $this->assertTrue(
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->isNullable()
+            DateType::nullable()->isNullable()
         );
-    }
-
-    public function testIdentifiers()
-    {
-        $this->assertInstanceOf(SetInterface::class, DateType::identifiers());
-        $this->assertSame('string', (string) DateType::identifiers()->type());
-        $this->assertSame(DateType::identifiers(), DateType::identifiers());
-        $this->assertSame(['date', 'datetime'], DateType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
     {
         $expected = '/2016-01-01T00:00:00\+\d{4}/';
-        $t = DateType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $t = new DateType;
 
         $this->assertRegExp(
             $expected,
@@ -76,41 +49,23 @@ class DateTypeTest extends TestCase
         );
         $this->assertRegExp(
             $expected,
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('immutable', false),
-                new Types
-            )
-                ->forDatabase(new \DateTimeImmutable('2016-01-01'))
+            DateType::mutable()->forDatabase(new \DateTimeImmutable('2016-01-01'))
         );
 
         $this->assertSame(
             '160101',
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('format', 'ymd'),
-                new Types
-            )
-                ->forDatabase(new \DateTime('2016-01-01'))
+            (new DateType('ymd'))->forDatabase(new \DateTime('2016-01-01'))
         );
 
         $this->assertSame(
             null,
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->forDatabase(null)
+            DateType::nullable()->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $t = DateType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $t = new DateType;
 
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
@@ -123,47 +78,24 @@ class DateTypeTest extends TestCase
 
         $this->assertSame(
             '01/01/2016',
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('format', 'ymd'),
-                new Types
-            )
-                ->fromDatabase('160101')
-                ->format('d/m/Y')
+            (new DateType('ymd'))->fromDatabase('160101')->format('d/m/Y')
         );
 
         $this->assertInstanceOf(
             \DateTime::class,
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('immutable', false),
-                new Types
-            )
-                ->fromDatabase('2016-01-01T00:00:00+0200')
+            DateType::mutable()->fromDatabase('2016-01-01T00:00:00+0200')
         );
         $this->assertSame(
             '01/01/2016',
-            DateType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('format', 'ymd')
-                    ->put('immutable', false),
-                new Types
-            )
-                ->fromDatabase('160101')
-                ->format('d/m/Y')
+            DateType::mutable('ymd')->fromDatabase('160101')->format('d/m/Y')
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The value "42" must be an instance of DateTimeInterface
-     */
     public function testThrowWhenInvalidDate()
     {
-        DateType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        )
-            ->forDatabase(42);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The value "42" must be an instance of DateTimeInterface');
+
+        (new DateType)->forDatabase(42);
     }
 }

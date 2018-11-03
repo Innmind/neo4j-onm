@@ -3,15 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Type;
 
-use Innmind\Neo4j\ONM\{
-    Type,
-    Types,
-};
-use Innmind\Immutable\{
-    MapInterface,
-    SetInterface,
-    Set,
-};
+use Innmind\Neo4j\ONM\Type;
 
 final class StringType implements Type
 {
@@ -24,18 +16,6 @@ final class StringType implements Type
         $self->nullable = true;
 
         return $self;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $build): Type
-    {
-        if ($config->contains('nullable')) {
-            return self::nullable();
-        }
-
-        return new self;
     }
 
     /**
@@ -64,13 +44,5 @@ final class StringType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        return self::$identifiers ?? self::$identifiers = Set::of('string', 'string');
     }
 }

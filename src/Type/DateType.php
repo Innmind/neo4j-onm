@@ -5,13 +5,7 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
     Exception\InvalidArgumentException,
-};
-use Innmind\Immutable\{
-    MapInterface,
-    SetInterface,
-    Set,
 };
 
 final class DateType implements Type
@@ -49,24 +43,6 @@ final class DateType implements Type
         $self->immutable = false;
 
         return $self;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $build): Type
-    {
-        $type = new self($config['format'] ?? null);
-
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-        }
-
-        if ($config->contains('immutable')) {
-            $type->immutable = (bool) $config->get('immutable');
-        }
-
-        return $type;
     }
 
     /**
@@ -110,13 +86,5 @@ final class DateType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        return self::$identifiers ?? self::$identifiers = Set::of('string', 'date', 'datetime');
     }
 }

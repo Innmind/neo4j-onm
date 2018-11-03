@@ -5,12 +5,12 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\SetType,
+    Type\StringType,
     Type,
-    Types,
+    Exception\RecursiveTypeDeclaration,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
-    MapInterface,
-    Map,
     SetInterface,
     Set,
 };
@@ -22,74 +22,30 @@ class SetTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             Type::class,
-            SetType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('inner', 'string'),
-                new Types
-            )
+            new SetType(new StringType, 'string')
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\MissingFieldDeclaration
-     * @expectedExceptionMessage Missing config key "inner" in type declaration
-     */
-    public function testThrowWhenMissingInnerType()
-    {
-        SetType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
-    }
-
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclaration
-     */
     public function testThrowWhenInnerTypeIsArray()
     {
-        SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'set'),
-            new Types
-        );
+        $this->expectException(RecursiveTypeDeclaration::class);
+
+        new SetType(new SetType(new StringType, 'string'), 'string');
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            SetType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->isNullable()
+            (new SetType(new StringType, 'string'))->isNullable()
         );
         $this->assertTrue(
-            SetType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->isNullable()
+            SetType::nullable(new StringType, 'string')->isNullable()
         );
-    }
-
-    public function testIdentifiers()
-    {
-        $this->assertInstanceOf(SetInterface::class, SetType::identifiers());
-        $this->assertSame('string', (string) SetType::identifiers()->type());
-        $this->assertSame(SetType::identifiers(), SetType::identifiers());
-        $this->assertSame(['set'], SetType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
     {
-        $t = SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'string'),
-            new Types
-        );
+        $t = new SetType(new StringType, 'string');
 
         $this->assertSame(
             ['foo'],
@@ -98,23 +54,11 @@ class SetTypeTest extends TestCase
 
         $this->assertSame(
             null,
-            SetType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->forDatabase(null)
+            SetType::nullable(new StringType, 'string')->forDatabase(null)
         );
         $this->assertSame(
             [''],
-            SetType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->forDatabase((new Set('string'))->add(''))
+            SetType::nullable(new StringType, 'string')->forDatabase((new Set('string'))->add(''))
         );
     }
 
@@ -127,11 +71,6 @@ class SetTypeTest extends TestCase
             }
         };
         $mockType = new class implements Type {
-            public static function fromConfig(MapInterface $c, Types $t): Type
-            {
-                return new self;
-            }
-
             public function forDatabase($value)
             {
                 return (string) $value;
@@ -145,64 +84,36 @@ class SetTypeTest extends TestCase
             {
                 return false;
             }
-
-            public static function identifiers(): SetInterface
-            {
-                return (new Set('string'))->add('mock');
-            }
         };
-        $type = SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'mock')
-                ->put('set_type', get_class($mock)),
-            new Types(get_class($mockType))
-        );
+        $type = new SetType($mockType, \get_class($mock));
 
         $this->assertSame(
             ['foo'],
             $type->forDatabase(
-                (new Set(get_class($mock)))->add($mock)
+                Set::of(get_class($mock), $mock)
             )
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The set must be an instance of SetInterface<string>
-     */
     public function testThrowWhenInvalidType()
     {
-        SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('nullable', null)
-                ->put('inner', 'string'),
-            new Types
-        )
-            ->forDatabase(['']);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The set must be an instance of SetInterface<string>');
+
+        SetType::nullable(new StringType, 'string')->forDatabase(['']);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The set must be an instance of SetInterface<string>
-     */
     public function testThrowWhenInvalidSetType()
     {
-        SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('nullable', null)
-                ->put('inner', 'string'),
-            new Types
-        )
-            ->forDatabase(new Set('int'));
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The set must be an instance of SetInterface<string>');
+
+        SetType::nullable(new StringType, 'string')->forDatabase(new Set('int'));
     }
 
     public function testFromDatabase()
     {
-        $t = SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'string'),
-            new Types
-        );
+        $t = new SetType(new StringType, 'string');
 
         $this->assertInstanceOf(SetInterface::class, $t->fromDatabase(['foo']));
         $this->assertSame('string', (string) $t->fromDatabase(['foo'])->type());
@@ -211,12 +122,7 @@ class SetTypeTest extends TestCase
         $this->assertSame('string', (string) $t->fromDatabase([null])->type());
         $this->assertSame([''], $t->fromDatabase([null])->toPrimitive());
 
-        $t = SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('nullable', null)
-                ->put('inner', 'string'),
-            new Types
-        );
+        $t = SetType::nullable(new StringType, 'string');
 
         $this->assertInstanceOf(SetInterface::class, $t->fromDatabase([null]));
         $this->assertSame('string', (string) $t->fromDatabase([null])->type());
@@ -225,13 +131,7 @@ class SetTypeTest extends TestCase
 
     public function testUseSpecificSetTypeInsteadOfInnerTypeName()
     {
-        $type = SetType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('nullable', null)
-                ->put('inner', 'string')
-                ->put('set_type', 'stdClass'),
-            new Types
-        );
+        $type = SetType::nullable(new StringType, 'stdClass');
 
         $set = $type->fromDatabase([]);
 

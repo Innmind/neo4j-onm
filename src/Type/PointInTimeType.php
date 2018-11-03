@@ -5,7 +5,6 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
     Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
@@ -13,11 +12,6 @@ use Innmind\TimeContinuum\{
     Format\ISO8601,
     PointInTimeInterface,
     PointInTime\Earth\PointInTime,
-};
-use Innmind\Immutable\{
-    MapInterface,
-    SetInterface,
-    Set,
 };
 
 final class PointInTimeType implements Type
@@ -37,23 +31,6 @@ final class PointInTimeType implements Type
         $self->nullable = true;
 
         return $self;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $build): Type
-    {
-        if ($config->contains('format')) {
-            $format = $config->get('format');
-            $format = new $format;
-        }
-
-        if ($config->contains('nullable')) {
-            return self::nullable($format ?? null);
-        }
-
-        return new self($format ?? null);
     }
 
     /**
@@ -89,13 +66,5 @@ final class PointInTimeType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        return self::$identifiers ?? self::$identifiers = Set::of('string', 'point_in_time');
     }
 }

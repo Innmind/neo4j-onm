@@ -5,12 +5,9 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type\ArrayType,
+    Type\StringType,
     Type,
-    Types,
-};
-use Innmind\Immutable\{
-    SetInterface,
-    Map,
+    Exception\RecursiveTypeDeclaration,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -20,74 +17,30 @@ class ArrayTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             Type::class,
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('inner', 'string'),
-                new Types
-            )
+            new ArrayType(new StringType)
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\MissingFieldDeclaration
-     * @expectedExceptionMessage Missing config key "inner" in type declaration
-     */
-    public function testThrowWhenMissingInnerType()
-    {
-        ArrayType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
-    }
-
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\RecursiveTypeDeclaration
-     */
     public function testThrowWhenInnerTypeIsArray()
     {
-        ArrayType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'array'),
-            new Types
-        );
+        $this->expectException(RecursiveTypeDeclaration::class);
+
+        new ArrayType(new ArrayType(new StringType));
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->isNullable()
+            (new ArrayType(new StringType))->isNullable()
         );
         $this->assertTrue(
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->isNullable()
+            ArrayType::nullable(new StringType)->isNullable()
         );
-    }
-
-    public function testIdentifiers()
-    {
-        $this->assertInstanceOf(SetInterface::class, ArrayType::identifiers());
-        $this->assertSame('string', (string) ArrayType::identifiers()->type());
-        $this->assertSame(ArrayType::identifiers(), ArrayType::identifiers());
-        $this->assertSame(['array'], ArrayType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
     {
-        $t = ArrayType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'string'),
-            new Types
-        );
+        $t = new ArrayType(new StringType);
 
         $this->assertSame(
             ['foo'],
@@ -97,46 +50,24 @@ class ArrayTypeTest extends TestCase
 
         $this->assertSame(
             null,
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->forDatabase(null)
+            ArrayType::nullable(new StringType)->forDatabase(null)
         );
         $this->assertSame(
             [null],
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->forDatabase([null])
+            ArrayType::nullable(StringType::nullable())->forDatabase([null])
         );
     }
 
     public function testFromDatabase()
     {
-        $t = ArrayType::fromConfig(
-            (new Map('string', 'mixed'))
-                ->put('inner', 'string'),
-            new Types
-        );
+        $t = new ArrayType(new StringType);
 
         $this->assertSame(['foo'], $t->fromDatabase(['foo']));
         $this->assertSame([''], $t->fromDatabase([null]));
 
         $this->assertSame(
             [''],
-            ArrayType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null)
-                    ->put('inner', 'string'),
-                new Types
-            )
-                ->fromDatabase([null])
+            ArrayType::nullable(new StringType)->fromDatabase([null])
         );
     }
 }
