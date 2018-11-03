@@ -13,11 +13,6 @@ use Innmind\EventBus\{
     EventBus\NullEventBus,
 };
 use Innmind\CommandBus\CommandBus as CommandBusInterface;
-use Innmind\Reflection\{
-    ExtractionStrategy,
-    InjectionStrategy,
-    Instanciator,
-};
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -42,9 +37,6 @@ function bootstrap(
     Connection $connection,
     SetInterface $metas,
     MapInterface $additionalGenerators = null,
-    ExtractionStrategy $extractionStrategy = null,
-    InjectionStrategy $injectionStrategy = null,
-    Instanciator $instanciator = null,
     EventBus $eventBus = null,
     MapInterface $repositories = null,
     Persister $persister = null,
@@ -70,22 +62,15 @@ function bootstrap(
         (Aggregate::class, new Translation\Specification\AggregateTranslator)
         (Relationship::class, new Translation\Specification\RelationshipTranslator);
     $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
-        (Aggregate::class, new Entity\DataExtractor\AggregateExtractor($extractionStrategy))
-        (Relationship::class, new Entity\DataExtractor\RelationshipExtractor($extractionStrategy));
+        (Aggregate::class, new Entity\DataExtractor\AggregateExtractor)
+        (Relationship::class, new Entity\DataExtractor\RelationshipExtractor);
 
     $identityGenerators = new Identity\Generators($additionalGenerators);
 
     $entityFactories = $entityFactories ?? Set::of(
         EntityFactory::class,
-        new EntityFactory\AggregateFactory(
-            $instanciator,
-            $injectionStrategy
-        ),
-        new EntityFactory\RelationshipFactory(
-            $identityGenerators,
-            $instanciator,
-            $injectionStrategy
-        )
+        new EntityFactory\AggregateFactory,
+        new EntityFactory\RelationshipFactory($identityGenerators)
     );
 
     $metadatas = new Metadatas(...$metas);

@@ -15,8 +15,8 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionClass,
-    Instanciator,
-    InjectionStrategy,
+    Instanciator\ConstructorLessInstanciator,
+    InjectionStrategy\ReflectionStrategy,
 };
 
 final class RelationshipFactory implements EntityFactoryInterface
@@ -25,14 +25,11 @@ final class RelationshipFactory implements EntityFactoryInterface
     private $instanciator;
     private $injectionStrategy;
 
-    public function __construct(
-        Generators $generators,
-        Instanciator $instanciator = null,
-        InjectionStrategy $injectionStrategy = null
-    ) {
+    public function __construct(Generators $generators)
+    {
         $this->generators = $generators;
-        $this->instanciator = $instanciator;
-        $this->injectionStrategy = $injectionStrategy;
+        $this->instanciator = new ConstructorLessInstanciator;
+        $this->injectionStrategy = new ReflectionStrategy;
     }
 
     /**

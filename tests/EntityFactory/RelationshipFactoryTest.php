@@ -21,11 +21,6 @@ use Innmind\Neo4j\ONM\{
     Type,
     EntityFactory,
 };
-use Innmind\Reflection\{
-    Instanciator,
-    InjectionStrategy,
-    InjectionStrategy\DelegationStrategy
-};
 use Innmind\Immutable\{
     Map,
     MapInterface,
@@ -45,16 +40,9 @@ class RelationshipFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider reflection
-     */
-    public function testMake($instanciator, $injectionStrategies)
+    public function testMake()
     {
-        $make = new RelationshipFactory(
-            new Generators,
-            $instanciator,
-            $injectionStrategies
-        );
+        $make = new RelationshipFactory(new Generators);
 
         $entity = new class {
             public $uuid;
@@ -130,49 +118,5 @@ class RelationshipFactoryTest extends TestCase
             ),
             new Map('string', 'variable')
         );
-    }
-
-    public function reflection(): array
-    {
-        return [
-            [null, null],
-            [
-                new class implements Instanciator {
-                    public function build(string $class, MapInterface $properties): object
-                    {
-                        return new $class;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                null,
-            ],
-            [
-                new class implements Instanciator {
-                    public function build(string $class, MapInterface $properties): object
-                    {
-                        $object = new $class;
-                        $properties->foreach(function($name, $value) use ($object) {
-                            $object->$name = $value;
-                        });
-
-                        return $object;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return (new Set('string'))
-                            ->add('uuid')
-                            ->add('created')
-                            ->add('start')
-                            ->add('end');
-                    }
-                },
-                new DelegationStrategy,
-            ],
-        ];
     }
 }

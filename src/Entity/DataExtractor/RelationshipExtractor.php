@@ -13,16 +13,16 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy,
+    ExtractionStrategy\ReflectionStrategy,
 };
 
 final class RelationshipExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategy $extractionStrategy = null)
+    public function __construct()
     {
-        $this->extractionStrategy = $extractionStrategy;
+        $this->extractionStrategy = new ReflectionStrategy;
     }
 
     /**

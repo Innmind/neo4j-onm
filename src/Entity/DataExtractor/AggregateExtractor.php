@@ -17,16 +17,16 @@ use Innmind\Immutable\{
 };
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategy,
+    ExtractionStrategy\ReflectionStrategy,
 };
 
 final class AggregateExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategy $extractionStrategy = null)
+    public function __construct()
     {
-        $this->extractionStrategy = $extractionStrategy;
+        $this->extractionStrategy = new ReflectionStrategy;
     }
 
     /**

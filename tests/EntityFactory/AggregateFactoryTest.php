@@ -19,10 +19,6 @@ use Innmind\Neo4j\ONM\{
     Type,
     EntityFactory,
 };
-use Innmind\Reflection\{
-    Instanciator,
-    InjectionStrategy,
-};
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -42,12 +38,9 @@ class AggregateFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider reflection
-     */
-    public function testMake($instanciator, $injectionStrategies)
+    public function testMake()
     {
-        $make = new AggregateFactory($instanciator, $injectionStrategies);
+        $make = new AggregateFactory;
 
         $entity = new class {
             public $uuid;
@@ -161,58 +154,5 @@ class AggregateFactoryTest extends TestCase
             ),
             new Map('string', 'variable')
         );
-    }
-
-    public function reflection(): array
-    {
-        $injection = $this->createMock(InjectionStrategy::class);
-        $return = null;
-        $injection
-            ->method('inject')
-            ->with($this->callback(static function($object) use (&$return) {
-                $return = $object;
-
-                return true;
-            }))
-            ->will($this->returnCallback(static function() use (&$return) {
-                return $return;
-            }));
-
-        return [
-            [null, null],
-            [
-                new class implements Instanciator {
-                    public function build(string $class, MapInterface $properties): object
-                    {
-                        return new $class;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                null,
-            ],
-            [
-                new class implements Instanciator {
-                    public function build(string $class, MapInterface $properties): object
-                    {
-                        $object = new $class;
-                        $properties->foreach(function($name, $value) use ($object) {
-                            $object->$name = $value;
-                        });
-
-                        return $object;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                $injection
-            ],
-        ];
     }
 }

@@ -23,7 +23,6 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
-use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;
 
 class AggregateExtractorTest extends TestCase
@@ -68,10 +67,7 @@ class AggregateExtractorTest extends TestCase
         $this->assertInstanceOf(DataExtractor::class, $this->extract);
     }
 
-    /**
-     * @dataProvider extractionStrategies
-     */
-    public function testExtract($strategies)
+    public function testExtract()
     {
         $entity = new class {
             public $uuid;
@@ -95,7 +91,7 @@ class AggregateExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $extract = new AggregateExtractor($strategies);
+        $extract = new AggregateExtractor;
         $data = $extract($entity, $this->meta);
 
         $this->assertInstanceOf(MapInterface::class, $data);
@@ -146,13 +142,5 @@ class AggregateExtractorTest extends TestCase
             new \stdClass,
             $this->createMock(Entity::class)
         );
-    }
-
-    public function extractionStrategies(): array
-    {
-        return [
-            [null],
-            [new ReflectionStrategy],
-        ];
     }
 }

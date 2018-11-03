@@ -21,7 +21,6 @@ use Innmind\Immutable\{
     MapInterface,
     Map,
 };
-use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipExtractorTest extends TestCase
@@ -49,10 +48,7 @@ class RelationshipExtractorTest extends TestCase
         $this->assertInstanceOf(DataExtractor::class, $this->extract);
     }
 
-    /**
-     * @dataProvider extractionStrategies
-     */
-    public function testExtract($strategies)
+    public function testExtract()
     {
         $entity = new class {
             public $uuid;
@@ -66,7 +62,7 @@ class RelationshipExtractorTest extends TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $extract = new RelationshipExtractor($strategies);
+        $extract = new RelationshipExtractor;
         $data = $extract($entity, $this->meta);
 
         $this->assertInstanceOf(MapInterface::class, $data);
@@ -95,13 +91,5 @@ class RelationshipExtractorTest extends TestCase
             new \stdClass,
             $this->createMock(Entity::class)
         );
-    }
-
-    public function extractionStrategies(): array
-    {
-        return [
-            [null],
-            [new ReflectionStrategy],
-        ];
     }
 }
