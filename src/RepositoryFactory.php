@@ -13,7 +13,7 @@ use Innmind\Immutable\{
     Map,
 };
 
-class RepositoryFactory
+final class RepositoryFactory
 {
     private $unitOfWork;
     private $matchTranslator;
