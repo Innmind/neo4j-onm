@@ -9,8 +9,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -48,11 +48,11 @@ class AggregateTranslatorTest extends TestCase
                 ('created', new DateType)
                 ('empty', StringType::nullable()),
             Set::of(
-                ValueObject::class,
-                ValueObject::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ValueObjectRelationship::of(
+                    ChildRelationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',

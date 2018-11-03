@@ -43,10 +43,10 @@ final class Aggregate implements Entity
             ));
         }
 
-        if ((string) $children->type() !== ValueObject::class) {
+        if ((string) $children->type() !== Child::class) {
             throw new \TypeError(\sprintf(
                 'Argument 5 must be of type SetInterface<%s>',
-                ValueObject::class
+                Child::class
             ));
         }
 
@@ -62,8 +62,8 @@ final class Aggregate implements Entity
         );
         $this->labels = $labels;
         $this->children = $children->reduce(
-            Map::of('string', ValueObject::class),
-            static function(MapInterface $children, ValueObject $child): MapInterface {
+            Map::of('string', Child::class),
+            static function(MapInterface $children, Child $child): MapInterface {
                 return $children->put(
                     $child->relationship()->property(),
                     $child
@@ -75,7 +75,7 @@ final class Aggregate implements Entity
     /**
      * @param SetInterface<string> $labels
      * @param MapInterface<string, Type> $properties
-     * @param SetInterface<ValueObject> $children
+     * @param SetInterface<Child> $children
      */
     public static function of(
         ClassName $class,
@@ -94,7 +94,7 @@ final class Aggregate implements Entity
                     return $properties->add(new Property($name, $type));
                 }
             ),
-            $children ?? Set::of(ValueObject::class)
+            $children ?? Set::of(Child::class)
         );
     }
 
@@ -147,7 +147,7 @@ final class Aggregate implements Entity
     }
 
     /**
-     * @return MapInterface<string, ValueObject>
+     * @return MapInterface<string, Child>
      */
     public function children(): MapInterface
     {

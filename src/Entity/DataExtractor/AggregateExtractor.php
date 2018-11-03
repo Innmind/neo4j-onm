@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor as DataExtractorInterface,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\ValueObject,
+    Metadata\Child,
     Metadata\Property,
     Exception\InvalidArgumentException,
 };
@@ -53,7 +53,7 @@ final class AggregateExtractor implements DataExtractorInterface
             ->children()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $property, ValueObject $child) use ($entity): MapInterface {
+                function(MapInterface $carry, string $property, Child $child) use ($entity): MapInterface {
                     return $carry->put(
                         $property,
                         $this->extractRelationship(
@@ -69,7 +69,7 @@ final class AggregateExtractor implements DataExtractorInterface
      * @return MapInterface<string, mixed>
      */
     private function extractRelationship(
-        ValueObject $child,
+        Child $child,
         object $entity
     ): MapInterface {
         $rel = $this

@@ -6,7 +6,7 @@ namespace Innmind\Neo4j\ONM\Translation\Match;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Metadata\Entity,
-    Metadata\ValueObject,
+    Metadata\Child,
     IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{
@@ -38,7 +38,7 @@ final class AggregateTranslator implements MatchTranslator
             ->children()
             ->foreach(function(
                 string $property,
-                ValueObject $child
+                Child $child
             ) use (
                 &$query,
                 &$variables

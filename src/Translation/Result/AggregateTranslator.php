@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\EntityTranslator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\ValueObject,
+    Metadata\Child,
     Metadata\Property,
     Exception\InvalidArgumentException,
     Exception\DomainException,
@@ -112,7 +112,7 @@ final class AggregateTranslator implements EntityTranslator
                 ->children()
                 ->reduce(
                     $data,
-                    function(MapInterface $carry, string $name, ValueObject $meta) use ($node, $result): MapInterface {
+                    function(MapInterface $carry, string $name, Child $meta) use ($node, $result): MapInterface {
                         return $carry->put(
                             $name,
                             $this->translateChild($meta, $result, $node)
@@ -125,7 +125,7 @@ final class AggregateTranslator implements EntityTranslator
     }
 
     private function translateChild(
-        ValueObject $meta,
+        Child $meta,
         Result $result,
         Node $node
     ): MapInterface {
@@ -156,7 +156,7 @@ final class AggregateTranslator implements EntityTranslator
     }
 
     private function translateRelationship(
-        ValueObject $meta,
+        Child $meta,
         Result $result,
         Relationship $relationship
     ): MapInterface {
@@ -193,7 +193,7 @@ final class AggregateTranslator implements EntityTranslator
     }
 
     private function translateValueObject(
-        ValueObject $meta,
+        Child $meta,
         Result $result,
         Relationship $relationship
     ): MapInterface {

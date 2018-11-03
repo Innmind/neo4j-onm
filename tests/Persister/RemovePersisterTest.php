@@ -14,8 +14,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Identity\Uuid,
     Metadatas,
@@ -58,11 +58,11 @@ class RemovePersisterTest extends TestCase
                 Set::of('string', 'Label'),
                 null,
                 Set::of(
-                    ValueObject::class,
-                    ValueObject::of(
+                    Child::class,
+                    Child::of(
                         new ClassName('foo'),
                         Set::of('string', 'AnotherLabel'),
-                        ValueObjectRelationship::of(
+                        ChildRelationship::of(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
                             'rel',

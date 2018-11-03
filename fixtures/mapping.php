@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Type,
     Type\StringType,
     Type\DateType,
@@ -27,11 +27,11 @@ return [
         Map::of('string', Type::class)
             ('url', new StringType),
         Set::of(
-            ValueObject::class,
-            ValueObject::of(
+            Child::class,
+            Child::of(
                 new ClassName('Description'),
                 Set::of('string', 'Description'),
-                ValueObjectRelationship::of(
+                ChildRelationship::of(
                     new ClassName('DescriptionOf'),
                     new RelationshipType('DESCRIPTION_OF'),
                     'rel',

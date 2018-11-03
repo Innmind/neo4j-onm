@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Metadata\Entity,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Type,
     EntityFactory\AggregateFactory,
@@ -34,11 +34,11 @@ class AggregateTest extends TestCase
             Map::of('string', Type::class)
                 ('foo', $this->createMock(Type::class)),
             Set::of(
-                ValueObject::class,
-                $vo = ValueObject::of(
+                Child::class,
+                $vo = Child::of(
                     new ClassName('whatever'),
                     Set::of('string', 'whatever'),
-                    ValueObjectRelationship::of(
+                    ChildRelationship::of(
                         new ClassName('whatever'),
                         new RelationshipType('whatever'),
                         'foo',
@@ -58,7 +58,7 @@ class AggregateTest extends TestCase
         $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());
         $this->assertInstanceOf(MapInterface::class, $ar->children());
         $this->assertSame('string', (string) $ar->children()->keyType());
-        $this->assertSame(ValueObject::class, (string) $ar->children()->valueType());
+        $this->assertSame(Child::class, (string) $ar->children()->valueType());
         $this->assertCount(1, $ar->children());
         $this->assertSame($vo, $ar->children()->current());
         $this->assertCount(1, $ar->properties());

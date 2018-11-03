@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Translation\Specification\Visitor\PropertyMatch\AggregateVisitor as AggregatePropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
-    Metadata\ValueObject,
+    Metadata\Child,
     Metadata\Entity,
     IdentityMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
@@ -53,7 +53,7 @@ final class AggregateTranslator implements SpecificationTranslator
                 ->children()
                 ->foreach(function(
                     string $property,
-                    ValueObject $child
+                    Child $child
                 ) use (
                     &$query,
                     $mapping,
@@ -100,7 +100,7 @@ final class AggregateTranslator implements SpecificationTranslator
                 ->children()
                 ->foreach(function(
                     string $property,
-                    ValueObject $child
+                    Child $child
                 ) use (
                     &$query,
                     &$variables

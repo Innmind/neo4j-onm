@@ -15,7 +15,7 @@ use Innmind\Immutable\{
     Str,
 };
 
-final class ValueObjectRelationship
+final class ChildRelationship
 {
     private $class;
     private $type;

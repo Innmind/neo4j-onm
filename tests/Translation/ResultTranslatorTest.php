@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\Relationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
@@ -43,11 +43,11 @@ class ResultTranslatorTest extends TestCase
                 ('created', new DateType)
                 ('empty', StringType::nullable()),
             Set::of(
-                ValueObject::class,
-                ValueObject::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ValueObjectRelationship::of(
+                    ChildRelationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
@@ -60,10 +60,10 @@ class ResultTranslatorTest extends TestCase
                         ('content', new StringType)
                         ('empty', StringType::nullable())
                 ),
-                ValueObject::of(
+                Child::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    ValueObjectRelationship::of(
+                    ChildRelationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
                         'rel2',

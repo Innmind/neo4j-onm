@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\ClassName,
     Metadata\Property,
@@ -19,14 +19,14 @@ use Innmind\Immutable\{
 };
 use PHPUnit\Framework\TestCase;
 
-class ValueObjectTest extends TestCase
+class ChildTest extends TestCase
 {
     public function testInterface()
     {
-        $vo = ValueObject::of(
+        $vo = Child::of(
             $cn = new ClassName('foo'),
             Set::of('string', 'LabelA', 'LabelB'),
-            $vor = ValueObjectRelationship::of(
+            $vor = ChildRelationship::of(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),
                 'foo',

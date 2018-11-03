@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Metadata\Aggregate,
     Metadata\Property,
-    Metadata\ValueObject,
+    Metadata\Child,
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
@@ -87,7 +87,7 @@ final class AggregateFactory implements EntityFactoryInterface
             ->children()
             ->reduce(
                 $reflection,
-                function(ReflectionClass $carry, string $property, ValueObject $meta) use ($data): ReflectionClass {
+                function(ReflectionClass $carry, string $property, Child $meta) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $property,
                         $this->buildChild($meta, $data)
@@ -97,7 +97,7 @@ final class AggregateFactory implements EntityFactoryInterface
             ->build();
     }
 
-    private function buildChild(ValueObject $meta, MapInterface $data)
+    private function buildChild(Child $meta, MapInterface $data)
     {
         $relationship = $meta->relationship();
         $data = $data->get($relationship->property());
@@ -106,7 +106,7 @@ final class AggregateFactory implements EntityFactoryInterface
     }
 
     private function buildRelationship(
-        ValueObject $meta,
+        Child $meta,
         MapInterface $data
     ) {
         $relationship = $meta->relationship();
@@ -147,7 +147,7 @@ final class AggregateFactory implements EntityFactoryInterface
     }
 
     private function buildValueObject(
-        ValueObject $meta,
+        Child $meta,
         MapInterface $data
     ): object {
         return $meta

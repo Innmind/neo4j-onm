@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Relationship,
     Metadata\Aggregate,
-    Metadata\ValueObject,
+    Metadata\Child,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
@@ -178,7 +178,7 @@ final class RemovePersister implements Persister
             ->children()
             ->reduce(
                 $query,
-                function(Query $carry, string $property, ValueObject $child) use ($name): Query {
+                function(Query $carry, string $property, Child $child) use ($name): Query {
                     $carry = $carry
                         ->match((string) $name)
                         ->linkedTo(

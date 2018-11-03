@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\ValueObjectRelationship,
+    Metadata\ChildRelationship,
     Metadata\ClassName,
     Metadata\RelationshipType,
     Metadata\Property,
@@ -16,11 +16,11 @@ use Innmind\Immutable\{
 };
 use PHPUnit\Framework\TestCase;
 
-class ValueObjectRelationshipTest extends TestCase
+class ChildRelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $vor = ValueObjectRelationship::of(
+        $vor = ChildRelationship::of(
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
@@ -45,7 +45,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyProperty()
     {
-        ValueObjectRelationship::of(
+        ChildRelationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             '',
@@ -58,7 +58,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyChildProperty()
     {
-        ValueObjectRelationship::of(
+        ChildRelationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             'relationship',

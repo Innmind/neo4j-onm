@@ -11,7 +11,7 @@ use Innmind\Immutable\{
     Set,
 };
 
-final class ValueObject
+final class Child
 {
     private $class;
     private $labels;
@@ -21,7 +21,7 @@ final class ValueObject
     public function __construct(
         ClassName $class,
         SetInterface $labels,
-        ValueObjectRelationship $relationship,
+        ChildRelationship $relationship,
         SetInterface $properties
     ) {
         if ((string) $labels->type() !== 'string') {
@@ -49,7 +49,7 @@ final class ValueObject
     public static function of(
         ClassName $class,
         SetInterface $labels,
-        ValueObjectRelationship $relationship,
+        ChildRelationship $relationship,
         MapInterface $properties = null
     ): self {
         return new self(
@@ -70,7 +70,7 @@ final class ValueObject
         return $this->class;
     }
 
-    public function relationship(): ValueObjectRelationship
+    public function relationship(): ChildRelationship
     {
         return $this->relationship;
     }

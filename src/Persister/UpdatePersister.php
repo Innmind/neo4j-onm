@@ -13,7 +13,7 @@ use Innmind\Neo4j\ONM\{
     Event\EntityAboutToBeUpdated,
     Event\EntityUpdated,
     Metadata\Aggregate,
-    Metadata\ValueObject,
+    Metadata\Child,
     Metadata\Relationship,
     Metadatas,
 };
@@ -195,7 +195,7 @@ final class UpdatePersister implements Persister
             })
             ->reduce(
                 $query,
-                function(Query $carry, string $property, ValueObject $child) use ($changeset, $name): Query {
+                function(Query $carry, string $property, Child $child) use ($changeset, $name): Query {
                     $changeset = $changeset->get($property);
                     $childName = null;
                     $relName = $name

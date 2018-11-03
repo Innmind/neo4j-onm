@@ -8,8 +8,8 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Child,
+    Metadata\ChildRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -65,11 +65,11 @@ class AggregateFactoryTest extends TestCase
                 ('created', new DateType)
                 ('empty', StringType::nullable()),
             Set::of(
-                ValueObject::class,
-                ValueObject::of(
+                Child::class,
+                Child::of(
                     new ClassName(get_class($child)),
                     Set::of('string', 'AnotherLabel'),
-                    ValueObjectRelationship::of(
+                    ChildRelationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',

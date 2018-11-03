@@ -14,7 +14,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Metadata\Aggregate,
     Metadata\Property,
-    Metadata\ValueObject,
+    Metadata\Child,
     Metadata\RelationshipEdge,
     Metadatas,
 };
@@ -179,7 +179,7 @@ final class InsertPersister implements Persister
             ->children()
             ->reduce(
                 $query,
-                function(Query $carry, string $property, ValueObject $child) use ($varName, $data): Query {
+                function(Query $carry, string $property, Child $child) use ($varName, $data): Query {
                     return $this->createAggregateChild(
                         $child,
                         $varName,
@@ -200,7 +200,7 @@ final class InsertPersister implements Persister
      * @param MapInterface<string, mixed> $data
      */
     private function createAggregateChild(
-        ValueObject $meta,
+        Child $meta,
         Str $nodeName,
         MapInterface $data,
         Query $query
