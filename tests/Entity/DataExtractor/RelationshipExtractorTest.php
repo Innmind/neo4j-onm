@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
@@ -36,7 +35,6 @@ class RelationshipExtractorTest extends TestCase
         $this->meta = new Relationship(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
-            new Repository('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'target'),
             new RelationshipEdge('end', Uuid::class, 'target')

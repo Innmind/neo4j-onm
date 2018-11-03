@@ -8,13 +8,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\Factory,
     Metadata\Aggregate,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
-    Repository\Repository as EntityRepository,
     Types,
 };
 use Innmind\Immutable\{
@@ -48,10 +46,6 @@ final class AggregateFactory implements MetadataFactory
             new Identity(
                 $config->get('identity')['property'],
                 $config->get('identity')['type']
-            ),
-            new Repository(
-                $config->contains('repository') ?
-                    $config->get('repository') : EntityRepository::class
             ),
             $config->get('labels')
         );

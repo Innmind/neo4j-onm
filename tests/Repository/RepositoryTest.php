@@ -30,7 +30,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository as MetaRepository,
     Type\StringType,
     Types,
     Exception\EntityNotFound,
@@ -89,7 +88,6 @@ class RepositoryTest extends TestCase
             $meta = (new Aggregate(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
-                new MetaRepository(Repository::class),
                 ['Label']
             ))
                 ->withProperty('content', StringType::fromConfig(

@@ -10,7 +10,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -55,7 +54,6 @@ class DataExtractorTest extends TestCase
             (new Aggregate(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
                 ['Label']
             ))
                 ->withProperty('created', new DateType)
@@ -101,7 +99,6 @@ class DataExtractorTest extends TestCase
             (new Relationship(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
                 new RelationshipEdge('end', Uuid::class, 'target')

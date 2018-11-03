@@ -10,6 +10,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\RelationshipFactory as EntityFactory,
     Type\DateType,
     Types,
+    Repository\Repository,
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
@@ -35,8 +36,6 @@ class RelationshipFactoryTest extends TestCase
     {
         $ar = ($this->make)((new Map('string', 'mixed'))
             ->put('class', 'SomeRelationship')
-            ->put('repository', 'SRRepository')
-            ->put('factory', 'SRFactory')
             ->put('rel_type', 'SOME_RELATIONSHIP')
             ->put('identity', [
                 'property' => 'uuid',
@@ -61,7 +60,7 @@ class RelationshipFactoryTest extends TestCase
 
         $this->assertInstanceOf(Relationship::class, $ar);
         $this->assertSame('SomeRelationship', (string) $ar->class());
-        $this->assertSame('SRRepository', (string) $ar->repository());
+        $this->assertSame(Repository::class, (string) $ar->repository());
         $this->assertSame(EntityFactory::class, (string) $ar->factory());
         $this->assertSame('SOME_RELATIONSHIP', (string) $ar->type());
         $this->assertSame('uuid', $ar->identity()->property());

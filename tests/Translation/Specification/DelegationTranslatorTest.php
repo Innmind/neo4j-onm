@@ -11,7 +11,6 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -77,7 +76,6 @@ class DelegationTranslatorTest extends TestCase
                 (new Aggregate(
                     new ClassName('FQCN'),
                     new Identity('id', 'foo'),
-                    new Repository('foo'),
                     ['Label']
                 ))
                     ->withProperty('created', new DateType),
@@ -90,7 +88,6 @@ class DelegationTranslatorTest extends TestCase
                 (new Relationship(
                     new ClassName('foo'),
                     new Identity('id', 'foo'),
-                    new Repository('foo'),
                     new RelationshipType('type'),
                     new RelationshipEdge('start', 'foo', 'id'),
                     new RelationshipEdge('end', 'foo', 'id')
@@ -120,7 +117,6 @@ class DelegationTranslatorTest extends TestCase
             new Aggregate(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
                 ['Label']
             ),
             new Property('foo', '=', null)
@@ -136,7 +132,6 @@ class DelegationTranslatorTest extends TestCase
             new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')

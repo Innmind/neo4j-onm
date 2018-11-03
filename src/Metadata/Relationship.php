@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\EntityFactory\RelationshipFactory;
+use Innmind\Neo4j\ONM\{
+    EntityFactory\RelationshipFactory,
+    Repository\Repository as ConcreteRepository,
+};
 
 final class Relationship extends AbstractEntity implements Entity
 {
@@ -14,7 +17,6 @@ final class Relationship extends AbstractEntity implements Entity
     public function __construct(
         ClassName $class,
         Identity $id,
-        Repository $repository,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode
@@ -22,7 +24,7 @@ final class Relationship extends AbstractEntity implements Entity
         parent::__construct(
             $class,
             $id,
-            $repository,
+            new Repository(ConcreteRepository::class),
             new Factory(RelationshipFactory::class)
         );
 

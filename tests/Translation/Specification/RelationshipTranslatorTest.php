@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -34,7 +33,6 @@ class RelationshipTranslatorTest extends TestCase
         $this->meta = (new Relationship(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')

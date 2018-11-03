@@ -11,6 +11,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Type\DateType,
     Types,
+    Repository\Repository,
 };
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
@@ -36,8 +37,6 @@ class AggregateFactoryTest extends TestCase
     {
         $ar = ($this->make)((new Map('string', 'mixed'))
             ->put('class', 'Image')
-            ->put('repository', 'ImageRepository')
-            ->put('factory', 'ImageFactory')
             ->put('labels', ['Image'])
             ->put('identity', [
                 'property' => 'uuid',
@@ -73,7 +72,7 @@ class AggregateFactoryTest extends TestCase
 
         $this->assertInstanceOf(Aggregate::class, $ar);
         $this->assertSame('Image', (string) $ar->class());
-        $this->assertSame('ImageRepository', (string) $ar->repository());
+        $this->assertSame(Repository::class, (string) $ar->repository());
         $this->assertSame(EntityFactory::class, (string) $ar->factory());
         $this->assertSame(['Image'], $ar->labels()->toPrimitive());
         $this->assertSame('uuid', $ar->identity()->property());

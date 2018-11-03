@@ -7,14 +7,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
     Metadata\Entity,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type,
     EntityFactory\AggregateFactory,
+    Repository\Repository,
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -29,14 +28,13 @@ class AggregateTest extends TestCase
         $ar = new Aggregate(
             $cn = new ClassName('foo'),
             $i = new Identity('uuid', 'UUID'),
-            $r = new Repository('Class'),
             ['LabelA']
         );
 
         $this->assertInstanceOf(Entity::class, $ar);
         $this->assertSame($cn, $ar->class());
         $this->assertSame($i, $ar->identity());
-        $this->assertSame($r, $ar->repository());
+        $this->assertSame(Repository::class, (string) $ar->repository());
         $this->assertSame(AggregateFactory::class, (string) $ar->factory());
         $this->assertInstanceOf(SetInterface::class, $ar->labels());
         $this->assertSame('string', (string) $ar->labels()->type());

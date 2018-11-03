@@ -9,7 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -43,7 +42,6 @@ class AggregateTranslatorTest extends TestCase
         $meta = new Aggregate(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
             ['Label']
         );
         $meta = $meta

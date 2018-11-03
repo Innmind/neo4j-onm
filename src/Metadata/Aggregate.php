@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\EntityFactory\AggregateFactory;
+use Innmind\Neo4j\ONM\{
+    EntityFactory\AggregateFactory,
+    Repository\Repository as ConcreteRepository,
+};
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -19,13 +22,12 @@ final class Aggregate extends AbstractEntity implements Entity
      public function __construct(
         ClassName $class,
         Identity $id,
-        Repository $repository,
         array $labels
     ) {
         parent::__construct(
             $class,
             $id,
-            $repository,
+            new Repository(ConcreteRepository::class),
             new Factory(AggregateFactory::class)
         );
 
