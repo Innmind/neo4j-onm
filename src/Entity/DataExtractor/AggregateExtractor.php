@@ -7,34 +7,34 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor as DataExtractorInterface,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\ValueObject,
+    Metadata\Aggregate\Child,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategyInterface
+    ExtractionStrategy\ReflectionStrategy,
 };
 
 final class AggregateExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
+    public function __construct()
     {
-        $this->extractionStrategy = $extractionStrategy;
+        $this->extractionStrategy = new ReflectionStrategy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): MapInterface
     {
-        if (!is_object($entity) || !$meta instanceof Aggregate) {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
@@ -44,7 +44,7 @@ final class AggregateExtractor implements DataExtractorInterface
                 $id = $meta->identity()->property(),
                 $this
                     ->reflection($entity)
-                    ->extract([$id])
+                    ->extract($id)
                     ->get($id)
                     ->value()
             );
@@ -53,7 +53,7 @@ final class AggregateExtractor implements DataExtractorInterface
             ->children()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $property, ValueObject $child) use ($entity): MapInterface {
+                function(MapInterface $carry, string $property, Child $child) use ($entity): MapInterface {
                     return $carry->put(
                         $property,
                         $this->extractRelationship(
@@ -66,32 +66,28 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @param object $entity
-     *
      * @return MapInterface<string, mixed>
      */
     private function extractRelationship(
-        ValueObject $child,
-        $entity
+        Child $child,
+        object $entity
     ): MapInterface {
         $rel = $this
             ->reflection($entity)
-            ->extract([
-                $prop = $child->relationship()->property()
-            ])
-            ->get($prop);
+            ->extract($property = $child->relationship()->property())
+            ->get($property);
         $data = $this
             ->extractProperties(
                 $rel,
                 $child->relationship()->properties()
             )
             ->put(
-                $prop = $child->relationship()->childProperty(),
+                $property = $child->relationship()->childProperty(),
                 $this->extractProperties(
                     $this
                         ->reflection($rel)
-                        ->extract([$prop])
-                        ->get($prop),
+                        ->extract($property)
+                        ->get($property),
                     $child->properties()
                 )
             );
@@ -100,36 +96,32 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @param object $object
      * @param MapInterface<string, Property> $properties
      *
      * @return MapInterface<string, mixed>
      */
     private function extractProperties(
-        $object,
+        object $object,
         MapInterface $properties
     ): MapInterface {
         $refl = $this->reflection($object);
 
         return $properties->reduce(
             new Map('string', 'mixed'),
-            function(Map $carry, string $name, Property $property) use ($refl): Map {
+            static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
                 return $carry->put(
                     $name,
                     $property
                         ->type()
                         ->forDatabase(
-                            $refl->extract([$name])->get($name)
+                            $refl->extract($name)->get($name)
                         )
                 );
             }
         );
     }
 
-    /**
-     * @param object $object
-     */
-    private function reflection($object): ReflectionObject
+    private function reflection(object $object): ReflectionObject
     {
         return new ReflectionObject(
             $object,

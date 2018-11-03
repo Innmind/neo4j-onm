@@ -1,27 +1,32 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Metadata;
+namespace Tests\Innmind\Neo4j\ONM\Metadata\Aggregate\Child;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\ValueObjectRelationship,
+    Metadata\Aggregate\Child\Relationship,
     Metadata\ClassName,
     Metadata\RelationshipType,
     Metadata\Property,
-    Type
+    Type,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\{
+    MapInterface,
+    Map,
+};
 use PHPUnit\Framework\TestCase;
 
-class ValueObjectRelationshipTest extends TestCase
+class RelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $vor = new ValueObjectRelationship(
+        $vor = Relationship::of(
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
-            'node'
+            'node',
+            Map::of('string', Type::class)
+                ('foo', $this->createMock(Type::class))
         );
 
         $this->assertSame($cn, $vor->class());
@@ -31,15 +36,8 @@ class ValueObjectRelationshipTest extends TestCase
         $this->assertInstanceOf(MapInterface::class, $vor->properties());
         $this->assertSame('string', (string) $vor->properties()->keyType());
         $this->assertSame(Property::class, (string) $vor->properties()->valueType());
-        $this->assertSame(0, $vor->properties()->count());
-
-        $vor2 = $vor->withProperty('foo', $this->createMock(Type::class));
-
-        $this->assertNotSame($vor, $vor2);
-        $this->assertInstanceOf(ValueObjectRelationship::class, $vor2);
-        $this->assertSame(0, $vor->properties()->count());
-        $this->assertSame(1, $vor2->properties()->count());
-        $this->assertTrue($vor2->properties()->contains('foo'));
+        $this->assertSame(1, $vor->properties()->count());
+        $this->assertTrue($vor->properties()->contains('foo'));
     }
 
     /**
@@ -47,7 +45,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyProperty()
     {
-        new ValueObjectRelationship(
+        Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             '',
@@ -60,7 +58,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyChildProperty()
     {
-        new ValueObjectRelationship(
+        Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             'relationship',

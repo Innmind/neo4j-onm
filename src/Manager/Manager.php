@@ -10,26 +10,26 @@ use Innmind\Neo4j\ONM\{
     RepositoryFactory,
     Repository,
     Identity,
-    Identity\Generators
+    Identity\Generators,
 };
 use Innmind\Neo4j\DBAL\Connection;
 
 final class Manager implements ManagerInterface
 {
     private $unitOfWork;
-    private $metadatas;
-    private $repositoryFactory;
+    private $metadata;
+    private $make;
     private $generators;
 
     public function __construct(
         UnitOfWork $unitOfWork,
-        Metadatas $metadatas,
-        RepositoryFactory $repositoryFactory,
+        Metadatas $metadata,
+        RepositoryFactory $make,
         Generators $generators
     ) {
         $this->unitOfWork = $unitOfWork;
-        $this->metadatas = $metadatas;
-        $this->repositoryFactory = $repositoryFactory;
+        $this->metadata = $metadata;
+        $this->make = $make;
         $this->generators = $generators;
     }
 
@@ -40,8 +40,8 @@ final class Manager implements ManagerInterface
 
     public function repository(string $class): Repository
     {
-        return $this->repositoryFactory->make(
-            $this->metadatas->get($class)
+        return ($this->make)(
+            ($this->metadata)($class)
         );
     }
 

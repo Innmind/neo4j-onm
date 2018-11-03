@@ -5,11 +5,11 @@ namespace Tests\Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Entity\ChangesetComputer,
-    Identity
+    Identity,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 

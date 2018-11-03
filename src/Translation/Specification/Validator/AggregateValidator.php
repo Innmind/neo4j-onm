@@ -7,13 +7,13 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Specification\{
     ComparatorInterface,
     CompositeInterface,
     NotInterface,
-    SpecificationInterface
+    SpecificationInterface,
 };
 use Innmind\Immutable\Str;
 
@@ -22,7 +22,7 @@ final class AggregateValidator implements Validator
     /**
      * {@inheritdoc}
      */
-    public function validate(
+    public function __invoke(
         SpecificationInterface $specification,
         Entity $meta
     ): bool {
@@ -38,14 +38,14 @@ final class AggregateValidator implements Validator
                 );
 
             case $specification instanceof CompositeInterface:
-                if (!$this->validate($specification->left(), $meta)) {
+                if (!($this)($specification->left(), $meta)) {
                     return false;
                 }
 
-                return $this->validate($specification->right(), $meta);
+                return ($this)($specification->right(), $meta);
 
             case $specification instanceof NotInterface:
-                return $this->validate($specification->specification(), $meta);
+                return ($this)($specification->specification(), $meta);
         }
 
         return false;

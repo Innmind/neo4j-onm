@@ -14,42 +14,42 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Metadata\Aggregate,
     Metadata\Property,
-    Metadata\ValueObject,
+    Metadata\Aggregate\Child,
     Metadata\RelationshipEdge,
-    Metadatas
+    Metadatas,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Query,
-    Clause\Expression\Relationship as DBALRelationship
+    Clause\Expression\Relationship as DBALRelationship,
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    Str,
     MapInterface,
+    Map,
     Stream,
-    Map
+    Str,
 };
 
 final class InsertPersister implements Persister
 {
     private $changeset;
-    private $eventBus;
-    private $extractor;
-    private $metadatas;
+    private $dispatch;
+    private $extract;
+    private $metadata;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventBusInterface $eventBus,
-        DataExtractor $extractor,
-        Metadatas $metadatas
+        EventBus $dispatch,
+        DataExtractor $extract,
+        Metadatas $metadata
     ) {
         $this->changeset = $changeset;
-        $this->eventBus = $eventBus;
-        $this->extractor = $extractor;
-        $this->metadatas = $metadatas;
+        $this->dispatch = $dispatch;
+        $this->extract = $extract;
+        $this->metadata = $metadata;
         $this->name = new Str('e%s');
     }
 
@@ -64,28 +64,19 @@ final class InsertPersister implements Persister
             return;
         }
 
-        $entities->foreach(function(Identity $identity, $entity) {
-            $this->eventBus->dispatch(
-                new EntityAboutToBePersisted($identity, $entity)
-            );
+        $entities->foreach(function(Identity $identity, $entity): void {
+            ($this->dispatch)(new EntityAboutToBePersisted($identity, $entity));
         });
 
         $connection->execute($this->queryFor($entities));
 
-        $entities->foreach(function(
-            Identity $identity,
-            $entity
-        ) use (
-            $container
-        ) {
+        $entities->foreach(function(Identity $identity, object $entity) use ($container): void {
             $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
-                $this->extractor->extract($entity)
+                ($this->extract)($entity)
             );
-            $this->eventBus->dispatch(
-                new EntityPersisted($identity, $entity)
-            );
+            ($this->dispatch)(new EntityPersisted($identity, $entity));
         });
     }
 
@@ -99,11 +90,8 @@ final class InsertPersister implements Persister
         $query = new Query\Query;
         $this->variables = new Stream('string');
 
-        $partitions = $entities->partition(function(
-            Identity $identity,
-            $entity
-        ) {
-            $meta = $this->metadatas->get(get_class($entity));
+        $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
+            $meta = ($this->metadata)(\get_class($entity));
 
             return $meta instanceof Aggregate;
         });
@@ -111,7 +99,7 @@ final class InsertPersister implements Persister
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createAggregate($identity, $entity, $carry);
                 }
             );
@@ -119,7 +107,7 @@ final class InsertPersister implements Persister
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createRelationship($identity, $entity, $carry);
                 }
             );
@@ -130,21 +118,15 @@ final class InsertPersister implements Persister
 
     /**
      * Add the cypher clause to create the node corresponding to the root of the aggregate
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function createAggregate(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $data = $this->extractor->extract($entity);
-        $varName = $this->name->sprintf(md5($identity->value()));
+        $meta = ($this->metadata)(\get_class($entity));
+        $data = ($this->extract)($entity);
+        $varName = $this->name->sprintf(\md5($identity->value()));
 
         $query = $query->create(
             (string) $varName,
@@ -167,7 +149,7 @@ final class InsertPersister implements Persister
             )
             ->withProperties($properties->reduce(
                 [],
-                function(array $carry, string $property, string $cypher): array {
+                static function(array $carry, string $property, string $cypher): array {
                     $carry[$property] = $cypher;
 
                     return $carry;
@@ -176,7 +158,7 @@ final class InsertPersister implements Persister
             ->withParameter(
                 (string) $paramKey,
                 $data
-                    ->filter(function(string $key) use ($keysToKeep): bool {
+                    ->filter(static function(string $key) use ($keysToKeep): bool {
                         return $keysToKeep->contains($key);
                     })
                     ->put(
@@ -185,7 +167,7 @@ final class InsertPersister implements Persister
                     )
                     ->reduce(
                         [],
-                        function(array $carry, string $key, $value): array {
+                        static function(array $carry, string $key, $value): array {
                             $carry[$key] = $value;
 
                             return $carry;
@@ -197,7 +179,7 @@ final class InsertPersister implements Persister
             ->children()
             ->reduce(
                 $query,
-                function(Query $carry, string $property, ValueObject $child) use ($varName, $data): Query {
+                function(Query $carry, string $property, Child $child) use ($varName, $data): Query {
                     return $this->createAggregateChild(
                         $child,
                         $varName,
@@ -215,15 +197,10 @@ final class InsertPersister implements Persister
      * Add the cypher clause to build the relationship and the node corresponding
      * to a child of the aggregate
      *
-     * @param ValueObject $meta
-     * @param Str $nodeName
      * @param MapInterface<string, mixed> $data
-     * @param Query $query
-     *
-     * @return Query
      */
     private function createAggregateChild(
-        ValueObject $meta,
+        Child $meta,
         Str $nodeName,
         MapInterface $data,
         Query $query
@@ -244,16 +221,14 @@ final class InsertPersister implements Persister
         );
 
         return $query
-            ->create(
-                (string) $nodeName
-            )
+            ->create((string) $nodeName)
             ->linkedTo(
                 (string) $endNodeName,
                 $meta->labels()->toPrimitive()
             )
             ->withProperties($endNodeProperties->reduce(
                 [],
-                function(array $carry, string $property, string $cypher): array {
+                static function(array $carry, string $property, string $cypher): array {
                     $carry[$property] = $cypher;
 
                     return $carry;
@@ -262,12 +237,10 @@ final class InsertPersister implements Persister
             ->withParameter(
                 (string) $endNodeParamKey,
                 $data
-                    ->get(
-                        $meta->relationship()->childProperty()
-                    )
+                    ->get($meta->relationship()->childProperty())
                     ->reduce(
                         [],
-                        function(array $carry, string $key, $value): array {
+                        static function(array $carry, string $key, $value): array {
                             $carry[$key] = $value;
 
                             return $carry;
@@ -281,7 +254,7 @@ final class InsertPersister implements Persister
             )
             ->withProperties($relationshipProperties->reduce(
                 [],
-                function(array $carry, string $property, string $cypher): array {
+                static function(array $carry, string $property, string $cypher): array {
                     $carry[$property] = $cypher;
 
                     return $carry;
@@ -290,12 +263,10 @@ final class InsertPersister implements Persister
             ->withParameter(
                 (string) $relationshipParamKey,
                 $data
-                    ->remove(
-                        $meta->relationship()->childProperty()
-                    )
+                    ->remove($meta->relationship()->childProperty())
                     ->reduce(
                         [],
-                        function(array $carry, string $key, $value): array {
+                        static function(array $carry, string $key, $value): array {
                             $carry[$key] = $value;
 
                             return $carry;
@@ -308,7 +279,6 @@ final class InsertPersister implements Persister
      * Build the collection of properties to be injected in the query
      *
      * @param MapInterface<string, Property> $properties
-     * @param Str $name
      *
      * @return MapInterface<string, string>
      */
@@ -320,7 +290,7 @@ final class InsertPersister implements Persister
 
         return $properties->reduce(
             new Map('string', 'string'),
-            function(Map $carry, string $property) use ($name): Map {
+            static function(MapInterface $carry, string $property) use ($name): MapInterface {
                 return $carry->put(
                     $property,
                     (string) $name->append($property)
@@ -331,25 +301,19 @@ final class InsertPersister implements Persister
 
     /**
      * Add the clause to create a relationship between nodes
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query $query
-     *
-     * @return Query
      */
     private function createRelationship(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $data = $this->extractor->extract($entity);
+        $meta = ($this->metadata)(\get_class($entity));
+        $data = ($this->extract)($entity);
         $start = $data->get($meta->startNode()->property());
         $end = $data->get($meta->endNode()->property());
-        $varName = $this->name->sprintf(md5($identity->value()));
-        $startName = $this->name->sprintf(md5($start));
-        $endName = $this->name->sprintf(md5($end));
+        $varName = $this->name->sprintf(\md5($identity->value()));
+        $startName = $this->name->sprintf(\md5($start));
+        $endName = $this->name->sprintf(\md5($end));
 
         $paramKey = $varName->append('_props');
         $properties = $this->buildProperties($meta->properties(), $paramKey);
@@ -383,7 +347,7 @@ final class InsertPersister implements Persister
             )
             ->withProperties($properties->reduce(
                 [],
-                function(array $carry, string $property, string $cypher): array {
+                static function(array $carry, string $property, string $cypher): array {
                     $carry[$property] = $cypher;
 
                     return $carry;
@@ -392,13 +356,13 @@ final class InsertPersister implements Persister
             ->withParameter(
                 (string) $paramKey,
                 $data
-                    ->filter(function(string $key) use ($keysToKeep): bool {
+                    ->filter(static function(string $key) use ($keysToKeep): bool {
                         return $keysToKeep->contains($key);
                     })
                     ->put($meta->identity()->property(), $identity->value())
                     ->reduce(
                         [],
-                        function(array $carry, string $key, $value): array {
+                        static function(array $carry, string $key, $value): array {
                             $carry[$key] = $value;
 
                             return $carry;
@@ -411,12 +375,7 @@ final class InsertPersister implements Persister
      * Add the clause to match the target node in case it's node that is not
      * persisted via the current query
      *
-     * @param Str $name
-     * @param RelationshipEdge $meta
      * @param mixed $value
-     * @param Query $query
-     *
-     * @return Query
      */
     private function matchEdge(
         Str $name,

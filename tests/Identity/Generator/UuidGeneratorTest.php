@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Identity\Uuid,
     Identity\Generator,
-    Identity\Generator\UuidGenerator
+    Identity\Generator\UuidGenerator,
 };
 use PHPUnit\Framework\TestCase;
 

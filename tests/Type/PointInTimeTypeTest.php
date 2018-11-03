@@ -6,17 +6,13 @@ namespace Tests\Innmind\Neo4j\ONM\Type;
 use Innmind\Neo4j\ONM\{
     Type\PointInTimeType,
     Type,
-    Types
+    Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
     PointInTimeInterface,
     PointInTime\Earth\PointInTime,
     PointInTime\Earth\Now,
-    Format\RSS
-};
-use Innmind\Immutable\{
-    SetInterface,
-    Map
+    Format\RSS,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -26,46 +22,23 @@ class PointInTimeTypeTest extends TestCase
     {
         $this->assertInstanceOf(
             Type::class,
-            PointInTimeType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
+            new PointInTimeType
         );
     }
 
     public function testIsNullable()
     {
         $this->assertFalse(
-            PointInTimeType::fromConfig(
-                new Map('string', 'mixed'),
-                new Types
-            )
-                ->isNullable()
+            (new PointInTimeType)->isNullable()
         );
         $this->assertTrue(
-            PointInTimeType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->isNullable()
+            PointInTimeType::nullable()->isNullable()
         );
-    }
-
-    public function testIdentifiers()
-    {
-        $this->assertInstanceOf(SetInterface::class, PointInTimeType::identifiers());
-        $this->assertSame('string', (string) PointInTimeType::identifiers()->type());
-        $this->assertSame(PointInTimeType::identifiers(), PointInTimeType::identifiers());
-        $this->assertSame(['point_in_time'], PointInTimeType::identifiers()->toPrimitive());
     }
 
     public function testForDatabase()
     {
-        $type = PointInTimeType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $type = new PointInTimeType;
 
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{2}:\d{2}/',
@@ -78,31 +51,18 @@ class PointInTimeTypeTest extends TestCase
 
         $this->assertRegExp(
             '/Fri, 01 Jan 2016 00:00:00 \+\d{4}/',
-            PointInTimeType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('format', RSS::class),
-                new Types
-            )
-                ->forDatabase(new PointInTime('2016-01-01'))
+            (new PointInTimeType(new RSS))->forDatabase(new PointInTime('2016-01-01'))
         );
 
         $this->assertSame(
             null,
-            PointInTimeType::fromConfig(
-                (new Map('string', 'mixed'))
-                    ->put('nullable', null),
-                new Types
-            )
-                ->forDatabase(null)
+            PointInTimeType::nullable()->forDatabase(null)
         );
     }
 
     public function testFromDatabase()
     {
-        $type = PointInTimeType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        );
+        $type = new PointInTimeType;
 
         $this->assertInstanceOf(
             PointInTimeInterface::class,
@@ -114,16 +74,11 @@ class PointInTimeTypeTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The value "42" must be an instance of PointInTimeInterface
-     */
     public function testThrowWhenInvalidDate()
     {
-        PointInTimeType::fromConfig(
-            new Map('string', 'mixed'),
-            new Types
-        )
-            ->forDatabase(42);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The value "42" must be an instance of PointInTimeInterface');
+
+        (new PointInTimeType)->forDatabase(42);
     }
 }

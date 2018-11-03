@@ -14,7 +14,7 @@ interface EntityTranslator
      *
      * @return SetInterface<MapInterface<string, mixed>>
      */
-    public function translate(
+    public function __invoke(
         string $variable,
         Entity $meta,
         Result $result

@@ -8,11 +8,6 @@ use Innmind\Immutable\MapInterface;
 interface Entity
 {
     /**
-     * Return the alias of the entity
-     */
-    public function alias(): Alias;
-
-    /**
      * Return the repository definition
      */
     public function repository(): Repository;

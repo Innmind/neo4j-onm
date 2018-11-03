@@ -23,7 +23,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\Resolver,
     Translation\ResultTranslator,
     Translation\IdentityMatch\DelegationTranslator as IdentityMatchTranslator,
-    Persister
+    Persister,
 };
 use Innmind\Neo4j\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -38,9 +38,6 @@ class ManagerTest extends TestCase
         $meta
             ->method('class')
             ->willReturn(new ClassName('foo'));
-        $meta
-            ->method('alias')
-            ->willReturn(new Alias('foo'));
         $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));

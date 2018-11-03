@@ -7,23 +7,22 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator\DelegationValidator,
     Translation\Specification\Validator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\EntityInterface,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Type\DateType,
     Type\StringType,
-    Types
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class DelegationValidatorTest extends TestCase
@@ -33,72 +32,43 @@ class DelegationValidatorTest extends TestCase
 
     public function setUp()
     {
-        $this->aggregate = (new Aggregate(
+        $this->aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        ))
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
-        $this->relationship = (new Relationship(
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
+        $this->relationship = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
-        ))
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
+        );
     }
 
     public function testInterface()
@@ -116,25 +86,25 @@ class DelegationValidatorTest extends TestCase
         $compChildContent = new Property('rel.child.content', '=', null);
 
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compRelCreated,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compChildContent,
                 $this->aggregate
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $compCreated
                     ->and($compRelCreated)
                     ->or($compChildContent->not()),
@@ -151,25 +121,25 @@ class DelegationValidatorTest extends TestCase
         $comp4 = new Property('rel.child.foo.tooDeep', '=', null);
 
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->aggregate
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not())
@@ -186,25 +156,25 @@ class DelegationValidatorTest extends TestCase
         $comp3 = new Property('end', '=', null);
 
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertTrue(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),
@@ -220,25 +190,25 @@ class DelegationValidatorTest extends TestCase
         $comp3 = new Property('start.id', '=', null);
 
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp2,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp3,
                 $this->relationship
             )
         );
         $this->assertFalse(
-            (new DelegationValidator)->validate(
+            (new DelegationValidator)(
                 $comp1
                     ->and($comp2)
                     ->or($comp3->not()),

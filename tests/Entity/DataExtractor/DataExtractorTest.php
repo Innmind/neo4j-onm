@@ -6,31 +6,28 @@ namespace Tests\Innmind\Neo4j\ONM\Entity\DataExtractor;
 use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\DataExtractor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
     Metadatas,
-    Types
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
 class DataExtractorTest extends TestCase
 {
-    private $extractor;
+    private $extract;
     private $arClass;
     private $rClass;
     private $metadatas;
@@ -54,75 +51,45 @@ class DataExtractorTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                )
-                ->withChild(
-                    (new ValueObject(
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable()),
+                Set::of(
+                    Child::class,
+                    Child::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
-                        (new ValueObjectRelationship(
+                        Set::of('string', 'AnotherLabel'),
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('foo'),
                             'rel',
                             'child',
-                            true
-                        ))
-                            ->withProperty('created', new DateType)
-                            ->withProperty(
-                                'empty',
-                                StringType::fromConfig(
-                                    (new Map('string', 'mixed'))
-                                        ->put('nullable', null),
-                                    new Types
-                                )
-                            )
-                    ))
-                        ->withProperty('content', new StringType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ),
-            (new Relationship(
-                new ClassName($this->rClass),
-                new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                new RelationshipType('type'),
-                new RelationshipEdge('start', Uuid::class, 'target'),
-                new RelationshipEdge('end', Uuid::class, 'target')
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
+                            Map::of('string', Type::class)
+                                ('created', new DateType)
+                                ('empty', StringType::nullable())
+                        ),
+                        Map::of('string', Type::class)
+                            ('content', new StringType)
+                            ('empty', StringType::nullable())
                     )
                 )
+            ),
+            Relationship::of(
+                new ClassName($this->rClass),
+                new Identity('uuid', 'foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'target'),
+                new RelationshipEdge('end', Uuid::class, 'target'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable())
+            )
         );
-        $this->extractor = new DataExtractor($this->metadatas);
+        $this->extract = new DataExtractor($this->metadatas);
     }
 
     public function testExtractAggregateRoot()
@@ -144,7 +111,7 @@ class DataExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $data = $this->extractor->extract($entity);
+        $data = ($this->extract)($entity);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -193,7 +160,7 @@ class DataExtractorTest extends TestCase
         $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
         $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
 
-        $data = $this->extractor->extract($entity);
+        $data = ($this->extract)($entity);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -210,14 +177,6 @@ class DataExtractorTest extends TestCase
         $this->assertSame($u, $data->get('uuid'));
         $this->assertSame($s, $data->get('start'));
         $this->assertSame($e, $data->get('end'));
-    }
-
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
-    public function testThrowWhenInvalidEntity()
-    {
-        $this->extractor->extract('');
     }
 
     /**

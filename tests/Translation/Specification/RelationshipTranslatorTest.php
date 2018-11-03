@@ -9,9 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -20,7 +17,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     IdentityMatch,
     Identity\Uuid,
-    Types
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
@@ -33,25 +30,16 @@ class RelationshipTranslatorTest extends TestCase
 
     public function setUp()
     {
-        $this->meta = (new Relationship(
-                new ClassName('foo'),
-                new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                new RelationshipType('type'),
-                new RelationshipEdge('start', 'foo', 'id'),
-                new RelationshipEdge('end', 'foo', 'id')
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                );
+        $this->meta = Relationship::of(
+            new ClassName('foo'),
+            new Identity('id', 'foo'),
+            new RelationshipType('type'),
+            new RelationshipEdge('start', 'foo', 'id'),
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
+        );
     }
 
     public function testInterface()
@@ -64,9 +52,9 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateWithPropertyMatch()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 1))
                 ->and(new Property('empty', '=', 2))
@@ -103,9 +91,9 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateWithWhereClause()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
-        $match = $translator->translate(
+        $match = $translate(
             $this->meta,
             (new Property('created', '=', 10))
                 ->or(new Property('empty', '=', 20))

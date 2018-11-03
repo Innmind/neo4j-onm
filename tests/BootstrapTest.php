@@ -6,27 +6,30 @@ namespace Tests\Innmind\Neo4j\ONM;
 use function Innmind\Neo4j\ONM\bootstrap;
 use Innmind\Neo4j\ONM\{
     Manager,
+    Metadata\Entity,
     CommandBus\ClearDomainEvents,
     CommandBus\DispatchDomainEvents,
     CommandBus\Flush,
     CommandBus\Transaction,
 };
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\CommandBus\CommandBusInterface;
-use Symfony\Component\Yaml\Yaml;
+use Innmind\CommandBus\CommandBus;
+use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class BootstrapTest extends TestCase
 {
     public function testBootstrap()
     {
+        $metadatas = require 'fixtures/mapping.php';
+
         $services = bootstrap(
             $this->createMock(Connection::class),
-            [Yaml::parse(file_get_contents('fixtures/mapping.yml'))]
+            Set::of(Entity::class, ...$metadatas)
         );
 
         $this->assertInstanceOf(Manager::class, $services['manager']);
-        $bus = $this->createMock(CommandBusInterface::class);
+        $bus = $this->createMock(CommandBus::class);
         $this->assertInternalType('callable', $services['command_bus']['clear_domain_events']);
         $this->assertInstanceOf(
             ClearDomainEvents::class,

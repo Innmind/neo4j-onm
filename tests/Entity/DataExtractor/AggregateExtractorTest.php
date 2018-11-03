@@ -7,95 +7,66 @@ use Innmind\Neo4j\ONM\{
     Entity\DataExtractor\AggregateExtractor,
     Entity\DataExtractor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    Types
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
+    Set,
 };
-use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;
 
 class AggregateExtractorTest extends TestCase
 {
-    private $extractor;
+    private $extract;
     private $meta;
 
     public function setUp()
     {
-        $this->extractor = new AggregateExtractor;
-        $this->meta = new Aggregate(
+        $this->extract = new AggregateExtractor;
+        $this->meta = Aggregate::of(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        );
-        $this->meta = $this->meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('foo'),
                         'rel',
                         'child',
-                        true
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
     }
 
     public function testInterface()
     {
-        $this->assertInstanceOf(DataExtractor::class, $this->extractor);
+        $this->assertInstanceOf(DataExtractor::class, $this->extract);
     }
 
-    /**
-     * @dataProvider extractionStrategies
-     */
-    public function testExtract($strategies)
+    public function testExtract()
     {
         $entity = new class {
             public $uuid;
@@ -119,8 +90,8 @@ class AggregateExtractorTest extends TestCase
         $rel->child = $child;
         $child->content = 'foo';
 
-        $extractor = new AggregateExtractor($strategies);
-        $data = $extractor->extract($entity, $this->meta);
+        $extract = new AggregateExtractor;
+        $data = $extract($entity, $this->meta);
 
         $this->assertInstanceOf(MapInterface::class, $data);
         $this->assertSame('string', (string) $data->keyType());
@@ -166,28 +137,9 @@ class AggregateExtractorTest extends TestCase
      */
     public function testThrowWhenExtractingInvalidMeta()
     {
-        $this->extractor->extract(
+        ($this->extract)(
             new \stdClass,
             $this->createMock(Entity::class)
         );
-    }
-
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
-    public function testThrowWhenExtractingInvalidEntity()
-    {
-        $this->extractor->extract(
-            '',
-            $this->meta
-        );
-    }
-
-    public function extractionStrategies(): array
-    {
-        return [
-            [null],
-            [new ReflectionStrategy],
-        ];
     }
 }

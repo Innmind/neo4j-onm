@@ -27,25 +27,23 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\Entity,
-    Exception\IdentityNotManaged
+    Exception\IdentityNotManaged,
 };
 use Innmind\Neo4j\DBAL\{
     ConnectionFactory,
-    Query\Query
+    Query\Query,
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
-    Factory\Header\Factories
+    Factory\Header\Factories,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Set,
+    Map,
 };
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
@@ -57,7 +55,7 @@ class UnitOfWorkTest extends TestCase
     private $conn;
     private $container;
     private $entityFactory;
-    private $metadatas;
+    private $metadata;
     private $generators;
 
     public function setUp()
@@ -88,43 +86,40 @@ class UnitOfWorkTest extends TestCase
             ),
             $this->container
         );
-        $this->metadatas = new Metadatas(
-            new Aggregate(
+        $this->metadata = new Metadatas(
+            Aggregate::of(
                 new ClassName($this->aggregateClass),
                 new Identity('uuid', Uuid::class),
-                new Repository('foo'),
-                new Factory(AggregateFactory::class),
-                new Alias('foo'),
-                ['Label']
+                Set::of('string', 'Label')
             )
         );
         $changeset = new ChangesetComputer;
-        $extractor = new DataExtractor($this->metadatas);
-        $eventBus = $this->createMock(EventBusInterface::class);
+        $extractor = new DataExtractor($this->metadata);
+        $eventBus = $this->createMock(EventBus::class);
 
         $this->uow = new UnitOfWork(
             $this->conn,
             $this->container,
             $this->entityFactory,
             new IdentityMatchTranslator,
-            $this->metadatas,
+            $this->metadata,
             new DelegationPersister(
                 new InsertPersister(
                     $changeset,
                     $eventBus,
                     $extractor,
-                    $this->metadatas
+                    $this->metadata
                 ),
                 new UpdatePersister(
                     $changeset,
                     $eventBus,
                     $extractor,
-                    $this->metadatas
+                    $this->metadata
                 ),
                 new RemovePersister(
                     $changeset,
                     $eventBus,
-                    $this->metadatas
+                    $this->metadata
                 )
             ),
             $this->generators
@@ -243,7 +238,7 @@ class UnitOfWorkTest extends TestCase
                 ->withProperty('uuid', '"11111111-1111-1111-1111-111111111111"')
                 ->return('entity'),
             (new Map('string', Entity::class))
-                ->put('entity', $this->metadatas->get($this->aggregateClass))
+                ->put('entity', ($this->metadata)($this->aggregateClass))
         );
 
         $this->assertInstanceOf(SetInterface::class, $data);

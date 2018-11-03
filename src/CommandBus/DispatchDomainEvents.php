@@ -8,53 +8,56 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Identity,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use Innmind\EventBus\{
-    EventBusInterface,
-    ContainsRecordedEventsInterface,
+    EventBus,
+    ContainsRecordedEvents,
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\{
+    StreamInterface,
+    Stream,
+};
 
-final class DispatchDomainEvents implements CommandBusInterface
+final class DispatchDomainEvents implements CommandBus
 {
-    private $commandBus;
-    private $eventBus;
+    private $handle;
+    private $dispatch;
     private $entities;
 
     public function __construct(
-        CommandBusInterface $commandBus,
-        EventBusInterface $eventBus,
+        CommandBus $handle,
+        EventBus $dispatch,
         Container $entities
     ) {
-        $this->commandBus = $commandBus;
-        $this->eventBus = $eventBus;
+        $this->handle = $handle;
+        $this->dispatch = $dispatch;
         $this->entities = $entities;
     }
 
-    public function handle($command)
+    public function __invoke(object $command): void
     {
-        $this->commandBus->handle($command);
+        ($this->handle)($command);
         $this
             ->entities
             ->state(State::new())
             ->merge($this->entities->state(State::managed()))
             ->merge($this->entities->state(State::toBeRemoved()))
             ->merge($this->entities->state(State::removed()))
-            ->filter(function(Identity $identity, $entity): bool {
-                return $entity instanceof ContainsRecordedEventsInterface;
+            ->filter(static function(Identity $identity, $entity): bool {
+                return $entity instanceof ContainsRecordedEvents;
             })
             ->reduce(
                 new Stream('object'),
-                function(
-                    Stream $carry,
+                static function(
+                    StreamInterface $carry,
                     Identity $identity,
-                    ContainsRecordedEventsInterface $entity
-                ): Stream {
+                    ContainsRecordedEvents $entity
+                ): StreamInterface {
                     return $carry->append($entity->recordedEvents());
                 }
             )
-            ->foreach(function($event): void {
-                $this->eventBus->dispatch($event);
+            ->foreach(function(object $event): void {
+                ($this->dispatch)($event);
             });
     }
 }

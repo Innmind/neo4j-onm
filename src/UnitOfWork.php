@@ -10,15 +10,15 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity\Generators,
     Exception\EntityNotFound,
-    Exception\IdentityNotManaged
+    Exception\IdentityNotManaged,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query
+    Query,
 };
 use Innmind\Immutable\{
     MapInterface,
-    SetInterface
+    SetInterface,
 };
 use Innmind\Reflection\ReflectionObject;
 
@@ -26,26 +26,26 @@ final class UnitOfWork
 {
     private $connection;
     private $container;
-    private $entityFactory;
-    private $identityMatchTranslator;
-    private $metadatas;
+    private $makeEntity;
+    private $match;
+    private $metadata;
     private $persist;
     private $generators;
 
     public function __construct(
         Connection $connection,
         Container $container,
-        EntityFactory $entityFactory,
-        IdentityMatchTranslator $identityMatchTranslator,
-        Metadatas $metadatas,
+        EntityFactory $makeEntity,
+        IdentityMatchTranslator $match,
+        Metadatas $metadata,
         Persister $persister,
         Generators $generators
     ) {
         $this->connection = $connection;
         $this->container = $container;
-        $this->entityFactory = $entityFactory;
-        $this->identityMatchTranslator = $identityMatchTranslator;
-        $this->metadatas = $metadatas;
+        $this->makeEntity = $makeEntity;
+        $this->match = $match;
+        $this->metadata = $metadata;
         $this->persist = $persister;
         $this->generators = $generators;
     }
@@ -60,15 +60,13 @@ final class UnitOfWork
 
     /**
      * Add the given entity to the ones to be persisted
-     *
-     * @param object $entity
      */
-    public function persist($entity): self
+    public function persist(object $entity): self
     {
         $identity = $this->extractIdentity($entity);
 
         if (!$this->container->contains($identity)) {
-            $meta = $this->metadatas->get(get_class($entity));
+            $meta = ($this->metadata)(get_class($entity));
             $this->container->push(
                 $identity,
                 $entity,
@@ -103,12 +101,10 @@ final class UnitOfWork
      * Return the entity with the given identifier
      *
      * @throws EntityNotFound
-     *
-     * @return object
      */
-    public function get(string $class, Identity $identity)
+    public function get(string $class, Identity $identity): object
     {
-        $meta = $this->metadatas->get($class);
+        $meta = ($this->metadata)($class);
         $generator = $this
             ->generators
             ->get($meta->identity()->type());
@@ -123,7 +119,7 @@ final class UnitOfWork
             return $this->container->get($identity);
         }
 
-        $match = $this->identityMatchTranslator->translate($meta, $identity);
+        $match = ($this->match)($meta, $identity);
         $entities = $this->execute(
             $match->query(),
             $match->variables()
@@ -138,10 +134,8 @@ final class UnitOfWork
 
     /**
      * Plan the given entity to be removed
-     *
-     * @param object $entity
      */
-    public function remove($entity): self
+    public function remove(object $entity): self
     {
         $identity = $this->extractIdentity($entity);
 
@@ -174,10 +168,8 @@ final class UnitOfWork
 
     /**
      * Detach the given entity from the unit of work
-     *
-     * @param object $entity
      */
-    public function detach($entity): self
+    public function detach(object $entity): self
     {
         $this->container->detach(
             $this->extractIdentity($entity)
@@ -197,7 +189,7 @@ final class UnitOfWork
         Query $query,
         MapInterface $variables
     ): SetInterface {
-        return $this->entityFactory->make(
+        return ($this->makeEntity)(
             $this->connection->execute($query),
             $variables
         );
@@ -215,19 +207,13 @@ final class UnitOfWork
 
     /**
      * Extract the identity object from the given entity
-     *
-     * @param object $entity
      */
-    private function extractIdentity($entity): Identity
+    private function extractIdentity(object $entity): Identity
     {
-        $identity = $this
-            ->metadatas
-            ->get(get_class($entity))
-            ->identity()
-            ->property();
+        $identity = ($this->metadata)(get_class($entity))->identity()->property();
 
-        return (new ReflectionObject($entity))
-            ->extract([$identity])
+        return ReflectionObject::of($entity)
+            ->extract($identity)
             ->get($identity);
     }
 }

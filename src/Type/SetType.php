@@ -5,15 +5,12 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
-    Exception\MissingFieldDeclaration,
     Exception\RecursiveTypeDeclaration,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
-    MapInterface,
     SetInterface,
-    Set
+    Set,
 };
 
 final class SetType implements Type
@@ -21,38 +18,23 @@ final class SetType implements Type
     private $nullable = false;
     private $inner;
     private $type;
-    private static $identifiers;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public function __construct(Type $inner, string $type)
     {
-        $type = new self;
-
-        if (!$config->contains('inner')) {
-            throw new MissingFieldDeclaration('inner');
-        }
-
-        if (self::identifiers()->contains($config->get('inner'))) {
+        if ($inner instanceof self) {
             throw new RecursiveTypeDeclaration;
         }
 
-        $innerConfig = $config->remove('inner');
+        $this->inner = $inner;
+        $this->type = $type;
+    }
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-            $innerConfig = $innerConfig->remove('nullable');
-        }
+    public static function nullable(Type $inner, string $type): self
+    {
+        $self = new self($inner, $type);
+        $self->nullable = true;
 
-        $type->type = $config->contains('set_type') ?
-            $config->get('set_type') : $config->get('inner');
-        $type->inner = $types->build(
-            $config->get('inner'),
-            $innerConfig
-        );
-
-        return $type;
+        return $self;
     }
 
     /**
@@ -104,17 +86,5 @@ final class SetType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('set');
-        }
-
-        return self::$identifiers;
     }
 }

@@ -6,14 +6,14 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Translation\SpecificationTranslator,
-    Metadata\Entity
+    Metadata\Entity,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
-class RepositoryFactory
+final class RepositoryFactory
 {
     private $unitOfWork;
     private $matchTranslator;
@@ -46,28 +46,9 @@ class RepositoryFactory
     }
 
     /**
-     * Register a new repository instance
-     *
-     * To be used in case the repository can't be instanciated automatically
-     */
-    public function register(
-        Entity $meta,
-        Repository $repository
-    ): self {
-        @trigger_error('Inject repositories in the constructor', E_USER_DEPRECATED);
-
-        $this->repositories = $this->repositories->put(
-            $meta,
-            $repository
-        );
-
-        return $this;
-    }
-
-    /**
      * Return the instance of the given entity metadata
      */
-    public function make(Entity $meta): Repository
+    public function __invoke(Entity $meta): Repository
     {
         if ($this->repositories->contains($meta)) {
             return $this->repositories->get($meta);
@@ -83,5 +64,22 @@ class RepositoryFactory
         $this->register($meta, $repository);
 
         return $repository;
+    }
+
+    /**
+     * Register a new repository instance
+     *
+     * To be used in case the repository can't be instanciated automatically
+     */
+    private function register(
+        Entity $meta,
+        Repository $repository
+    ): self {
+        $this->repositories = $this->repositories->put(
+            $meta,
+            $repository
+        );
+
+        return $this;
     }
 }

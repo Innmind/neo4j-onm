@@ -8,18 +8,18 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Metadata\Entity,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Property,
-    Metadata\ValueObject,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Set
+    Set,
 };
 use Innmind\Reflection\{
     ReflectionClass,
-    InstanciatorInterface,
-    InjectionStrategyInterface
+    Instanciator\ConstructorLessInstanciator,
+    InjectionStrategy\ReflectionStrategy,
 };
 
 final class AggregateFactory implements EntityFactoryInterface
@@ -27,23 +27,21 @@ final class AggregateFactory implements EntityFactoryInterface
     private $instanciator;
     private $injectionStrategy;
 
-    public function __construct(
-        InstanciatorInterface $instanciator = null,
-        InjectionStrategyInterface $injectionStrategy = null
-    ) {
-        $this->instanciator = $instanciator;
-        $this->injectionStrategy = $injectionStrategy;
+    public function __construct()
+    {
+        $this->instanciator = new ConstructorLessInstanciator;
+        $this->injectionStrategy = new ReflectionStrategy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function make(
+    public function __invoke(
         Identity $identity,
         Entity $meta,
         MapInterface $data
-    ) {
-        if (!$meta instanceof Aggregate ) {
+    ): object {
+        if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
@@ -63,7 +61,7 @@ final class AggregateFactory implements EntityFactoryInterface
 
         $reflection = $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($data): bool {
+            ->filter(static function(string $name, Property $property) use ($data): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$data->contains($name)
@@ -75,7 +73,7 @@ final class AggregateFactory implements EntityFactoryInterface
             })
             ->reduce(
                 $reflection,
-                function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
+                static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
@@ -89,7 +87,7 @@ final class AggregateFactory implements EntityFactoryInterface
             ->children()
             ->reduce(
                 $reflection,
-                function(ReflectionClass $carry, string $property, ValueObject $meta) use ($data): ReflectionClass {
+                function(ReflectionClass $carry, string $property, Child $meta) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $property,
                         $this->buildChild($meta, $data)
@@ -99,7 +97,7 @@ final class AggregateFactory implements EntityFactoryInterface
             ->build();
     }
 
-    private function buildChild(ValueObject $meta, MapInterface $data)
+    private function buildChild(Child $meta, MapInterface $data)
     {
         $relationship = $meta->relationship();
         $data = $data->get($relationship->property());
@@ -108,14 +106,14 @@ final class AggregateFactory implements EntityFactoryInterface
     }
 
     private function buildRelationship(
-        ValueObject $meta,
+        Child $meta,
         MapInterface $data
     ) {
         $relationship = $meta->relationship();
 
         return $relationship
             ->properties()
-            ->filter(function(string $name, Property $property) use ($data): bool {
+            ->filter(static function(string $name, Property $property) use ($data): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$data->contains($name)
@@ -127,7 +125,7 @@ final class AggregateFactory implements EntityFactoryInterface
             })
             ->reduce(
                 $this->reflection((string) $relationship->class()),
-                function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
+                static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
@@ -149,12 +147,12 @@ final class AggregateFactory implements EntityFactoryInterface
     }
 
     private function buildValueObject(
-        ValueObject $meta,
+        Child $meta,
         MapInterface $data
-    ) {
+    ): object {
         return $meta
             ->properties()
-            ->filter(function(string $name, Property $property) use ($data): bool {
+            ->filter(static function(string $name, Property $property) use ($data): bool {
                 if (
                     $property->type()->isNullable() &&
                     !$data->contains($name)
@@ -166,7 +164,7 @@ final class AggregateFactory implements EntityFactoryInterface
             })
             ->reduce(
                 $this->reflection((string) $meta->class()),
-                function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
+                static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(

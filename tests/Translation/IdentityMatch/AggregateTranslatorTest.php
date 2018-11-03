@@ -7,24 +7,21 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatch\AggregateTranslator,
     Translation\IdentityMatchTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Identity as IdentityInterface,
     IdentityMatch,
-    Types
+    Type,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -40,61 +37,40 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new AggregateTranslator;
+        $translate = new AggregateTranslator;
 
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
         $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translator->translate($meta, $identity);
+        $im = $translate($meta, $identity);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

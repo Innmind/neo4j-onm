@@ -9,9 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -21,20 +18,15 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generators,
     Identity as IdentityInterface,
-    Types,
-    EntityFactory
-};
-use Innmind\Reflection\{
-    InstanciatorInterface,
-    InjectionStrategyInterface,
-    InjectionStrategy\DelegationStrategy
+    Type,
+    EntityFactory,
 };
 use Innmind\Immutable\{
     Map,
     MapInterface,
     SetInterface,
     Set,
-    Stream
+    Stream,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -48,16 +40,9 @@ class RelationshipFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider reflection
-     */
-    public function testMake($instanciator, $injectionStrategies)
+    public function testMake()
     {
-        $factory = new RelationshipFactory(
-            new Generators,
-            $instanciator,
-            $injectionStrategies
-        );
+        $make = new RelationshipFactory(new Generators);
 
         $entity = new class {
             public $uuid;
@@ -66,28 +51,18 @@ class RelationshipFactoryTest extends TestCase
             public $start;
             public $end;
         };
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'target'),
-            new RelationshipEdge('end', Uuid::class, 'target')
+            new RelationshipEdge('end', Uuid::class, 'target'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
 
-        $rel = $factory->make(
+        $rel = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
             (new Map('string', 'mixed'))
@@ -119,7 +94,7 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildNonRelationship()
     {
-        (new RelationshipFactory(new Generators))->make(
+        (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
             new Map('string', 'mixed')
@@ -132,65 +107,16 @@ class RelationshipFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
-        (new RelationshipFactory(new Generators))->make(
+        (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
-            new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
                 new RelationshipEdge('end', Uuid::class, 'target')
             ),
             new Map('string', 'variable')
         );
-    }
-
-    public function reflection(): array
-    {
-        return [
-            [null, null],
-            [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
-                    {
-                        return new $class;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                null,
-            ],
-            [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
-                    {
-                        $object = new $class;
-                        $properties->foreach(function($name, $value) use ($object) {
-                            $object->$name = $value;
-                        });
-
-                        return $object;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return (new Set('string'))
-                            ->add('uuid')
-                            ->add('created')
-                            ->add('start')
-                            ->add('end');
-                    }
-                },
-                new DelegationStrategy(
-                    new Stream(InjectionStrategyInterface::class)
-                ),
-            ],
-        ];
     }
 }

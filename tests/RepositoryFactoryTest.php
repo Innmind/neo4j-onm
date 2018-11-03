@@ -18,7 +18,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     EntityFactory\Resolver,
     Persister,
-    EntityFactory\EntityFactory
+    EntityFactory\EntityFactory,
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\Immutable\Map;
@@ -26,11 +26,11 @@ use PHPUnit\Framework\TestCase;
 
 class RepositoryFactoryTest extends TestCase
 {
-    private $factory;
+    private $make;
 
     public function setUp()
     {
-        $this->factory = new RepositoryFactory(
+        $this->make = new RepositoryFactory(
             new UnitOfWork(
                 $this->createMock(Connection::class),
                 $container = new Container,
@@ -57,19 +57,10 @@ class RepositoryFactoryTest extends TestCase
         $meta
             ->method('repository')
             ->willReturn(new Repository(get_class($mock)));
-        $repo = $this->factory->make($meta);
+        $repo = ($this->make)($meta);
 
         $this->assertInstanceOf(get_class($mock), $repo);
-        $this->assertSame($repo, $this->factory->make($meta));
-    }
-
-    public function testRegister()
-    {
-        $meta = $this->createMock(Entity::class);
-        $repo = $this->createMock(RepositoryInterface::class);
-
-        $this->assertSame($this->factory, $this->factory->register($meta, $repo));
-        $this->assertSame($repo, $this->factory->make($meta));
+        $this->assertSame($repo, ($this->make)($meta));
     }
 
     public function testRegisterRepositoryAtConstruct()
@@ -77,7 +68,7 @@ class RepositoryFactoryTest extends TestCase
         $meta = $this->createMock(Entity::class);
         $repo = $this->createMock(RepositoryInterface::class);
 
-        $factory = new RepositoryFactory(
+        $make = new RepositoryFactory(
             new UnitOfWork(
                 $this->createMock(Connection::class),
                 $container = new Container,
@@ -98,7 +89,7 @@ class RepositoryFactoryTest extends TestCase
                 ->put($meta, $repo)
         );
 
-        $this->assertSame($repo, $factory->make($meta));
+        $this->assertSame($repo, $make($meta));
     }
 
     /**

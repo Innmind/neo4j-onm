@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\{
     Metadata\Entity,
-    IdentityMatch
+    IdentityMatch,
 };
 
 interface MatchTranslator
@@ -13,5 +13,5 @@ interface MatchTranslator
     /**
      * Use an entity metadata to build a query to match all entities
      */
-    public function translate(Entity $meta): IdentityMatch;
+    public function __invoke(Entity $meta): IdentityMatch;
 }

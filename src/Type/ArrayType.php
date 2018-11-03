@@ -5,49 +5,29 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
-    Exception\MissingFieldDeclaration,
-    Exception\RecursiveTypeDeclaration
-};
-use Innmind\Immutable\{
-    MapInterface,
-    Set,
-    SetInterface
+    Exception\RecursiveTypeDeclaration,
 };
 
 final class ArrayType implements Type
 {
     private $nullable = false;
     private $inner;
-    private static $identifiers;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public function __construct(Type $inner)
     {
-        $type = new self;
-
-        if (!$config->contains('inner')) {
-            throw new MissingFieldDeclaration('inner');
-        }
-
-        if (self::identifiers()->contains($config->get('inner'))) {
+        if ($inner instanceof self) {
             throw new RecursiveTypeDeclaration;
         }
 
-        $type->inner = $types->build(
-            $config->get('inner'),
-            $config
-                ->remove('inner')
-                ->remove('_types')
-        );
+        $this->inner = $inner;
+    }
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-        }
+    public static function nullable(Type $inner): self
+    {
+        $self = new self($inner);
+        $self->nullable = true;
 
-        return $type;
+        return $self;
     }
 
     /**
@@ -88,17 +68,5 @@ final class ArrayType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('array');
-        }
-
-        return self::$identifiers;
     }
 }

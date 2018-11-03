@@ -7,25 +7,22 @@ use Innmind\Neo4j\ONM\{
     Translation\Match\DelegationTranslator,
     Translation\MatchTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
     IdentityMatch,
-    Types
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -41,56 +38,35 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslateAggregate()
     {
-        $translator = new DelegationTranslator;
-        $meta = new Aggregate(
+        $translate = new DelegationTranslator;
+        $meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
-        $im = $translator->translate($meta);
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
+        $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(
@@ -113,28 +89,18 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslateRelationship()
     {
-        $translator = new DelegationTranslator;
-        $meta = new Relationship(
+        $translate = new DelegationTranslator;
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
-        $im = $translator->translate($meta);
+        $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

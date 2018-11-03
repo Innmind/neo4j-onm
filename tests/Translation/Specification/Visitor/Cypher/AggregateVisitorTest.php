@@ -7,20 +7,19 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\AggregateVisitor,
     Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
-    Types
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class AggregateVisitorTest extends TestCase
@@ -30,53 +29,33 @@ class AggregateVisitorTest extends TestCase
     public function setUp()
     {
         $this->visitor = new AggregateVisitor(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                )
-                ->withChild(
-                    (new ValueObject(
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable()),
+                Set::of(
+                    Child::class,
+                    Child::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
-                        (new ValueObjectRelationship(
+                        Set::of('string', 'AnotherLabel'),
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('CHILD1_OF'),
                             'rel',
-                            'child'
-                        ))
-                            ->withProperty('created', new DateType)
-                            ->withProperty(
-                                'empty',
-                                StringType::fromConfig(
-                                    (new Map('string', 'mixed'))
-                                        ->put('nullable', null),
-                                    new Types
-                                )
-                            )
-                    ))
-                        ->withProperty('content', new StringType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
+                            'child',
+                            Map::of('string', Type::class)
+                                ('created', new DateType)
+                                ('empty', StringType::nullable())
+                        ),
+                        Map::of('string', Type::class)
+                            ('content', new StringType)
+                            ('empty', StringType::nullable())
+                    )
                 )
+            )
         );
     }
 

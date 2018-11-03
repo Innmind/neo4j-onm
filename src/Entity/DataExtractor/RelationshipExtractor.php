@@ -8,29 +8,29 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Metadata\Relationship,
     Metadata\Property,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\MapInterface;
 use Innmind\Reflection\{
     ReflectionObject,
-    ExtractionStrategyInterface
+    ExtractionStrategy\ReflectionStrategy,
 };
 
 final class RelationshipExtractor implements DataExtractorInterface
 {
     private $extractionStrategy;
 
-    public function __construct(ExtractionStrategyInterface $extractionStrategy = null)
+    public function __construct()
     {
-        $this->extractionStrategy = $extractionStrategy;
+        $this->extractionStrategy = new ReflectionStrategy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract($entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): MapInterface
     {
-        if (!is_object($entity) || !$meta instanceof Relationship) {
+        if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 
@@ -40,11 +40,11 @@ final class RelationshipExtractor implements DataExtractorInterface
             null,
             $this->extractionStrategy
         );
-        $data = $refl->extract([
+        $data = $refl->extract(
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),
-            $end = $meta->endNode()->property(),
-        ]);
+            $end = $meta->endNode()->property()
+        );
         $data = $data
             ->put(
                 $id,
@@ -63,13 +63,13 @@ final class RelationshipExtractor implements DataExtractorInterface
             ->properties()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
+                static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
                     return $carry->put(
                         $name,
                         $property
                             ->type()
                             ->forDatabase(
-                                $refl->extract([$name])->get($name)
+                                $refl->extract($name)->get($name)
                             )
                     );
                 }

@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\{
     Metadata\Property,
-    Type
+    Type,
 };
 use PHPUnit\Framework\TestCase;
 

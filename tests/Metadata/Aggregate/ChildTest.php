@@ -1,35 +1,39 @@
 <?php
 declare(strict_types = 1);
 
-namespace Tests\Innmind\Neo4j\ONM\Metadata;
+namespace Tests\Innmind\Neo4j\ONM\Metadata\Aggregate;
 
 use Innmind\Neo4j\ONM\{
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Aggregate\Child,
+    Metadata\Aggregate\Child\Relationship,
     Metadata\RelationshipType,
     Metadata\ClassName,
     Metadata\Property,
-    Type
+    Type,
 };
 use Innmind\Immutable\{
     SetInterface,
-    MapInterface
+    Set,
+    MapInterface,
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 
-class ValueObjectTest extends TestCase
+class ChildTest extends TestCase
 {
     public function testInterface()
     {
-        $vo = new ValueObject(
+        $vo = Child::of(
             $cn = new ClassName('foo'),
-            ['LabelA', 'LabelB'],
-            $vor = new ValueObjectRelationship(
+            Set::of('string', 'LabelA', 'LabelB'),
+            $vor = Relationship::of(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),
                 'foo',
                 'bar'
-            )
+            ),
+            Map::of('string', Type::class)
+                ('foo', $this->createMock(Type::class))
         );
 
         $this->assertSame($cn, $vo->class());
@@ -40,14 +44,7 @@ class ValueObjectTest extends TestCase
         $this->assertInstanceOf(MapInterface::class, $vo->properties());
         $this->assertSame('string', (string) $vo->properties()->keyType());
         $this->assertSame(Property::class, (string) $vo->properties()->valueType());
-        $this->assertSame(0, $vo->properties()->count());
-
-        $vo2 = $vo->withProperty('foo', $this->createMock(Type::class));
-
-        $this->assertNotSame($vo, $vo2);
-        $this->assertInstanceOf(ValueObject::class, $vo2);
-        $this->assertSame(0, $vo->properties()->count());
-        $this->assertSame(1, $vo2->properties()->count());
-        $this->assertTrue($vo2->properties()->contains('foo'));
+        $this->assertSame(1, $vo->properties()->count());
+        $this->assertTrue($vo->properties()->contains('foo'));
     }
 }

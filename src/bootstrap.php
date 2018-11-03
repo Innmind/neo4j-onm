@@ -9,25 +9,19 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\EventBus\{
-    EventBusInterface,
-    NullEventBus,
+    EventBus,
+    EventBus\NullEventBus,
 };
-use Innmind\CommandBus\CommandBusInterface;
-use Innmind\Reflection\{
-    ExtractionStrategyInterface,
-    InjectionStrategyInterface,
-    InstanciatorInterface,
-};
+use Innmind\CommandBus\CommandBus as CommandBusInterface;
 use Innmind\Immutable\{
     MapInterface,
     Map,
     SetInterface,
     Set,
 };
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * @param  SetInterface<string>|null $additionalTypes
+ * @param  SetInterface<Metadata\Entity> $metas
  * @param  MapInterface<string, Generator>|null $additionalGenerators
  * @param  MapInterface<Identity, Repository>|null $repositories
  * @param  SetInterface<EntityFactory>|null $entityFactories
@@ -35,76 +29,49 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  * @param  MapInterface<string, IdentityMatchTranslator>|null $identityMatchTranslators
  * @param  MapInterface<string, MatchTranslator>|null $matchTranslators
  * @param  MapInterface<string, SpecificationTranslator>|null $specificationTranslators
- * @param  MapInterface<string, MetadataFactory>|null $metadataFactories
  * @param  MapInterface<string, DataExtractor>|null $dataExtractors
  */
 function bootstrap(
     Connection $connection,
-    array $metas,
-    SetInterface $additionalTypes = null,
+    SetInterface $metas,
     MapInterface $additionalGenerators = null,
-    ExtractionStrategyInterface $extractionStrategy = null,
-    InjectionStrategyInterface $injectionStrategy = null,
-    InstanciatorInterface $instanciator = null,
-    EventBusInterface $eventBus = null,
+    EventBus $eventBus = null,
     MapInterface $repositories = null,
     Persister $persister = null,
-    ConfigurationInterface $configuration = null,
     SetInterface $entityFactories = null,
     MapInterface $resultTranslators = null,
     MapInterface $identityMatchTranslators = null,
     MapInterface $matchTranslators = null,
     MapInterface $specificationTranslators = null,
-    MapInterface $metadataFactories = null,
     MapInterface $dataExtractors = null
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
 
-    $types = new Types(...($additionalTypes ?? []));
-
-    $configuration = $configuration ?? new Configuration;
-    $resultTranslators = $resultTranslators ?? (new Map('string', Translation\EntityTranslator::class))
-        ->put(Aggregate::class, new Translation\Result\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Result\RelationshipTranslator);
-    $identityMatchTranslators = $identityMatchTranslators ?? (new Map('string', Translation\IdentityMatchTranslator::class))
-        ->put(Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
-        ->put(Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
-    $matchTranslators = $matchTranslators ?? (new Map('string', Translation\MatchTranslator::class))
-        ->put(Aggregate::class, new Translation\Match\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Match\RelationshipTranslator);
-    $specificationTranslators = $specificationTranslators ?? (new Map('string', Translation\SpecificationTranslator::class))
-        ->put(Aggregate::class, new Translation\Specification\AggregateTranslator)
-        ->put(Relationship::class, new Translation\Specification\RelationshipTranslator);
-    $metadataFactories = $metadataFactories ?? (new Map('string', MetadataFactory::class))
-        ->put('aggregate', new MetadataFactory\AggregateFactory($types))
-        ->put('relationship', new MetadataFactory\RelationshipFactory($types));
-    $dataExtractors = $dataExtractors ?? (new Map('string', Entity\DataExtractor::class))
-        ->put(Aggregate::class, new Entity\DataExtractor\AggregateExtractor($extractionStrategy))
-        ->put(Relationship::class, new Entity\DataExtractor\RelationshipExtractor($extractionStrategy));
+    $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
+        (Aggregate::class, new Translation\Result\AggregateTranslator)
+        (Relationship::class, new Translation\Result\RelationshipTranslator);
+    $identityMatchTranslators = $identityMatchTranslators ?? Map::of('string', Translation\IdentityMatchTranslator::class)
+        (Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
+        (Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
+    $matchTranslators = $matchTranslators ?? Map::of('string', Translation\MatchTranslator::class)
+        (Aggregate::class, new Translation\Match\AggregateTranslator)
+        (Relationship::class, new Translation\Match\RelationshipTranslator);
+    $specificationTranslators = $specificationTranslators ?? Map::of('string', Translation\SpecificationTranslator::class)
+        (Aggregate::class, new Translation\Specification\AggregateTranslator)
+        (Relationship::class, new Translation\Specification\RelationshipTranslator);
+    $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
+        (Aggregate::class, new Entity\DataExtractor\AggregateExtractor)
+        (Relationship::class, new Entity\DataExtractor\RelationshipExtractor);
 
     $identityGenerators = new Identity\Generators($additionalGenerators);
 
     $entityFactories = $entityFactories ?? Set::of(
         EntityFactory::class,
-        new EntityFactory\AggregateFactory(
-            $instanciator,
-            $injectionStrategy
-        ),
-        new EntityFactory\RelationshipFactory(
-            $identityGenerators,
-            $instanciator,
-            $injectionStrategy
-        )
+        new EntityFactory\AggregateFactory,
+        new EntityFactory\RelationshipFactory($identityGenerators)
     );
 
-    $metadatas = Metadatas::build(
-        new MetadataBuilder(
-            $types,
-            $metadataFactories,
-            $configuration
-        ),
-        $metas
-    );
+    $metadatas = new Metadatas(...$metas);
 
     $entityChangeset = new Entity\ChangesetComputer;
     $dataExtractor = new Entity\DataExtractor\DataExtractor(

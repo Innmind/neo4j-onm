@@ -11,19 +11,20 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
-    Type\DateType
+    Type\DateType,
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class DelegationTranslatorTest extends TestCase
@@ -42,7 +43,7 @@ class DelegationTranslatorTest extends TestCase
         $count = 0;
         $m1 = $this->createMock(SpecificationTranslator::class);
         $m1
-            ->method('translate')
+            ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
                 $this->assertInstanceOf(Aggregate::class, $meta);
@@ -55,7 +56,7 @@ class DelegationTranslatorTest extends TestCase
             }));
         $m2 = $this->createMock(SpecificationTranslator::class);
         $m2
-            ->method('translate')
+            ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
                 $this->assertInstanceOf(Relationship::class, $meta);
@@ -67,7 +68,7 @@ class DelegationTranslatorTest extends TestCase
                 );
             }));
 
-        $t = new DelegationTranslator(
+        $translate = new DelegationTranslator(
             (new Map('string', SpecificationTranslator::class))
                 ->put(Aggregate::class, $m1)
                 ->put(Relationship::class, $m2)
@@ -75,33 +76,29 @@ class DelegationTranslatorTest extends TestCase
 
         $this->assertInstanceOf(
             IdentityMatch::class,
-            $t->translate(
-                (new Aggregate(
+            $translate(
+                Aggregate::of(
                     new ClassName('FQCN'),
                     new Identity('id', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
-                    ['Label']
-                ))
-                    ->withProperty('created', new DateType),
+                    Set::of('string', 'Label'),
+                    Map::of('string', Type::class)
+                        ('created', new DateType)
+                ),
                 $expected
             )
         );
         $this->assertInstanceOf(
             IdentityMatch::class,
-            $t->translate(
-                (new Relationship(
+            $translate(
+                Relationship::of(
                     new ClassName('foo'),
                     new Identity('id', 'foo'),
-                    new Repository('foo'),
-                    new Factory('foo'),
-                    new Alias('foo'),
                     new RelationshipType('type'),
                     new RelationshipEdge('start', 'foo', 'id'),
-                    new RelationshipEdge('end', 'foo', 'id')
-                ))
-                    ->withProperty('created', new DateType),
+                    new RelationshipEdge('end', 'foo', 'id'),
+                    Map::of('string', Type::class)
+                        ('created', new DateType)
+                ),
                 $expected
             )
         );
@@ -122,14 +119,11 @@ class DelegationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
-        (new DelegationTranslator)->translate(
-            new Aggregate(
+        (new DelegationTranslator)(
+            Aggregate::of(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
+                Set::of('string', 'Label')
             ),
             new Property('foo', '=', null)
         );
@@ -140,13 +134,10 @@ class DelegationTranslatorTest extends TestCase
      */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
-        (new DelegationTranslator)->translate(
-            new Relationship(
+        (new DelegationTranslator)(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')

@@ -11,41 +11,43 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity,
     Entity\Container\State,
-    Exception\EntityNotFound
+    Exception\EntityNotFound,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Set
+    Set,
 };
 use Innmind\Specification\SpecificationInterface;
 
-class Repository implements RepositoryInterface
+final class Repository implements RepositoryInterface
 {
     private $unitOfWork;
-    private $matchTranslator;
-    private $specificationTranslator;
+    private $all;
+    private $matching;
     private $metadata;
     private $allowedStates;
 
     public function __construct(
         UnitOfWork $unitOfWork,
-        MatchTranslator $matchTranslator,
-        SpecificationTranslator $specificationTranslator,
+        MatchTranslator $all,
+        SpecificationTranslator $matching,
         Entity $metadata
     ) {
         $this->unitOfWork = $unitOfWork;
-        $this->matchTranslator = $matchTranslator;
-        $this->specificationTranslator = $specificationTranslator;
+        $this->all = $all;
+        $this->matching = $matching;
         $this->metadata = $metadata;
-        $this->allowedStates = (new Set(State::class))
-            ->add(State::new())
-            ->add(State::managed());
+        $this->allowedStates = Set::of(
+            State::class,
+            State::new(),
+            State::managed()
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function add($entity): RepositoryInterface
+    public function add(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->persist($entity);
 
@@ -73,7 +75,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get(Identity $identity)
+    public function get(Identity $identity): object
     {
         $entity = $this->unitOfWork()->get(
             (string) $this->metadata()->class(),
@@ -91,7 +93,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function find(Identity $identity)
+    public function find(Identity $identity): ?object
     {
         try {
             return $this->get($identity);
@@ -103,7 +105,7 @@ class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($entity): RepositoryInterface
+    public function remove(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->remove($entity);
 
@@ -115,7 +117,7 @@ class Repository implements RepositoryInterface
      */
     public function all(): SetInterface
     {
-        $match = $this->matchTranslator->translate($this->metadata());
+        $match = ($this->all)($this->metadata());
 
         return $this->unitOfWork()->execute(
             $match->query(),
@@ -128,7 +130,7 @@ class Repository implements RepositoryInterface
      */
     public function matching(SpecificationInterface $specification): SetInterface
     {
-        $match = $this->specificationTranslator->translate(
+        $match = ($this->matching)(
             $this->metadata(),
             $specification
         );

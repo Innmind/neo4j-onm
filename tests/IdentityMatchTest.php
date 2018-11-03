@@ -5,7 +5,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\{
     IdentityMatch,
-    Metadata\Entity
+    Metadata\Entity,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\Map;

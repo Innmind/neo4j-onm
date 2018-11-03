@@ -6,32 +6,24 @@ namespace Tests\Innmind\Neo4j\ONM\EntityFactory;
 use Innmind\Neo4j\ONM\{
     EntityFactory\AggregateFactory,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
     Identity as IdentityInterface,
-    Types,
-    EntityFactory
-};
-use Innmind\Reflection\{
-    InstanciatorInterface,
-    InjectionStrategyInterface
+    Type,
+    EntityFactory,
 };
 use Innmind\Immutable\{
     SetInterface,
     Set,
     MapInterface,
     Map,
-    Stream
+    Stream,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -45,12 +37,9 @@ class AggregateFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider reflection
-     */
-    public function testMake($instanciator, $injectionStrategies)
+    public function testMake()
     {
-        $f = new AggregateFactory($instanciator, $injectionStrategies);
+        $make = new AggregateFactory;
 
         $entity = new class {
             public $uuid;
@@ -67,56 +56,35 @@ class AggregateFactoryTest extends TestCase
             public $content;
             public $empty;
         };
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName(get_class($child)),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
 
-        $ar = $f->make(
+        $ar = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
             (new Map('string', 'mixed'))
@@ -163,7 +131,7 @@ class AggregateFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildNonAggregate()
     {
-        (new AggregateFactory)->make(
+        (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
             new Map('string', 'mixed')
@@ -176,57 +144,14 @@ class AggregateFactoryTest extends TestCase
      */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
-        (new AggregateFactory)->make(
+        (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
-            new Aggregate(
+            Aggregate::of(
                 new ClassName('foo'),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
+                Set::of('string', 'Label')
             ),
             new Map('string', 'variable')
         );
-    }
-
-    public function reflection(): array
-    {
-        return [
-            [null, null],
-            [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
-                    {
-                        return new $class;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                null,
-            ],
-            [
-                new class implements InstanciatorInterface {
-                    public function build(string $class, MapInterface $properties)
-                    {
-                        $object = new $class;
-                        $properties->foreach(function($name, $value) use ($object) {
-                            $object->$name = $value;
-                        });
-
-                        return $object;
-                    }
-
-                    public function parameters(string $class): SetInterface
-                    {
-                        return new Set('string');
-                    }
-                },
-                $this->createMock(InjectionStrategyInterface::class)
-            ],
-        ];
     }
 }

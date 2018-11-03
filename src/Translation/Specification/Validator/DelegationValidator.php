@@ -7,12 +7,12 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Validator,
     Metadata\Entity,
     Metadata\Aggregate,
-    Metadata\Relationship
+    Metadata\Relationship,
 };
 use Innmind\Specification\SpecificationInterface;
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class DelegationValidator implements Validator
@@ -21,9 +21,9 @@ final class DelegationValidator implements Validator
 
     public function __construct(MapInterface $validators = null)
     {
-        $this->validators = $validators ?? (new Map('string', Validator::class))
-            ->put(Aggregate::class, new AggregateValidator)
-            ->put(Relationship::class, new RelationshipValidator);
+        $this->validators = $validators ?? Map::of('string', Validator::class)
+            (Aggregate::class, new AggregateValidator)
+            (Relationship::class, new RelationshipValidator);
 
         if (
             (string) $this->validators->keyType() !== 'string' ||
@@ -39,13 +39,12 @@ final class DelegationValidator implements Validator
     /**
      * {@inheritdoc}
      */
-    public function validate(
+    public function __invoke(
         SpecificationInterface $specification,
         Entity $meta
     ): bool {
-        return $this
-            ->validators
-            ->get(get_class($meta))
-            ->validate($specification, $meta);
+        $validate = $this->validators->get(get_class($meta));
+
+        return $validate($specification, $meta);
     }
 }

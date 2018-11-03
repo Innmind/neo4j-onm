@@ -9,20 +9,17 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
     IdentityMatch,
-    Types
+    Type,
 };
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 use PHPUnit\Framework\TestCase;
 
@@ -38,29 +35,19 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new RelationshipTranslator;
+        $translate = new RelationshipTranslator;
 
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
-        $im = $translator->translate($meta);
+        $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);
         $this->assertSame(

@@ -11,9 +11,7 @@ interface DataExtractor
     /**
      * Extract the data for the given entity
      *
-     * @param object $entity
-     *
      * @return MapInterface<string, mixed>
      */
-    public function extract($entity, Entity $meta): MapInterface;
+    public function __invoke(object $entity, Entity $meta): MapInterface;
 }

@@ -5,7 +5,7 @@ namespace Innmind\Neo4j\ONM\Identity;
 
 use Innmind\Neo4j\ONM\{
     Identity,
-    Exception\DomainException
+    Exception\DomainException,
 };
 use Innmind\Immutable\Str;
 
@@ -17,7 +17,7 @@ class Uuid implements Identity
 
     public function __construct(string $uuid)
     {
-        if (!(new Str($uuid))->matches(self::PATTERN)) {
+        if (!Str::of($uuid)->matches(self::PATTERN)) {
             throw new DomainException;
         }
 

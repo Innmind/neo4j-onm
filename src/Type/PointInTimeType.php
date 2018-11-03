@@ -5,49 +5,31 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
+    FormatInterface,
     Format\ISO8601,
     PointInTimeInterface,
-    PointInTime\Earth\PointInTime
-};
-use Innmind\Immutable\{
-    MapInterface,
-    Set,
-    SetInterface
+    PointInTime\Earth\PointInTime,
 };
 
 final class PointInTimeType implements Type
 {
     private $nullable = false;
     private $format;
-    private $immutable = true;
-    private static $identifiers;
 
-    public function __construct()
+    public function __construct(FormatInterface $format = null)
     {
-        $this->format = new ISO8601;
+        $this->format = $format ?? new ISO8601;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public static function nullable(FormatInterface $format = null): self
     {
-        $type = new self;
+        $self = new self($format);
+        $self->nullable = true;
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-        }
-
-        if ($config->contains('format')) {
-            $format = $config->get('format');
-            $type->format = new $format;
-        }
-
-        return $type;
+        return $self;
     }
 
     /**
@@ -83,18 +65,5 @@ final class PointInTimeType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))
-                ->add('point_in_time');
-        }
-
-        return self::$identifiers;
     }
 }

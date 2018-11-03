@@ -6,17 +6,17 @@ namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor\Cypher;
 use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
-    Query\Where
+    Query\Where,
 };
 use Innmind\Specification\{
     SpecificationInterface,
     ComparatorInterface,
     CompositeInterface,
-    NotInterface
+    NotInterface,
 };
 use Innmind\Immutable\{
+    Map,
     Str,
-    Map
 };
 
 final class AggregateVisitor implements CypherVisitor
@@ -43,7 +43,7 @@ final class AggregateVisitor implements CypherVisitor
             case $specification instanceof CompositeInterface:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = strtolower((string) $specification->operator());
+                $operator = (string) Str::of((string) $specification->operator())->toLower();
 
                 return $left->{$operator}($right);
 
@@ -69,19 +69,19 @@ final class AggregateVisitor implements CypherVisitor
         ComparatorInterface $specification
     ): Where {
         $prop = $specification->property();
-        $key = (new Str('entity_'))
+        $key = Str::of('entity_')
             ->append($prop)
             ->append((string) $this->count);
 
         return new Where(
-            sprintf(
+            \sprintf(
                 'entity.%s %s %s',
                 $prop,
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            (new Map('string', 'mixed'))
-                ->put((string) $key, $specification->value())
+            Map::of('string', 'mixed')
+                ((string) $key, $specification->value())
         );
     }
 
@@ -90,7 +90,7 @@ final class AggregateVisitor implements CypherVisitor
     ): Where {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
-        $var = (new Str('entity_'))->append(
+        $var = Str::of('entity_')->append(
             (string) $pieces->dropEnd(1)->join('_')
         );
         $key = $var
@@ -99,7 +99,7 @@ final class AggregateVisitor implements CypherVisitor
             ->append((string) $this->count);
 
         return new Where(
-            sprintf(
+            \sprintf(
                 '%s %s %s',
                 $var
                     ->append('.')
@@ -107,8 +107,8 @@ final class AggregateVisitor implements CypherVisitor
                 $specification->sign(),
                 $key->prepend('{')->append('}')
             ),
-            (new Map('string', 'mixed'))
-                ->put((string) $key, $specification->value())
+            Map::of('string', 'mixed')
+                ((string) $key, $specification->value())
         );
     }
 }

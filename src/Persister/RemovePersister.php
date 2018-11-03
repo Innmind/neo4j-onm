@@ -14,36 +14,36 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Relationship,
     Metadata\Aggregate,
-    Metadata\ValueObject
+    Metadata\Aggregate\Child,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query
+    Query,
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    Str,
-    Stream,
     MapInterface,
-    Map
+    Map,
+    Stream,
+    Str,
 };
 
 final class RemovePersister implements Persister
 {
     private $changeset;
-    private $eventBus;
-    private $metadatas;
+    private $dispatch;
+    private $metadata;
     private $name;
     private $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
-        EventBusInterface $eventBus,
-        Metadatas $metadatas
+        EventBus $dispatch,
+        Metadatas $metadata
     ) {
         $this->changeset = $changeset;
-        $this->eventBus = $eventBus;
-        $this->metadatas = $metadatas;
+        $this->dispatch = $dispatch;
+        $this->metadata = $metadata;
         $this->name = new Str('e%s');
     }
 
@@ -54,10 +54,8 @@ final class RemovePersister implements Persister
     {
         $entities = $container
             ->state(State::toBeRemoved())
-            ->foreach(function(Identity $identity, $object) {
-                $this->eventBus->dispatch(
-                    new EntityAboutToBeRemoved($identity, $object)
-                );
+            ->foreach(function(Identity $identity, object $object): void {
+                ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
             });
 
         if ($entities->size() === 0) {
@@ -66,17 +64,10 @@ final class RemovePersister implements Persister
 
         $connection->execute($this->queryFor($entities));
 
-        $entities->foreach(function(
-            Identity $identity,
-            $object
-        ) use (
-            $container
-        ) {
+        $entities->foreach(function(Identity $identity, object $object) use ($container): void {
             $container->push($identity, $object, State::removed());
             $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
-            $this->eventBus->dispatch(
-                new EntityRemoved($identity, $object)
-            );
+            ($this->dispatch)(new EntityRemoved($identity, $object));
         });
     }
 
@@ -89,11 +80,8 @@ final class RemovePersister implements Persister
     {
         $query = new Query\Query;
         $this->variables = new Stream('string');
-        $partitions = $entities->partition(function(
-            Identity $identity,
-            $entity
-        ) {
-            $meta = $this->metadatas->get(get_class($entity));
+        $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
+            $meta = ($this->metadata)(\get_class($entity));
 
             return $meta instanceof Relationship;
         });
@@ -102,7 +90,7 @@ final class RemovePersister implements Persister
             ->get(true)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchRelationship($identity, $entity, $carry);
                 }
             );
@@ -110,7 +98,7 @@ final class RemovePersister implements Persister
             ->get(false)
             ->reduce(
                 $query,
-                function(Query $carry, Identity $identity, $entity): Query {
+                function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchAggregate($identity, $entity, $carry);
                 }
             );
@@ -118,7 +106,7 @@ final class RemovePersister implements Persister
             ->variables
             ->reduce(
                 $query,
-                function(Query $carry, string $variable): Query {
+                static function(Query $carry, string $variable): Query {
                     return $carry->delete($variable);
                 }
             );
@@ -129,20 +117,14 @@ final class RemovePersister implements Persister
 
     /**
      * Add clause to match the relationship we want to delete
-     *
-     * @param Identity $identity
-     * @param $object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function matchRelationship(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $name = $this->name->sprintf(md5($identity->value()));
+        $meta = ($this->metadata)(\get_class($entity));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
         return $query
@@ -166,20 +148,14 @@ final class RemovePersister implements Persister
 
     /**
      * Add clause to match the node we want to delete and all of its children
-     *
-     * @param Identity $identity
-     * @param object $entity
-     * @param Query  $query
-     *
-     * @return Query
      */
     private function matchAggregate(
         Identity $identity,
-        $entity,
+        object $entity,
         Query $query
     ): Query {
-        $meta = $this->metadatas->get(get_class($entity));
-        $name = $this->name->sprintf(md5($identity->value()));
+        $meta = ($this->metadata)(\get_class($entity));
+        $name = $this->name->sprintf(\md5($identity->value()));
         $this->variables = $this->variables->add((string) $name);
 
         $query = $query
@@ -202,7 +178,7 @@ final class RemovePersister implements Persister
             ->children()
             ->reduce(
                 $query,
-                function(Query $carry, string $property, ValueObject $child) use ($name): Query {
+                function(Query $carry, string $property, Child $child) use ($name): Query {
                     $carry = $carry
                         ->match((string) $name)
                         ->linkedTo(

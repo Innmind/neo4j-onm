@@ -10,15 +10,10 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     EntityFactory\Resolver,
     EntityFactory\RelationshipFactory,
-    EntityFactory\AggregateFactory,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Relationship,
@@ -26,25 +21,26 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Entity\Container,
-    Types
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
-    Result as ResultInterface
+    Result as ResultInterface,
 };
 use Innmind\Immutable\{
     Map,
-    SetInterface
+    SetInterface,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
 class EntityFactoryTest extends TestCase
 {
-    private $factory;
+    private $make;
 
     public function setUp()
     {
-        $this->factory = new EntityFactory(
+        $this->make = new EntityFactory(
             new ResultTranslator,
             $generators = new Generators,
             new Resolver(
@@ -71,55 +67,33 @@ class EntityFactoryTest extends TestCase
             public $content;
             public $empty;
         };
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            new Repository('foo'),
-            new Factory(AggregateFactory::class),
-            new Alias('foo'),
-            ['Label']
-        );
-        $aggregate = $aggregate
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName(get_class($child)),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
                         'child',
-                        true
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
         $entity = new class {
             public $uuid;
             public $created;
@@ -127,26 +101,16 @@ class EntityFactoryTest extends TestCase
             public $start;
             public $end;
         };
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            new Repository('foo'),
-            new Factory(RelationshipFactory::class),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
-            new RelationshipEdge('end', Uuid::class, 'uuid')
+            new RelationshipEdge('end', Uuid::class, 'uuid'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $relationship = $relationship
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
         $result = Result::fromRaw([
             'columns' => ['n', 'r'],
             'data' => [[
@@ -245,7 +209,7 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->factory->make(
+        $entities = ($this->make)(
             $result,
             $variables
         );
@@ -328,7 +292,7 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertTrue(
-            $this->factory->make($result, $variables)->equals($entities)
+            ($this->make)($result, $variables)->equals($entities)
         );
     }
 
@@ -337,25 +301,19 @@ class EntityFactoryTest extends TestCase
         $entity = new class {
             public $uuid;
         };
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            new Repository('foo'),
-            new Factory(AggregateFactory::class),
-            new Alias('foo'),
-            ['Label']
+            Set::of('string', 'Label')
         );
         $entity = new class {
             public $uuid;
             public $start;
             public $end;
         };
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            new Repository('foo'),
-            new Factory(RelationshipFactory::class),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
             new RelationshipEdge('end', Uuid::class, 'uuid')
@@ -374,7 +332,7 @@ class EntityFactoryTest extends TestCase
             ->put('n', $aggregate)
             ->put('r', $relationship);
 
-        $entities = $this->factory->make(
+        $entities = ($this->make)(
             $result,
             $variables
         );
@@ -388,7 +346,7 @@ class EntityFactoryTest extends TestCase
      */
     public function testThrowWhenInvalidVariableMap()
     {
-        $this->factory->make(
+        ($this->make)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')
         );

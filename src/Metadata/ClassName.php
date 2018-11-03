@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
+use Innmind\Immutable\Str;
 
 final class ClassName
 {
@@ -11,7 +12,7 @@ final class ClassName
 
     public function __construct(string $class)
     {
-        if (empty($class)) {
+        if (Str::of($class)->empty()) {
             throw new DomainException;
         }
 

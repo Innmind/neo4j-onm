@@ -9,9 +9,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\ValueObject,
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
@@ -19,13 +16,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Type\DateType,
     Type\StringType,
-    Types,
-    Query\PropertiesMatch
+    Type,
+    Query\PropertiesMatch,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Immutable\{
+    MapInterface,
     Map,
-    MapInterface
 };
 use PHPUnit\Framework\TestCase;
 
@@ -36,25 +33,16 @@ class RelationshipVisitorTest extends TestCase
     public function setUp()
     {
         $this->visitor = new RelationshipVisitor(
-            (new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
-                new RelationshipEdge('end', 'foo', 'id')
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                )
+                new RelationshipEdge('end', 'foo', 'id'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable())
+            )
         );
     }
 

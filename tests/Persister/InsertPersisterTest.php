@@ -15,27 +15,26 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
+    Metadata\Aggregate\Child,
     Metadata\RelationshipType,
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
     Metadatas,
-    Types,
+    Type,
     Event\EntityAboutToBePersisted,
-    Event\EntityPersisted
+    Event\EntityPersisted,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Result,
-    Query\Parameter
+    Query\Parameter,
 };
-use Innmind\EventBus\EventBusInterface;
-use Innmind\Immutable\Map;
+use Innmind\EventBus\EventBus;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class InsertPersisterTest extends TestCase
@@ -63,72 +62,43 @@ class InsertPersisterTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                )
-                ->withChild(
-                    (new ValueObject(
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable()),
+                Set::of(
+                    Child::class,
+                    Child::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
-                        (new ValueObjectRelationship(
+                        Set::of('string', 'AnotherLabel'),
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
                             'rel',
-                            'child'
-                        ))
-                            ->withProperty('created', new DateType)
-                            ->withProperty(
-                                'empty',
-                                StringType::fromConfig(
-                                    (new Map('string', 'mixed'))
-                                        ->put('nullable', null),
-                                    new Types
-                                )
-                            )
-                    ))
-                        ->withProperty('content', new StringType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ),
-            (new Relationship(
-                new ClassName($this->rClass),
-                new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                new RelationshipType('type'),
-                new RelationshipEdge('start', Uuid::class, 'uuid'),
-                new RelationshipEdge('end', Uuid::class, 'uuid')
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
+                            'child',
+                            Map::of('string', Type::class)
+                                ('created', new DateType)
+                                ('empty', StringType::nullable())
+                        ),
+                        Map::of('string', Type::class)
+                            ('content', new StringType)
+                            ('empty', StringType::nullable())
                     )
                 )
+            ),
+            Relationship::of(
+                new ClassName($this->rClass),
+                new Identity('uuid', 'foo'),
+                new RelationshipType('type'),
+                new RelationshipEdge('start', Uuid::class, 'uuid'),
+                new RelationshipEdge('end', Uuid::class, 'uuid'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::nullable())
+            )
         );
     }
 
@@ -138,7 +108,7 @@ class InsertPersisterTest extends TestCase
             Persister::class,
             new InsertPersister(
                 new ChangesetComputer,
-                $this->createMock(EventBusInterface::class),
+                $this->createMock(EventBus::class),
                 new DataExtractor($this->metadatas),
                 $this->metadatas
             )
@@ -149,7 +119,7 @@ class InsertPersisterTest extends TestCase
     {
         $persist = new InsertPersister(
             new ChangesetComputer,
-            $bus = $this->createMock(EventBusInterface::class),
+            $bus = $this->createMock(EventBus::class),
             new DataExtractor($this->metadatas),
             $this->metadatas
         );
@@ -231,28 +201,28 @@ class InsertPersisterTest extends TestCase
             }));
         $bus
             ->expects($this->at(0))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBePersisted $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(1))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBePersisted $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;
             }));
         $bus
             ->expects($this->at(2))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityPersisted $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(3))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityPersisted $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;

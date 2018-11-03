@@ -7,17 +7,17 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity,
     Metadata\Entity,
-    Metadata\ValueObject,
-    IdentityMatch
+    Metadata\Aggregate\Child,
+    IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\{
     Query\Query,
-    Clause\Expression\Relationship
+    Clause\Expression\Relationship,
 };
 use Innmind\Immutable\{
     Map,
+    Set,
     Str,
-    Set
 };
 
 final class AggregateTranslator implements IdentityMatchTranslator
@@ -25,7 +25,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
     /**
      * {@inheritdoc}
      */
-    public function translate(
+    public function __invoke(
         Entity $meta,
         Identity $identity
     ): IdentityMatch {
@@ -46,12 +46,12 @@ final class AggregateTranslator implements IdentityMatchTranslator
             ->children()
             ->foreach(function(
                 string $property,
-                ValueObject $child
+                Child $child
             ) use (
                 &$query,
                 &$variables
-            ) {
-                $relName = (new Str('entity_'))->append($property);
+            ): void {
+                $relName = Str::of('entity_')->append($property);
                 $childName = $relName
                     ->append('_')
                     ->append($child->relationship()->childProperty());
@@ -75,8 +75,8 @@ final class AggregateTranslator implements IdentityMatchTranslator
 
         return new IdentityMatch(
             $query->return('entity', ...$variables->toPrimitive()),
-            (new Map('string', Entity::class))
-                ->put('entity', $meta)
+            Map::of('string', Entity::class)
+                ('entity', $meta)
         );
     }
 }

@@ -3,33 +3,18 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Type;
 
-use Innmind\Neo4j\ONM\{
-    Type,
-    Types
-};
-use Innmind\Immutable\{
-    MapInterface,
-    Set,
-    SetInterface
-};
+use Innmind\Neo4j\ONM\Type;
 
 final class FloatType implements Type
 {
     private $nullable = false;
-    private static $identifiers;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public static function nullable(): self
     {
-        $type = new self;
+        $self = new self;
+        $self->nullable = true;
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-        }
-
-        return $type;
+        return $self;
     }
 
     /**
@@ -58,17 +43,5 @@ final class FloatType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))->add('float');
-        }
-
-        return self::$identifiers;
     }
 }

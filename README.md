@@ -22,14 +22,14 @@ composer require innmind/neo4j-onm
 
 This library aims at persisting 2 types of objects: `Aggregate` and `Relationship` (both are entities).  The first one represent a node in Neo4j, and can have a set of sub nodes linked to it. Only the main node contains an `Identity` and the sub nodes can't be queried outside their aggregates. The `Relationship` represent a relationship in Neo4j. It always contains an `Identity` and the 2 identities representing the aggregates at the start and end of the relationship.
 
-As described by the DDD, entities objects are not directly linked to each other; instead they contains identities of the entities they point to. However, when those entities are persisted in the graph, the relationships are correctly as you would expect (allowing any other script to query your graph normally).
+As described by the DDD, entities objects are not directly linked to each other; instead they contains identities of the entities they point to. However, when those entities are persisted in the graph, the relationships are correctly set as you would expect (allowing any other script to query your graph normally).
 For example, if you would like 2 `Aggregate`s to be connected to each other you would create a new `Relationship` containing the identities of both aggregates; hence you would have to persist 3 objects.
 
 Each entity is fully managed by its own `Repository`, meaning it's used to `add`, `remove`, `get` and query entities.
 
 **Note**: for performance issues, when you `add` an entity to its repository it's not directly inserted in the graph.
 
-To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `new`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/Connection.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `new` allows you to generate a new identity of the specified type
+To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `identities`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/Connection.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `identities` allows you to generate a new identity of the specified type
 
 When you `flush` the sequence of how the modifications are persisted is as follow:
 
@@ -37,74 +37,65 @@ When you `flush` the sequence of how the modifications are persisted is as follo
 * insert new relationships (in the same query as aggregates)
 * update all entities (without any particular order)
 * remove relationships
-* remove aggregates (in the same query as aggregates)
+* remove aggregates (in the same query as relationships)
 
 ### Configuration
 
 You're first job is to write the mapping of your entities. Here's a complete example of what you can specify:
 
-```yaml
-Image:
-    type: aggregate
-    alias: I # optional
-    repository: ImageRepository #optional
-    factory: ImageFactory # optional
-    labels: [Image]
-    identity:
-        property: uuid
-        type: Innmind\Neo4j\ONM\Identity\Uuid
-    properties:
-        url:
-            type: string
-    children: # optional
-        rel:
-            class: DescriptionOf
-            type: DESCRIPTION_OF # direction flows from value object to aggregate root
-            properties:
-                created:
-                    type: date
-            child:
-                property: description
-                class: Description
-                labels: [Description]
-                properties:
-                    content:
-                        type: string
+```php
+use Innmind\Neo4j\ONM\{
+    Metadata\Aggregate,
+    Metadata\Aggregate\Child,
+    Metadata\Relationship,
+    Metadata\ClassName,
+    Metadata\Identity,
+    Metadata\RelationshipType,
+    Metadata\RelationshipEdge,
+    Type,
+    Type\StringType,
+    Type\DateType,
+    Identity\Uuid,
+};
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 
-SomeRelationship:
-    type: relationship
-    alias: SR # optional
-    repository: SRRepository # optional
-    factory: SRFactory # optional
-    rel_type: SOME_RELATIONSHIP
-    identity:
-        property: uuid
-        type: Innmind\Neo4j\ONM\Identity\Uuid
-    startNode:
-        property: startProperty # must be an Identity
-        type: Innmind\Neo4j\ONM\Identity\Uuid
-        target: uuid # the node property where to look for the identity
-    endNode:
-        property: endProperty
-        type: Innmind\Neo4j\ONM\Identity\Uuid
-        target: uuid
-    properties:
-        created:
-            type: date
+$image = Aggregate::of(
+    new ClassName('Image'),
+    new Identity('uuid', Uuid::class),
+    Set::of('string', 'Image'), # labels
+    Map::of('string', Type::class)
+        ('url', new StringType),
+    Set::of(
+        Child::class,
+        Child::of(
+            new ClassName('Description'),
+            Set::of('string', 'Description'), # labels
+            Child\Relationship::of(
+                new ClassName('DescriptionOf'),
+                new RelationshipType('DESCRIPTION_OF'),
+                'rel',
+                'description',
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+            ),
+            Map::of('string', Type::class)
+                ('content', new StringType)
+        )
+    )
+);
+$relationship = Relationship::of(
+    new ClassName('SomeRelationship'),
+    new Identity('uuid', Uuid::class),
+    new RelationshipType('SOME_RELATIONSHIP'),
+    new RelationshipEdge('startProperty', Uuid::class, 'uuid'),
+    new RelationshipEdge('endProperty', Uuid::class, 'uuid'),
+    Map::of('string', Type::class)
+        ('created', new DateType)
+);
 ```
-
-Both `aggregate`s and `relationship`s have:
-
-* a class, obviously
-* an `identity`, the property on which the `Identity` object is specified
-* a repository, which is optional as by default it uses [`Repository`](Repository.php)
-* a factory, optional as well. It's job is to translate a raw collection of data into an instance of your entity
-* an alias, optional. It's useful in the case you don't want to type the full FQCN of your entity
-* properties. It's the list of properties inside of your objects you want persisted in the graph
-
-For aggregates you'll need to specify the `labels` which are the labels put on the node inside the graph. And for relationships, `rel_type` is the type used to create the graph relationship.
-
-**Note**: for conciseness `yaml` is used here but you see that it's not required to use this library.
 
 ### Usage
 
@@ -112,20 +103,18 @@ The first step is to create a manager:
 
 ```php
 use function Innmind\Neo4j\ONM\bootstrap;
-use Innmind\Neo4j\ONM\ManagerFactory;
 use Innmind\Neo4j\DBAL\Connection;
-use Innmind\Immutable\Map;
-use Symfony\Component\Yaml\Yaml as Parser;
+use Innmind\Immutable\Set;
 
 $services = bootstrap(
     /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))]
+    Set::of(Entity::class, $image, $relationship)
 );
 
 $manager = $services['manager'];
 ```
 
-Now that you a working manager, let's handle our entities:
+Now that you have a working manager, let's handle our entities:
 
 ```php
 $images = $manager->repository(Image::class);
@@ -198,105 +187,22 @@ The library is decoupled enough so most of its building blocks an be easily repl
 
 By default there's only 7 types you can use for your entities' properties:
 
-* `array`
-* `bool` (or `boolean`)
-* `date` (or `datetime`)
-* `float`
-* `int` (or `integer`)
-* `set` (similar as `array` except it uses the immutable [`Set`](https://github.com/Innmind/Immutable#set))
-* `string`
+* `ArrayType`
+* `BooleanType`
+* `DateType`
+* `FloatType`
+* `IntType`
+* `SetType` (similar as `ArrayType` except it uses the immutable [`Set`](https://github.com/Innmind/Immutable#set))
+* `StringType`
 
-To add your own type you need to create a class implementing [`Type.php`](Type.php) and on the manager factory call `withType` with your class name as parameter.
+To add your own type you need to create a class implementing [`Type.php`](Type.php).
 
-Example:
-
-```php
-use Innmind\Neo4j\ONM\Type;
-
-class MyType implements Type
-{
-    // your implementation ...
-}
-
-$services = bootstrap(
-    /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
-    Set::of('string', MyType::class)
-);
-
-$manager = $services['manager'];
-```
-
-#### Configuration
-
-By default the mapping of your entities is validated against the class [`Configuration`](Configuration.php). If you think it lacks validation or you want to add some sugar during the normalization you can create your own class implementing [`ConfigurationInterface`](https://github.com/symfony/config/blob/3.0/Definition/ConfigurationInterface.php).
-
-Once done, you need to specify your config object when building your manager:
-
-```php
-$services = bootstrap(
-    /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    new MyConfiguration
-);
-```
-
-#### Metadata factories
-
-To translate the mapping arrays of your entities into objects, the library use a set of [`MetadataFactory`](MetadataFactory.php). More precisely one for aggregates and one for relationships.
-
-If you're not satisfied with those defaults, you can create your own factories to replace them or simply new ones to create new kinds of metadata objects. To do so you need to create a class implementing the interface mentioned above and register it when building the manager.
-
-```php
-use Innmind\Neo4j\ONM\{
-    MetadataFactory,
-    Metadata\Aggregate
-};
-use Innmind\Immutable\Map;
-
-class MyAggregateFactory implements MetadataFactory
-{
-    // your implementation
-}
-
-$services = bootstrap(
-    /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    (new Map('string', MetadataFactory::class))
-        ->put(Aggregate::class, new MyAggregateFactory)
-);
-```
-
-Here you specify to use your own factory to be used to build `Aggregate`s metadatas. If you decide to create a new type of [`Entity`](Metadata/Entity.php) you would need to replace `Aggregate::class` by `MyEntityMetadataType::class` (in such case you would also need to override the default configuration class, as explained in the previous section).
 
 #### Entity Translators
 
 When querying the graph to load your entities, there's a step where the result returned from connection is translated into a collection of raw structured data that look like the structure of your entities. This data is afterward used by factories to create your entities.
 
-In case you've built a new kind of entity metadata (see section above), you'll need to create a new translator.
+In case you've built a new kind of entity metadata, you'll need to create a new translator.
 
 ```php
 use Innmind\Neo4jONM\Translation\EntityTranslator;
@@ -309,20 +215,14 @@ class MyTranslator implements EntityTranslator
 
 $services = bootstrap(
     /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
+    Set::of(Entity::class),
     null,
     null,
     null,
     null,
     null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    (new Map('string', EntityTranslator::class))
-        ->put(MyEntityMetadata::class, new MyTranslator)
+    Map::of('string', EntityTranslator::class)
+        (MyEntityMetadata::class, new MyTranslator)
 );
 ```
 
@@ -342,13 +242,7 @@ class MyEntityFactory implements EntityFactory
 
 $services = bootstrap(
     /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
+    Set::of(Entity::class),
     null,
     null,
     null,
@@ -383,9 +277,8 @@ class MyIdentityGenerator implements Generator
 
 $services = bootstrap(
     /* instance of Connection */,
-    [Parser::parse(file_get_contents('path/to/entity_mapping.yml'))],
-    null,
-    (new Map('string', Generator::class))
-        ->put(MyIdentity::class, new MyIdentityGenerator)
+    Set::of(Entity::class),
+    Map::of('string', Generator::class)
+        (MyIdentity::class, new MyIdentityGenerator)
 );
 ```

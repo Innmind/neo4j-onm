@@ -5,42 +5,43 @@ namespace Innmind\Neo4j\ONM\Type;
 
 use Innmind\Neo4j\ONM\{
     Type,
-    Types,
-    Exception\InvalidArgumentException
-};
-use Innmind\Immutable\{
-    MapInterface,
-    Set,
-    SetInterface
+    Exception\InvalidArgumentException,
 };
 
 final class DateType implements Type
 {
+    private $format;
     private $nullable = false;
-    private $format = \DateTime::ISO8601;
     private $immutable = true;
-    private static $identifiers;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function fromConfig(MapInterface $config, Types $types): Type
+    public function __construct(string $format = null)
     {
-        $type = new self;
+        $this->format = $format ?? \DateTime::ISO8601;
+    }
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-        }
+    public static function nullable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->nullable = true;
 
-        if ($config->contains('format')) {
-            $type->format = $config->get('format');
-        }
+        return $self;
+    }
 
-        if ($config->contains('immutable')) {
-            $type->immutable = (bool) $config->get('immutable');
-        }
+    public static function mutable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->immutable = false;
 
-        return $type;
+        return $self;
+    }
+
+    public static function nullableMutable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->nullable = true;
+        $self->immutable = false;
+
+        return $self;
     }
 
     /**
@@ -84,19 +85,5 @@ final class DateType implements Type
     public function isNullable(): bool
     {
         return $this->nullable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function identifiers(): SetInterface
-    {
-        if (self::$identifiers === null) {
-            self::$identifiers = (new Set('string'))
-                ->add('date')
-                ->add('datetime');
-        }
-
-        return self::$identifiers;
     }
 }

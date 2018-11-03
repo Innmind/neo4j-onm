@@ -10,27 +10,24 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\Container\State,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\Relationship,
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Identity\Uuid,
     Metadatas,
     Event\EntityAboutToBeRemoved,
-    Event\EntityRemoved
+    Event\EntityRemoved,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
     Result,
-    Query\Parameter
+    Query\Parameter,
 };
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
+use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class RemovePersisterTest extends TestCase
@@ -54,32 +51,28 @@ class RemovePersisterTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
-                ['Label']
-            ))
-                ->withChild(
-                    new ValueObject(
+                Set::of('string', 'Label'),
+                null,
+                Set::of(
+                    Child::class,
+                    Child::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
-                        new ValueObjectRelationship(
+                        Set::of('string', 'AnotherLabel'),
+                        Child\Relationship::of(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
                             'rel',
                             'child'
                         )
                     )
-                ),
-            new Relationship(
+                )
+            ),
+            Relationship::of(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'uuid'),
                 new RelationshipEdge('end', Uuid::class, 'uuid')
@@ -93,7 +86,7 @@ class RemovePersisterTest extends TestCase
             Persister::class,
             new RemovePersister(
                 new ChangesetComputer,
-                $this->createMock(EventBusInterface::class),
+                $this->createMock(EventBus::class),
                 $this->metadatas
             )
         );
@@ -103,7 +96,7 @@ class RemovePersisterTest extends TestCase
     {
         $persist = new RemovePersister(
             new ChangesetComputer,
-            $bus = $this->createMock(EventBusInterface::class),
+            $bus = $this->createMock(EventBus::class),
             $this->metadatas
         );
 
@@ -153,28 +146,28 @@ class RemovePersisterTest extends TestCase
             }));
         $bus
             ->expects($this->at(0))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(1))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;
             }));
         $bus
             ->expects($this->at(2))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityRemoved $event) use ($aggregate): bool {
                 return $event->entity() instanceof $aggregate &&
                     $event->identity() === $aggregate->uuid;
             }));
         $bus
             ->expects($this->at(3))
-            ->method('dispatch')
+            ->method('__invoke')
             ->with($this->callback(function(EntityRemoved $event) use ($relationship): bool {
                 return $event->entity() instanceof $relationship &&
                     $event->identity() === $relationship->uuid;

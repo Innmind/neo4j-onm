@@ -8,26 +8,25 @@ use Innmind\Neo4j\ONM\{
     Metadatas,
     Metadata\Aggregate,
     Metadata\Relationship,
-    Exception\InvalidArgumentException
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class DataExtractor
 {
-    private $metadatas;
+    private $metadata;
     private $extractors;
 
     public function __construct(
-        Metadatas $metadatas,
+        Metadatas $metadata,
         MapInterface $extractors = null
     ) {
-        $this->metadatas = $metadatas;
-        $this->extractors = $extractors ?? (new Map('string', DataExtractorInterface::class))
-            ->put(Aggregate::class, new AggregateExtractor)
-            ->put(Relationship::class, new RelationshipExtractor);
+        $this->metadata = $metadata;
+        $this->extractors = $extractors ?? Map::of('string', DataExtractorInterface::class)
+            (Aggregate::class, new AggregateExtractor)
+            (Relationship::class, new RelationshipExtractor);
 
         if (
             (string) $this->extractors->keyType() !== 'string' ||
@@ -43,21 +42,13 @@ final class DataExtractor
     /**
      * Extract raw data from entity based on the defined mapping
      *
-     * @param object $entity
-     *
      * @return MapInterface<string, mixed>
      */
-    public function extract($entity): MapInterface
+    public function __invoke(object $entity): MapInterface
     {
-        if (!is_object($entity)) {
-            throw new InvalidArgumentException;
-        }
+        $meta = ($this->metadata)(get_class($entity));
+        $extract = $this->extractors->get(get_class($meta));
 
-        $meta = $this->metadatas->get(get_class($entity));
-
-        return $this
-            ->extractors
-            ->get(get_class($meta))
-            ->extract($entity, $meta);
+        return $extract($entity, $meta);
     }
 }

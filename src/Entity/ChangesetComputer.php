@@ -5,11 +5,11 @@ namespace Innmind\Neo4j\ONM\Entity;
 
 use Innmind\Neo4j\ONM\{
     Identity,
-    Exception\InvalidArgumentException
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
-    Map
+    Map,
 };
 
 final class ChangesetComputer
@@ -18,10 +18,7 @@ final class ChangesetComputer
 
     public function __construct()
     {
-        $this->sources = new Map(
-            Identity::class,
-            MapInterface::class
-        );
+        $this->sources = new Map(Identity::class, MapInterface::class);
     }
 
     /**
@@ -29,10 +26,8 @@ final class ChangesetComputer
      *
      * @param MapInterface<string, mixed> $source
      */
-    public function use(
-        Identity $identity,
-        MapInterface $source
-    ): self {
+    public function use(Identity $identity, MapInterface $source): self
+    {
         if (
             (string) $source->keyType() !== 'string' ||
             (string) $source->valueType() !== 'mixed'
@@ -40,10 +35,7 @@ final class ChangesetComputer
             throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
         }
 
-        $this->sources = $this->sources->put(
-            $identity,
-            $source
-        );
+        $this->sources = $this->sources->put($identity, $source);
 
         return $this;
     }
@@ -55,10 +47,8 @@ final class ChangesetComputer
      *
      * @return MapInterface<string, mixed>
      */
-    public function compute(
-        Identity $identity,
-        MapInterface $target
-    ): MapInterface {
+    public function compute(Identity $identity, MapInterface $target): MapInterface
+    {
         if (
             (string) $target->keyType() !== 'string' ||
             (string) $target->valueType() !== 'mixed'
@@ -79,31 +69,24 @@ final class ChangesetComputer
         MapInterface $source,
         MapInterface $target
     ): MapInterface {
-        $changeset = $target
-            ->filter(function(string $property, $value) use ($source): bool {
-                if (
-                    !$source->contains($property) ||
-                    $value !== $source->get($property)
-                ) {
-                    return true;
-                }
+        $changeset = $target->filter(static function(string $property, $value) use ($source): bool {
+            if (
+                !$source->contains($property) ||
+                $value !== $source->get($property)
+            ) {
+                return true;
+            }
 
-                return false;
-            })
-            ->reduce(
-                new Map('string', 'mixed'),
-                function(Map $carry, string $property, $value) use ($source): Map {
-                    return $carry->put($property, $value);
-                }
-            );
+            return false;
+        });
 
         return $source
-            ->filter(function(string $property) use ($target): bool {
+            ->filter(static function(string $property) use ($target): bool {
                 return !$target->contains($property);
             })
             ->reduce(
                 $changeset,
-                function(Map $carry, string $property) use ($target): Map {
+                static function(Map $carry, string $property) use ($target): Map {
                     return $carry->put($property, null);
                 }
             )
@@ -117,7 +100,7 @@ final class ChangesetComputer
                     $target->get($property)
                 );
             })
-            ->filter(function(string $property, $value) {
+            ->filter(static function(string $property, $value) {
                 if (!$value instanceof MapInterface) {
                     return true;
                 }

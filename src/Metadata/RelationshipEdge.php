@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Metadata;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
+use Innmind\Immutable\Str;
 
 final class RelationshipEdge extends Identity
 {
@@ -13,7 +14,7 @@ final class RelationshipEdge extends Identity
     {
         parent::__construct($property, $type);
 
-        if (empty($target)) {
+        if (Str::of($target)->empty()) {
             throw new DomainException;
         }
 

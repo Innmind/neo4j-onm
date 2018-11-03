@@ -9,24 +9,21 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
-    Result as ResultInterface
+    Result as ResultInterface,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
-    SetInterface
+    SetInterface,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -42,29 +39,19 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $translator = new RelationshipTranslator;
-        $meta = new Relationship(
+        $translate = new RelationshipTranslator;
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
 
-        $data = $translator->translate(
+        $data = $translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -128,29 +115,19 @@ class RelationshipTranslatorTest extends TestCase
 
     public function testTranslateMultipleRelationships()
     {
-        $translator = new RelationshipTranslator;
-        $meta = new Relationship(
+        $translate = new RelationshipTranslator;
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
 
-        $data = $translator->translate(
+        $data = $translate(
             'r',
             $meta,
             Result::fromRaw([
@@ -282,7 +259,7 @@ class RelationshipTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
-        (new RelationshipTranslator)->translate(
+        (new RelationshipTranslator)(
             'r',
             $this->createMock(Entity::class),
             $this->createMock(ResultInterface::class)
@@ -294,14 +271,11 @@ class RelationshipTranslatorTest extends TestCase
      */
     public function testThrowWhenTranslatingWhenEmptyVariable()
     {
-        (new RelationshipTranslator)->translate(
+        (new RelationshipTranslator)(
             '',
-            new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
-                new Repository('foo'),
-                new Factory('foo'),
-                new Alias('foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')

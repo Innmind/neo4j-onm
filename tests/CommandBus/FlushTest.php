@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     CommandBus\Flush,
     Manager,
 };
-use Innmind\CommandBus\CommandBusInterface;
+use Innmind\CommandBus\CommandBus;
 use PHPUnit\Framework\TestCase;
 
 class FlushTest extends TestCase
@@ -15,9 +15,9 @@ class FlushTest extends TestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            CommandBusInterface::class,
+            CommandBus::class,
             new Flush(
-                $this->createMock(CommandBusInterface::class),
+                $this->createMock(CommandBus::class),
                 $this->createMock(Manager::class)
             )
         );
@@ -26,17 +26,17 @@ class FlushTest extends TestCase
     public function testHandle()
     {
         $command = new \stdClass;
-        $commandBus = $this->createMock(CommandBusInterface::class);
+        $commandBus = $this->createMock(CommandBus::class);
         $commandBus
             ->expects($this->once())
-            ->method('handle')
+            ->method('__invoke')
             ->with($command);
         $manager = $this->createMock(Manager::class);
         $manager
             ->expects($this->once())
             ->method('flush');
-        $bus = new Flush($commandBus, $manager);
+        $handle = new Flush($commandBus, $manager);
 
-        $this->assertNull($bus->handle($command));
+        $this->assertNull($handle($command));
     }
 }

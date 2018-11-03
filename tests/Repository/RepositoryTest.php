@@ -30,24 +30,22 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository as MetaRepository,
-    Metadata\Factory,
-    Metadata\Alias,
     Type\StringType,
-    Types,
-    Exception\EntityNotFound
+    Type,
+    Exception\EntityNotFound,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\ConnectionFactory;
-use Innmind\EventBus\EventBusInterface;
+use Innmind\EventBus\EventBus;
 use Innmind\HttpTransport\GuzzleTransport;
 use Innmind\Http\{
     Translator\Response\Psr7Translator,
-    Factory\Header\Factories
+    Factory\Header\Factories,
 };
 use Innmind\Immutable\{
     SetInterface,
-    Map
+    Set,
+    Map,
 };
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
@@ -88,23 +86,17 @@ class RepositoryTest extends TestCase
             $container
         );
         $metadatas = new Metadatas(
-            $meta = (new Aggregate(
+            $meta = Aggregate::of(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
-                new MetaRepository(Repository::class),
-                new Factory(AggregateFactory::class),
-                new Alias('foo'),
-                ['Label']
-            ))
-                ->withProperty('content', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('content', StringType::nullable())
+            )
         );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($metadatas);
-        $eventBus = $this->createMock(EventBusInterface::class);
+        $eventBus = $this->createMock(EventBus::class);
 
         $uow = new UnitOfWork(
             $conn,

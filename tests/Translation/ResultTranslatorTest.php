@@ -6,29 +6,26 @@ namespace Tests\Innmind\Neo4j\ONM\Translation;
 use Innmind\Neo4j\ONM\{
     Translation\ResultTranslator,
     Metadata\Aggregate,
+    Metadata\Aggregate\Child,
     Metadata\ClassName,
     Metadata\Identity,
-    Metadata\Repository,
-    Metadata\Factory,
-    Metadata\Alias,
-    Metadata\ValueObject,
-    Metadata\ValueObjectRelationship,
     Metadata\Relationship,
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
-    Result as ResultInterface
+    Result as ResultInterface,
 };
 use Innmind\Immutable\{
-    Map,
     MapInterface,
-    SetInterface
+    Map,
+    SetInterface,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -36,107 +33,62 @@ class ResultTranslatorTest extends TestCase
 {
     public function testTranslate()
     {
-        $translator = new ResultTranslator;
-        $aggregate = new Aggregate(
+        $translate = new ResultTranslator;
+        $aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
-        );
-        $aggregate = $aggregate
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
-                (new ValueObject(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable()),
+            Set::of(
+                Child::class,
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            )
-            ->withChild(
-                (new ValueObject(
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                ),
+                Child::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
-                    (new ValueObjectRelationship(
+                    Set::of('string', 'AnotherLabel'),
+                    Child\Relationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
                         'rel2',
-                        'child'
-                    ))
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            )
-                        )
-                ))
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        )
-                    )
-            );
-        $relationship = new Relationship(
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::nullable())
+                    ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::nullable())
+                )
+            )
+        );
+        $relationship = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::nullable())
         );
-        $relationship = $relationship
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
 
-        $data = $translator->translate(
+        $data = $translate(
             Result::fromRaw([
                 'columns' => ['n', 'r'],
                 'data' => [[
@@ -305,26 +257,20 @@ class ResultTranslatorTest extends TestCase
 
     public function testTranslateWithoutExpectedVariable()
     {
-        $translator = new ResultTranslator;
-        $aggregate = new Aggregate(
+        $translate = new ResultTranslator;
+        $aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
-            ['Label']
+            Set::of('string', 'Label')
         );
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
-            new Repository('foo'),
-            new Factory('foo'),
-            new Alias('foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
             new RelationshipEdge('end', 'foo', 'id')
         );
-        $data = $translator->translate(
+        $data = $translate(
             Result::fromRaw([
                 'columns' => [],
                 'data' => [[
@@ -358,7 +304,7 @@ class ResultTranslatorTest extends TestCase
      */
     public function testThrowWhenEmptyInvalidVariableMap()
     {
-        (new ResultTranslator)->translate(
+        (new ResultTranslator)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')
         );

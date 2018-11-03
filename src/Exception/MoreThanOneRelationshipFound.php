@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Exception;
 
 use Innmind\Neo4j\ONM\Metadata\{
-    ValueObject,
-    Entity
+    Aggregate\Child,
+    Entity,
 };
 
 final class MoreThanOneRelationshipFound extends RuntimeException
@@ -13,7 +13,7 @@ final class MoreThanOneRelationshipFound extends RuntimeException
     private $child;
     private $entity;
 
-    public static function for(ValueObject $child): self
+    public static function for(Child $child): self
     {
         $exception = new self;
         $exception->child = $child;
@@ -34,7 +34,7 @@ final class MoreThanOneRelationshipFound extends RuntimeException
         return $exception;
     }
 
-    public function child(): ValueObject
+    public function child(): Child
     {
         return $this->child;
     }
