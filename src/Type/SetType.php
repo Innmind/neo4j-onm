@@ -23,13 +23,29 @@ final class SetType implements Type
     private $type;
     private static $identifiers;
 
+    public function __construct(Type $inner, string $type)
+    {
+        if ($inner instanceof self) {
+            throw new RecursiveTypeDeclaration;
+        }
+
+        $this->inner = $inner;
+        $this->type = $type;
+    }
+
+    public static function nullable(Type $inner, string $type): self
+    {
+        $self = new self($inner, $type);
+        $self->nullable = true;
+
+        return $self;
+    }
+
     /**
      * {@inheritdoc}
      */
     public static function fromConfig(MapInterface $config, Types $build): Type
     {
-        $type = new self;
-
         if (!$config->contains('inner')) {
             throw new MissingFieldDeclaration('inner');
         }
@@ -40,19 +56,18 @@ final class SetType implements Type
 
         $innerConfig = $config->remove('inner');
 
-        if ($config->contains('nullable')) {
-            $type->nullable = true;
-            $innerConfig = $innerConfig->remove('nullable');
-        }
-
-        $type->type = $config->contains('set_type') ?
+        $type = $config->contains('set_type') ?
             $config->get('set_type') : $config->get('inner');
-        $type->inner = $build(
+        $inner = $build(
             $config->get('inner'),
             $innerConfig
         );
 
-        return $type;
+        if ($config->contains('nullable')) {
+            return self::nullable($inner, $type);
+        }
+
+        return new self($inner, $type);
     }
 
     /**

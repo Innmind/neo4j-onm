@@ -18,18 +18,24 @@ final class StringType implements Type
     private $nullable = false;
     private static $identifiers;
 
+    public static function nullable(): self
+    {
+        $self = new self;
+        $self->nullable = true;
+
+        return $self;
+    }
+
     /**
      * {@inheritdoc}
      */
     public static function fromConfig(MapInterface $config, Types $build): Type
     {
-        $type = new self;
-
         if ($config->contains('nullable')) {
-            $type->nullable = true;
+            return self::nullable();
         }
 
-        return $type;
+        return new self;
     }
 
     /**

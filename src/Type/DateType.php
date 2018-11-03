@@ -16,24 +16,50 @@ use Innmind\Immutable\{
 
 final class DateType implements Type
 {
+    private $format;
     private $nullable = false;
-    private $format = \DateTime::ISO8601;
     private $immutable = true;
     private static $identifiers;
+
+    public function __construct(string $format = null)
+    {
+        $this->format = $format ?? \DateTime::ISO8601;
+    }
+
+    public static function nullable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->nullable = true;
+
+        return $self;
+    }
+
+    public static function mutable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->immutable = false;
+
+        return $self;
+    }
+
+    public static function nullableMutable(string $format = null): self
+    {
+        $self = new self($format);
+        $self->nullable = true;
+        $self->immutable = false;
+
+        return $self;
+    }
 
     /**
      * {@inheritdoc}
      */
     public static function fromConfig(MapInterface $config, Types $build): Type
     {
-        $type = new self;
+        $type = new self($config['format'] ?? null);
 
         if ($config->contains('nullable')) {
             $type->nullable = true;
-        }
-
-        if ($config->contains('format')) {
-            $type->format = $config->get('format');
         }
 
         if ($config->contains('immutable')) {

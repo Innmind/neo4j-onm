@@ -21,13 +21,28 @@ final class ArrayType implements Type
     private $inner;
     private static $identifiers;
 
+    public function __construct(Type $inner)
+    {
+        if ($inner instanceof self) {
+            throw new RecursiveTypeDeclaration;
+        }
+
+        $this->inner = $inner;
+    }
+
+    public static function nullable(Type $inner): self
+    {
+        $self = new self($inner);
+        $self->nullable = true;
+
+        return $self;
+    }
+
     /**
      * {@inheritdoc}
      */
     public static function fromConfig(MapInterface $config, Types $build): Type
     {
-        $type = new self;
-
         if (!$config->contains('inner')) {
             throw new MissingFieldDeclaration('inner');
         }
@@ -36,7 +51,7 @@ final class ArrayType implements Type
             throw new RecursiveTypeDeclaration;
         }
 
-        $type->inner = $build(
+        $inner = $build(
             $config->get('inner'),
             $config
                 ->remove('inner')
@@ -44,10 +59,10 @@ final class ArrayType implements Type
         );
 
         if ($config->contains('nullable')) {
-            $type->nullable = true;
+            return self::nullable($inner);
         }
 
-        return $type;
+        return new self($inner);
     }
 
     /**
