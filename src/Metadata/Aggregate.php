@@ -25,7 +25,7 @@ final class Aggregate implements Entity
     private $labels;
     private $children;
 
-     public function __construct(
+    public function __construct(
         ClassName $class,
         Identity $identity,
         SetInterface $labels,
