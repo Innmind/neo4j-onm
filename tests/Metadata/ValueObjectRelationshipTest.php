@@ -17,7 +17,7 @@ class ValueObjectRelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $vor = new ValueObjectRelationship(
+        $vor = ValueObjectRelationship::of(
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
@@ -47,7 +47,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyProperty()
     {
-        new ValueObjectRelationship(
+        ValueObjectRelationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             '',
@@ -60,7 +60,7 @@ class ValueObjectRelationshipTest extends TestCase
      */
     public function testThrowWhenEmptyChildProperty()
     {
-        new ValueObjectRelationship(
+        ValueObjectRelationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
             'relationship',

@@ -85,13 +85,12 @@ class EntityFactoryTest extends TestCase
                 ValueObject::of(
                     new ClassName(get_class($child)),
                     Set::of('string', 'AnotherLabel'),
-                    (new ValueObjectRelationship(
+                    ValueObjectRelationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
-                        'child',
-                        true
-                    ))
+                        'child'
+                    )
                         ->withProperty('created', new DateType)
                         ->withProperty(
                             'empty',

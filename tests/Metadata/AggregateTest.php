@@ -38,7 +38,7 @@ class AggregateTest extends TestCase
                 $vo = ValueObject::of(
                     new ClassName('whatever'),
                     Set::of('string', 'whatever'),
-                    new ValueObjectRelationship(
+                    ValueObjectRelationship::of(
                         new ClassName('whatever'),
                         new RelationshipType('whatever'),
                         'foo',

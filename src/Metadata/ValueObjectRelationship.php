@@ -38,6 +38,15 @@ final class ValueObjectRelationship
         $this->properties = new Map('string', Property::class);
     }
 
+    public static function of(
+        ClassName $class,
+        RelationshipType $type,
+        string $property,
+        string $childProperty
+    ): self {
+        return new self($class, $type, $property, $childProperty);
+    }
+
     public function class(): ClassName
     {
         return $this->class;

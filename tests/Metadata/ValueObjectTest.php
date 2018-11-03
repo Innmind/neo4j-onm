@@ -26,7 +26,7 @@ class ValueObjectTest extends TestCase
         $vo = ValueObject::of(
             $cn = new ClassName('foo'),
             Set::of('string', 'LabelA', 'LabelB'),
-            $vor = new ValueObjectRelationship(
+            $vor = ValueObjectRelationship::of(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),
                 'foo',

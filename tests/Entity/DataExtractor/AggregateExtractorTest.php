@@ -51,13 +51,12 @@ class AggregateExtractorTest extends TestCase
                 ValueObject::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    (new ValueObjectRelationship(
+                    ValueObjectRelationship::of(
                         new ClassName('foo'),
                         new RelationshipType('foo'),
                         'rel',
-                        'child',
-                        true
-                    ))
+                        'child'
+                    )
                         ->withProperty('created', new DateType)
                         ->withProperty(
                             'empty',

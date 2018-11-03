@@ -81,12 +81,12 @@ class AggregateFactoryTest extends TestCase
                 ValueObject::of(
                     new ClassName(get_class($child)),
                     Set::of('string', 'AnotherLabel'),
-                    (new ValueObjectRelationship(
+                    ValueObjectRelationship::of(
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',
                         'child'
-                    ))
+                    )
                         ->withProperty('created', new DateType)
                         ->withProperty(
                             'empty',

@@ -80,12 +80,12 @@ class InsertPersisterTest extends TestCase
                     ValueObject::of(
                         new ClassName('foo'),
                         Set::of('string', 'AnotherLabel'),
-                        (new ValueObjectRelationship(
+                        ValueObjectRelationship::of(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
                             'rel',
                             'child'
-                        ))
+                        )
                             ->withProperty('created', new DateType)
                             ->withProperty(
                                 'empty',

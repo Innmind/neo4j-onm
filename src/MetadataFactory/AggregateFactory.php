@@ -105,13 +105,11 @@ final class AggregateFactory implements MetadataFactory
             Set::of(ValueObject::class),
             function(SetInterface $children, string $name, array $config): SetInterface {
                 $config = $this->map($config);
-                $rel = new ValueObjectRelationship(
+                $rel = ValueObjectRelationship::of(
                     new ClassName($config->get('class')),
                     new RelationshipType($config->get('type')),
                     $name,
-                    $config->get('child')['property'],
-                    $config->contains('collection') ?
-                        (bool) $config->get('collection') : false
+                    $config->get('child')['property']
                 );
 
                 if ($config->contains('properties')) {

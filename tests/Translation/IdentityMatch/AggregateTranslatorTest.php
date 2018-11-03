@@ -57,12 +57,12 @@ class AggregateTranslatorTest extends TestCase
                 ValueObject::of(
                     new ClassName('foo'),
                     Set::of('string', 'AnotherLabel'),
-                    (new ValueObjectRelationship(
+                    ValueObjectRelationship::of(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
                         'child'
-                    ))
+                    )
                         ->withProperty('created', new DateType)
                         ->withProperty(
                             'empty',
