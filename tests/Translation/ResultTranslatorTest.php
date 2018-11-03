@@ -99,7 +99,7 @@ class ResultTranslatorTest extends TestCase
                 )
             )
         );
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),
@@ -292,7 +292,7 @@ class ResultTranslatorTest extends TestCase
             new Identity('id', 'foo'),
             Set::of('string', 'Label')
         );
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),

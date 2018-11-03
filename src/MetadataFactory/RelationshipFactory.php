@@ -40,7 +40,7 @@ final class RelationshipFactory implements MetadataFactory
             throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
-        $entity = new Relationship(
+        $entity = Relationship::of(
             new ClassName($config->get('class')),
             new Identity(
                 $config->get('identity')['property'],

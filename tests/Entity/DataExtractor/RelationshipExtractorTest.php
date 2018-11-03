@@ -32,7 +32,7 @@ class RelationshipExtractorTest extends TestCase
     public function setUp()
     {
         $this->extract = new RelationshipExtractor;
-        $this->meta = new Relationship(
+        $this->meta = Relationship::of(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             new RelationshipType('type'),

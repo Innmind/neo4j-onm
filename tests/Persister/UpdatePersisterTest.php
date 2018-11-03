@@ -104,13 +104,13 @@ class UpdatePersisterTest extends TestCase
                     )
                 )
             ),
-            (new Relationship(
+            Relationship::of(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'uuid'),
                 new RelationshipEdge('end', Uuid::class, 'uuid')
-            ))
+            )
                 ->withProperty('created', new DateType)
                 ->withProperty(
                     'empty',

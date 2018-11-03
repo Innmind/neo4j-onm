@@ -115,7 +115,7 @@ class EntityFactoryTest extends TestCase
             public $start;
             public $end;
         };
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new RelationshipType('type'),
@@ -332,7 +332,7 @@ class EntityFactoryTest extends TestCase
             public $start;
             public $end;
         };
-        $relationship = new Relationship(
+        $relationship = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             new RelationshipType('type'),

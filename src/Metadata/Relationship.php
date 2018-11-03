@@ -16,14 +16,14 @@ final class Relationship extends AbstractEntity implements Entity
 
     public function __construct(
         ClassName $class,
-        Identity $id,
+        Identity $identity,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode
     ) {
         parent::__construct(
             $class,
-            $id,
+            $identity,
             new Repository(ConcreteRepository::class),
             new Factory(RelationshipFactory::class)
         );
@@ -31,6 +31,22 @@ final class Relationship extends AbstractEntity implements Entity
         $this->type = $type;
         $this->startNode = $startNode;
         $this->endNode = $endNode;
+    }
+
+    public static function of(
+        ClassName $class,
+        Identity $identity,
+        RelationshipType $type,
+        RelationshipEdge $startNode,
+        RelationshipEdge $endNode
+    ): self {
+        return new self(
+            $class,
+            $identity,
+            $type,
+            $startNode,
+            $endNode
+        );
     }
 
     public function type(): RelationshipType

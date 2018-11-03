@@ -37,7 +37,7 @@ class RelationshipTranslatorTest extends TestCase
     {
         $translate = new RelationshipTranslator;
 
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),

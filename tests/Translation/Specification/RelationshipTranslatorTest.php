@@ -30,13 +30,13 @@ class RelationshipTranslatorTest extends TestCase
 
     public function setUp()
     {
-        $this->meta = (new Relationship(
+        $this->meta = Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')
-            ))
+            )
                 ->withProperty('created', new DateType)
                 ->withProperty(
                     'empty',

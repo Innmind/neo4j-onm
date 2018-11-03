@@ -63,7 +63,7 @@ class RelationshipFactoryTest extends TestCase
             public $start;
             public $end;
         };
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
             new RelationshipType('type'),
@@ -128,7 +128,7 @@ class RelationshipFactoryTest extends TestCase
     {
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
-            new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),

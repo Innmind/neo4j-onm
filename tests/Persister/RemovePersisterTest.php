@@ -71,7 +71,7 @@ class RemovePersisterTest extends TestCase
                     )
                 )
             ),
-            new Relationship(
+            Relationship::of(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),

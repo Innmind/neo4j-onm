@@ -40,7 +40,7 @@ class RelationshipTranslatorTest extends TestCase
     public function testTranslate()
     {
         $translate = new RelationshipTranslator;
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),
@@ -123,7 +123,7 @@ class RelationshipTranslatorTest extends TestCase
     public function testTranslateMultipleRelationships()
     {
         $translate = new RelationshipTranslator;
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),
@@ -287,7 +287,7 @@ class RelationshipTranslatorTest extends TestCase
     {
         (new RelationshipTranslator)(
             '',
-            new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
                 new RelationshipType('type'),

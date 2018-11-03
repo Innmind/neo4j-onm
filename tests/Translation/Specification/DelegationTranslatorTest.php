@@ -90,13 +90,13 @@ class DelegationTranslatorTest extends TestCase
         $this->assertInstanceOf(
             IdentityMatch::class,
             $translate(
-                (new Relationship(
+                Relationship::of(
                     new ClassName('foo'),
                     new Identity('id', 'foo'),
                     new RelationshipType('type'),
                     new RelationshipEdge('start', 'foo', 'id'),
                     new RelationshipEdge('end', 'foo', 'id')
-                ))
+                )
                     ->withProperty('created', new DateType),
                 $expected
             )
@@ -134,7 +134,7 @@ class DelegationTranslatorTest extends TestCase
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
         (new DelegationTranslator)(
-            new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
                 new RelationshipType('type'),

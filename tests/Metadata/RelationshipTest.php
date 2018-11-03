@@ -21,7 +21,7 @@ class RelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $r = new Relationship(
+        $r = Relationship::of(
             $cn = new ClassName('foo'),
             $i = new Identity('uuid', 'UUID'),
             $t = new RelationshipType('foo'),

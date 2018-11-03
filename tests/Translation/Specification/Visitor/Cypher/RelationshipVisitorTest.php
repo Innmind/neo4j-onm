@@ -31,13 +31,13 @@ class RelationshipVisitorTest extends TestCase
     public function setUp()
     {
         $this->visitor = new RelationshipVisitor(
-            (new Relationship(
+            Relationship::of(
                 new ClassName('foo'),
                 new Identity('id', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')
-            ))
+            )
                 ->withProperty('created', new DateType)
                 ->withProperty(
                     'empty',

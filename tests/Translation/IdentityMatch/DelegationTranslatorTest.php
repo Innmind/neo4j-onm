@@ -113,7 +113,7 @@ class DelegationTranslatorTest extends TestCase
     public function testTranslateRelationship()
     {
         $translate = new DelegationTranslator;
-        $meta = new Relationship(
+        $meta = Relationship::of(
             new ClassName('foo'),
             new Identity('id', 'foo'),
             new RelationshipType('type'),

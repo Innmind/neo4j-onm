@@ -92,13 +92,13 @@ class DataExtractorTest extends TestCase
                     )
                 )
             ),
-            (new Relationship(
+            Relationship::of(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
                 new RelationshipEdge('end', Uuid::class, 'target')
-            ))
+            )
                 ->withProperty('created', new DateType)
                 ->withProperty(
                     'empty',
