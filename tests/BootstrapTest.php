@@ -6,6 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM;
 use function Innmind\Neo4j\ONM\bootstrap;
 use Innmind\Neo4j\ONM\{
     Manager,
+    Metadata\Entity,
     CommandBus\ClearDomainEvents,
     CommandBus\DispatchDomainEvents,
     CommandBus\Flush,
@@ -13,16 +14,18 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\Connection;
 use Innmind\CommandBus\CommandBus;
-use Symfony\Component\Yaml\Yaml;
+use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class BootstrapTest extends TestCase
 {
     public function testBootstrap()
     {
+        $metadatas = require 'fixtures/mapping.php';
+
         $services = bootstrap(
             $this->createMock(Connection::class),
-            [Yaml::parse(file_get_contents('fixtures/mapping.yml'))]
+            Set::of(Entity::class, ...$metadatas)
         );
 
         $this->assertInstanceOf(Manager::class, $services['manager']);

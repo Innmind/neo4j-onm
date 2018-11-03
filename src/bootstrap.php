@@ -27,6 +27,7 @@ use Innmind\Immutable\{
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
+ * @param  SetInterface<Metadata\Entity> $metas
  * @param  SetInterface<string>|null $additionalTypes
  * @param  MapInterface<string, Generator>|null $additionalGenerators
  * @param  MapInterface<Identity, Repository>|null $repositories
@@ -40,8 +41,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 function bootstrap(
     Connection $connection,
-    array $metas, // to be replaced by a set<PathInterface>
-    SetInterface $additionalTypes = null,
+    SetInterface $metas,
     MapInterface $additionalGenerators = null,
     ExtractionStrategy $extractionStrategy = null,
     InjectionStrategy $injectionStrategy = null,
@@ -55,12 +55,9 @@ function bootstrap(
     MapInterface $identityMatchTranslators = null,
     MapInterface $matchTranslators = null,
     MapInterface $specificationTranslators = null,
-    MapInterface $metadataFactories = null,
     MapInterface $dataExtractors = null
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
-
-    $types = new Types(...($additionalTypes ?? []));
 
     $configuration = $configuration ?? new Configuration;
     $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
@@ -75,9 +72,6 @@ function bootstrap(
     $specificationTranslators = $specificationTranslators ?? Map::of('string', Translation\SpecificationTranslator::class)
         (Aggregate::class, new Translation\Specification\AggregateTranslator)
         (Relationship::class, new Translation\Specification\RelationshipTranslator);
-    $metadataFactories = $metadataFactories ?? Map::of('string', MetadataFactory::class)
-        ('aggregate', new MetadataFactory\AggregateFactory($types))
-        ('relationship', new MetadataFactory\RelationshipFactory($types));
     $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
         (Aggregate::class, new Entity\DataExtractor\AggregateExtractor($extractionStrategy))
         (Relationship::class, new Entity\DataExtractor\RelationshipExtractor($extractionStrategy));
@@ -97,14 +91,7 @@ function bootstrap(
         )
     );
 
-    $metadatas = Metadatas::build(
-        new MetadataBuilder(
-            $types,
-            $metadataFactories,
-            $configuration
-        ),
-        $metas
-    );
+    $metadatas = new Metadatas(...$metas);
 
     $entityChangeset = new Entity\ChangesetComputer;
     $dataExtractor = new Entity\DataExtractor\DataExtractor(
