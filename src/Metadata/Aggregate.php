@@ -29,19 +29,16 @@ final class Aggregate implements Entity
         ClassName $class,
         Identity $identity,
         SetInterface $labels,
-        MapInterface $properties,
+        SetInterface $properties,
         SetInterface $children
     ) {
         if ((string) $labels->type() !== 'string') {
             throw new \TypeError('Argument 3 must be of type SetInterface<string>');
         }
 
-        if (
-            (string) $properties->keyType() !== 'string' ||
-            (string) $properties->ValueType() !== Type::class
-        ) {
+        if ((string) $properties->type() !== Property::class) {
             throw new \TypeError(\sprintf(
-                'Argument 4 must be of type MapInterface<string, %s>',
+                'Argument 4 must be of type SetInterface<%s>',
                 Type::class
             ));
         }
@@ -59,8 +56,8 @@ final class Aggregate implements Entity
         $this->factory = new Factory(AggregateFactory::class);
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
-            static function(MapInterface $properties, string $name, Type $type): MapInterface {
-                return $properties->put($name, new Property($name, $type));
+            static function(MapInterface $properties, Property $property): MapInterface {
+                return $properties->put($property->name(), $property);
             }
         );
         $this->labels = $labels;
@@ -91,7 +88,12 @@ final class Aggregate implements Entity
             $class,
             $identity,
             $labels,
-            $properties ?? Map::of('string', Type::class),
+            ($properties ?? Map::of('string', Type::class))->reduce(
+                Set::of(Property::class),
+                static function(SetInterface $properties, string $name, Type $type): SetInterface {
+                    return $properties->add(new Property($name, $type));
+                }
+            ),
             $children ?? Set::of(ValueObject::class)
         );
     }
