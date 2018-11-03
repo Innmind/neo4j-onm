@@ -20,13 +20,25 @@ final class ValueObject
 
     public function __construct(
         ClassName $class,
-        array $labels,
+        SetInterface $labels,
         ValueObjectRelationship $relationship
     ) {
+        if ((string) $labels->type() !== 'string') {
+            throw new \TypeError('Argument 2 must be of type SetInterface<string>');
+        }
+
         $this->class = $class;
-        $this->labels = Set::of('string', ...$labels);
+        $this->labels = $labels;
         $this->relationship = $relationship;
         $this->properties = new Map('string', Property::class);
+    }
+
+    public static function of(
+        ClassName $class,
+        SetInterface $labels,
+        ValueObjectRelationship $relationship
+    ): self {
+        return new self($class, $labels, $relationship);
     }
 
     public function class(): ClassName

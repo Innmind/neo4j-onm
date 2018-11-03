@@ -13,6 +13,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Immutable\{
     SetInterface,
+    Set,
     MapInterface,
 };
 use PHPUnit\Framework\TestCase;
@@ -21,9 +22,9 @@ class ValueObjectTest extends TestCase
 {
     public function testInterface()
     {
-        $vo = new ValueObject(
+        $vo = ValueObject::of(
             $cn = new ClassName('foo'),
-            ['LabelA', 'LabelB'],
+            Set::of('string', 'LabelA', 'LabelB'),
             $vor = new ValueObjectRelationship(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),

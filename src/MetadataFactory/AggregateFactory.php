@@ -122,9 +122,9 @@ final class AggregateFactory implements MetadataFactory
                 }
 
                 $config = $this->map($config->get('child'));
-                $child = new ValueObject(
+                $child = ValueObject::of(
                     new ClassName($config->get('class')),
-                    $config->get('labels'),
+                    Set::of('string', ...$config->get('labels')),
                     $rel
                 );
 

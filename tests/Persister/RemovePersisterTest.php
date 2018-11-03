@@ -59,9 +59,9 @@ class RemovePersisterTest extends TestCase
                 null,
                 Set::of(
                     ValueObject::class,
-                    new ValueObject(
+                    ValueObject::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
+                        Set::of('string', 'AnotherLabel'),
                         new ValueObjectRelationship(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),

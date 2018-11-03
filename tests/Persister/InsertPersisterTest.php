@@ -77,9 +77,9 @@ class InsertPersisterTest extends TestCase
                     )),
                 Set::of(
                     ValueObject::class,
-                    (new ValueObject(
+                    ValueObject::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
+                        Set::of('string', 'AnotherLabel'),
                         (new ValueObjectRelationship(
                             new ClassName('foo'),
                             new RelationshipType('FOO'),
@@ -95,7 +95,7 @@ class InsertPersisterTest extends TestCase
                                     new Types
                                 )
                             )
-                    ))
+                    )
                         ->withProperty('content', new StringType)
                         ->withProperty(
                             'empty',

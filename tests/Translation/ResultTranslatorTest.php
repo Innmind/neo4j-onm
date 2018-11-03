@@ -49,9 +49,9 @@ class ResultTranslatorTest extends TestCase
                 )),
             Set::of(
                 ValueObject::class,
-                (new ValueObject(
+                ValueObject::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
+                    Set::of('string', 'AnotherLabel'),
                     (new ValueObjectRelationship(
                         new ClassName('foo'),
                         new RelationshipType('CHILD1_OF'),
@@ -67,7 +67,7 @@ class ResultTranslatorTest extends TestCase
                                 new Types
                             )
                         )
-                ))
+                )
                     ->withProperty('content', new StringType)
                     ->withProperty(
                         'empty',
@@ -77,9 +77,9 @@ class ResultTranslatorTest extends TestCase
                             new Types
                         )
                     ),
-                (new ValueObject(
+                ValueObject::of(
                     new ClassName('foo'),
-                    ['AnotherLabel'],
+                    Set::of('string', 'AnotherLabel'),
                     (new ValueObjectRelationship(
                         new ClassName('foo'),
                         new RelationshipType('CHILD2_OF'),
@@ -95,7 +95,7 @@ class ResultTranslatorTest extends TestCase
                                 new Types
                             )
                         )
-                ))
+                )
                     ->withProperty('content', new StringType)
                     ->withProperty(
                         'empty',

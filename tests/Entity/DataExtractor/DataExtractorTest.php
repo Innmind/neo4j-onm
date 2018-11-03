@@ -66,9 +66,9 @@ class DataExtractorTest extends TestCase
                     )),
                 Set::of(
                     ValueObject::class,
-                    (new ValueObject(
+                    ValueObject::of(
                         new ClassName('foo'),
-                        ['AnotherLabel'],
+                        Set::of('string', 'AnotherLabel'),
                         (new ValueObjectRelationship(
                             new ClassName('foo'),
                             new RelationshipType('foo'),
@@ -85,7 +85,7 @@ class DataExtractorTest extends TestCase
                                     new Types
                                 )
                             )
-                    ))
+                    )
                         ->withProperty('content', new StringType)
                         ->withProperty(
                             'empty',

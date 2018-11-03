@@ -35,9 +35,9 @@ class AggregateTest extends TestCase
                 ('foo', $this->createMock(Type::class)),
             Set::of(
                 ValueObject::class,
-                $vo = new ValueObject(
+                $vo = ValueObject::of(
                     new ClassName('whatever'),
-                    ['whatever'],
+                    Set::of('string', 'whatever'),
                     new ValueObjectRelationship(
                         new ClassName('whatever'),
                         new RelationshipType('whatever'),
