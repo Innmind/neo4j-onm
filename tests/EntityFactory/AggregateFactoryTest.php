@@ -85,17 +85,15 @@ class AggregateFactoryTest extends TestCase
                         new ClassName(get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',
-                        'child'
-                    )
-                        ->withProperty('created', new DateType)
-                        ->withProperty(
-                            'empty',
-                            StringType::fromConfig(
+                        'child',
+                        Map::of('string', Type::class)
+                            ('created', new DateType)
+                            ('empty', StringType::fromConfig(
                                 (new Map('string', 'mixed'))
                                     ->put('nullable', null),
                                 new Types
-                            )
-                        ),
+                            ))
+                    ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
                         ('empty', StringType::fromConfig(

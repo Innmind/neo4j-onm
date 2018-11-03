@@ -59,36 +59,21 @@ final class AggregateFactory implements MetadataFactory
                 $config->get('identity')['type']
             ),
             Set::of('string', ...$config->get('labels')),
-            $this->map($config['properties'] ?? [])->reduce(
-                Map::of('string', Type::class),
-                function(MapInterface $properties, string $name, array $config): MapInterface {
-                    $config = $this->map($config);
-
-                    return $properties->put(
-                        $name,
-                        ($this->build)(
-                            $config->get('type'),
-                            $config
-                        )
-                    );
-                }
-            ),
+            $this->properties($this->map($config['properties'] ?? [])),
             $children ?? Set::of(ValueObject::class)
         );
 
         return $entity;
     }
 
-    private function appendProperties(
-        object $object,
-        MapInterface $properties
-    ): object {
+    private function properties(MapInterface $properties): MapInterface
+    {
         return $properties->reduce(
-            $object,
-            function(object $carry, string $name, array $config): object {
+            Map::of('string', Type::class),
+            function(MapInterface $properties, string $name, array $config): MapInterface {
                 $config = $this->map($config);
 
-                return $carry->withProperty(
+                return $properties->put(
                     $name,
                     ($this->build)(
                         $config->get('type'),
@@ -109,35 +94,16 @@ final class AggregateFactory implements MetadataFactory
                     new ClassName($config->get('class')),
                     new RelationshipType($config->get('type')),
                     $name,
-                    $config->get('child')['property']
+                    $config->get('child')['property'],
+                    $this->properties($this->map($config['properties'] ?? []))
                 );
-
-                if ($config->contains('properties')) {
-                    $rel = $this->appendProperties(
-                        $rel,
-                        $this->map($config->get('properties'))
-                    );
-                }
 
                 $config = $this->map($config->get('child'));
                 $child = ValueObject::of(
                     new ClassName($config->get('class')),
                     Set::of('string', ...$config->get('labels')),
                     $rel,
-                    $this->map($config['properties'] ?? [])->reduce(
-                        Map::of('string', Type::class),
-                        function(MapInterface $properties, string $name, array $config): MapInterface {
-                            $config = $this->map($config);
-
-                            return $properties->put(
-                                $name,
-                                ($this->build)(
-                                    $config->get('type'),
-                                    $config
-                                )
-                            );
-                        }
-                    )
+                    $this->properties($this->map($config['properties'] ?? []))
                 );
 
                 return $children->add($child);

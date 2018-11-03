@@ -10,7 +10,10 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Type,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\{
+    MapInterface,
+    Map,
+};
 use PHPUnit\Framework\TestCase;
 
 class ValueObjectRelationshipTest extends TestCase
@@ -21,7 +24,9 @@ class ValueObjectRelationshipTest extends TestCase
             $cn = new ClassName('foo'),
             $rt = new RelationshipType('FOO'),
             'relationship',
-            'node'
+            'node',
+            Map::of('string', Type::class)
+                ('foo', $this->createMock(Type::class))
         );
 
         $this->assertSame($cn, $vor->class());
@@ -31,15 +36,8 @@ class ValueObjectRelationshipTest extends TestCase
         $this->assertInstanceOf(MapInterface::class, $vor->properties());
         $this->assertSame('string', (string) $vor->properties()->keyType());
         $this->assertSame(Property::class, (string) $vor->properties()->valueType());
-        $this->assertSame(0, $vor->properties()->count());
-
-        $vor2 = $vor->withProperty('foo', $this->createMock(Type::class));
-
-        $this->assertNotSame($vor, $vor2);
-        $this->assertInstanceOf(ValueObjectRelationship::class, $vor2);
-        $this->assertSame(0, $vor->properties()->count());
-        $this->assertSame(1, $vor2->properties()->count());
-        $this->assertTrue($vor2->properties()->contains('foo'));
+        $this->assertSame(1, $vor->properties()->count());
+        $this->assertTrue($vor->properties()->contains('foo'));
     }
 
     /**
