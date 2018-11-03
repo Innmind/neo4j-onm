@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Type\DateType,
     Type\StringType,
-    Types,
     Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
@@ -40,11 +39,7 @@ class RelationshipVisitorTest extends TestCase
                 new RelationshipEdge('end', 'foo', 'id'),
                 Map::of('string', Type::class)
                     ('created', new DateType)
-                    ('empty', StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    ))
+                    ('empty', StringType::nullable())
             )
         );
     }

@@ -16,7 +16,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types,
     Type,
 };
 use Innmind\Neo4j\DBAL\{
@@ -42,11 +41,7 @@ class ResultTranslatorTest extends TestCase
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )),
+                ('empty', StringType::nullable()),
             Set::of(
                 ValueObject::class,
                 ValueObject::of(
@@ -59,19 +54,11 @@ class ResultTranslatorTest extends TestCase
                         'child',
                         Map::of('string', Type::class)
                             ('created', new DateType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
-                        ('empty', StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        ))
+                        ('empty', StringType::nullable())
                 ),
                 ValueObject::of(
                     new ClassName('foo'),
@@ -83,19 +70,11 @@ class ResultTranslatorTest extends TestCase
                         'child',
                         Map::of('string', Type::class)
                             ('created', new DateType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
-                        ('empty', StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        ))
+                        ('empty', StringType::nullable())
                 )
             )
         );
@@ -107,11 +86,7 @@ class ResultTranslatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
 
         $data = $translate(

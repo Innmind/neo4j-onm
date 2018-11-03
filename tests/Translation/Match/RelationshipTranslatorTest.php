@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     IdentityMatch,
-    Types,
     Type,
 };
 use Innmind\Immutable\{
@@ -46,11 +45,7 @@ class RelationshipTranslatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
         $im = $translate($meta);
 

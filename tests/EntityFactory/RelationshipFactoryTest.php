@@ -18,7 +18,6 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generators,
     Identity as IdentityInterface,
-    Types,
     Type,
     EntityFactory,
 };
@@ -72,11 +71,7 @@ class RelationshipFactoryTest extends TestCase
             new RelationshipEdge('end', Uuid::class, 'target'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
 
         $rel = $make(

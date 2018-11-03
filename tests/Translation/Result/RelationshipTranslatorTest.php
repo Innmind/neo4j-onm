@@ -14,7 +14,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type\StringType,
-    Types,
     Type,
 };
 use Innmind\Neo4j\DBAL\{
@@ -49,11 +48,7 @@ class RelationshipTranslatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
 
         $data = $translate(
@@ -129,11 +124,7 @@ class RelationshipTranslatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
 
         $data = $translate(

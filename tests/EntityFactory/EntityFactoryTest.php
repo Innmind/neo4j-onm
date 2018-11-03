@@ -22,7 +22,6 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Entity\Container,
-    Types,
     Type,
 };
 use Innmind\Neo4j\DBAL\{
@@ -75,11 +74,7 @@ class EntityFactoryTest extends TestCase
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )),
+                ('empty', StringType::nullable()),
             Set::of(
                 ValueObject::class,
                 ValueObject::of(
@@ -92,19 +87,11 @@ class EntityFactoryTest extends TestCase
                         'child',
                         Map::of('string', Type::class)
                             ('created', new DateType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
-                        ('empty', StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        ))
+                        ('empty', StringType::nullable())
                 )
             )
         );
@@ -123,11 +110,7 @@ class EntityFactoryTest extends TestCase
             new RelationshipEdge('end', Uuid::class, 'uuid'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
         $result = Result::fromRaw([
             'columns' => ['n', 'r'],

@@ -16,7 +16,6 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     IdentityMatch,
-    Types,
     Type,
 };
 use Innmind\Immutable\{
@@ -46,11 +45,7 @@ class AggregateTranslatorTest extends TestCase
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )),
+                ('empty', StringType::nullable()),
             Set::of(
                 ValueObject::class,
                 ValueObject::of(
@@ -63,19 +58,11 @@ class AggregateTranslatorTest extends TestCase
                         'child',
                         Map::of('string', Type::class)
                             ('created', new DateType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
-                        ('empty', StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        ))
+                        ('empty', StringType::nullable())
                 )
             )
         );

@@ -16,7 +16,6 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity as IdentityInterface,
     IdentityMatch,
-    Types,
     Type,
 };
 use Innmind\Immutable\{
@@ -47,11 +46,7 @@ class RelationshipTranslatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
         $identity = $this->createMock(IdentityInterface::class);
         $identity

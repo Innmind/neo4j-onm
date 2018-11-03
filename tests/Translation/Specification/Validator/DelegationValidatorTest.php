@@ -17,7 +17,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Type\DateType,
     Type\StringType,
-    Types,
     Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
@@ -40,11 +39,7 @@ class DelegationValidatorTest extends TestCase
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )),
+                ('empty', StringType::nullable()),
             Set::of(
                 ValueObject::class,
                 ValueObject::of(
@@ -57,19 +52,11 @@ class DelegationValidatorTest extends TestCase
                         'child',
                         Map::of('string', Type::class)
                             ('created', new DateType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     ),
                     Map::of('string', Type::class)
                         ('content', new StringType)
-                        ('empty', StringType::fromConfig(
-                            (new Map('string', 'mixed'))
-                                ->put('nullable', null),
-                            new Types
-                        ))
+                        ('empty', StringType::nullable())
                 )
             )
         );
@@ -81,11 +68,7 @@ class DelegationValidatorTest extends TestCase
             new RelationshipEdge('end', 'foo', 'id'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
     }
 

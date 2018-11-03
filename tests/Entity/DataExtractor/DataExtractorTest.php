@@ -17,7 +17,6 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Metadatas,
-    Types,
     Type,
 };
 use Innmind\Immutable\{
@@ -59,11 +58,7 @@ class DataExtractorTest extends TestCase
                 Set::of('string', 'Label'),
                 Map::of('string', Type::class)
                     ('created', new DateType)
-                    ('empty', StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )),
+                    ('empty', StringType::nullable()),
                 Set::of(
                     ValueObject::class,
                     ValueObject::of(
@@ -76,19 +71,11 @@ class DataExtractorTest extends TestCase
                             'child',
                             Map::of('string', Type::class)
                                 ('created', new DateType)
-                                ('empty', StringType::fromConfig(
-                                    (new Map('string', 'mixed'))
-                                        ->put('nullable', null),
-                                    new Types
-                                ))
+                                ('empty', StringType::nullable())
                         ),
                         Map::of('string', Type::class)
                             ('content', new StringType)
-                            ('empty', StringType::fromConfig(
-                                (new Map('string', 'mixed'))
-                                    ->put('nullable', null),
-                                new Types
-                            ))
+                            ('empty', StringType::nullable())
                     )
                 )
             ),
@@ -100,11 +87,7 @@ class DataExtractorTest extends TestCase
                 new RelationshipEdge('end', Uuid::class, 'target'),
                 Map::of('string', Type::class)
                     ('created', new DateType)
-                    ('empty', StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    ))
+                    ('empty', StringType::nullable())
             )
         );
         $this->extract = new DataExtractor($this->metadatas);

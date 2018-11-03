@@ -31,7 +31,6 @@ use Innmind\Neo4j\ONM\{
     Metadata\ClassName,
     Metadata\Identity,
     Type\StringType,
-    Types,
     Type,
     Exception\EntityNotFound,
 };
@@ -92,11 +91,7 @@ class RepositoryTest extends TestCase
                 new Identity('uuid', Uuid::class),
                 Set::of('string', 'Label'),
                 Map::of('string', Type::class)
-                    ('content', StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    ))
+                    ('content', StringType::nullable())
             )
         );
         $changeset = new ChangesetComputer;

@@ -15,7 +15,6 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Identity\Uuid,
-    Types,
     Type,
 };
 use Innmind\Immutable\{
@@ -41,11 +40,7 @@ class RelationshipExtractorTest extends TestCase
             new RelationshipEdge('end', Uuid::class, 'target'),
             Map::of('string', Type::class)
                 ('created', new DateType)
-                ('empty', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                ('empty', StringType::nullable())
         );
     }
 
