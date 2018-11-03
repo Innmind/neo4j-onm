@@ -18,10 +18,12 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Metadatas,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -51,21 +53,19 @@ class DataExtractorTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                ['Label']
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::fromConfig(
                         (new Map('string', 'mixed'))
                             ->put('nullable', null),
                         new Types
-                    )
-                )
-                ->withChild(
+                    )),
+                Set::of(
+                    ValueObject::class,
                     (new ValueObject(
                         new ClassName('foo'),
                         ['AnotherLabel'],
@@ -95,7 +95,8 @@ class DataExtractorTest extends TestCase
                                 new Types
                             )
                         )
-                ),
+                )
+            ),
             (new Relationship(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),

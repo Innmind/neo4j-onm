@@ -64,22 +64,13 @@ class AggregateFactoryTest extends TestCase
             public $content;
             public $empty;
         };
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
+            Set::of('string', 'Label'),
+            null,
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName(get_class($child)),
                     ['AnotherLabel'],
@@ -108,6 +99,17 @@ class AggregateFactoryTest extends TestCase
                             new Types
                         )
                     )
+            )
+        );
+        $meta = $meta
+            ->withProperty('created', new DateType)
+            ->withProperty(
+                'empty',
+                StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )
             );
 
         $ar = $make(
@@ -172,10 +174,10 @@ class AggregateFactoryTest extends TestCase
     {
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
-            new Aggregate(
+            Aggregate::of(
                 new ClassName('foo'),
                 new Identity('uuid', 'foo'),
-                ['Label']
+                Set::of('string', 'Label')
             ),
             new Map('string', 'variable')
         );

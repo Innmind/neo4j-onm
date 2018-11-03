@@ -28,6 +28,7 @@ use Innmind\Neo4j\DBAL\{
     Query\Parameter,
 };
 use Innmind\EventBus\EventBus;
+use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class RemovePersisterTest extends TestCase
@@ -51,12 +52,13 @@ class RemovePersisterTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                ['Label']
-            ))
-                ->withChild(
+                Set::of('string', 'Label'),
+                null,
+                Set::of(
+                    ValueObject::class,
                     new ValueObject(
                         new ClassName('foo'),
                         ['AnotherLabel'],
@@ -67,7 +69,8 @@ class RemovePersisterTest extends TestCase
                             'child'
                         )
                     )
-                ),
+                )
+            ),
             new Relationship(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),

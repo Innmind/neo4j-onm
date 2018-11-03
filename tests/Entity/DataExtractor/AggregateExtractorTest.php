@@ -21,6 +21,7 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\{
     MapInterface,
     Map,
+    Set,
 };
 use Innmind\Reflection\ExtractionStrategy\ReflectionStrategy;
 use PHPUnit\Framework\TestCase;
@@ -33,22 +34,13 @@ class AggregateExtractorTest extends TestCase
     public function setUp()
     {
         $this->extract = new AggregateExtractor;
-        $this->meta = new Aggregate(
+        $this->meta = Aggregate::of(
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
-            ['Label']
-        );
-        $this->meta = $this->meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
+            Set::of('string', 'Label'),
+            null,
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -78,6 +70,17 @@ class AggregateExtractorTest extends TestCase
                             new Types
                         )
                     )
+            )
+        );
+        $this->meta = $this->meta
+            ->withProperty('created', new DateType)
+            ->withProperty(
+                'empty',
+                StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )
             );
     }
 

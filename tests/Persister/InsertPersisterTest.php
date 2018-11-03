@@ -23,6 +23,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Metadatas,
     Types,
+    Type,
     Event\EntityAboutToBePersisted,
     Event\EntityPersisted,
 };
@@ -32,7 +33,10 @@ use Innmind\Neo4j\DBAL\{
     Query\Parameter,
 };
 use Innmind\EventBus\EventBus;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class InsertPersisterTest extends TestCase
@@ -60,21 +64,19 @@ class InsertPersisterTest extends TestCase
         $this->rClass  = get_class($r);
 
         $this->metadatas = new Metadatas(
-            (new Aggregate(
+            Aggregate::of(
                 new ClassName($this->arClass),
                 new Identity('uuid', 'foo'),
-                ['Label']
-            ))
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::fromConfig(
                         (new Map('string', 'mixed'))
                             ->put('nullable', null),
                         new Types
-                    )
-                )
-                ->withChild(
+                    )),
+                Set::of(
+                    ValueObject::class,
                     (new ValueObject(
                         new ClassName('foo'),
                         ['AnotherLabel'],
@@ -103,7 +105,8 @@ class InsertPersisterTest extends TestCase
                                 new Types
                             )
                         )
-                ),
+                )
+            ),
             (new Relationship(
                 new ClassName($this->rClass),
                 new Identity('uuid', 'foo'),

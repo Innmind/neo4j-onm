@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Types,
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -26,6 +27,7 @@ use Innmind\Immutable\{
     MapInterface,
     Map,
     SetInterface,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -34,22 +36,19 @@ class ResultTranslatorTest extends TestCase
     public function testTranslate()
     {
         $translate = new ResultTranslator;
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        );
-        $aggregate = $aggregate
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -77,9 +76,7 @@ class ResultTranslatorTest extends TestCase
                                 ->put('nullable', null),
                             new Types
                         )
-                    )
-            )
-            ->withChild(
+                    ),
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -108,7 +105,8 @@ class ResultTranslatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
         $relationship = new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
@@ -297,10 +295,10 @@ class ResultTranslatorTest extends TestCase
     public function testTranslateWithoutExpectedVariable()
     {
         $translate = new ResultTranslator;
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
+            Set::of('string', 'Label')
         );
         $relationship = new Relationship(
             new ClassName('foo'),

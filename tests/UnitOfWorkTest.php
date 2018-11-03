@@ -42,6 +42,7 @@ use Innmind\Http\{
 };
 use Innmind\Immutable\{
     SetInterface,
+    Set,
     Map,
 };
 use GuzzleHttp\Client;
@@ -86,10 +87,10 @@ class UnitOfWorkTest extends TestCase
             $this->container
         );
         $this->metadata = new Metadatas(
-            new Aggregate(
+            Aggregate::of(
                 new ClassName($this->aggregateClass),
                 new Identity('uuid', Uuid::class),
-                ['Label']
+                Set::of('string', 'Label')
             )
         );
         $changeset = new ChangesetComputer;

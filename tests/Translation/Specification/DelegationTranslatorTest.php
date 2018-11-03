@@ -17,10 +17,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Metadata\Entity,
     Type\DateType,
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class DelegationTranslatorTest extends TestCase
@@ -73,12 +77,13 @@ class DelegationTranslatorTest extends TestCase
         $this->assertInstanceOf(
             IdentityMatch::class,
             $translate(
-                (new Aggregate(
+                Aggregate::of(
                     new ClassName('FQCN'),
                     new Identity('id', 'foo'),
-                    ['Label']
-                ))
-                    ->withProperty('created', new DateType),
+                    Set::of('string', 'Label'),
+                    Map::of('string', Type::class)
+                        ('created', new DateType)
+                ),
                 $expected
             )
         );
@@ -114,10 +119,10 @@ class DelegationTranslatorTest extends TestCase
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
         (new DelegationTranslator)(
-            new Aggregate(
+            Aggregate::of(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
-                ['Label']
+                Set::of('string', 'Label')
             ),
             new Property('foo', '=', null)
         );

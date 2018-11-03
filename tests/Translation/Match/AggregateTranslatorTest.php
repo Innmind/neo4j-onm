@@ -17,10 +17,12 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     IdentityMatch,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -38,22 +40,19 @@ class AggregateTranslatorTest extends TestCase
     {
         $translate = new AggregateTranslator;
 
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -82,7 +81,8 @@ class AggregateTranslatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
         $im = $translate($meta);
 
         $this->assertInstanceOf(IdentityMatch::class, $im);

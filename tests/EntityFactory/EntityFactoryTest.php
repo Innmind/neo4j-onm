@@ -31,6 +31,7 @@ use Innmind\Neo4j\DBAL\{
 use Innmind\Immutable\{
     Map,
     SetInterface,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -67,22 +68,13 @@ class EntityFactoryTest extends TestCase
             public $content;
             public $empty;
         };
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            ['Label']
-        );
-        $aggregate = $aggregate
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            )
-            ->withChild(
+            Set::of('string', 'Label'),
+            null,
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName(get_class($child)),
                     ['AnotherLabel'],
@@ -112,6 +104,17 @@ class EntityFactoryTest extends TestCase
                             new Types
                         )
                     )
+            )
+        );
+        $aggregate = $aggregate
+            ->withProperty('created', new DateType)
+            ->withProperty(
+                'empty',
+                StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )
             );
         $entity = new class {
             public $uuid;
@@ -327,10 +330,10 @@ class EntityFactoryTest extends TestCase
         $entity = new class {
             public $uuid;
         };
-        $aggregate = new Aggregate(
+        $aggregate = Aggregate::of(
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
-            ['Label']
+            Set::of('string', 'Label')
         );
         $entity = new class {
             public $uuid;

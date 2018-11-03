@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Types,
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -25,6 +26,7 @@ use Innmind\Immutable\{
     MapInterface,
     Map,
     SetInterface,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -36,22 +38,19 @@ class AggregateTranslatorTest extends TestCase
     public function setUp()
     {
         $this->translate = new AggregateTranslator;
-        $this->meta = new Aggregate(
+        $this->meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        );
-        $this->meta = $this->meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -79,9 +78,7 @@ class AggregateTranslatorTest extends TestCase
                                 ->put('nullable', null),
                             new Types
                         )
-                    )
-            )
-            ->withChild(
+                    ),
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -110,7 +107,8 @@ class AggregateTranslatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
     }
 
     public function testInterface()
@@ -270,21 +268,18 @@ class AggregateTranslatorTest extends TestCase
 
     public function testTranslateMultipleNodes()
     {
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            );
+                ))
+        );
 
         $data = ($this->translate)(
             'n',

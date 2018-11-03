@@ -32,6 +32,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Type\StringType,
     Types,
+    Type,
     Exception\EntityNotFound,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
@@ -44,6 +45,7 @@ use Innmind\Http\{
 };
 use Innmind\Immutable\{
     SetInterface,
+    Set,
     Map,
 };
 use GuzzleHttp\Client;
@@ -85,16 +87,17 @@ class RepositoryTest extends TestCase
             $container
         );
         $metadatas = new Metadatas(
-            $meta = (new Aggregate(
+            $meta = Aggregate::of(
                 new ClassName($this->class),
                 new Identity('uuid', Uuid::class),
-                ['Label']
-            ))
-                ->withProperty('content', StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                ))
+                Set::of('string', 'Label'),
+                Map::of('string', Type::class)
+                    ('content', StringType::fromConfig(
+                        (new Map('string', 'mixed'))
+                            ->put('nullable', null),
+                        new Types
+                    ))
+            )
         );
         $changeset = new ChangesetComputer;
         $extractor = new DataExtractor($metadatas);

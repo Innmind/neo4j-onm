@@ -18,6 +18,8 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Immutable\{
     MapInterface,
     Map,
+    SetInterface,
+    Set,
 };
 
 final class AggregateFactory implements MetadataFactory
@@ -41,13 +43,22 @@ final class AggregateFactory implements MetadataFactory
             throw new \TypeError('Argument 1 must be of type MapInterface<string, mixed>');
         }
 
+        if ($config->contains('children')) {
+            $children = $this->children(
+                $this->map(
+                    $config->get('children')
+                )
+            );
+        }
+
         $entity = new Aggregate(
             new ClassName($config->get('class')),
             new Identity(
                 $config->get('identity')['property'],
                 $config->get('identity')['type']
             ),
-            $config->get('labels')
+            Set::of('string', ...$config->get('labels')),
+            $children ?? Set::of(ValueObject::class)
         );
 
         if ($config->contains('properties')) {
@@ -55,15 +66,6 @@ final class AggregateFactory implements MetadataFactory
                 $entity,
                 $this->map(
                     $config->get('properties')
-                )
-            );
-        }
-
-        if ($config->contains('children')) {
-            $entity = $this->appendChildren(
-                $entity,
-                $this->map(
-                    $config->get('children')
                 )
             );
         }
@@ -91,13 +93,11 @@ final class AggregateFactory implements MetadataFactory
         );
     }
 
-    private function appendChildren(
-        Aggregate $entity,
-        MapInterface $children
-    ): Aggregate {
+    private function children(MapInterface $children): SetInterface
+    {
         return $children->reduce(
-            $entity,
-            function(Aggregate $carry, string $name, array $config): Aggregate {
+            Set::of(ValueObject::class),
+            function(SetInterface $children, string $name, array $config): SetInterface {
                 $config = $this->map($config);
                 $rel = new ValueObjectRelationship(
                     new ClassName($config->get('class')),
@@ -129,7 +129,7 @@ final class AggregateFactory implements MetadataFactory
                     );
                 }
 
-                return $carry->withChild($child);
+                return $children->add($child);
             }
         );
     }

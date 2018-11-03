@@ -16,10 +16,14 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     IdentityMatch,
     Types,
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class AggregateTranslatorTest extends TestCase
@@ -28,21 +32,19 @@ class AggregateTranslatorTest extends TestCase
 
     public function setUp()
     {
-        $this->meta = (new Aggregate(
+        $this->meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        ))
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -71,7 +73,8 @@ class AggregateTranslatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
     }
 
     public function testInterface()

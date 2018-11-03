@@ -20,10 +20,12 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     IdentityMatch,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
     Map,
+    Set,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -40,22 +42,19 @@ class DelegationTranslatorTest extends TestCase
     public function testTranslateAggregate()
     {
         $translate = new DelegationTranslator;
-        $meta = new Aggregate(
+        $meta = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -84,7 +83,8 @@ class DelegationTranslatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
         $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')

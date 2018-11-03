@@ -18,9 +18,13 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Types,
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    Set,
+};
 use PHPUnit\Framework\TestCase;
 
 class DelegationValidatorTest extends TestCase
@@ -30,21 +34,19 @@ class DelegationValidatorTest extends TestCase
 
     public function setUp()
     {
-        $this->aggregate = (new Aggregate(
+        $this->aggregate = Aggregate::of(
             new ClassName('FQCN'),
             new Identity('id', 'foo'),
-            ['Label']
-        ))
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            Set::of('string', 'Label'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            )
-            ->withChild(
+                )),
+            Set::of(
+                ValueObject::class,
                 (new ValueObject(
                     new ClassName('foo'),
                     ['AnotherLabel'],
@@ -73,7 +75,8 @@ class DelegationValidatorTest extends TestCase
                             new Types
                         )
                     )
-            );
+            )
+        );
         $this->relationship = (new Relationship(
             new ClassName('foo'),
             new Identity('id', 'foo'),
