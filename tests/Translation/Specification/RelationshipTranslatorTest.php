@@ -18,6 +18,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Identity\Uuid,
     Types,
+    Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
@@ -31,21 +32,19 @@ class RelationshipTranslatorTest extends TestCase
     public function setUp()
     {
         $this->meta = Relationship::of(
-                new ClassName('foo'),
-                new Identity('id', 'foo'),
-                new RelationshipType('type'),
-                new RelationshipEdge('start', 'foo', 'id'),
-                new RelationshipEdge('end', 'foo', 'id')
-            )
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
-                        (new Map('string', 'mixed'))
-                            ->put('nullable', null),
-                        new Types
-                    )
-                );
+            new ClassName('foo'),
+            new Identity('id', 'foo'),
+            new RelationshipType('type'),
+            new RelationshipEdge('start', 'foo', 'id'),
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                ))
+        );
     }
 
     public function testInterface()

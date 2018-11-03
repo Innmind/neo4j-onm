@@ -97,17 +97,15 @@ class DataExtractorTest extends TestCase
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
-                new RelationshipEdge('end', Uuid::class, 'target')
-            )
-                ->withProperty('created', new DateType)
-                ->withProperty(
-                    'empty',
-                    StringType::fromConfig(
+                new RelationshipEdge('end', Uuid::class, 'target'),
+                Map::of('string', Type::class)
+                    ('created', new DateType)
+                    ('empty', StringType::fromConfig(
                         (new Map('string', 'mixed'))
                             ->put('nullable', null),
                         new Types
-                    )
-                )
+                    ))
+            )
         );
         $this->extract = new DataExtractor($this->metadatas);
     }

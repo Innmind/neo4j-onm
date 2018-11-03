@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     IdentityMatch,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -43,18 +44,15 @@ class RelationshipTranslatorTest extends TestCase
             new Identity('id', 'foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
-        );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            );
+                ))
+        );
         $identity = $this->createMock(IdentityInterface::class);
         $identity
             ->method('value')

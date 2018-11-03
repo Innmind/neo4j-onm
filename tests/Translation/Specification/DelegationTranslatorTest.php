@@ -95,9 +95,10 @@ class DelegationTranslatorTest extends TestCase
                     new Identity('id', 'foo'),
                     new RelationshipType('type'),
                     new RelationshipEdge('start', 'foo', 'id'),
-                    new RelationshipEdge('end', 'foo', 'id')
-                )
-                    ->withProperty('created', new DateType),
+                    new RelationshipEdge('end', 'foo', 'id'),
+                    Map::of('string', Type::class)
+                        ('created', new DateType)
+                ),
                 $expected
             )
         );

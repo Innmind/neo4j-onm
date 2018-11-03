@@ -13,6 +13,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\RelationshipEdge,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -56,29 +57,21 @@ final class RelationshipFactory implements MetadataFactory
                 $config->get('endNode')['property'],
                 $config->get('endNode')['type'],
                 $config->get('endNode')['target']
-            )
+            ),
+            $this->properties($this->map($config['properties'] ?? []))
         );
-
-        if ($config->contains('properties')) {
-            $entity = $this->appendProperties(
-                $entity,
-                $this->map($config->get('properties'))
-            );
-        }
 
         return $entity;
     }
 
-    private function appendProperties(
-        Relationship $relationship,
-        MapInterface $properties
-    ): Relationship {
+    private function properties(MapInterface $properties): MapInterface
+    {
         return $properties->reduce(
-            $relationship,
-            function(Relationship $carry, string $name, array $config): Relationship {
+            Map::of('string', Type::class),
+            function(MapInterface $properties, string $name, array $config): MapInterface {
                 $config = $this->map($config);
 
-                return $carry->withProperty(
+                return $properties->put(
                     $name,
                     ($this->build)(
                         $config->get('type'),

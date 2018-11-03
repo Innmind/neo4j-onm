@@ -15,6 +15,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory\RelationshipFactory,
     Repository\Repository,
 };
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipTest extends TestCase
@@ -26,7 +27,9 @@ class RelationshipTest extends TestCase
             $i = new Identity('uuid', 'UUID'),
             $t = new RelationshipType('foo'),
             $s = new RelationshipEdge('start', 'UUID', 'target'),
-            $e = new RelationshipEdge('end', 'UUID', 'target')
+            $e = new RelationshipEdge('end', 'UUID', 'target'),
+            Map::of('string', Type::class)
+                ('foo', $this->createMock(Type::class))
         );
 
         $this->assertInstanceOf(Entity::class, $r);
@@ -37,15 +40,8 @@ class RelationshipTest extends TestCase
         $this->assertSame($t, $r->type());
         $this->assertSame($s, $r->startNode());
         $this->assertSame($e, $r->endNode());
-
-        $r2 = $r->withProperty(
-            'foo',
-            $this->createMock(Type::class)
-        );
-        $this->assertNotSame($r, $r2);
-        $this->assertSame(0, $r->properties()->count());
-        $this->assertSame(1, $r2->properties()->count());
-        $this->assertTrue($r2->properties()->contains('foo'));
+        $this->assertSame(1, $r->properties()->count());
+        $this->assertTrue($r->properties()->contains('foo'));
     }
 }
 

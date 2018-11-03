@@ -120,18 +120,15 @@ class EntityFactoryTest extends TestCase
             new Identity('uuid', Uuid::class),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
-            new RelationshipEdge('end', Uuid::class, 'uuid')
-        );
-        $relationship = $relationship
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            new RelationshipEdge('end', Uuid::class, 'uuid'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            );
+                ))
+        );
         $result = Result::fromRaw([
             'columns' => ['n', 'r'],
             'data' => [[

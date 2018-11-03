@@ -78,17 +78,15 @@ class DelegationValidatorTest extends TestCase
             new Identity('id', 'foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', 'foo', 'id'),
-            new RelationshipEdge('end', 'foo', 'id')
-        )
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
+            new RelationshipEdge('end', 'foo', 'id'),
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
                     (new Map('string', 'mixed'))
                         ->put('nullable', null),
                     new Types
-                )
-            );
+                ))
+        );
     }
 
     public function testInterface()
