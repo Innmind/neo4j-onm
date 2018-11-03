@@ -18,7 +18,6 @@ final class PointInTimeType implements Type
 {
     private $nullable = false;
     private $format;
-    private static $identifiers;
 
     public function __construct(FormatInterface $format = null)
     {

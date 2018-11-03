@@ -8,7 +8,6 @@ use Innmind\Neo4j\ONM\Type;
 final class BooleanType implements Type
 {
     private $nullable = false;
-    private static $identifiers;
 
     public static function nullable(): self
     {

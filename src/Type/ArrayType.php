@@ -12,7 +12,6 @@ final class ArrayType implements Type
 {
     private $nullable = false;
     private $inner;
-    private static $identifiers;
 
     public function __construct(Type $inner)
     {

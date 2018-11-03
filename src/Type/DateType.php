@@ -13,7 +13,6 @@ final class DateType implements Type
     private $format;
     private $nullable = false;
     private $immutable = true;
-    private static $identifiers;
 
     public function __construct(string $format = null)
     {
