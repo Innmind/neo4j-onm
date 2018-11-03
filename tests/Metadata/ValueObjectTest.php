@@ -15,6 +15,7 @@ use Innmind\Immutable\{
     SetInterface,
     Set,
     MapInterface,
+    Map,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +31,9 @@ class ValueObjectTest extends TestCase
                 new RelationshipType('whatever'),
                 'foo',
                 'bar'
-            )
+            ),
+            Map::of('string', Type::class)
+                ('foo', $this->createMock(Type::class))
         );
 
         $this->assertSame($cn, $vo->class());
@@ -41,14 +44,7 @@ class ValueObjectTest extends TestCase
         $this->assertInstanceOf(MapInterface::class, $vo->properties());
         $this->assertSame('string', (string) $vo->properties()->keyType());
         $this->assertSame(Property::class, (string) $vo->properties()->valueType());
-        $this->assertSame(0, $vo->properties()->count());
-
-        $vo2 = $vo->withProperty('foo', $this->createMock(Type::class));
-
-        $this->assertNotSame($vo, $vo2);
-        $this->assertInstanceOf(ValueObject::class, $vo2);
-        $this->assertSame(0, $vo->properties()->count());
-        $this->assertSame(1, $vo2->properties()->count());
-        $this->assertTrue($vo2->properties()->contains('foo'));
+        $this->assertSame(1, $vo->properties()->count());
+        $this->assertTrue($vo->properties()->contains('foo'));
     }
 }

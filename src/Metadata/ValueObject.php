@@ -21,24 +21,48 @@ final class ValueObject
     public function __construct(
         ClassName $class,
         SetInterface $labels,
-        ValueObjectRelationship $relationship
+        ValueObjectRelationship $relationship,
+        SetInterface $properties
     ) {
         if ((string) $labels->type() !== 'string') {
             throw new \TypeError('Argument 2 must be of type SetInterface<string>');
         }
 
+        if ((string) $properties->type() !== Property::class) {
+            throw new \TypeError(\sprintf(
+                'Argument 4 must be of type SetInterface<%s>',
+                Property::class
+            ));
+        }
+
         $this->class = $class;
         $this->labels = $labels;
         $this->relationship = $relationship;
-        $this->properties = new Map('string', Property::class);
+        $this->properties = $properties->reduce(
+            Map::of('string', Property::class),
+            static function(MapInterface $properties, Property $property): MapInterface {
+                return $properties->put($property->name(), $property);
+            }
+        );
     }
 
     public static function of(
         ClassName $class,
         SetInterface $labels,
-        ValueObjectRelationship $relationship
+        ValueObjectRelationship $relationship,
+        MapInterface $properties = null
     ): self {
-        return new self($class, $labels, $relationship);
+        return new self(
+            $class,
+            $labels,
+            $relationship,
+            ($properties ?? Map::of('string', Type::class))->reduce(
+                Set::of(Property::class),
+                static function(SetInterface $properties, string $property, Type $type): SetInterface {
+                    return $properties->add(new Property($property, $type));
+                }
+            )
+        );
     }
 
     public function class(): ClassName
@@ -65,16 +89,5 @@ final class ValueObject
     public function properties(): MapInterface
     {
         return $this->properties;
-    }
-
-    public function withProperty(string $name, Type $type): self
-    {
-        $valueObject = clone $this;
-        $valueObject->properties = $this->properties->put(
-            $name,
-            new Property($name, $type)
-        );
-
-        return $valueObject;
     }
 }

@@ -125,15 +125,22 @@ final class AggregateFactory implements MetadataFactory
                 $child = ValueObject::of(
                     new ClassName($config->get('class')),
                     Set::of('string', ...$config->get('labels')),
-                    $rel
-                );
+                    $rel,
+                    $this->map($config['properties'] ?? [])->reduce(
+                        Map::of('string', Type::class),
+                        function(MapInterface $properties, string $name, array $config): MapInterface {
+                            $config = $this->map($config);
 
-                if ($config->contains('properties')) {
-                    $child = $this->appendProperties(
-                        $child,
-                        $this->map($config->get('properties'))
-                    );
-                }
+                            return $properties->put(
+                                $name,
+                                ($this->build)(
+                                    $config->get('type'),
+                                    $config
+                                )
+                            );
+                        }
+                    )
+                );
 
                 return $children->add($child);
             }

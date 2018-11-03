@@ -71,17 +71,15 @@ class DelegationTranslatorTest extends TestCase
                                     ->put('nullable', null),
                                 new Types
                             )
-                        )
-                )
-                    ->withProperty('content', new StringType)
-                    ->withProperty(
-                        'empty',
-                        StringType::fromConfig(
+                        ),
+                    Map::of('string', Type::class)
+                        ('content', new StringType)
+                        ('empty', StringType::fromConfig(
                             (new Map('string', 'mixed'))
                                 ->put('nullable', null),
                             new Types
-                        )
-                    )
+                        ))
+                )
             )
         );
         $im = $translate($meta);
