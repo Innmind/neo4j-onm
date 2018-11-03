@@ -18,7 +18,6 @@
         "php": "~7.2",
         "innmind/neo4j-dbal": "~4.0",
         "innmind/immutable": "~2.10",
-        "symfony/config": "~3.0|~4.0",
         "ramsey/uuid": "^3.2",
         "innmind/reflection": "~3.0",
         "innmind/specification": "^1.0",
@@ -37,7 +36,6 @@
         }
     },
     "require-dev": {
-        "symfony/yaml": "~3.0|~4.0",
         "phpunit/phpunit": "~7.0",
         "innmind/time-continuum": "^1.0",
         "innmind/command-bus": "^3.0"

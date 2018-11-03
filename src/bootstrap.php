@@ -24,7 +24,6 @@ use Innmind\Immutable\{
     SetInterface,
     Set,
 };
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * @param  SetInterface<Metadata\Entity> $metas
@@ -49,7 +48,6 @@ function bootstrap(
     EventBus $eventBus = null,
     MapInterface $repositories = null,
     Persister $persister = null,
-    ConfigurationInterface $configuration = null,
     SetInterface $entityFactories = null,
     MapInterface $resultTranslators = null,
     MapInterface $identityMatchTranslators = null,
@@ -59,7 +57,6 @@ function bootstrap(
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
 
-    $configuration = $configuration ?? new Configuration;
     $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
         (Aggregate::class, new Translation\Result\AggregateTranslator)
         (Relationship::class, new Translation\Result\RelationshipTranslator);
