@@ -15,35 +15,54 @@ use Innmind\Immutable\{
     Set,
 };
 
-final class Aggregate extends AbstractEntity implements Entity
+final class Aggregate implements Entity
 {
+    private $class;
+    private $identity;
+    private $repository;
+    private $factory;
+    private $properties;
     private $labels;
     private $children;
 
      public function __construct(
         ClassName $class,
-        Identity $id,
+        Identity $identity,
         SetInterface $labels,
+        MapInterface $properties,
         SetInterface $children
     ) {
-        parent::__construct(
-            $class,
-            $id,
-            new Repository(ConcreteRepository::class),
-            new Factory(AggregateFactory::class)
-        );
-
         if ((string) $labels->type() !== 'string') {
             throw new \TypeError('Argument 3 must be of type SetInterface<string>');
         }
 
+        if (
+            (string) $properties->keyType() !== 'string' ||
+            (string) $properties->ValueType() !== Type::class
+        ) {
+            throw new \TypeError(\sprintf(
+                'Argument 4 must be of type MapInterface<string, %s>',
+                Type::class
+            ));
+        }
+
         if ((string) $children->type() !== ValueObject::class) {
             throw new \TypeError(\sprintf(
-                'Argument 4 must be of type SetInterface<%s>',
+                'Argument 5 must be of type SetInterface<%s>',
                 ValueObject::class
             ));
         }
 
+        $this->class = $class;
+        $this->identity = $identity;
+        $this->repository = new Repository(ConcreteRepository::class);
+        $this->factory = new Factory(AggregateFactory::class);
+        $this->properties = $properties->reduce(
+            Map::of('string', Property::class),
+            static function(MapInterface $properties, string $name, Type $type): MapInterface {
+                return $properties->put($name, new Property($name, $type));
+            }
+        );
         $this->labels = $labels;
         $this->children = $children->reduce(
             Map::of('string', ValueObject::class),
@@ -68,20 +87,53 @@ final class Aggregate extends AbstractEntity implements Entity
         MapInterface $properties = null,
         SetInterface $children = null
     ): self {
-        $properties = $properties ?? Map::of('string', Type::class);
-        $self = new self(
+        return new self(
             $class,
             $identity,
             $labels,
+            $properties ?? Map::of('string', Type::class),
             $children ?? Set::of(ValueObject::class)
         );
+    }
 
-        return $properties->reduce(
-            $self,
-            static function(self $self, string $property, Type $type): self {
-                return $self->withProperty($property, $type);
-            }
-        );
+    /**
+     * {@inheritdoc}
+     */
+    public function identity(): Identity
+    {
+        return $this->identity;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function repository(): Repository
+    {
+        return $this->repository;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function factory(): Factory
+    {
+        return $this->factory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function properties(): MapInterface
+    {
+        return $this->properties;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function class(): ClassName
+    {
+        return $this->class;
     }
 
     /**

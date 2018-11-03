@@ -14,6 +14,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\ValueObjectRelationship,
     Metadata\RelationshipType,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -51,24 +52,29 @@ final class AggregateFactory implements MetadataFactory
             );
         }
 
-        $entity = new Aggregate(
+        $entity = Aggregate::of(
             new ClassName($config->get('class')),
             new Identity(
                 $config->get('identity')['property'],
                 $config->get('identity')['type']
             ),
             Set::of('string', ...$config->get('labels')),
+            $this->map($config['properties'] ?? [])->reduce(
+                Map::of('string', Type::class),
+                function(MapInterface $properties, string $name, array $config): MapInterface {
+                    $config = $this->map($config);
+
+                    return $properties->put(
+                        $name,
+                        ($this->build)(
+                            $config->get('type'),
+                            $config
+                        )
+                    );
+                }
+            ),
             $children ?? Set::of(ValueObject::class)
         );
-
-        if ($config->contains('properties')) {
-            $entity = $this->appendProperties(
-                $entity,
-                $this->map(
-                    $config->get('properties')
-                )
-            );
-        }
 
         return $entity;
     }

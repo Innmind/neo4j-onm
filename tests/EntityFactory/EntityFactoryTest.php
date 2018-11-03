@@ -23,6 +23,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Entity\Container,
     Types,
+    Type,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -72,7 +73,13 @@ class EntityFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', Uuid::class),
             Set::of('string', 'Label'),
-            null,
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )),
             Set::of(
                 ValueObject::class,
                 (new ValueObject(
@@ -106,16 +113,6 @@ class EntityFactoryTest extends TestCase
                     )
             )
         );
-        $aggregate = $aggregate
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
         $entity = new class {
             public $uuid;
             public $created;

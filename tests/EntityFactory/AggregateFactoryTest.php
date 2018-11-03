@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity as IdentityInterface,
     Types,
+    Type,
     EntityFactory,
 };
 use Innmind\Reflection\{
@@ -68,7 +69,13 @@ class AggregateFactoryTest extends TestCase
             new ClassName(get_class($entity)),
             new Identity('uuid', 'foo'),
             Set::of('string', 'Label'),
-            null,
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )),
             Set::of(
                 ValueObject::class,
                 (new ValueObject(
@@ -101,16 +108,6 @@ class AggregateFactoryTest extends TestCase
                     )
             )
         );
-        $meta = $meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
 
         $ar = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),

@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Types,
+    Type,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -38,7 +39,13 @@ class AggregateExtractorTest extends TestCase
             new ClassName('foo'),
             new Identity('uuid', 'foo'),
             Set::of('string', 'Label'),
-            null,
+            Map::of('string', Type::class)
+                ('created', new DateType)
+                ('empty', StringType::fromConfig(
+                    (new Map('string', 'mixed'))
+                        ->put('nullable', null),
+                    new Types
+                )),
             Set::of(
                 ValueObject::class,
                 (new ValueObject(
@@ -72,16 +79,6 @@ class AggregateExtractorTest extends TestCase
                     )
             )
         );
-        $this->meta = $this->meta
-            ->withProperty('created', new DateType)
-            ->withProperty(
-                'empty',
-                StringType::fromConfig(
-                    (new Map('string', 'mixed'))
-                        ->put('nullable', null),
-                    new Types
-                )
-            );
     }
 
     public function testInterface()
