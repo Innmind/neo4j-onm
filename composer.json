@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "~7.2",
-        "innmind/neo4j-dbal": "~4.0",
+        "innmind/neo4j-dbal": "~5.0",
         "innmind/immutable": "~2.10",
         "ramsey/uuid": "^3.2",
         "innmind/reflection": "~3.0",

@@ -12,10 +12,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
-use Innmind\Neo4j\DBAL\{
-    Query\Query,
-    Clause\Expression\Relationship,
-};
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -82,7 +79,7 @@ final class AggregateTranslator implements SpecificationTranslator
                             ->through(
                                 (string) $child->relationship()->type(),
                                 (string) $relName,
-                                Relationship::LEFT
+                                'left'
                             ),
                         (string) $relName,
                         $mapping
@@ -122,7 +119,7 @@ final class AggregateTranslator implements SpecificationTranslator
                         ->through(
                             (string) $child->relationship()->type(),
                             (string) $relName,
-                            Relationship::LEFT
+                            'left'
                         );
                 });
             $condition = (new AggregateCypherVisitor($meta))($specification);

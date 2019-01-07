@@ -21,7 +21,6 @@ use Innmind\Neo4j\ONM\{
 use Innmind\Neo4j\DBAL\{
     Connection,
     Query,
-    Clause\Expression\Relationship as DBALRelationship,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
@@ -250,7 +249,7 @@ final class InsertPersister implements Persister
             ->through(
                 (string) $meta->relationship()->type(),
                 (string) $relationshipName,
-                DBALRelationship::LEFT
+                'left'
             )
             ->withProperties($relationshipProperties->reduce(
                 [],
@@ -336,7 +335,7 @@ final class InsertPersister implements Persister
             ->through(
                 (string) $meta->type(),
                 (string) $varName,
-                DBALRelationship::RIGHT
+                'right'
             )
             ->withProperty(
                 $meta->identity()->property(),

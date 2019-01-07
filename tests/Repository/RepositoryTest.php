@@ -35,13 +35,11 @@ use Innmind\Neo4j\ONM\{
     Exception\EntityNotFound,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Neo4j\DBAL\ConnectionFactory;
+use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
-use Innmind\HttpTransport\GuzzleTransport;
-use Innmind\Http\{
-    Translator\Response\Psr7Translator,
-    Factory\Header\Factories,
-};
+use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\Url\Url;
+use Innmind\TimeContinuum\TimeContinuum\Earth;
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -64,18 +62,11 @@ class RepositoryTest extends TestCase
         };
         $this->class = get_class($entity);
 
-        $conn = ConnectionFactory::on(
-            'localhost',
-            'http'
-        )
-            ->for('neo4j', 'ci')
-            ->useTransport(
-                new GuzzleTransport(
-                    new Client,
-                    new Psr7Translator(Factories::default())
-                )
-            )
-            ->build();
+        $conn = dbal(
+            http()['default'](),
+            new Earth,
+            Url::fromString('http://neo4j:ci@localhost:7474/')
+        );
         $container = new Container;
         $entityFactory = new EntityFactory(
             new ResultTranslator,
