@@ -282,3 +282,7 @@ $services = bootstrap(
         (MyIdentity::class, new MyIdentityGenerator)
 );
 ```
+
+## Object graph
+
+![](graph.svg)
