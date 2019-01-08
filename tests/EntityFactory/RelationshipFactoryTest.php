@@ -65,11 +65,11 @@ class RelationshipFactoryTest extends TestCase
         $rel = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
-            (new Map('string', 'mixed'))
-                ->put('uuid', 24)
-                ->put('created', '2016-01-01T00:00:00+0200')
-                ->put('start', $start = '11111111-1111-1111-1111-111111111111')
-                ->put('end', $end = '11111111-1111-1111-1111-111111111111')
+            Map::of('string', 'mixed')
+                ('uuid', 24)
+                ('created', '2016-01-01T00:00:00+0200')
+                ('start', $start = '11111111-1111-1111-1111-111111111111')
+                ('end', $end = '11111111-1111-1111-1111-111111111111')
         );
 
         $this->assertInstanceOf(get_class($entity), $rel);

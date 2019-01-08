@@ -31,10 +31,10 @@ class FloatTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = new FloatType;
+        $type = new FloatType;
 
-        $this->assertSame(42.0, $t->forDatabase(42));
-        $this->assertSame(0.0, $t->forDatabase(null));
+        $this->assertSame(42.0, $type->forDatabase(42));
+        $this->assertSame(0.0, $type->forDatabase(null));
 
         $this->assertSame(
             null,
@@ -44,10 +44,10 @@ class FloatTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new FloatType;
+        $type = new FloatType;
 
-        $this->assertSame(42.0, $t->fromDatabase('42.0'));
-        $this->assertSame(0.0, $t->fromDatabase(null));
+        $this->assertSame(42.0, $type->fromDatabase('42.0'));
+        $this->assertSame(0.0, $type->fromDatabase(null));
 
         $this->assertSame(
             0.0,

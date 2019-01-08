@@ -33,19 +33,19 @@ class DateTypeTest extends TestCase
     public function testForDatabase()
     {
         $expected = '/2016-01-01T00:00:00\+\d{4}/';
-        $t = new DateType;
+        $type = new DateType;
 
         $this->assertRegExp(
             $expected,
-            $t->forDatabase('2016-01-01')
+            $type->forDatabase('2016-01-01')
         );
         $this->assertRegExp(
             $expected,
-            $t->forDatabase(new \DateTime('2016-01-01'))
+            $type->forDatabase(new \DateTime('2016-01-01'))
         );
         $this->assertRegExp(
             $expected,
-            $t->forDatabase(new \DateTimeImmutable('2016-01-01'))
+            $type->forDatabase(new \DateTimeImmutable('2016-01-01'))
         );
         $this->assertRegExp(
             $expected,
@@ -65,15 +65,15 @@ class DateTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new DateType;
+        $type = new DateType;
 
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $t->fromDatabase('2016-01-01T00:00:00+0200')
+            $type->fromDatabase('2016-01-01T00:00:00+0200')
         );
         $this->assertSame(
             '160101',
-            $t->fromDatabase('2016-01-01T00:00:00+0200')->format('ymd')
+            $type->fromDatabase('2016-01-01T00:00:00+0200')->format('ymd')
         );
 
         $this->assertSame(

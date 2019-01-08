@@ -10,9 +10,9 @@ class FactoryTest extends TestCase
 {
     public function testInterface()
     {
-        $f = new Factory('Class\Name\SpaceFactory');
+        $factory = new Factory('Class\Name\SpaceFactory');
 
-        $this->assertSame('Class\Name\SpaceFactory', (string) $f);
+        $this->assertSame('Class\Name\SpaceFactory', (string) $factory);
     }
 
     /**

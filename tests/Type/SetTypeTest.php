@@ -45,11 +45,11 @@ class SetTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = new SetType(new StringType, 'string');
+        $type = new SetType(new StringType, 'string');
 
         $this->assertSame(
             ['foo'],
-            $t->forDatabase((new Set('string'))->add('foo'))
+            $type->forDatabase((new Set('string'))->add('foo'))
         );
 
         $this->assertSame(
@@ -113,20 +113,20 @@ class SetTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new SetType(new StringType, 'string');
+        $type = new SetType(new StringType, 'string');
 
-        $this->assertInstanceOf(SetInterface::class, $t->fromDatabase(['foo']));
-        $this->assertSame('string', (string) $t->fromDatabase(['foo'])->type());
-        $this->assertSame(['foo'], $t->fromDatabase(['foo'])->toPrimitive());
-        $this->assertInstanceOf(SetInterface::class, $t->fromDatabase([null]));
-        $this->assertSame('string', (string) $t->fromDatabase([null])->type());
-        $this->assertSame([''], $t->fromDatabase([null])->toPrimitive());
+        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase(['foo']));
+        $this->assertSame('string', (string) $type->fromDatabase(['foo'])->type());
+        $this->assertSame(['foo'], $type->fromDatabase(['foo'])->toPrimitive());
+        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase([null]));
+        $this->assertSame('string', (string) $type->fromDatabase([null])->type());
+        $this->assertSame([''], $type->fromDatabase([null])->toPrimitive());
 
         $t = SetType::nullable(new StringType, 'string');
 
-        $this->assertInstanceOf(SetInterface::class, $t->fromDatabase([null]));
-        $this->assertSame('string', (string) $t->fromDatabase([null])->type());
-        $this->assertSame([''], $t->fromDatabase([null])->toPrimitive());
+        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase([null]));
+        $this->assertSame('string', (string) $type->fromDatabase([null])->type());
+        $this->assertSame([''], $type->fromDatabase([null])->toPrimitive());
     }
 
     public function testUseSpecificSetTypeInsteadOfInnerTypeName()

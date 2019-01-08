@@ -27,8 +27,8 @@ class GeneratorsTest extends TestCase
     public function testRegisterGenerator()
     {
         $generators = new Generators(
-            (new Map('string', Generator::class))
-                ->put(
+            Map::of('string', Generator::class)
+                (
                     'foo',
                     $mock = $this->createMock(Generator::class)
                 )

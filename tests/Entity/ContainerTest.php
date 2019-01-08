@@ -14,31 +14,31 @@ class ContainerTest extends TestCase
 {
     public function testInterface()
     {
-        $c = new Container;
-        $i = $this->createMock(Identity::class);
+        $container = new Container;
+        $identity = $this->createMock(Identity::class);
 
-        $this->assertFalse($c->contains($i));
-        $this->assertSame(0, $c->state(State::managed())->size());
-        $this->assertSame(0, $c->state(State::new())->size());
-        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
-        $this->assertSame(0, $c->state(State::removed())->size());
+        $this->assertFalse($container->contains($identity));
+        $this->assertSame(0, $container->state(State::managed())->size());
+        $this->assertSame(0, $container->state(State::new())->size());
+        $this->assertSame(0, $container->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $container->state(State::removed())->size());
         $this->assertSame(
-            $c,
-            $c->push($i, $e = new \stdClass, State::new())
+            $container,
+            $container->push($identity, $entity = new \stdClass, State::new())
         );
-        $this->assertSame(0, $c->state(State::managed())->size());
-        $this->assertSame(1, $c->state(State::new())->size());
-        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
-        $this->assertSame(0, $c->state(State::removed())->size());
-        $this->assertSame(State::new(), $c->stateFor($i));
-        $this->assertSame($e, $c->get($i));
-        $this->assertTrue($c->contains($i));
-        $this->assertSame($c, $c->detach($i));
-        $this->assertFalse($c->contains($i));
-        $this->assertSame(0, $c->state(State::managed())->size());
-        $this->assertSame(0, $c->state(State::new())->size());
-        $this->assertSame(0, $c->state(State::toBeRemoved())->size());
-        $this->assertSame(0, $c->state(State::removed())->size());
+        $this->assertSame(0, $container->state(State::managed())->size());
+        $this->assertSame(1, $container->state(State::new())->size());
+        $this->assertSame(0, $container->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $container->state(State::removed())->size());
+        $this->assertSame(State::new(), $container->stateFor($identity));
+        $this->assertSame($entity, $container->get($identity));
+        $this->assertTrue($container->contains($identity));
+        $this->assertSame($container, $container->detach($identity));
+        $this->assertFalse($container->contains($identity));
+        $this->assertSame(0, $container->state(State::managed())->size());
+        $this->assertSame(0, $container->state(State::new())->size());
+        $this->assertSame(0, $container->state(State::toBeRemoved())->size());
+        $this->assertSame(0, $container->state(State::removed())->size());
     }
 
     /**

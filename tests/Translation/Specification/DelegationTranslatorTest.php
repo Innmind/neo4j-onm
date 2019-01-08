@@ -42,8 +42,8 @@ class DelegationTranslatorTest extends TestCase
     {
         $expected = new Property('created', Sign::equality(), null);
         $count = 0;
-        $m1 = $this->createMock(SpecificationTranslator::class);
-        $m1
+        $mock1 = $this->createMock(SpecificationTranslator::class);
+        $mock1
             ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
@@ -55,8 +55,8 @@ class DelegationTranslatorTest extends TestCase
                     new Map('string', Entity::class)
                 );
             }));
-        $m2 = $this->createMock(SpecificationTranslator::class);
-        $m2
+        $mock2 = $this->createMock(SpecificationTranslator::class);
+        $mock2
             ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
@@ -70,9 +70,9 @@ class DelegationTranslatorTest extends TestCase
             }));
 
         $translate = new DelegationTranslator(
-            (new Map('string', SpecificationTranslator::class))
-                ->put(Aggregate::class, $m1)
-                ->put(Relationship::class, $m2)
+            Map::of('string', SpecificationTranslator::class)
+                (Aggregate::class, $mock1)
+                (Relationship::class, $mock2)
         );
 
         $this->assertInstanceOf(

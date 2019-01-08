@@ -85,8 +85,8 @@ class RepositoryFactoryTest extends TestCase
             ),
             new MatchTranslator,
             new SpecificationTranslator,
-            (new Map(Entity::class, RepositoryInterface::class))
-                ->put($meta, $repo)
+            Map::of(Entity::class, RepositoryInterface::class)
+                ($meta, $repo)
         );
 
         $this->assertSame($repo, $make($meta));

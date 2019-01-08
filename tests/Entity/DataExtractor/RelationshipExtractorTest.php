@@ -57,10 +57,10 @@ class RelationshipExtractorTest extends TestCase
             public $start;
             public $end;
         };
-        $entity->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
+        $entity->uuid = new Uuid($uuid = '11111111-1111-1111-1111-111111111111');
         $entity->created = new \DateTimeImmutable('2016-01-01');
-        $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
-        $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
+        $entity->start = new Uuid($start = '11111111-1111-1111-1111-111111111111');
+        $entity->end = new Uuid($end = '11111111-1111-1111-1111-111111111111');
 
         $extract = new RelationshipExtractor;
         $data = $extract($entity, $this->meta);
@@ -77,9 +77,9 @@ class RelationshipExtractorTest extends TestCase
             $data->get('created')
         );
         $this->assertNull($data->get('empty'));
-        $this->assertSame($u, $data->get('uuid'));
-        $this->assertSame($s, $data->get('start'));
-        $this->assertSame($e, $data->get('end'));
+        $this->assertSame($uuid, $data->get('uuid'));
+        $this->assertSame($start, $data->get('start'));
+        $this->assertSame($end, $data->get('end'));
     }
 
     /**

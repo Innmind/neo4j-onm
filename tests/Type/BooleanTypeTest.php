@@ -31,11 +31,11 @@ class BooleanTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = new BooleanType;
+        $type = new BooleanType;
 
         $this->assertSame(
             true,
-            $t->forDatabase(
+            $type->forDatabase(
                 new class {
                     public function __toString()
                     {
@@ -44,7 +44,7 @@ class BooleanTypeTest extends TestCase
                 }
             )
         );
-        $this->assertSame(false, $t->forDatabase(null));
+        $this->assertSame(false, $type->forDatabase(null));
 
         $this->assertSame(
             null,
@@ -54,10 +54,10 @@ class BooleanTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new BooleanType;
+        $type = new BooleanType;
 
-        $this->assertSame(true, $t->fromDatabase(true));
-        $this->assertSame(false, $t->fromDatabase(null));
+        $this->assertSame(true, $type->fromDatabase(true));
+        $this->assertSame(false, $type->fromDatabase(null));
 
         $this->assertSame(
             false,

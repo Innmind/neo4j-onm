@@ -15,13 +15,13 @@ class IdentityMatchTest extends TestCase
 {
     public function testInterface()
     {
-        $i = new IdentityMatch(
-            $q = new Query,
-            $v = new Map('string', Entity::class)
+        $identity = new IdentityMatch(
+            $query = new Query,
+            $variables = new Map('string', Entity::class)
         );
 
-        $this->assertSame($q, $i->query());
-        $this->assertSame($v, $i->variables());
+        $this->assertSame($query, $identity->query());
+        $this->assertSame($variables, $identity->variables());
     }
 
     /**

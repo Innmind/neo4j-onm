@@ -10,9 +10,9 @@ class ClassNameTest extends TestCase
 {
     public function testInterface()
     {
-        $c = new ClassName('Class\Name\Space');
+        $className = new ClassName('Class\Name\Space');
 
-        $this->assertSame('Class\Name\Space', (string) $c);
+        $this->assertSame('Class\Name\Space', (string) $className);
     }
 
     /**

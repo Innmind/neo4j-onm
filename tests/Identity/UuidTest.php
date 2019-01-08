@@ -13,11 +13,11 @@ class UuidTest extends TestCase
 {
     public function testInterface()
     {
-        $u = new Uuid($s = '11111111-1111-1111-1111-111111111111');
+        $uuid = new Uuid($string = '11111111-1111-1111-1111-111111111111');
 
-        $this->assertInstanceOf(Identity::class, $u);
-        $this->assertSame($s, $u->value());
-        $this->assertSame($s, (string) $u);
+        $this->assertInstanceOf(Identity::class, $uuid);
+        $this->assertSame($string, $uuid->value());
+        $this->assertSame($string, (string) $uuid);
     }
 
     /**

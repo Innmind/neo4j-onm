@@ -33,26 +33,26 @@ use PHPUnit\Framework\TestCase;
 class RemovePersisterTest extends TestCase
 {
     private $metadatas;
-    private $arClass;
-    private $rClass;
+    private $aggregateRootClass;
+    private $relationshipClass;
 
     public function setUp()
     {
-        $ar = new class {
+        $aggregateRoot = new class {
             public $uuid;
             public $rel;
         };
-        $this->arClass = get_class($ar);
-        $r = new class {
+        $this->aggregateRootClass = get_class($aggregateRoot);
+        $relationship = new class {
             public $uuid;
             public $start;
             public $end;
         };
-        $this->rClass  = get_class($r);
+        $this->relationshipClass  = get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(
-                new ClassName($this->arClass),
+                new ClassName($this->aggregateRootClass),
                 new Identity('uuid', 'foo'),
                 Set::of('string', 'Label'),
                 null,
@@ -71,7 +71,7 @@ class RemovePersisterTest extends TestCase
                 )
             ),
             Relationship::of(
-                new ClassName($this->rClass),
+                new ClassName($this->relationshipClass),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'uuid'),
@@ -102,7 +102,7 @@ class RemovePersisterTest extends TestCase
 
         $container = new Container;
         $conn = $this->createMock(Connection::class);
-        $aggregate = new $this->arClass;
+        $aggregate = new $this->aggregateRootClass;
         $rel = new class {
             public $child;
         };
@@ -111,12 +111,12 @@ class RemovePersisterTest extends TestCase
         $aggregate->rel = $rel;
         $rel->child = $child;
         $container->push($aggregate->uuid, $aggregate, State::toBeRemoved());
-        $relationship = new $this->rClass;
+        $relationship = new $this->relationshipClass;
         $relationship->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111112');
         $relationship->start = new Uuid($s = '11111111-1111-1111-1111-111111111113');
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
         $container->push($relationship->uuid, $relationship, State::toBeRemoved());
-        $count = $preCount = $postCount = 0;
+        $count = 0;
 
         $conn
             ->method('execute')

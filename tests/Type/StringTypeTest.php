@@ -31,11 +31,11 @@ class StringTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = new StringType;
+        $type = new StringType;
 
         $this->assertSame(
             'foo',
-            $t->forDatabase(
+            $type->forDatabase(
                 new class {
                     public function __toString()
                     {
@@ -44,7 +44,7 @@ class StringTypeTest extends TestCase
                 }
             )
         );
-        $this->assertSame('', $t->forDatabase(null));
+        $this->assertSame('', $type->forDatabase(null));
 
         $this->assertSame(
             null,
@@ -54,10 +54,10 @@ class StringTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new StringType;
+        $type = new StringType;
 
-        $this->assertSame('foo', $t->fromDatabase('foo'));
-        $this->assertSame('', $t->fromDatabase(null));
+        $this->assertSame('foo', $type->fromDatabase('foo'));
+        $this->assertSame('', $type->fromDatabase(null));
 
         $this->assertSame(
             '',

@@ -205,9 +205,9 @@ class EntityFactoryTest extends TestCase
                 ],
             ]],
         ]);
-        $variables = (new Map('string', Entity::class))
-            ->put('n', $aggregate)
-            ->put('r', $relationship);
+        $variables = Map::of('string', Entity::class)
+            ('n', $aggregate)
+            ('r', $relationship);
 
         $entities = ($this->make)(
             $result,
@@ -229,40 +229,40 @@ class EntityFactoryTest extends TestCase
             $entities->current()
         );
         $entities->rewind();
-        $ar = $entities->current();
-        $this->assertInstanceOf(Uuid::class, $ar->uuid);
+        $aggregateRoot = $entities->current();
+        $this->assertInstanceOf(Uuid::class, $aggregateRoot->uuid);
         $this->assertSame(
             '11111111-1111-1111-1111-111111111111',
-            $ar->uuid->value()
+            $aggregateRoot->uuid->value()
         );
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->created
+            $aggregateRoot->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->created->format('c')
+            $aggregateRoot->created->format('c')
         );
-        $this->assertNull($ar->empty);
+        $this->assertNull($aggregateRoot->empty);
         $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->relationship()->class(),
-            $ar->rel
+            $aggregateRoot->rel
         );
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->rel->created
+            $aggregateRoot->rel->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->rel->created->format('c')
+            $aggregateRoot->rel->created->format('c')
         );
-        $this->assertNull($ar->rel->empty);
+        $this->assertNull($aggregateRoot->rel->empty);
         $this->assertInstanceOf(
             (string) $aggregate->children()->get('rel')->class(),
-            $ar->rel->child
+            $aggregateRoot->rel->child
         );
-        $this->assertSame('foo', $ar->rel->child->content);
-        $this->assertNull($ar->rel->child->empty);
+        $this->assertSame('foo', $aggregateRoot->rel->child->content);
+        $this->assertNull($aggregateRoot->rel->child->empty);
         $entities->next();
         $rel = $entities->current();
         $this->assertInstanceOf((string) $relationship->class(), $rel);
@@ -328,9 +328,9 @@ class EntityFactoryTest extends TestCase
                 ],
             ]],
         ]);
-        $variables = (new Map('string', Entity::class))
-            ->put('n', $aggregate)
-            ->put('r', $relationship);
+        $variables = Map::of('string', Entity::class)
+            ('n', $aggregate)
+            ('r', $relationship);
 
         $entities = ($this->make)(
             $result,

@@ -10,11 +10,11 @@ class IdentityTest extends TestCase
 {
     public function testInterface()
     {
-        $i = new Identity('uuid', 'UUID');
+        $identity = new Identity('uuid', 'UUID');
 
-        $this->assertSame('uuid', (string) $i);
-        $this->assertSame('uuid', $i->property());
-        $this->assertSame('UUID', $i->type());
+        $this->assertSame('uuid', (string) $identity);
+        $this->assertSame('uuid', $identity->property());
+        $this->assertSame('UUID', $identity->type());
     }
 
     /**

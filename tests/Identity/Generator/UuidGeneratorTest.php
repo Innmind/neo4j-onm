@@ -15,36 +15,36 @@ class UuidGeneratorTest extends TestCase
 {
     public function testInterface()
     {
-        $g = new UuidGenerator;
+        $generator = new UuidGenerator;
 
-        $this->assertInstanceOf(Generator::class, $g);
-        $u = $g->new();
-        $this->assertInstanceOf(Uuid::class, $u);
-        $this->assertFalse($g->knows('11111111-1111-1111-1111-111111111111'));
-        $this->assertTrue($g->knows($u->value()));
-        $this->assertSame($u, $g->get($u->value()));
+        $this->assertInstanceOf(Generator::class, $generator);
+        $uuid = $generator->new();
+        $this->assertInstanceOf(Uuid::class, $uuid);
+        $this->assertFalse($generator->knows('11111111-1111-1111-1111-111111111111'));
+        $this->assertTrue($generator->knows($uuid->value()));
+        $this->assertSame($uuid, $generator->get($uuid->value()));
     }
 
     public function testAdd()
     {
-        $g = new UuidGenerator;
+        $generator = new UuidGenerator;
 
-        $u = new Uuid($s = '11111111-1111-1111-1111-111111111111');
-        $this->assertFalse($g->knows($s));
-        $this->assertSame($g, $g->add($u));
-        $this->assertTrue($g->knows($s));
+        $uuid = new Uuid($string = '11111111-1111-1111-1111-111111111111');
+        $this->assertFalse($generator->knows($string));
+        $this->assertSame($generator, $generator->add($uuid));
+        $this->assertTrue($generator->knows($string));
     }
 
     public function testFor()
     {
-        $g = new UuidGenerator;
-        $s = '11111111-1111-1111-1111-111111111111';
+        $generator = new UuidGenerator;
+        $string = '11111111-1111-1111-1111-111111111111';
 
-        $this->assertFalse($g->knows($s));
-        $this->assertInstanceOf(Uuid::class, $u = $g->for($s));
-        $this->assertSame($s, $u->value());
-        $this->assertTrue($g->knows($s));
-        $this->assertSame($u, $g->for($s));
+        $this->assertFalse($generator->knows($string));
+        $this->assertInstanceOf(Uuid::class, $uuid = $generator->for($string));
+        $this->assertSame($string, $uuid->value());
+        $this->assertTrue($generator->knows($string));
+        $this->assertSame($uuid, $generator->for($string));
     }
 
     public function testGenerateWishedClass()
@@ -68,9 +68,9 @@ class UuidGeneratorTest extends TestCase
                 return $this->value;
             }
         };
-        $g = new UuidGenerator(get_class($uuid));
+        $generator = new UuidGenerator(get_class($uuid));
 
-        $uuid2 = $g->new();
+        $uuid2 = $generator->new();
         $this->assertInstanceOf(get_class($uuid), $uuid2);
         $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
     }
