@@ -18,9 +18,11 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type,
+    Exception\SpecificationNotApplicable,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -39,10 +41,10 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $expected = new Property('created', '=', null);
+        $expected = new Property('created', Sign::equality(), null);
         $count = 0;
-        $m1 = $this->createMock(SpecificationTranslator::class);
-        $m1
+        $mock1 = $this->createMock(SpecificationTranslator::class);
+        $mock1
             ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
@@ -54,8 +56,8 @@ class DelegationTranslatorTest extends TestCase
                     new Map('string', Entity::class)
                 );
             }));
-        $m2 = $this->createMock(SpecificationTranslator::class);
-        $m2
+        $mock2 = $this->createMock(SpecificationTranslator::class);
+        $mock2
             ->method('__invoke')
             ->will($this->returnCallback(function($meta, $spec) use ($expected, &$count) {
                 ++$count;
@@ -69,9 +71,9 @@ class DelegationTranslatorTest extends TestCase
             }));
 
         $translate = new DelegationTranslator(
-            (new Map('string', SpecificationTranslator::class))
-                ->put(Aggregate::class, $m1)
-                ->put(Relationship::class, $m2)
+            Map::of('string', SpecificationTranslator::class)
+                (Aggregate::class, $mock1)
+                (Relationship::class, $mock2)
         );
 
         $this->assertInstanceOf(
@@ -105,35 +107,32 @@ class DelegationTranslatorTest extends TestCase
         $this->assertSame(2, $count);
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>
-     */
     public function testThrowWhenInjectingInvalidTranslators()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>');
+
         new DelegationTranslator(new Map('int', 'int'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
-     */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
+        $this->expectException(SpecificationNotApplicable::class);
+
         (new DelegationTranslator)(
             Aggregate::of(
                 new ClassName('FQCN'),
                 new Identity('id', 'foo'),
                 Set::of('string', 'Label')
             ),
-            new Property('foo', '=', null)
+            new Property('foo', Sign::equality(), null)
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
-     */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
+        $this->expectException(SpecificationNotApplicable::class);
+
         (new DelegationTranslator)(
             Relationship::of(
                 new ClassName('foo'),
@@ -142,7 +141,7 @@ class DelegationTranslatorTest extends TestCase
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')
             ),
-            new Property('foo', '=', null)
+            new Property('foo', Sign::equality(), null)
         );
     }
 }

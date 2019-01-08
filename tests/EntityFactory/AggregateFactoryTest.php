@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     Type,
     EntityFactory,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -84,53 +85,52 @@ class AggregateFactoryTest extends TestCase
             )
         );
 
-        $ar = $make(
+        $aggregateRoot = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
-            (new Map('string', 'mixed'))
-                ->put('uuid', 24)
-                ->put('created', '2016-01-01T00:00:00+0200')
-                ->put('rel', (new Map('string', 'mixed'))
-                    ->put('created', '2016-01-01T00:00:00+0200')
-                    ->put('child', (new Map('string', 'mixed'))
-                        ->put('content', 'foo')
+            Map::of('string', 'mixed')
+                ('uuid', 24)
+                ('created', '2016-01-01T00:00:00+0200')
+                ('rel', Map::of('string', 'mixed')
+                    ('created', '2016-01-01T00:00:00+0200')
+                    ('child', Map::of('string', 'mixed')
+                        ('content', 'foo')
                     )
                 )
         );
 
-        $this->assertInstanceOf(get_class($entity), $ar);
-        $this->assertSame($identity, $ar->uuid);
+        $this->assertInstanceOf(get_class($entity), $aggregateRoot);
+        $this->assertSame($identity, $aggregateRoot->uuid);
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->created
+            $aggregateRoot->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->created->format('c')
+            $aggregateRoot->created->format('c')
         );
-        $this->assertNull($ar->empty);
+        $this->assertNull($aggregateRoot->empty);
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
-            $ar->rel->created
+            $aggregateRoot->rel->created
         );
         $this->assertSame(
             '2016-01-01T00:00:00+02:00',
-            $ar->rel->created->format('c')
+            $aggregateRoot->rel->created->format('c')
         );
-        $this->assertNull($ar->rel->empty);
+        $this->assertNull($aggregateRoot->rel->empty);
         $this->assertInstanceOf(
             get_class($child),
-            $ar->rel->child
+            $aggregateRoot->rel->child
         );
-        $this->assertSame('foo', $ar->rel->child->content);
-        $this->assertNull($ar->rel->child->empty);
+        $this->assertSame('foo', $aggregateRoot->rel->child->content);
+        $this->assertNull($aggregateRoot->rel->child->empty);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTryingToBuildNonAggregate()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
@@ -138,12 +138,11 @@ class AggregateFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 3 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             Aggregate::of(

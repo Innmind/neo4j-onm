@@ -16,11 +16,11 @@
     },
     "require": {
         "php": "~7.2",
-        "innmind/neo4j-dbal": "~4.0",
+        "innmind/neo4j-dbal": "~5.0",
         "innmind/immutable": "~2.10",
         "ramsey/uuid": "^3.2",
         "innmind/reflection": "~3.0",
-        "innmind/specification": "^1.0",
+        "innmind/specification": "~2.0",
         "innmind/event-bus": "~3.0"
     },
     "autoload": {
@@ -38,7 +38,10 @@
     "require-dev": {
         "phpunit/phpunit": "~7.0",
         "innmind/time-continuum": "^1.0",
-        "innmind/command-bus": "^3.0"
+        "innmind/command-bus": "^3.0",
+        "innmind/cli": "^1.5",
+        "innmind/object-graph": "^1.2",
+        "innmind/server-control": "^2.7"
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors=always"

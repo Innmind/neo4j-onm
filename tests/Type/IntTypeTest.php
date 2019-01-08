@@ -31,10 +31,10 @@ class IntTypeTest extends TestCase
 
     public function testForDatabase()
     {
-        $t = new IntType;
+        $type = new IntType;
 
-        $this->assertSame(42, $t->forDatabase(42.0));
-        $this->assertSame(0, $t->forDatabase(null));
+        $this->assertSame(42, $type->forDatabase(42.0));
+        $this->assertSame(0, $type->forDatabase(null));
 
         $this->assertSame(
             null,
@@ -44,10 +44,10 @@ class IntTypeTest extends TestCase
 
     public function testFromDatabase()
     {
-        $t = new IntType;
+        $type = new IntType;
 
-        $this->assertSame(42, $t->fromDatabase('42.0'));
-        $this->assertSame(0, $t->fromDatabase(null));
+        $this->assertSame(42, $type->fromDatabase('42.0'));
+        $this->assertSame(0, $type->fromDatabase(null));
 
         $this->assertSame(
             0,

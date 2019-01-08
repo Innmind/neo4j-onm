@@ -45,24 +45,22 @@ class PropertiesMatchTest extends TestCase
         $this->assertSame('foobar', $match2->parameters()->get('baz'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedException Argument 1 must be of type MapInterface<string, string>
-     */
     public function testThrowWhenInvalidPropertyMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, string>');
+
         new PropertiesMatch(
             new Map('int', 'int'),
             new Map('string', 'mixed')
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedException Argument 2 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenInvalidParameterMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+
         new PropertiesMatch(
             new Map('string', 'string'),
             new Map('string', 'variable')

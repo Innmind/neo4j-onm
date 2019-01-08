@@ -6,6 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Metadata;
 use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Type,
+    Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -22,11 +23,10 @@ class PropertyTest extends TestCase
         $this->assertSame($type, $property->type());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyName()
     {
+        $this->expectException(DomainException::class);
+
         new Property('', $this->createMock(Type::class));
     }
 }

@@ -29,17 +29,14 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Entity,
     Exception\IdentityNotManaged,
+    Exception\EntityNotFound,
 };
-use Innmind\Neo4j\DBAL\{
-    ConnectionFactory,
-    Query\Query,
-};
+use Innmind\Neo4j\DBAL\Query\Query;
+use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
-use Innmind\HttpTransport\GuzzleTransport;
-use Innmind\Http\{
-    Translator\Response\Psr7Translator,
-    Factory\Header\Factories,
-};
+use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\Url\Url;
+use Innmind\TimeContinuum\TimeContinuum\Earth;
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -65,18 +62,11 @@ class UnitOfWorkTest extends TestCase
         };
         $this->aggregateClass = get_class($entity);
 
-        $this->conn = ConnectionFactory::on(
-            'localhost',
-            'http'
-        )
-            ->for('neo4j', 'ci')
-            ->useTransport(
-                new GuzzleTransport(
-                    new Client,
-                    new Psr7Translator(Factories::default())
-                )
-            )
-            ->build();
+        $this->conn = dbal(
+            http()['default'](),
+            new Earth,
+            Url::fromString('http://neo4j:ci@localhost:7474/')
+        );
         $this->container = new Container;
         $this->entityFactory = new EntityFactory(
             new ResultTranslator,
@@ -214,11 +204,10 @@ class UnitOfWorkTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
-     */
     public function testThrowWhenTheEntityIsNotFound()
     {
+        $this->expectException(EntityNotFound::class);
+
         $this->uow->get(
             $this->aggregateClass,
             new Uuid('11111111-1111-1111-1111-111111111112')

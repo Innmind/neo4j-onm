@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace Fixtures\Innmind\Neo4j\ONM\Specification;
 
 use Innmind\Specification\{
-    SpecificationInterface,
+    Specification,
     Operator,
-    CompositeInterface
+    Composite as CompositeInterface,
 };
 
 class Composite implements CompositeInterface
@@ -18,21 +18,21 @@ class Composite implements CompositeInterface
     private $operator;
 
     public function __construct(
-        SpecificationInterface $left,
-        SpecificationInterface $right,
-        string $operator
+        Specification $left,
+        Specification $right,
+        Operator $operator
     ) {
         $this->left = $left;
         $this->right = $right;
-        $this->operator = new Operator($operator);
+        $this->operator = $operator;
     }
 
-    public function left(): SpecificationInterface
+    public function left(): Specification
     {
         return $this->left;
     }
 
-    public function right(): SpecificationInterface
+    public function right(): Specification
     {
         return $this->right;
     }

@@ -71,29 +71,29 @@ class DelegationTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translate($meta, $identity);
+        $identityMatch = $translate($meta, $identity);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertCount(1, $im->query()->parameters());
+        $this->assertCount(1, $identityMatch->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get('entity_identity')->value()
+            $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertCount(1, $im->variables());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertCount(1, $identityMatch->variables());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 
     public function testTranslateRelationship()
@@ -113,37 +113,36 @@ class DelegationTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translate($meta, $identity);
+        $identityMatch = $translate($meta, $identity);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertCount(1, $im->query()->parameters());
+        $this->assertCount(1, $identityMatch->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get('entity_identity')->value()
+            $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertCount(1, $im->variables());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertCount(1, $identityMatch->variables());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>
-     */
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>');
+
         new DelegationTranslator(new Map('int', 'int'));
     }
 }

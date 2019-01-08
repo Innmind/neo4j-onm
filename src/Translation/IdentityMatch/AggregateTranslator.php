@@ -10,10 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate\Child,
     IdentityMatch,
 };
-use Innmind\Neo4j\DBAL\{
-    Query\Query,
-    Clause\Expression\Relationship,
-};
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -68,7 +65,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
                     ->through(
                         (string) $child->relationship()->type(),
                         (string) $relName,
-                        Relationship::LEFT
+                        'left'
                     );
             });
 

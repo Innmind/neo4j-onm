@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\Property,
     Type,
+    Exception\DomainException,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -20,31 +21,30 @@ class RelationshipTest extends TestCase
 {
     public function testInterface()
     {
-        $vor = Relationship::of(
-            $cn = new ClassName('foo'),
-            $rt = new RelationshipType('FOO'),
+        $valueObjectRelationship = Relationship::of(
+            $className = new ClassName('foo'),
+            $relationshipType = new RelationshipType('FOO'),
             'relationship',
             'node',
             Map::of('string', Type::class)
                 ('foo', $this->createMock(Type::class))
         );
 
-        $this->assertSame($cn, $vor->class());
-        $this->assertSame($rt, $vor->type());
-        $this->assertSame('relationship', $vor->property());
-        $this->assertSame('node', $vor->childProperty());
-        $this->assertInstanceOf(MapInterface::class, $vor->properties());
-        $this->assertSame('string', (string) $vor->properties()->keyType());
-        $this->assertSame(Property::class, (string) $vor->properties()->valueType());
-        $this->assertSame(1, $vor->properties()->count());
-        $this->assertTrue($vor->properties()->contains('foo'));
+        $this->assertSame($className, $valueObjectRelationship->class());
+        $this->assertSame($relationshipType, $valueObjectRelationship->type());
+        $this->assertSame('relationship', $valueObjectRelationship->property());
+        $this->assertSame('node', $valueObjectRelationship->childProperty());
+        $this->assertInstanceOf(MapInterface::class, $valueObjectRelationship->properties());
+        $this->assertSame('string', (string) $valueObjectRelationship->properties()->keyType());
+        $this->assertSame(Property::class, (string) $valueObjectRelationship->properties()->valueType());
+        $this->assertSame(1, $valueObjectRelationship->properties()->count());
+        $this->assertTrue($valueObjectRelationship->properties()->contains('foo'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyProperty()
     {
+        $this->expectException(DomainException::class);
+
         Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
@@ -53,11 +53,10 @@ class RelationshipTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyChildProperty()
     {
+        $this->expectException(DomainException::class);
+
         Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),

@@ -9,7 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -40,7 +40,7 @@ final class DelegationValidator implements Validator
      * {@inheritdoc}
      */
     public function __invoke(
-        SpecificationInterface $specification,
+        Specification $specification,
         Entity $meta
     ): bool {
         $validate = $this->validators->get(get_class($meta));

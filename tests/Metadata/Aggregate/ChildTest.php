@@ -23,10 +23,10 @@ class ChildTest extends TestCase
 {
     public function testInterface()
     {
-        $vo = Child::of(
-            $cn = new ClassName('foo'),
+        $valueObject = Child::of(
+            $className = new ClassName('foo'),
             Set::of('string', 'LabelA', 'LabelB'),
-            $vor = Relationship::of(
+            $valueObjectRelationship = Relationship::of(
                 new ClassName('whatever'),
                 new RelationshipType('whatever'),
                 'foo',
@@ -36,15 +36,15 @@ class ChildTest extends TestCase
                 ('foo', $this->createMock(Type::class))
         );
 
-        $this->assertSame($cn, $vo->class());
-        $this->assertInstanceOf(SetInterface::class, $vo->labels());
-        $this->assertSame('string', (string) $vo->labels()->type());
-        $this->assertSame(['LabelA', 'LabelB'], $vo->labels()->toPrimitive());
-        $this->assertSame($vor, $vo->relationship());
-        $this->assertInstanceOf(MapInterface::class, $vo->properties());
-        $this->assertSame('string', (string) $vo->properties()->keyType());
-        $this->assertSame(Property::class, (string) $vo->properties()->valueType());
-        $this->assertSame(1, $vo->properties()->count());
-        $this->assertTrue($vo->properties()->contains('foo'));
+        $this->assertSame($className, $valueObject->class());
+        $this->assertInstanceOf(SetInterface::class, $valueObject->labels());
+        $this->assertSame('string', (string) $valueObject->labels()->type());
+        $this->assertSame(['LabelA', 'LabelB'], $valueObject->labels()->toPrimitive());
+        $this->assertSame($valueObjectRelationship, $valueObject->relationship());
+        $this->assertInstanceOf(MapInterface::class, $valueObject->properties());
+        $this->assertSame('string', (string) $valueObject->properties()->keyType());
+        $this->assertSame(Property::class, (string) $valueObject->properties()->valueType());
+        $this->assertSame(1, $valueObject->properties()->count());
+        $this->assertTrue($valueObject->properties()->contains('foo'));
     }
 }

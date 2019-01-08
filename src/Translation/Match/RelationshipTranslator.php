@@ -8,10 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     IdentityMatch,
 };
-use Innmind\Neo4j\DBAL\{
-    Query\Query,
-    Clause\Expression\Relationship,
-};
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\Map;
 
 final class RelationshipTranslator implements MatchTranslator
@@ -27,7 +24,7 @@ final class RelationshipTranslator implements MatchTranslator
             ->through(
                 (string) $meta->type(),
                 'entity',
-                Relationship::RIGHT
+                'right'
             )
             ->return('start', 'end', 'entity');
 

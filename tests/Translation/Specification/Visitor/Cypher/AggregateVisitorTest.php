@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -67,12 +68,12 @@ class AggregateVisitorTest extends TestCase
     public function testVisit()
     {
         $condition = ($this->visitor)(
-            (new Property('created', '=', 10))
-                ->and(new Property('empty', '=', 20))
-                ->or(new Property('rel.created', '=', 30))
-                ->and(new Property('rel.empty', '=', 40))
-                ->and(new Property('rel.child.content', '=', 50))
-                ->and((new Property('rel.child.empty', '=', 60))->not())
+            (new Property('created', Sign::equality(), 10))
+                ->and(new Property('empty', Sign::equality(), 20))
+                ->or(new Property('rel.created', Sign::equality(), 30))
+                ->and(new Property('rel.empty', Sign::equality(), 40))
+                ->and(new Property('rel.child.content', Sign::equality(), 50))
+                ->and((new Property('rel.child.empty', Sign::equality(), 60))->not())
         );
 
         $this->assertSame(

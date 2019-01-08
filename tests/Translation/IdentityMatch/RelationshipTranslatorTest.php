@@ -52,28 +52,28 @@ class RelationshipTranslatorTest extends TestCase
         $identity
             ->method('value')
             ->willReturn('foobar');
-        $im = $translate($meta, $identity);
+        $identityMatch = $translate($meta, $identity);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertCount(1, $im->query()->parameters());
+        $this->assertCount(1, $identityMatch->query()->parameters());
         $this->assertSame(
             'foobar',
-            $im->query()->parameters()->get('entity_identity')->value()
+            $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertCount(1, $im->variables());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertCount(1, $identityMatch->variables());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 }

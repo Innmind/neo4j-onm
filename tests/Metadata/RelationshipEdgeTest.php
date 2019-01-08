@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\RelationshipEdge;
+use Innmind\Neo4j\ONM\{
+    Metadata\RelationshipEdge,
+    Exception\DomainException,
+};
 use PHPUnit\Framework\TestCase;
 
 class RelationshipEdgeTest extends TestCase
@@ -18,11 +21,10 @@ class RelationshipEdgeTest extends TestCase
         $this->assertSame('target', $edge->target());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyTarget()
     {
+        $this->expectException(DomainException::class);
+
         new RelationshipEdge('uuid', 'UUID', '');
     }
 }

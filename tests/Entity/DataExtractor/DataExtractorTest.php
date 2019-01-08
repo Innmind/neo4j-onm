@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Metadatas,
     Type,
+    Exception\TypeError,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -28,31 +29,31 @@ use PHPUnit\Framework\TestCase;
 class DataExtractorTest extends TestCase
 {
     private $extract;
-    private $arClass;
-    private $rClass;
+    private $aggregateRootClass;
+    private $relationshipClass;
     private $metadatas;
 
     public function setUp()
     {
-        $ar = new class {
+        $aggregateRoot = new class {
             public $uuid;
             public $created;
             public $empty;
             public $rel;
         };
-        $this->arClass = get_class($ar);
-        $r = new class {
+        $this->aggregateRootClass = get_class($aggregateRoot);
+        $relationship = new class {
             public $uuid;
             public $created;
             public $empty;
             public $start;
             public $end;
         };
-        $this->rClass  = get_class($r);
+        $this->relationshipClass  = get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(
-                new ClassName($this->arClass),
+                new ClassName($this->aggregateRootClass),
                 new Identity('uuid', 'foo'),
                 Set::of('string', 'Label'),
                 Map::of('string', Type::class)
@@ -79,7 +80,7 @@ class DataExtractorTest extends TestCase
                 )
             ),
             Relationship::of(
-                new ClassName($this->rClass),
+                new ClassName($this->relationshipClass),
                 new Identity('uuid', 'foo'),
                 new RelationshipType('type'),
                 new RelationshipEdge('start', Uuid::class, 'target'),
@@ -94,7 +95,7 @@ class DataExtractorTest extends TestCase
 
     public function testExtractAggregateRoot()
     {
-        $entity = new $this->arClass;
+        $entity = new $this->aggregateRootClass;
         $rel = new class {
             public $created;
             public $empty;
@@ -154,11 +155,11 @@ class DataExtractorTest extends TestCase
 
     public function testExtractRelationship()
     {
-        $entity = new $this->rClass;
-        $entity->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
+        $entity = new $this->relationshipClass;
+        $entity->uuid = new Uuid($uuid = '11111111-1111-1111-1111-111111111111');
         $entity->created = new \DateTimeImmutable('2016-01-01');
-        $entity->start = new Uuid($s = '11111111-1111-1111-1111-111111111111');
-        $entity->end = new Uuid($e = '11111111-1111-1111-1111-111111111111');
+        $entity->start = new Uuid($start = '11111111-1111-1111-1111-111111111111');
+        $entity->end = new Uuid($end = '11111111-1111-1111-1111-111111111111');
 
         $data = ($this->extract)($entity);
 
@@ -174,17 +175,16 @@ class DataExtractorTest extends TestCase
             $data->get('created')
         );
         $this->assertNull($data->get('empty'));
-        $this->assertSame($u, $data->get('uuid'));
-        $this->assertSame($s, $data->get('start'));
-        $this->assertSame($e, $data->get('end'));
+        $this->assertSame($uuid, $data->get('uuid'));
+        $this->assertSame($start, $data->get('start'));
+        $this->assertSame($end, $data->get('end'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>
-     */
     public function testThrowWhenInvalidExtractorMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>');
+
         new DataExtractor(
             $this->metadatas,
             new Map('string', 'callable')

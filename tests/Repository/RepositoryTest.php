@@ -35,13 +35,12 @@ use Innmind\Neo4j\ONM\{
     Exception\EntityNotFound,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
-use Innmind\Neo4j\DBAL\ConnectionFactory;
+use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
-use Innmind\HttpTransport\GuzzleTransport;
-use Innmind\Http\{
-    Translator\Response\Psr7Translator,
-    Factory\Header\Factories,
-};
+use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\Url\Url;
+use Innmind\TimeContinuum\TimeContinuum\Earth;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -52,7 +51,7 @@ use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
 {
-    private $r;
+    private $repository;
     private $class;
     private $uow;
 
@@ -64,18 +63,11 @@ class RepositoryTest extends TestCase
         };
         $this->class = get_class($entity);
 
-        $conn = ConnectionFactory::on(
-            'localhost',
-            'http'
-        )
-            ->for('neo4j', 'ci')
-            ->useTransport(
-                new GuzzleTransport(
-                    new Client,
-                    new Psr7Translator(Factories::default())
-                )
-            )
-            ->build();
+        $conn = dbal(
+            http()['default'](),
+            new Earth,
+            Url::fromString('http://neo4j:ci@localhost:7474/')
+        );
         $container = new Container;
         $entityFactory = new EntityFactory(
             new ResultTranslator,
@@ -126,7 +118,7 @@ class RepositoryTest extends TestCase
             $generators
         );
 
-        $this->r = new Repository(
+        $this->repository = new Repository(
             $this->uow = $uow,
             new MatchTranslator,
             new SpecificationTranslator,
@@ -136,38 +128,37 @@ class RepositoryTest extends TestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf(RepositoryInterface::class, $this->r);
+        $this->assertInstanceOf(RepositoryInterface::class, $this->repository);
 
         $entity = new $this->class;
         $entity->uuid = new Uuid('21111111-1111-1111-1111-111111111111');
 
-        $this->assertFalse($this->r->has($entity->uuid));
-        $this->assertSame($this->r, $this->r->add($entity));
-        $this->assertTrue($this->r->has($entity->uuid));
+        $this->assertFalse($this->repository->has($entity->uuid));
+        $this->assertSame($this->repository, $this->repository->add($entity));
+        $this->assertTrue($this->repository->has($entity->uuid));
         $this->assertSame(
             $entity,
-            $this->r->get($entity->uuid)
+            $this->repository->get($entity->uuid)
         );
-        $this->assertSame($this->r, $this->r->remove($entity));
-        $this->assertFalse($this->r->has($entity->uuid));
+        $this->assertSame($this->repository, $this->repository->remove($entity));
+        $this->assertFalse($this->repository->has($entity->uuid));
 
         $this->expectException(EntityNotFound::class);
-        $this->r->get($entity->uuid);
+        $this->repository->get($entity->uuid);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
-     */
     public function testThrowWhenGettingUnknownEntity()
     {
-        $this->r->get(new Uuid('24111111-1111-1111-1111-111111111111'));
+        $this->expectException(EntityNotFound::class);
+
+        $this->repository->get(new Uuid('24111111-1111-1111-1111-111111111111'));
     }
 
     public function testDoesntFind()
     {
         $this->assertSame(
             null,
-            $this->r->find(new Uuid('24111111-1111-1111-1111-111111111111'))
+            $this->repository->find(new Uuid('24111111-1111-1111-1111-111111111111'))
         );
     }
 
@@ -179,11 +170,11 @@ class RepositoryTest extends TestCase
         $entity2->uuid = new Uuid('41111111-1111-1111-1111-111111111111');
 
         $this
-            ->r
+            ->repository
             ->add($entity)
             ->add($entity2);
         $this->uow->commit();
-        $all = $this->r->all();
+        $all = $this->repository->all();
 
         $this->assertInstanceOf(SetInterface::class, $all);
         $this->assertSame('object', (string) $all->type());
@@ -191,7 +182,7 @@ class RepositoryTest extends TestCase
         $this->assertTrue($all->contains($entity));
         $this->assertTrue($all->contains($entity2));
         $this
-            ->r
+            ->repository
             ->remove($entity)
             ->remove($entity2);
         $this->uow->commit();
@@ -210,13 +201,13 @@ class RepositoryTest extends TestCase
         $entity3->content = 'bar';
 
         $this
-            ->r
+            ->repository
             ->add($entity)
             ->add($entity2)
             ->add($entity3);
         $this->uow->commit();
 
-        $entities = $this->r->matching(new Property('content', '=~', 'foo.*'));
+        $entities = $this->repository->matching(new Property('content', Sign::contains(), 'foo.*'));
 
         $this->assertInstanceOf(SetInterface::class, $entities);
         $this->assertSame('object', (string) $entities->type());
@@ -225,7 +216,7 @@ class RepositoryTest extends TestCase
         $this->assertTrue($entities->contains($entity2));
 
         $this
-            ->r
+            ->repository
             ->remove($entity)
             ->remove($entity2)
             ->remove($entity3);

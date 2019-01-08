@@ -7,12 +7,13 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\CypherVisitor,
     Metadata\Aggregate,
     Query\Where,
+    Specification\ConvertSign,
 };
 use Innmind\Specification\{
-    SpecificationInterface,
-    ComparatorInterface,
-    CompositeInterface,
-    NotInterface,
+    Specification,
+    Comparator,
+    Composite,
+    Not,
 };
 use Innmind\Immutable\{
     Map,
@@ -22,37 +23,39 @@ use Innmind\Immutable\{
 final class AggregateVisitor implements CypherVisitor
 {
     private $meta;
+    private $convert;
     private $count = 0;
 
     public function __construct(Aggregate $meta)
     {
         $this->meta = $meta;
+        $this->convert = new ConvertSign;
     }
 
     /**
      * {@inheritdo}
      */
-    public function __invoke(SpecificationInterface $specification): Where
+    public function __invoke(Specification $specification): Where
     {
         switch (true) {
-            case $specification instanceof ComparatorInterface:
+            case $specification instanceof Comparator:
                 ++$this->count; //used for parameters name, so a same property can be used multiple times
 
                 return $this->buildCondition($specification);
 
-            case $specification instanceof CompositeInterface:
+            case $specification instanceof Composite:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
                 $operator = (string) Str::of((string) $specification->operator())->toLower();
 
                 return $left->{$operator}($right);
 
-            case $specification instanceof NotInterface:
+            case $specification instanceof Not:
                 return ($this)($specification->specification())->not();
         }
     }
 
-    private function buildCondition(ComparatorInterface $specification): Where
+    private function buildCondition(Comparator $specification): Where
     {
         $property = new Str($specification->property());
 
@@ -66,7 +69,7 @@ final class AggregateVisitor implements CypherVisitor
     }
 
     private function buildPropertyCondition(
-        ComparatorInterface $specification
+        Comparator $specification
     ): Where {
         $prop = $specification->property();
         $key = Str::of('entity_')
@@ -77,7 +80,7 @@ final class AggregateVisitor implements CypherVisitor
             \sprintf(
                 'entity.%s %s %s',
                 $prop,
-                $specification->sign(),
+                ($this->convert)($specification->sign()),
                 $key->prepend('{')->append('}')
             ),
             Map::of('string', 'mixed')
@@ -86,7 +89,7 @@ final class AggregateVisitor implements CypherVisitor
     }
 
     private function buildSubPropertyCondition(
-        ComparatorInterface $specification
+        Comparator $specification
     ): Where {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');
@@ -104,7 +107,7 @@ final class AggregateVisitor implements CypherVisitor
                 $var
                     ->append('.')
                     ->append((string) $pieces->last()),
-                $specification->sign(),
+                ($this->convert)($specification->sign()),
                 $key->prepend('{')->append('}')
             ),
             Map::of('string', 'mixed')

@@ -18,8 +18,10 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Type,
     Query\PropertiesMatch,
+    Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -54,10 +56,10 @@ class RelationshipVisitorTest extends TestCase
     public function testVisit()
     {
         $mapping = ($this->visitor)(
-            (new Property('created', '=', null))
-                ->and(new Property('empty', '=', null))
-                ->and(new Property('start', '=', 'foo'))
-                ->and(new Property('end', '=', 'bar'))
+            (new Property('created', Sign::equality(), null))
+                ->and(new Property('empty', Sign::equality(), null))
+                ->and(new Property('start', Sign::equality(), 'foo'))
+                ->and(new Property('end', Sign::equality(), 'bar'))
         );
 
         $this->assertInstanceOf(MapInterface::class, $mapping);
@@ -84,32 +86,29 @@ class RelationshipVisitorTest extends TestCase
         $this->assertSame('bar', $mapping->get('end')->parameters()->get('end_id'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenNotDirectComparison()
     {
-        ($this->visitor)(new Property('created', '~=', 'foo'));
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
+        ($this->visitor)(new Property('created', Sign::contains(), 'foo'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenOrOperator()
     {
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
         ($this->visitor)(
-            (new Property('created', '=', 'foo'))
-                ->or(new Property('empty', '=', 'foo'))
+            (new Property('created', Sign::equality(), 'foo'))
+                ->or(new Property('empty', Sign::equality(), 'foo'))
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenNegatedSpecification()
     {
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
         ($this->visitor)(
-            (new Property('created', '=', 'foo'))->not()
+            (new Property('created', Sign::equality(), 'foo'))->not()
         );
     }
 }

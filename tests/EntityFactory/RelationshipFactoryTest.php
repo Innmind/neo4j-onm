@@ -20,6 +20,7 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     Type,
     EntityFactory,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     Map,
@@ -65,11 +66,11 @@ class RelationshipFactoryTest extends TestCase
         $rel = $make(
             $identity = new Uuid('11111111-1111-1111-1111-111111111111'),
             $meta,
-            (new Map('string', 'mixed'))
-                ->put('uuid', 24)
-                ->put('created', '2016-01-01T00:00:00+0200')
-                ->put('start', $start = '11111111-1111-1111-1111-111111111111')
-                ->put('end', $end = '11111111-1111-1111-1111-111111111111')
+            Map::of('string', 'mixed')
+                ('uuid', 24)
+                ('created', '2016-01-01T00:00:00+0200')
+                ('start', $start = '11111111-1111-1111-1111-111111111111')
+                ('end', $end = '11111111-1111-1111-1111-111111111111')
         );
 
         $this->assertInstanceOf(get_class($entity), $rel);
@@ -89,11 +90,10 @@ class RelationshipFactoryTest extends TestCase
         $this->assertSame($end, $rel->end->value());
     }
 
-    /**
-     * @expectedException Innmind\neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTryingToBuildNonRelationship()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
@@ -101,12 +101,11 @@ class RelationshipFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 3 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             Relationship::of(

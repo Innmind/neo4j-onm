@@ -11,15 +11,12 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
-use Innmind\Neo4j\DBAL\{
-    Query\Query,
-    Clause\Expression\Relationship,
-};
+use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\{
     MapInterface,
     Map,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 final class RelationshipTranslator implements SpecificationTranslator
 {
@@ -28,7 +25,7 @@ final class RelationshipTranslator implements SpecificationTranslator
      */
     public function __invoke(
         Entity $meta,
-        SpecificationInterface $specification
+        Specification $specification
     ): IdentityMatch {
         try {
             $mapping = (new RelationshipPropertyMatchVisitor($meta))($specification);
@@ -49,7 +46,7 @@ final class RelationshipTranslator implements SpecificationTranslator
                     ->through(
                         (string) $meta->type(),
                         'entity',
-                        Relationship::RIGHT
+                        'right'
                     ),
                 'entity',
                 $mapping
@@ -62,7 +59,7 @@ final class RelationshipTranslator implements SpecificationTranslator
                 ->through(
                     (string) $meta->type(),
                     'entity',
-                    Relationship::RIGHT
+                    'right'
                 )
                 ->where($condition->cypher());
             $query = $condition->parameters()->reduce(

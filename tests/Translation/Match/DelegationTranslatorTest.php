@@ -66,25 +66,25 @@ class DelegationTranslatorTest extends TestCase
                 )
             )
         );
-        $im = $translate($meta);
+        $identityMatch = $translate($meta);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertCount(0, $im->query()->parameters());
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertCount(0, $identityMatch->query()->parameters());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertCount(1, $im->variables());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertCount(1, $identityMatch->variables());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 
     public function testTranslateRelationship()
@@ -100,33 +100,32 @@ class DelegationTranslatorTest extends TestCase
                 ('created', new DateType)
                 ('empty', StringType::nullable())
         );
-        $im = $translate($meta);
+        $identityMatch = $translate($meta);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (start)-[entity:type]->(end) RETURN start, end, entity',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertCount(0, $im->query()->parameters());
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertCount(0, $identityMatch->query()->parameters());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertCount(1, $im->variables());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertCount(1, $identityMatch->variables());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\MatchTranslator>
-     */
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\MatchTranslator>');
+
         new DelegationTranslator(new Map('int', 'int'));
     }
 }

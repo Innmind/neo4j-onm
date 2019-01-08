@@ -47,24 +47,24 @@ class RelationshipTranslatorTest extends TestCase
                 ('created', new DateType)
                 ('empty', StringType::nullable())
         );
-        $im = $translate($meta);
+        $identityMatch = $translate($meta);
 
-        $this->assertInstanceOf(IdentityMatch::class, $im);
+        $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
             'MATCH (start)-[entity:type]->(end) RETURN start, end, entity',
-            $im->query()->cypher()
+            $identityMatch->query()->cypher()
         );
-        $this->assertSame(0, $im->query()->parameters()->count());
-        $this->assertInstanceOf(MapInterface::class, $im->variables());
+        $this->assertSame(0, $identityMatch->query()->parameters()->count());
+        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
         $this->assertSame(
             'string',
-            (string) $im->variables()->keyType()
+            (string) $identityMatch->variables()->keyType()
         );
         $this->assertSame(
             Entity::class,
-            (string) $im->variables()->valueType()
+            (string) $identityMatch->variables()->valueType()
         );
-        $this->assertSame(1, $im->variables()->size());
-        $this->assertSame($meta, $im->variables()->get('entity'));
+        $this->assertSame(1, $identityMatch->variables()->size());
+        $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 }

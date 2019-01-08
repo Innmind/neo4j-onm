@@ -289,21 +289,17 @@ class ResultTranslatorTest extends TestCase
         $this->assertCount(0, $data);
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>
-     */
     public function testThrowWhenEmptyInvalidMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>');
         new ResultTranslator(new Map('string', 'callable'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>
-     */
     public function testThrowWhenEmptyInvalidVariableMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>');
         (new ResultTranslator)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')

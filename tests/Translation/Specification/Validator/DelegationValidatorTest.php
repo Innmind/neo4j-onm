@@ -19,6 +19,7 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -81,9 +82,9 @@ class DelegationValidatorTest extends TestCase
 
     public function testValidateAggregate()
     {
-        $compCreated = new Property('created', '=', null);
-        $compRelCreated = new Property('rel.created', '=', null);
-        $compChildContent = new Property('rel.child.content', '=', null);
+        $compCreated = new Property('created', Sign::equality(), null);
+        $compRelCreated = new Property('rel.created', Sign::equality(), null);
+        $compChildContent = new Property('rel.child.content', Sign::equality(), null);
 
         $this->assertTrue(
             (new DelegationValidator)(
@@ -115,10 +116,10 @@ class DelegationValidatorTest extends TestCase
 
     public function testDoesntValidateAggregate()
     {
-        $comp1 = new Property('foo', '=', null);
-        $comp2 = new Property('rel.foo', '=', null);
-        $comp3 = new Property('rel.child.foo', '=', null);
-        $comp4 = new Property('rel.child.foo.tooDeep', '=', null);
+        $comp1 = new Property('foo', Sign::equality(), null);
+        $comp2 = new Property('rel.foo', Sign::equality(), null);
+        $comp3 = new Property('rel.child.foo', Sign::equality(), null);
+        $comp4 = new Property('rel.child.foo.tooDeep', Sign::equality(), null);
 
         $this->assertFalse(
             (new DelegationValidator)(
@@ -151,9 +152,9 @@ class DelegationValidatorTest extends TestCase
 
     public function testValidateRelationship()
     {
-        $comp1 = new Property('created', '=', null);
-        $comp2 = new Property('start', '=', null);
-        $comp3 = new Property('end', '=', null);
+        $comp1 = new Property('created', Sign::equality(), null);
+        $comp2 = new Property('start', Sign::equality(), null);
+        $comp3 = new Property('end', Sign::equality(), null);
 
         $this->assertTrue(
             (new DelegationValidator)(
@@ -185,9 +186,9 @@ class DelegationValidatorTest extends TestCase
 
     public function testDoesntValidateRelationship()
     {
-        $comp1 = new Property('foo', '=', null);
-        $comp2 = new Property('foo.bar', '=', null);
-        $comp3 = new Property('start.id', '=', null);
+        $comp1 = new Property('foo', Sign::equality(), null);
+        $comp2 = new Property('foo.bar', Sign::equality(), null);
+        $comp3 = new Property('start.id', Sign::equality(), null);
 
         $this->assertFalse(
             (new DelegationValidator)(
@@ -217,12 +218,11 @@ class DelegationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>
-     */
     public function testThrowWhenInjectingInvalidValidator()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>');
+
         new DelegationValidator(new Map('int', 'int'));
     }
 }

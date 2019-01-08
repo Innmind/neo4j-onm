@@ -12,10 +12,11 @@ use Innmind\Neo4j\ONM\{
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
-    SpecificationInterface,
-    ComparatorInterface,
-    CompositeInterface,
+    Specification,
+    Comparator,
+    Composite,
     Operator,
+    Sign,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -35,18 +36,18 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     /**
      * {@inheritdo}
      */
-    public function __invoke(SpecificationInterface $specification): MapInterface
+    public function __invoke(Specification $specification): MapInterface
     {
         switch (true) {
-            case $specification instanceof ComparatorInterface:
-                if ($specification->sign() !== '=') {
+            case $specification instanceof Comparator:
+                if (!$specification->sign()->equals(Sign::equality())) {
                     throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->buildMapping($specification);
 
-            case $specification instanceof CompositeInterface:
-                if ((string) $specification->operator() !== Operator::AND) {
+            case $specification instanceof Composite:
+                if (!$specification->operator()->equals(Operator::and())) {
                     throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
@@ -60,7 +61,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     }
 
     private function buildMapping(
-        ComparatorInterface $specification
+        Comparator $specification
     ): MapInterface {
         $property = $specification->property();
 
@@ -85,7 +86,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     }
 
     private function buildPropertyMapping(
-        ComparatorInterface $specification
+        Comparator $specification
     ): MapInterface {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
@@ -103,7 +104,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     }
 
     private function buildEdgeMapping(
-        ComparatorInterface $specification,
+        Comparator $specification,
         RelationshipEdge $edge,
         string $side
     ): MapInterface {

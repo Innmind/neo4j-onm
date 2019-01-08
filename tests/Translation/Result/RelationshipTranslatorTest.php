@@ -15,6 +15,8 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Type,
+    Exception\InvalidArgumentException,
+    Exception\DomainException,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -254,11 +256,10 @@ class RelationshipTranslatorTest extends TestCase
         $this->assertSame('2016-01-04T00:00:00+0200', $data->current()->get('created'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         (new RelationshipTranslator)(
             'r',
             $this->createMock(Entity::class),
@@ -266,11 +267,10 @@ class RelationshipTranslatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenTranslatingWhenEmptyVariable()
     {
+        $this->expectException(DomainException::class);
+
         (new RelationshipTranslator)(
             '',
             Relationship::of(

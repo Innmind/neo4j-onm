@@ -26,9 +26,9 @@ class AggregateTest extends TestCase
 {
     public function testInterface()
     {
-        $ar = Aggregate::of(
-            $cn = new ClassName('foo'),
-            $i = new Identity('uuid', 'UUID'),
+        $aggregateRoot = Aggregate::of(
+            $className = new ClassName('foo'),
+            $identity = new Identity('uuid', 'UUID'),
             Set::of('string', 'LabelA'),
             Map::of('string', Type::class)
                 ('foo', $this->createMock(Type::class)),
@@ -47,21 +47,21 @@ class AggregateTest extends TestCase
             )
         );
 
-        $this->assertInstanceOf(Entity::class, $ar);
-        $this->assertSame($cn, $ar->class());
-        $this->assertSame($i, $ar->identity());
-        $this->assertSame(Repository::class, (string) $ar->repository());
-        $this->assertSame(AggregateFactory::class, (string) $ar->factory());
-        $this->assertInstanceOf(SetInterface::class, $ar->labels());
-        $this->assertSame('string', (string) $ar->labels()->type());
-        $this->assertSame(['LabelA'], $ar->labels()->toPrimitive());
-        $this->assertInstanceOf(MapInterface::class, $ar->children());
-        $this->assertSame('string', (string) $ar->children()->keyType());
-        $this->assertSame(Child::class, (string) $ar->children()->valueType());
-        $this->assertCount(1, $ar->children());
-        $this->assertSame($vo, $ar->children()->current());
-        $this->assertCount(1, $ar->properties());
-        $this->assertTrue($ar->properties()->contains('foo'));
+        $this->assertInstanceOf(Entity::class, $aggregateRoot);
+        $this->assertSame($className, $aggregateRoot->class());
+        $this->assertSame($identity, $aggregateRoot->identity());
+        $this->assertSame(Repository::class, (string) $aggregateRoot->repository());
+        $this->assertSame(AggregateFactory::class, (string) $aggregateRoot->factory());
+        $this->assertInstanceOf(SetInterface::class, $aggregateRoot->labels());
+        $this->assertSame('string', (string) $aggregateRoot->labels()->type());
+        $this->assertSame(['LabelA'], $aggregateRoot->labels()->toPrimitive());
+        $this->assertInstanceOf(MapInterface::class, $aggregateRoot->children());
+        $this->assertSame('string', (string) $aggregateRoot->children()->keyType());
+        $this->assertSame(Child::class, (string) $aggregateRoot->children()->valueType());
+        $this->assertCount(1, $aggregateRoot->children());
+        $this->assertSame($vo, $aggregateRoot->children()->current());
+        $this->assertCount(1, $aggregateRoot->properties());
+        $this->assertTrue($aggregateRoot->properties()->contains('foo'));
     }
 }
 
