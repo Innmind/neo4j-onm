@@ -40,6 +40,7 @@ use Innmind\EventBus\EventBus;
 use function Innmind\HttpTransport\bootstrap as http;
 use Innmind\Url\Url;
 use Innmind\TimeContinuum\TimeContinuum\Earth;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -207,7 +208,7 @@ class RepositoryTest extends TestCase
             ->add($entity3);
         $this->uow->commit();
 
-        $entities = $this->r->matching(new Property('content', '=~', 'foo.*'));
+        $entities = $this->r->matching(new Property('content', Sign::contains(), 'foo.*'));
 
         $this->assertInstanceOf(SetInterface::class, $entities);
         $this->assertSame('object', (string) $entities->type());

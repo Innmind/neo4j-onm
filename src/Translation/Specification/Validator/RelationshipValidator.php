@@ -10,10 +10,10 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\Specification\{
-    ComparatorInterface,
-    CompositeInterface,
-    NotInterface,
-    SpecificationInterface,
+    Comparator,
+    Composite,
+    Not,
+    Specification,
 };
 
 final class RelationshipValidator implements Validator
@@ -22,7 +22,7 @@ final class RelationshipValidator implements Validator
      * {@inheritdoc}
      */
     public function __invoke(
-        SpecificationInterface $specification,
+        Specification $specification,
         Entity $meta
     ): bool {
         if (!$meta instanceof Relationship) {
@@ -30,20 +30,20 @@ final class RelationshipValidator implements Validator
         }
 
         switch (true) {
-            case $specification instanceof ComparatorInterface:
+            case $specification instanceof Comparator:
                 return $this->isValidProperty(
                     $specification->property(),
                     $meta
                 );
 
-            case $specification instanceof CompositeInterface:
+            case $specification instanceof Composite:
                 if (!($this)($specification->left(), $meta)) {
                     return false;
                 }
 
                 return ($this)($specification->right(), $meta);
 
-            case $specification instanceof NotInterface:
+            case $specification instanceof Not:
                 return ($this)($specification->specification(), $meta);
         }
 

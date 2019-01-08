@@ -18,6 +18,7 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -52,10 +53,10 @@ class RelationshipVisitorTest extends TestCase
     public function testVisit()
     {
         $condition = ($this->visitor)(
-            (new Property('created', '=', 10))
-                ->or(new Property('empty', '=', 20))
-                ->and(new Property('start', '=', 'foo'))
-                ->and((new Property('end', '=', 'bar'))->not())
+            (new Property('created', Sign::equality(), 10))
+                ->or(new Property('empty', Sign::equality(), 20))
+                ->and(new Property('start', Sign::equality(), 'foo'))
+                ->and((new Property('end', Sign::equality(), 'bar'))->not())
         );
 
         $this->assertSame(

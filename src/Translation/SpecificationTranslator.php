@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     IdentityMatch,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 interface SpecificationTranslator
 {
@@ -16,6 +16,6 @@ interface SpecificationTranslator
      */
     public function __invoke(
         Entity $meta,
-        SpecificationInterface $specification
+        Specification $specification
     ): IdentityMatch;
 }

@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Query\PropertiesMatch,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     MapInterface,
     Map,
@@ -69,12 +70,12 @@ class AggregateVisitorTest extends TestCase
     public function testVisit()
     {
         $mapping = ($this->visitor)(
-            (new Property('created', '=', null))
-                ->and(new Property('empty', '=', null))
-                ->and(new Property('rel.created', '=', null))
-                ->and(new Property('rel.empty', '=', null))
-                ->and(new Property('rel.child.content', '=', null))
-                ->and(new Property('rel.child.empty', '=', null))
+            (new Property('created', Sign::equality(), null))
+                ->and(new Property('empty', Sign::equality(), null))
+                ->and(new Property('rel.created', Sign::equality(), null))
+                ->and(new Property('rel.empty', Sign::equality(), null))
+                ->and(new Property('rel.child.content', Sign::equality(), null))
+                ->and(new Property('rel.child.empty', Sign::equality(), null))
         );
 
         $this->assertInstanceOf(MapInterface::class, $mapping);
@@ -112,7 +113,7 @@ class AggregateVisitorTest extends TestCase
      */
     public function testThrowWhenNotDirectComparison()
     {
-        ($this->visitor)(new Property('created', '~=', 'foo'));
+        ($this->visitor)(new Property('created', Sign::contains(), 'foo'));
     }
 
     /**
@@ -121,8 +122,8 @@ class AggregateVisitorTest extends TestCase
     public function testThrowWhenOrOperator()
     {
         ($this->visitor)(
-            (new Property('created', '=', 'foo'))
-                ->or(new Property('empty', '=', 'foo'))
+            (new Property('created', Sign::equality(), 'foo'))
+                ->or(new Property('empty', Sign::equality(), 'foo'))
         );
     }
 
@@ -132,7 +133,7 @@ class AggregateVisitorTest extends TestCase
     public function testThrowWhenNegatedSpecification()
     {
         ($this->visitor)(
-            (new Property('created', '=', 'foo'))->not()
+            (new Property('created', Sign::equality(), 'foo'))->not()
         );
     }
 }

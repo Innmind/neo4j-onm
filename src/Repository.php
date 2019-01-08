@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 use Innmind\Immutable\SetInterface;
 
 interface Repository
@@ -47,5 +47,5 @@ interface Repository
      *
      * @return SetInterface<object>
      */
-    public function matching(SpecificationInterface $specification): SetInterface;
+    public function matching(Specification $specification): SetInterface;
 }

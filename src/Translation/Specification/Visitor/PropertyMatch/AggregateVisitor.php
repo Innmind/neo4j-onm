@@ -10,10 +10,11 @@ use Innmind\Neo4j\ONM\{
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
-    SpecificationInterface,
-    ComparatorInterface,
-    CompositeInterface,
+    Specification,
+    Comparator,
+    Composite,
     Operator,
+    Sign,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -33,18 +34,18 @@ final class AggregateVisitor implements PropertyMatchVisitor
     /**
      * {@inheritdo}
      */
-    public function __invoke(SpecificationInterface $specification): MapInterface
+    public function __invoke(Specification $specification): MapInterface
     {
         switch (true) {
-            case $specification instanceof ComparatorInterface:
-                if ($specification->sign() !== '=') {
+            case $specification instanceof Comparator:
+                if (!$specification->sign()->equals(Sign::equality())) {
                     throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
                 return $this->buildMapping($specification);
 
-            case $specification instanceof CompositeInterface:
-                if ((string) $specification->operator() !== Operator::AND) {
+            case $specification instanceof Composite:
+                if (!$specification->operator()->equals(Operator::and())) {
                     throw new SpecificationNotApplicableAsPropertyMatch;
                 }
 
@@ -58,7 +59,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
     }
 
     private function buildMapping(
-        ComparatorInterface $specification
+        Comparator $specification
     ): MapInterface {
         $property = new Str($specification->property());
 
@@ -72,7 +73,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
     }
 
     private function buildPropertyMapping(
-        ComparatorInterface $specification
+        Comparator $specification
     ): MapInterface {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
@@ -90,7 +91,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
     }
 
     private function buildSubPropertyMapping(
-        ComparatorInterface $specification
+        Comparator $specification
     ): MapInterface {
         $prop = new Str($specification->property());
         $pieces = $prop->split('.');

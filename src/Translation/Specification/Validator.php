@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification;
 
 use Innmind\Neo4j\ONM\Metadata\Entity;
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 interface Validator
 {
@@ -12,7 +12,7 @@ interface Validator
      * Check if the given specification is applicable for the given entity definition
      */
     public function __invoke(
-        SpecificationInterface $specification,
+        Specification $specification,
         Entity $meta
     ): bool;
 }

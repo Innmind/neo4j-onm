@@ -15,7 +15,7 @@ use Innmind\Immutable\{
     MapInterface,
     Map,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 final class DelegationTranslator implements SpecificationTranslator
 {
@@ -44,7 +44,7 @@ final class DelegationTranslator implements SpecificationTranslator
 
     public function __invoke(
         Entity $meta,
-        SpecificationInterface $specification
+        Specification $specification
     ): IdentityMatch {
         if (!($this->validate)($specification, $meta)) {
             throw new SpecificationNotApplicable;

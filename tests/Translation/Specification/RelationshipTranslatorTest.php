@@ -21,6 +21,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -56,10 +57,10 @@ class RelationshipTranslatorTest extends TestCase
 
         $match = $translate(
             $this->meta,
-            (new Property('created', '=', 1))
-                ->and(new Property('empty', '=', 2))
-                ->and(new Property('start', '=', 'foo'))
-                ->and(new Property('end', '=', new Uuid('11111111-1111-1111-1111-111111111111')))
+            (new Property('created', Sign::equality(), 1))
+                ->and(new Property('empty', Sign::equality(), 2))
+                ->and(new Property('start', Sign::equality(), 'foo'))
+                ->and(new Property('end', Sign::equality(), new Uuid('11111111-1111-1111-1111-111111111111')))
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
@@ -95,10 +96,10 @@ class RelationshipTranslatorTest extends TestCase
 
         $match = $translate(
             $this->meta,
-            (new Property('created', '=', 10))
-                ->or(new Property('empty', '=', 20))
-                ->and(new Property('start', '=', 'foo'))
-                ->and((new Property('end', '=', new Uuid('11111111-1111-1111-1111-111111111111')))->not())
+            (new Property('created', Sign::equality(), 10))
+                ->or(new Property('empty', Sign::equality(), 20))
+                ->and(new Property('start', Sign::equality(), 'foo'))
+                ->and((new Property('end', Sign::equality(), new Uuid('11111111-1111-1111-1111-111111111111')))->not())
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);

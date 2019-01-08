@@ -3,9 +3,12 @@ declare(strict_types = 1);
 
 namespace Fixtures\Innmind\Neo4j\ONM\Specification;
 
-use Innmind\Specification\ComparatorInterface;
+use Innmind\Specification\{
+    Comparator,
+    Sign,
+};
 
-class Property implements ComparatorInterface
+class Property implements Comparator
 {
     use CompositeTrait;
 
@@ -13,7 +16,7 @@ class Property implements ComparatorInterface
     private $sign;
     private $value;
 
-    public function __construct(string $property, string $sign, $value)
+    public function __construct(string $property, Sign $sign, $value)
     {
         $this->property = $property;
         $this->sign = $sign;
@@ -25,7 +28,7 @@ class Property implements ComparatorInterface
         return $this->property;
     }
 
-    public function sign(): string
+    public function sign(): Sign
     {
         return $this->sign;
     }

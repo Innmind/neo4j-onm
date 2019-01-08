@@ -17,7 +17,7 @@ use Innmind\Immutable\{
     SetInterface,
     Set,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 final class Repository implements RepositoryInterface
 {
@@ -128,7 +128,7 @@ final class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function matching(SpecificationInterface $specification): SetInterface
+    public function matching(Specification $specification): SetInterface
     {
         $match = ($this->matching)(
             $this->metadata(),

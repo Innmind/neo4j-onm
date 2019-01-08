@@ -18,6 +18,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query\Parameter;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -73,12 +74,12 @@ class AggregateTranslatorTest extends TestCase
 
         $match = $translate(
             $this->meta,
-            (new Property('created', '=', 10))
-                ->and(new Property('empty', '=', 20))
-                ->and(new Property('rel.created', '=', 30))
-                ->and(new Property('rel.empty', '=', 40))
-                ->and(new Property('rel.child.content', '=', 50))
-                ->and(new Property('rel.child.empty', '=', 60))
+            (new Property('created', Sign::equality(), 10))
+                ->and(new Property('empty', Sign::equality(), 20))
+                ->and(new Property('rel.created', Sign::equality(), 30))
+                ->and(new Property('rel.empty', Sign::equality(), 40))
+                ->and(new Property('rel.child.content', Sign::equality(), 50))
+                ->and(new Property('rel.child.empty', Sign::equality(), 60))
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
@@ -116,12 +117,12 @@ class AggregateTranslatorTest extends TestCase
 
         $match = $translate(
             $this->meta,
-            (new Property('created', '=', 10))
-                ->and(new Property('empty', '=', 20))
-                ->or(new Property('rel.created', '=', 30))
-                ->and(new Property('rel.empty', '=', 40))
-                ->and(new Property('rel.child.content', '=', 50))
-                ->and((new Property('rel.child.empty', '=', 60))->not())
+            (new Property('created', Sign::equality(), 10))
+                ->and(new Property('empty', Sign::equality(), 20))
+                ->or(new Property('rel.created', Sign::equality(), 30))
+                ->and(new Property('rel.empty', Sign::equality(), 40))
+                ->and(new Property('rel.child.content', Sign::equality(), 50))
+                ->and((new Property('rel.child.empty', Sign::equality(), 60))->not())
         );
 
         $this->assertInstanceOf(IdentityMatch::class, $match);

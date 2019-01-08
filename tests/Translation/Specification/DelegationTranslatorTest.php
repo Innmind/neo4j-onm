@@ -21,6 +21,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query;
+use Innmind\Specification\Sign;
 use Innmind\Immutable\{
     Map,
     Set,
@@ -39,7 +40,7 @@ class DelegationTranslatorTest extends TestCase
 
     public function testTranslate()
     {
-        $expected = new Property('created', '=', null);
+        $expected = new Property('created', Sign::equality(), null);
         $count = 0;
         $m1 = $this->createMock(SpecificationTranslator::class);
         $m1
@@ -125,7 +126,7 @@ class DelegationTranslatorTest extends TestCase
                 new Identity('id', 'foo'),
                 Set::of('string', 'Label')
             ),
-            new Property('foo', '=', null)
+            new Property('foo', Sign::equality(), null)
         );
     }
 
@@ -142,7 +143,7 @@ class DelegationTranslatorTest extends TestCase
                 new RelationshipEdge('start', 'foo', 'id'),
                 new RelationshipEdge('end', 'foo', 'id')
             ),
-            new Property('foo', '=', null)
+            new Property('foo', Sign::equality(), null)
         );
     }
 }

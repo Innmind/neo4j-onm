@@ -19,7 +19,7 @@ use Innmind\Immutable\{
     Set,
     Str,
 };
-use Innmind\Specification\SpecificationInterface;
+use Innmind\Specification\Specification;
 
 final class AggregateTranslator implements SpecificationTranslator
 {
@@ -28,7 +28,7 @@ final class AggregateTranslator implements SpecificationTranslator
      */
     public function __invoke(
         Entity $meta,
-        SpecificationInterface $specification
+        Specification $specification
     ): IdentityMatch {
         $variables = new Set('string');
 
