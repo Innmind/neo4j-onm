@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Neo4j\ONM\Query;
 
-use Innmind\Neo4j\ONM\Query\Where;
+use Innmind\Neo4j\ONM\{
+    Query\Where,
+    Exception\DomainException,
+};
 use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
@@ -20,20 +23,18 @@ class WhereTest extends TestCase
         $this->assertSame($parameters, $where->parameters());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyCypher()
     {
+        $this->expectException(DomainException::class);
+
         new Where('', new Map('string', 'mixed'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenInvalidParameterMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+
         new Where('foo', new Map('string', 'variable'));
     }
 

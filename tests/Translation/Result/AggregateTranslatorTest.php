@@ -15,6 +15,9 @@ use Innmind\Neo4j\ONM\{
     Type\DateType,
     Type\StringType,
     Type,
+    Exception\InvalidArgumentException,
+    Exception\DomainException,
+    Exception\MoreThanOneRelationshipFound,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -328,12 +331,11 @@ class AggregateTranslatorTest extends TestCase
         $this->assertSame('2016-01-02T00:00:00+0200', $data->current()->get('created'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\MoreThanOneRelationshipFound
-     * @expectedExceptionMessage More than one relationship found on "FQCN::rel2"
-     */
     public function testThrowWhenMoreThanOneRelationshipFound()
     {
+        $this->expectException(MoreThanOneRelationshipFound::class);
+        $this->expectExceptionMessage('More than one relationship found on "FQCN::rel2"');
+
         ($this->translate)(
             'n',
             $this->meta,
@@ -411,11 +413,10 @@ class AggregateTranslatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTranslatingNonSupportedEntity()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         ($this->translate)(
             'r',
             $this->createMock(Entity::class),
@@ -423,11 +424,10 @@ class AggregateTranslatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenTranslatingEmptyVariable()
     {
+        $this->expectException(DomainException::class);
+
         ($this->translate)(
             '',
             $this->meta,

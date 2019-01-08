@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\Factory;
+use Innmind\Neo4j\ONM\{
+    Metadata\Factory,
+    Exception\DomainException,
+};
 use PHPUnit\Framework\TestCase;
 
 class FactoryTest extends TestCase
@@ -15,11 +18,10 @@ class FactoryTest extends TestCase
         $this->assertSame('Class\Name\SpaceFactory', (string) $factory);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyClass()
     {
+        $this->expectException(DomainException::class);
+
         new Factory('');
     }
 }

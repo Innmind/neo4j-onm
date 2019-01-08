@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Metadata\Identity;
+use Innmind\Neo4j\ONM\{
+    Metadata\Identity,
+    Exception\DomainException,
+};
 use PHPUnit\Framework\TestCase;
 
 class IdentityTest extends TestCase
@@ -17,19 +20,17 @@ class IdentityTest extends TestCase
         $this->assertSame('UUID', $identity->type());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyProperty()
     {
+        $this->expectException(DomainException::class);
+
         new Identity('', 'UUID');
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyType()
     {
+        $this->expectException(DomainException::class);
+
         new Identity('uuid', '');
     }
 }

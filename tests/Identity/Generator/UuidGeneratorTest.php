@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity\Generator,
     Identity\Generator\UuidGenerator,
+    Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -75,11 +76,10 @@ class UuidGeneratorTest extends TestCase
         $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyType()
     {
+        $this->expectException(DomainException::class);
+
         new UuidGenerator('');
     }
 }

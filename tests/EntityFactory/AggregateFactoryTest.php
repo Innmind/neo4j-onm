@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     Type,
     EntityFactory,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -126,11 +127,10 @@ class AggregateFactoryTest extends TestCase
         $this->assertNull($aggregateRoot->rel->child->empty);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTryingToBuildNonAggregate()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
@@ -138,12 +138,11 @@ class AggregateFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 3 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             Aggregate::of(

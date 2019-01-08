@@ -15,6 +15,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Type,
     Query\PropertiesMatch,
+    Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Specification\Sign;
@@ -108,30 +109,27 @@ class AggregateVisitorTest extends TestCase
         $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_content'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenNotDirectComparison()
     {
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
         ($this->visitor)(new Property('created', Sign::contains(), 'foo'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenOrOperator()
     {
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
         ($this->visitor)(
             (new Property('created', Sign::equality(), 'foo'))
                 ->or(new Property('empty', Sign::equality(), 'foo'))
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicableAsPropertyMatch
-     */
     public function testThrowWhenNegatedSpecification()
     {
+        $this->expectException(SpecificationNotApplicableAsPropertyMatch::class);
+
         ($this->visitor)(
             (new Property('created', Sign::equality(), 'foo'))->not()
         );

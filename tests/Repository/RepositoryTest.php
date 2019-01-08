@@ -147,11 +147,10 @@ class RepositoryTest extends TestCase
         $this->repository->get($entity->uuid);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
-     */
     public function testThrowWhenGettingUnknownEntity()
     {
+        $this->expectException(EntityNotFound::class);
+
         $this->repository->get(new Uuid('24111111-1111-1111-1111-111111111111'));
     }
 

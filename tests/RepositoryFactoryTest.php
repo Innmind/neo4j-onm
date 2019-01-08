@@ -92,12 +92,11 @@ class RepositoryFactoryTest extends TestCase
         $this->assertSame($repo, $make($meta));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>
-     */
     public function testThrowWhenInvalidRepositoriesMapKey()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
+
         new RepositoryFactory(
             new UnitOfWork(
                 $this->createMock(Connection::class),
@@ -119,12 +118,11 @@ class RepositoryFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>
-     */
     public function testThrowWhenInvalidRepositoriesMapValue()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
+
         new RepositoryFactory(
             new UnitOfWork(
                 $this->createMock(Connection::class),

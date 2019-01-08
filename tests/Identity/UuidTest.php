@@ -6,6 +6,7 @@ namespace Tests\Innmind\Neo4j\ONM\Identity;
 use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Identity,
+    Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -20,19 +21,17 @@ class UuidTest extends TestCase
         $this->assertSame($string, (string) $uuid);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenGlobalFormatNotRespected()
     {
+        $this->expectException(DomainException::class);
+
         new Uuid('foo');
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenInvalidCharacters()
     {
+        $this->expectException(DomainException::class);
+
         new Uuid('11111111-1111-1111-1111-11111111111z');
     }
 }

@@ -22,6 +22,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Entity\Container,
     Type,
+    Exception\TypeError,
 };
 use Innmind\Neo4j\DBAL\{
     Result\Result,
@@ -340,12 +341,11 @@ class EntityFactoryTest extends TestCase
         $this->assertCount(0, $entities);
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>
-     */
     public function testThrowWhenInvalidVariableMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>');
+
         ($this->make)(
             $this->createMock(ResultInterface::class),
             new Map('string', 'object')

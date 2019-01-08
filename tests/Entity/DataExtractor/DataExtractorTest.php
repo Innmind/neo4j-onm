@@ -17,6 +17,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Uuid,
     Metadatas,
     Type,
+    Exception\TypeError,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -179,12 +180,11 @@ class DataExtractorTest extends TestCase
         $this->assertSame($end, $data->get('end'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>
-     */
     public function testThrowWhenInvalidExtractorMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>');
+
         new DataExtractor(
             $this->metadatas,
             new Map('string', 'callable')

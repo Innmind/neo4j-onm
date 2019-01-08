@@ -119,24 +119,22 @@ class ChangesetComputerTest extends TestCase
         $this->assertNull($diff->get('rel')->get('child')->get('extra'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenUsingInvalidSource()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+
         $this->computer->use(
             $this->createMock(Identity::class),
             new Map('string', 'variable')
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenComputingInvalidTarget()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+
         $this->computer->compute(
             $this->createMock(Identity::class),
             new Map('string', 'variable')

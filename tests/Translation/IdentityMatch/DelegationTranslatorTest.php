@@ -138,12 +138,11 @@ class DelegationTranslatorTest extends TestCase
         $this->assertSame($meta, $identityMatch->variables()->get('entity'));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>
-     */
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>');
+
         new DelegationTranslator(new Map('int', 'int'));
     }
 }

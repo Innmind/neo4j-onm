@@ -218,12 +218,11 @@ class DelegationValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>
-     */
     public function testThrowWhenInjectingInvalidValidator()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>');
+
         new DelegationValidator(new Map('int', 'int'));
     }
 }

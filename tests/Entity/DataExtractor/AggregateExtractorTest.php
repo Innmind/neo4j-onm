@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Type,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -132,11 +133,10 @@ class AggregateExtractorTest extends TestCase
         $this->assertNull($data->get('rel')->get('child')->get('empty'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenExtractingInvalidMeta()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         ($this->extract)(
             new \stdClass,
             $this->createMock(Entity::class)

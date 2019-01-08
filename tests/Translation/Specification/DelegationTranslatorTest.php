@@ -18,6 +18,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     Type\DateType,
     Type,
+    Exception\SpecificationNotApplicable,
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Neo4j\DBAL\Query;
@@ -106,20 +107,18 @@ class DelegationTranslatorTest extends TestCase
         $this->assertSame(2, $count);
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>
-     */
     public function testThrowWhenInjectingInvalidTranslators()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>');
+
         new DelegationTranslator(new Map('int', 'int'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
-     */
     public function testThrowWhenSpecificationNotApplicableToAggregate()
     {
+        $this->expectException(SpecificationNotApplicable::class);
+
         (new DelegationTranslator)(
             Aggregate::of(
                 new ClassName('FQCN'),
@@ -130,11 +129,10 @@ class DelegationTranslatorTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\SpecificationNotApplicable
-     */
     public function testThrowWhenSpecificationNotApplicableToRelationship()
     {
+        $this->expectException(SpecificationNotApplicable::class);
+
         (new DelegationTranslator)(
             Relationship::of(
                 new ClassName('foo'),

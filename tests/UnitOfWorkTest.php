@@ -29,6 +29,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Identity,
     Metadata\Entity,
     Exception\IdentityNotManaged,
+    Exception\EntityNotFound,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
 use function Innmind\Neo4j\DBAL\bootstrap as dbal;
@@ -203,11 +204,10 @@ class UnitOfWorkTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\EntityNotFound
-     */
     public function testThrowWhenTheEntityIsNotFound()
     {
+        $this->expectException(EntityNotFound::class);
+
         $this->uow->get(
             $this->aggregateClass,
             new Uuid('11111111-1111-1111-1111-111111111112')

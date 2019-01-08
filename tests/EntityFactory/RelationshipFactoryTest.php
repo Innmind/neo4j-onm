@@ -20,6 +20,7 @@ use Innmind\Neo4j\ONM\{
     Identity as IdentityInterface,
     Type,
     EntityFactory,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     Map,
@@ -89,11 +90,10 @@ class RelationshipFactoryTest extends TestCase
         $this->assertSame($end, $rel->end->value());
     }
 
-    /**
-     * @expectedException Innmind\neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenTryingToBuildNonRelationship()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
@@ -101,12 +101,11 @@ class RelationshipFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 3 must be of type MapInterface<string, mixed>
-     */
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             Relationship::of(

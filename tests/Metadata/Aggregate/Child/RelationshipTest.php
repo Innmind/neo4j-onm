@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipType,
     Metadata\Property,
     Type,
+    Exception\DomainException,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -40,11 +41,10 @@ class RelationshipTest extends TestCase
         $this->assertTrue($valueObjectRelationship->properties()->contains('foo'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyProperty()
     {
+        $this->expectException(DomainException::class);
+
         Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),
@@ -53,11 +53,10 @@ class RelationshipTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyChildProperty()
     {
+        $this->expectException(DomainException::class);
+
         Relationship::of(
             new ClassName('foo'),
             new RelationshipType('FOO'),

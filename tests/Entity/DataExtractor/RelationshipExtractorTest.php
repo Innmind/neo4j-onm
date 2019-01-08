@@ -16,6 +16,7 @@ use Innmind\Neo4j\ONM\{
     Type\StringType,
     Identity\Uuid,
     Type,
+    Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
     MapInterface,
@@ -82,11 +83,10 @@ class RelationshipExtractorTest extends TestCase
         $this->assertSame($end, $data->get('end'));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\InvalidArgumentException
-     */
     public function testThrowWhenExtractingInvalidMeta()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         ($this->extract)(
             new \stdClass,
             $this->createMock(Entity::class)

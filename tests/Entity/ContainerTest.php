@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Entity\Container,
     Entity\Container\State,
     Identity,
+    Exception\IdentityNotManaged,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -41,19 +42,17 @@ class ContainerTest extends TestCase
         $this->assertSame(0, $container->state(State::removed())->size());
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
-     */
     public function testThrowWhenGettingStateForNotManagedIdentity()
     {
+        $this->expectException(IdentityNotManaged::class);
+
         (new Container)->stateFor($this->createMock(Identity::class));
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\IdentityNotManaged
-     */
     public function testThrowWhenGettingEntityForNotManagedEntity()
     {
+        $this->expectException(IdentityNotManaged::class);
+
         (new Container)->get($this->createMock(Identity::class));
     }
 }
