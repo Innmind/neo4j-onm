@@ -19,7 +19,7 @@ final class RelationshipType
         $this->type = $type;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->type;
     }

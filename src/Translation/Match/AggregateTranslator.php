@@ -67,7 +67,7 @@ final class AggregateTranslator implements MatchTranslator
                         ...unwrap($child->labels()),
                     )
                     ->through(
-                        (string) $child->relationship()->type(),
+                        $child->relationship()->type()->toString(),
                         $relName->toString(),
                         'left'
                     );

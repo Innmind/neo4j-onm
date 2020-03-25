@@ -42,7 +42,7 @@ final class UuidGenerator implements Generator
         $class = (string) $this->identities->valueType();
         $uuid = new $class((string) Factory::uuid4());
         $this->identities = $this->identities->put(
-            (string) $uuid,
+            $uuid->toString(),
             $uuid
         );
 
@@ -74,7 +74,7 @@ final class UuidGenerator implements Generator
     {
         /** @psalm-suppress ArgumentTypeCoercion */
         $this->identities = $this->identities->put(
-            (string) $identity,
+            $identity->toString(),
             $identity
         );
 

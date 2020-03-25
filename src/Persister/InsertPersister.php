@@ -129,7 +129,7 @@ final class InsertPersister implements Persister
         /** @var Aggregate */
         $meta = ($this->metadata)(\get_class($entity));
         $data = ($this->extract)($entity);
-        $varName = $this->name->sprintf(\md5((string) $identity->value()));
+        $varName = $this->name->sprintf(\md5($identity->toString()));
 
         $query = $query->create(
             $varName->toString(),
@@ -261,7 +261,7 @@ final class InsertPersister implements Persister
                     )
             )
             ->through(
-                (string) $meta->relationship()->type(),
+                $meta->relationship()->type()->toString(),
                 $relationshipName->toString(),
                 'left'
             )
@@ -329,7 +329,7 @@ final class InsertPersister implements Persister
         $start = $data->get($meta->startNode()->property());
         /** @var mixed */
         $end = $data->get($meta->endNode()->property());
-        $varName = $this->name->sprintf(\md5((string) $identity->value()));
+        $varName = $this->name->sprintf(\md5($identity->toString()));
         $startName = $this->name->sprintf(\md5((string) $start));
         $endName = $this->name->sprintf(\md5((string) $end));
 
@@ -353,7 +353,7 @@ final class InsertPersister implements Persister
             ->create($startName->toString())
             ->linkedTo($endName->toString())
             ->through(
-                (string) $meta->type(),
+                $meta->type()->toString(),
                 $varName->toString(),
                 'right'
             )

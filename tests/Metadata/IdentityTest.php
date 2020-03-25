@@ -15,7 +15,6 @@ class IdentityTest extends TestCase
     {
         $identity = new Identity('uuid', 'UUID');
 
-        $this->assertSame('uuid', (string) $identity);
         $this->assertSame('uuid', $identity->property());
         $this->assertSame('UUID', $identity->type());
     }

@@ -126,14 +126,14 @@ final class RemovePersister implements Persister
     ): Query {
         /** @var Relationship */
         $meta = ($this->metadata)(\get_class($entity));
-        $name = $this->name->sprintf(\md5((string) $identity->value()));
+        $name = $this->name->sprintf(\md5($identity->toString()));
         $this->variables = $this->variables->add($name->toString());
 
         return $query
             ->match()
             ->linkedTo()
             ->through(
-                (string) $meta->type(),
+                $meta->type()->toString(),
                 $name->toString(),
             )
             ->withProperty(
@@ -159,7 +159,7 @@ final class RemovePersister implements Persister
     ): Query {
         /** @var Aggregate */
         $meta = ($this->metadata)(\get_class($entity));
-        $name = $this->name->sprintf(\md5((string) $identity->value()));
+        $name = $this->name->sprintf(\md5($identity->toString()));
         $this->variables = $this->variables->add($name->toString());
 
         $query = $query
@@ -196,7 +196,7 @@ final class RemovePersister implements Persister
                             ...unwrap($child->labels()),
                         )
                         ->through(
-                            (string) $child->relationship()->type(),
+                            $child->relationship()->type()->toString(),
                             $relName = $name
                                 ->append('_')
                                 ->append($child->relationship()->property())

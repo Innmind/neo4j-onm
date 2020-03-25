@@ -29,11 +29,6 @@ final class Property
         return $this->name;
     }
 
-    public function __toString(): string
-    {
-        return $this->name();
-    }
-
     public function type(): Type
     {
         return $this->type;

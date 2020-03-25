@@ -32,7 +32,7 @@ final class Factory
     /**
      * @return class-string<EntityFactory>
      */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->class;
     }

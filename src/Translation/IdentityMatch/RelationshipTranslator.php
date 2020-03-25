@@ -30,7 +30,7 @@ final class RelationshipTranslator implements IdentityMatchTranslator
             ->match('start')
             ->linkedTo('end')
             ->through(
-                (string) $meta->type(),
+                $meta->type()->toString(),
                 'entity',
                 'right'
             )

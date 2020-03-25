@@ -35,7 +35,7 @@ class Uuid implements Identity
     /**
      * {@inheritdoc}
      */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
     }

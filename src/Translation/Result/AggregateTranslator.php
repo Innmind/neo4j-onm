@@ -148,7 +148,7 @@ final class AggregateTranslator implements EntityTranslator
                 $node,
                 $relMeta
             ): bool {
-                return $relationship->type()->value() === (string) $relMeta->type() &&
+                return $relationship->type()->value() === $relMeta->type()->toString() &&
                     $relationship->endNode()->value() === $node->id()->value();
             })
             ->values();

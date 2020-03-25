@@ -15,7 +15,6 @@ class RelationshipEdgeTest extends TestCase
     {
         $edge = new RelationshipEdge('uuid', 'UUID', 'target');
 
-        $this->assertSame('uuid', (string) $edge);
         $this->assertSame('uuid', $edge->property());
         $this->assertSame('UUID', $edge->type());
         $this->assertSame('target', $edge->target());

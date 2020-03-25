@@ -33,9 +33,4 @@ class Identity
     {
         return $this->property;
     }
-
-    public function __toString(): string
-    {
-        return $this->property;
-    }
 }

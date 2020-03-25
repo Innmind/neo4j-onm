@@ -30,7 +30,7 @@ final class MoreThanOneRelationshipFound extends RuntimeException
         $exception = new self(
             \sprintf(
                 'More than one relationship found on "%s::%s"',
-                (string) $entity->class(),
+                $entity->class()->toString(),
                 $this->child->relationship()->property(),
             ),
             $this->child,

@@ -18,7 +18,7 @@ class UuidTest extends TestCase
 
         $this->assertInstanceOf(Identity::class, $uuid);
         $this->assertSame($string, $uuid->value());
-        $this->assertSame($string, (string) $uuid);
+        $this->assertSame($string, $uuid->toString());
     }
 
     public function testThrowWhenGlobalFormatNotRespected()

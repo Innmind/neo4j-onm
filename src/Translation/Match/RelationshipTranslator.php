@@ -27,7 +27,7 @@ final class RelationshipTranslator implements MatchTranslator
             ->match('start')
             ->linkedTo('end')
             ->through(
-                (string) $meta->type(),
+                $meta->type()->toString(),
                 'entity',
                 'right'
             )

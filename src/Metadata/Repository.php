@@ -32,7 +32,7 @@ final class Repository
     /**
      * @return class-string<RepositoryInterface>
      */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->class;
     }

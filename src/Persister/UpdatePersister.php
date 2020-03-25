@@ -172,7 +172,7 @@ final class UpdatePersister implements Persister
         Map $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(\md5((string) $identity->value()));
+        $name = $this->name->sprintf(\md5($identity->toString()));
         $query = $query
             ->match(
                 $name->toString(),
@@ -241,7 +241,7 @@ final class UpdatePersister implements Persister
                             ...unwrap($child->labels()),
                         )
                         ->through(
-                            (string) $child->relationship()->type(),
+                            $child->relationship()->type()->toString(),
                             $relName->toString(),
                         );
                 }
@@ -260,7 +260,7 @@ final class UpdatePersister implements Persister
         Map $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(\md5((string) $identity->value()));
+        $name = $this->name->sprintf(\md5($identity->toString()));
         $this->variables = $this->variables->put(
             $name,
             $this->buildProperties(
@@ -273,7 +273,7 @@ final class UpdatePersister implements Persister
             ->match()
             ->linkedTo()
             ->through(
-                (string) $meta->type(),
+                $meta->type()->toString(),
                 $name->toString(),
             )
             ->withProperty(

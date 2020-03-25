@@ -222,12 +222,12 @@ class EntityFactoryTest extends TestCase
         $this->assertCount(2, $entities);
         $entities = unwrap($entities);
         $this->assertInstanceOf(
-            (string) $aggregate->class(),
+            $aggregate->class()->toString(),
             \current($entities)
         );
         \next($entities);
         $this->assertInstanceOf(
-            (string) $relationship->class(),
+            $relationship->class()->toString(),
             \current($entities)
         );
         \reset($entities);
@@ -247,7 +247,7 @@ class EntityFactoryTest extends TestCase
         );
         $this->assertNull($aggregateRoot->empty);
         $this->assertInstanceOf(
-            (string) $aggregate->children()->get('rel')->relationship()->class(),
+            $aggregate->children()->get('rel')->relationship()->class()->toString(),
             $aggregateRoot->rel
         );
         $this->assertInstanceOf(
@@ -260,14 +260,14 @@ class EntityFactoryTest extends TestCase
         );
         $this->assertNull($aggregateRoot->rel->empty);
         $this->assertInstanceOf(
-            (string) $aggregate->children()->get('rel')->class(),
+            $aggregate->children()->get('rel')->class()->toString(),
             $aggregateRoot->rel->child
         );
         $this->assertSame('foo', $aggregateRoot->rel->child->content);
         $this->assertNull($aggregateRoot->rel->child->empty);
         \next($entities);
         $rel = \current($entities);
-        $this->assertInstanceOf((string) $relationship->class(), $rel);
+        $this->assertInstanceOf($relationship->class()->toString(), $rel);
         $this->assertInstanceOf(Uuid::class, $rel->uuid);
         $this->assertSame(
             '11111111-1111-1111-1111-111111111112',

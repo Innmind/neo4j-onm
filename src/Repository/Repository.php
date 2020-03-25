@@ -75,7 +75,7 @@ final class Repository implements RepositoryInterface
     public function get(Identity $identity): object
     {
         $entity = $this->unitOfWork()->get(
-            (string) $this->metadata()->class(),
+            $this->metadata()->class()->toString(),
             $identity
         );
         $state = $this->unitOfWork()->stateFor($identity);

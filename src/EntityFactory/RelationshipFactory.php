@@ -52,7 +52,7 @@ final class RelationshipFactory implements EntityFactoryInterface
         }
 
         $reflection = ReflectionClass::of(
-            (string) $meta->class(),
+            $meta->class()->toString(),
             null,
             $this->injectionStrategy,
             $this->instanciator

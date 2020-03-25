@@ -29,8 +29,7 @@ final class Resolver
      */
     public function __invoke(Entity $meta): EntityFactoryInterface
     {
-        /** @var class-string<EntityFactoryInterface> */
-        $class = (string) $meta->factory();
+        $class = $meta->factory()->toString();
 
         if ($this->mapping->contains($class)) {
             return $this->mapping->get($class);

@@ -56,8 +56,7 @@ final class RepositoryFactory
             return $this->repositories->get($meta);
         }
 
-        /** @var class-string<Repository> */
-        $class = (string) $meta->repository();
+        $class = $meta->repository()->toString();
         /** @var Repository */
         $repository = new $class(
             $this->unitOfWork,

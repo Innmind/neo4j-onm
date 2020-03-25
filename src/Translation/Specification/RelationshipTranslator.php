@@ -47,7 +47,7 @@ final class RelationshipTranslator implements SpecificationTranslator
                         $mapping
                     )
                     ->through(
-                        (string) $meta->type(),
+                        $meta->type()->toString(),
                         'entity',
                         'right'
                     ),
@@ -60,7 +60,7 @@ final class RelationshipTranslator implements SpecificationTranslator
                 ->match('start')
                 ->linkedTo('end')
                 ->through(
-                    (string) $meta->type(),
+                    $meta->type()->toString(),
                     'entity',
                     'right'
                 )

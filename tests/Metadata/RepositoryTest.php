@@ -15,7 +15,7 @@ class RepositoryTest extends TestCase
     {
         $repository = new Repository('Class\Name\SpaceRepository');
 
-        $this->assertSame('Class\Name\SpaceRepository', (string) $repository);
+        $this->assertSame('Class\Name\SpaceRepository', $repository->toString());
     }
 
     public function testThrowWhenEmptyClass()

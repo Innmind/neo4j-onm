@@ -53,7 +53,7 @@ final class AggregateFactory implements EntityFactoryInterface
         }
 
         $reflection = $this
-            ->reflection((string) $meta->class())
+            ->reflection($meta->class()->toString())
             ->withProperty(
                 $meta->identity()->property(),
                 $identity
@@ -130,7 +130,7 @@ final class AggregateFactory implements EntityFactoryInterface
                 return true;
             })
             ->reduce(
-                $this->reflection((string) $relationship->class()),
+                $this->reflection($relationship->class()->toString()),
                 static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,
@@ -169,7 +169,7 @@ final class AggregateFactory implements EntityFactoryInterface
                 return true;
             })
             ->reduce(
-                $this->reflection((string) $meta->class()),
+                $this->reflection($meta->class()->toString()),
                 static function(ReflectionClass $carry, string $name, Property $property) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $name,

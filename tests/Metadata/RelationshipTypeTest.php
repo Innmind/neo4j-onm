@@ -15,7 +15,7 @@ class RelationshipTypeTest extends TestCase
     {
         $type = new RelationshipType('FOO');
 
-        $this->assertSame('FOO', (string) $type);
+        $this->assertSame('FOO', $type->toString());
     }
 
     public function testThrowWhenEmptyType()

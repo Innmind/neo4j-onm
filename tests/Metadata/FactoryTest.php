@@ -15,7 +15,7 @@ class FactoryTest extends TestCase
     {
         $factory = new Factory('Class\Name\SpaceFactory');
 
-        $this->assertSame('Class\Name\SpaceFactory', (string) $factory);
+        $this->assertSame('Class\Name\SpaceFactory', $factory->toString());
     }
 
     public function testThrowWhenEmptyClass()

@@ -49,8 +49,8 @@ class AggregateTest extends TestCase
         $this->assertInstanceOf(Entity::class, $aggregateRoot);
         $this->assertSame($className, $aggregateRoot->class());
         $this->assertSame($identity, $aggregateRoot->identity());
-        $this->assertSame(Repository::class, (string) $aggregateRoot->repository());
-        $this->assertSame(AggregateFactory::class, (string) $aggregateRoot->factory());
+        $this->assertSame(Repository::class, $aggregateRoot->repository()->toString());
+        $this->assertSame(AggregateFactory::class, $aggregateRoot->factory()->toString());
         $this->assertInstanceOf(Set::class, $aggregateRoot->labels());
         $this->assertSame('string', (string) $aggregateRoot->labels()->type());
         $this->assertSame(['LabelA'], unwrap($aggregateRoot->labels()));

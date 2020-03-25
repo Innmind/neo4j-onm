@@ -75,7 +75,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
                         ...unwrap($child->labels())
                     )
                     ->through(
-                        (string) $child->relationship()->type(),
+                        $child->relationship()->type()->toString(),
                         $relName->toString(),
                         'left'
                     );

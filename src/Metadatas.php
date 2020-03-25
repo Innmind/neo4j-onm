@@ -34,7 +34,7 @@ final class Metadatas
      */
     private function register(Entity $meta): self
     {
-        $this->mapping = $this->mapping->put((string) $meta->class(), $meta);
+        $this->mapping = $this->mapping->put($meta->class()->toString(), $meta);
 
         return $this;
     }

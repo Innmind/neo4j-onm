@@ -90,7 +90,7 @@ final class AggregateTranslator implements SpecificationTranslator
                                 $mapping
                             )
                             ->through(
-                                (string) $child->relationship()->type(),
+                                $child->relationship()->type()->toString(),
                                 $relName->toString(),
                                 'left'
                             ),
@@ -128,7 +128,7 @@ final class AggregateTranslator implements SpecificationTranslator
                             ...unwrap($child->labels()),
                         )
                         ->through(
-                            (string) $child->relationship()->type(),
+                            $child->relationship()->type()->toString(),
                             $relName->toString(),
                             'left'
                         );
