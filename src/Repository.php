@@ -17,7 +17,7 @@ interface Repository
     /**
      * Check if the repository has an entity with the given id
      */
-    public function has(Identity $identity): bool;
+    public function contains(Identity $identity): bool;
 
     /**
      * Return the entity with the given id

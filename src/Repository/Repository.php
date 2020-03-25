@@ -48,7 +48,7 @@ final class Repository implements RepositoryInterface
         return $this;
     }
 
-    public function has(Identity $identity): bool
+    public function contains(Identity $identity): bool
     {
         if ($this->unitOfWork()->contains($identity)) {
             $state = $this->unitOfWork()->stateFor($identity);

@@ -131,15 +131,15 @@ class RepositoryTest extends TestCase
         $entity = new $this->class;
         $entity->uuid = new Uuid('21111111-1111-1111-1111-111111111111');
 
-        $this->assertFalse($this->repository->has($entity->uuid));
+        $this->assertFalse($this->repository->contains($entity->uuid));
         $this->assertSame($this->repository, $this->repository->add($entity));
-        $this->assertTrue($this->repository->has($entity->uuid));
+        $this->assertTrue($this->repository->contains($entity->uuid));
         $this->assertSame(
             $entity,
             $this->repository->get($entity->uuid)
         );
         $this->assertSame($this->repository, $this->repository->remove($entity));
-        $this->assertFalse($this->repository->has($entity->uuid));
+        $this->assertFalse($this->repository->contains($entity->uuid));
 
         $this->expectException(EntityNotFound::class);
         $this->repository->get($entity->uuid);
