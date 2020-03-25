@@ -73,7 +73,10 @@ class UuidGeneratorTest extends TestCase
 
         $uuid2 = $generator->new();
         $this->assertInstanceOf(get_class($uuid), $uuid2);
-        $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
+        $this->assertRegExp(
+            '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/',
+            $uuid2->value(),
+        );
     }
 
     public function testThrowWhenEmptyType()
