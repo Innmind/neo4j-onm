@@ -12,7 +12,7 @@ interface Repository
     /**
      * Add a new entity to the repository
      */
-    public function add(object $entity): self;
+    public function add(object $entity): void;
 
     /**
      * Check if the repository has an entity with the given id
@@ -34,7 +34,7 @@ interface Repository
     /**
      * Remove the given entity from the repository
      */
-    public function remove(object $entity): self;
+    public function remove(object $entity): void;
 
     /**
      * Return all the entities from the repository

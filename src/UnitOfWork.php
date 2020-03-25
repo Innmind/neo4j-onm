@@ -62,7 +62,7 @@ final class UnitOfWork
     /**
      * Add the given entity to the ones to be persisted
      */
-    public function persist(object $entity): self
+    public function persist(object $entity): void
     {
         $identity = $this->extractIdentity($entity);
 
@@ -78,8 +78,6 @@ final class UnitOfWork
                 ->get($meta->identity()->type())
                 ->add($identity);
         }
-
-        return $this;
     }
 
     /**
@@ -136,7 +134,7 @@ final class UnitOfWork
     /**
      * Plan the given entity to be removed
      */
-    public function remove(object $entity): self
+    public function remove(object $entity): void
     {
         $identity = $this->extractIdentity($entity);
 
@@ -163,20 +161,16 @@ final class UnitOfWork
         } catch (IdentityNotManaged $e) {
             //pass
         }
-
-        return $this;
     }
 
     /**
      * Detach the given entity from the unit of work
      */
-    public function detach(object $entity): self
+    public function detach(object $entity): void
     {
         $this->container->detach(
             $this->extractIdentity($entity),
         );
-
-        return $this;
     }
 
     /**
@@ -197,11 +191,9 @@ final class UnitOfWork
     /**
      * Send the modifications to the database
      */
-    public function commit(): self
+    public function commit(): void
     {
         ($this->persist)($this->connection, $this->container);
-
-        return $this;
     }
 
     /**

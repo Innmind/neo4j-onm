@@ -14,6 +14,6 @@ interface Manager
     /**
      * Persist all the entities' modifications
      */
-    public function flush(): self;
+    public function flush(): void;
     public function identities(): Generators;
 }

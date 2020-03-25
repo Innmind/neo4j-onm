@@ -151,27 +151,26 @@ class UpdatePersisterTest extends TestCase
         $relationship->end = new Uuid($e = '11111111-1111-1111-1111-111111111114');
         $container->push($relationship->uuid, $relationship, State::managed());
         $count = 0;
-        $changeset
-            ->use(
-                $aggregate->uuid,
-                Map::of('string', 'mixed')
+        $changeset->use(
+            $aggregate->uuid,
+            Map::of('string', 'mixed')
+                ('created', new \DateTimeImmutable('2015-01-01'))
+                ('empty', null)
+                ('rel', Map::of('string', 'mixed')
                     ('created', new \DateTimeImmutable('2015-01-01'))
                     ('empty', null)
-                    ('rel', Map::of('string', 'mixed')
-                        ('created', new \DateTimeImmutable('2015-01-01'))
+                    ('child', Map::of('string', 'mixed')
+                        ('content', 'bar')
                         ('empty', null)
-                        ('child', Map::of('string', 'mixed')
-                            ('content', 'bar')
-                            ('empty', null)
-                        )
                     )
-            )
-            ->use(
-                $relationship->uuid,
-                Map::of('string', 'mixed')
-                    ('created', new \DateTimeImmutable('2015-01-01'))
-                    ('empty', null)
-            );
+                )
+        );
+        $changeset->use(
+            $relationship->uuid,
+            Map::of('string', 'mixed')
+                ('created', new \DateTimeImmutable('2015-01-01'))
+                ('empty', null)
+        );
 
         $conn
             ->method('execute')

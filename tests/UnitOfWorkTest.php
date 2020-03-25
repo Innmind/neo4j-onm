@@ -130,8 +130,7 @@ class UnitOfWorkTest extends TestCase
         $entity->uuid = new Uuid('11111111-1111-1111-1111-111111111111');
 
         $this->assertFalse($this->uow->contains($entity->uuid));
-        $this->assertSame(
-            $this->uow,
+        $this->assertNull(
             $this->uow->persist($entity)
         );
         $this->assertTrue($this->uow->contains($entity->uuid));
@@ -153,8 +152,7 @@ class UnitOfWorkTest extends TestCase
     {
         list($uow, $entity) = $args;
 
-        $this->assertSame(
-            $uow,
+        $this->assertNull(
             $uow->commit()
         );
         $this->assertSame(
@@ -241,7 +239,7 @@ class UnitOfWorkTest extends TestCase
         $entity->uuid = new Uuid('11111111-1111-1111-1111-111111111111');
 
         $this->uow->persist($entity);
-        $this->assertSame($this->uow, $this->uow->remove($entity));
+        $this->assertNull($this->uow->remove($entity));
         $this->assertSame(
             State::removed(),
             $this->uow->stateFor($entity->uuid)
@@ -255,8 +253,7 @@ class UnitOfWorkTest extends TestCase
     {
         list($uow, $entity) = $args;
 
-        $this->assertSame(
-            $uow,
+        $this->assertNull(
             $uow->remove($entity)
         );
         $this->assertSame(
@@ -271,7 +268,7 @@ class UnitOfWorkTest extends TestCase
         $entity = new $this->aggregateClass;
         $entity->uuid = new Uuid('11111111-1111-1111-1111-111111111111');
 
-        $this->assertSame($this->uow, $this->uow->remove($entity));
+        $this->assertNull($this->uow->remove($entity));
 
         $this->expectException(IdentityNotManaged::class);
         $this->uow->stateFor($entity->uuid);
@@ -284,8 +281,7 @@ class UnitOfWorkTest extends TestCase
     {
         list($uow, $entity) = $args;
 
-        $this->assertSame(
-            $uow,
+        $this->assertNull(
             $uow->detach($entity)
         );
         $this->assertFalse($uow->contains($entity->uuid));
@@ -298,6 +294,6 @@ class UnitOfWorkTest extends TestCase
         $entity = new $this->aggregateClass;
         $entity->uuid = new Uuid('11111111-1111-1111-1111-111111111111');
 
-        $this->assertSame($this->uow, $this->uow->detach($entity));
+        $this->assertNull($this->uow->detach($entity));
     }
 }

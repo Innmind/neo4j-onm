@@ -45,11 +45,9 @@ final class Manager implements ManagerInterface
         );
     }
 
-    public function flush(): ManagerInterface
+    public function flush(): void
     {
         $this->unitOfWork->commit();
-
-        return $this;
     }
 
     public function identities(): Generators

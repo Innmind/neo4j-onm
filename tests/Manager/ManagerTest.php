@@ -75,7 +75,7 @@ class ManagerTest extends TestCase
         $this->assertInstanceOf(ManagerInterface::class, $manager);
         $this->assertSame($conn, $manager->connection());
         $this->assertInstanceOf(get_class($mock), $manager->repository('foo'));
-        $this->assertSame($manager, $manager->flush());
+        $this->assertNull($manager->flush());
         $this->assertInstanceOf(Uuid::class, $manager->identities()->new(Uuid::class));
     }
 }

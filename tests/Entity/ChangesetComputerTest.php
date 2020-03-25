@@ -40,8 +40,7 @@ class ChangesetComputerTest extends TestCase
 
     public function testComputeWithSource()
     {
-        $this->assertSame(
-            $this->computer,
+        $this->assertNull(
             $this->computer->use(
                 $identity = $this->createMock(Identity::class),
                 Map::of('string', 'mixed')

@@ -132,13 +132,13 @@ class RepositoryTest extends TestCase
         $entity->uuid = new Uuid('21111111-1111-1111-1111-111111111111');
 
         $this->assertFalse($this->repository->contains($entity->uuid));
-        $this->assertSame($this->repository, $this->repository->add($entity));
+        $this->assertNull($this->repository->add($entity));
         $this->assertTrue($this->repository->contains($entity->uuid));
         $this->assertSame(
             $entity,
             $this->repository->get($entity->uuid)
         );
-        $this->assertSame($this->repository, $this->repository->remove($entity));
+        $this->assertNull($this->repository->remove($entity));
         $this->assertFalse($this->repository->contains($entity->uuid));
 
         $this->expectException(EntityNotFound::class);
@@ -167,10 +167,8 @@ class RepositoryTest extends TestCase
         $entity2 = new $this->class;
         $entity2->uuid = new Uuid('41111111-1111-1111-1111-111111111111');
 
-        $this
-            ->repository
-            ->add($entity)
-            ->add($entity2);
+        $this->repository->add($entity);
+        $this->repository->add($entity2);
         $this->uow->commit();
         $all = $this->repository->all();
 
@@ -179,10 +177,8 @@ class RepositoryTest extends TestCase
         $this->assertSame(2, $all->size());
         $this->assertTrue($all->contains($entity));
         $this->assertTrue($all->contains($entity2));
-        $this
-            ->repository
-            ->remove($entity)
-            ->remove($entity2);
+        $this->repository->remove($entity);
+        $this->repository->remove($entity2);
         $this->uow->commit();
     }
 
@@ -198,11 +194,9 @@ class RepositoryTest extends TestCase
         $entity3->uuid = new Uuid('71111111-1111-1111-1111-111111111111');
         $entity3->content = 'bar';
 
-        $this
-            ->repository
-            ->add($entity)
-            ->add($entity2)
-            ->add($entity3);
+        $this->repository->add($entity);
+        $this->repository->add($entity2);
+        $this->repository->add($entity3);
         $this->uow->commit();
 
         $entities = $this->repository->matching(new Property('content', Sign::contains(), 'foo.*'));
@@ -213,11 +207,9 @@ class RepositoryTest extends TestCase
         $this->assertTrue($entities->contains($entity));
         $this->assertTrue($entities->contains($entity2));
 
-        $this
-            ->repository
-            ->remove($entity)
-            ->remove($entity2)
-            ->remove($entity3);
+        $this->repository->remove($entity);
+        $this->repository->remove($entity2);
+        $this->repository->remove($entity3);
         $this->uow->commit();
     }
 }

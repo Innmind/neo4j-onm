@@ -26,13 +26,11 @@ final class ChangesetComputer
      *
      * @param Map<string, mixed> $source
      */
-    public function use(Identity $identity, Map $source): self
+    public function use(Identity $identity, Map $source): void
     {
         assertMap('string', 'mixed', $source, 2);
 
         $this->sources = $this->sources->put($identity, $source);
-
-        return $this;
     }
 
     /**

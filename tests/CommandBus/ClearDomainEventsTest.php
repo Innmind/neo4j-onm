@@ -38,75 +38,74 @@ class ClearDomainEventsTest extends TestCase
             ->method('__invoke')
             ->with($command);
         $container = new Container;
-        $container
-            ->push(
-                $this->createMock(Identity::class),
-                new class {},
-                State::new()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                $entity1 = new class implements ContainsRecordedEvents {
-                    use EventRecorder;
+        $container->push(
+            $this->createMock(Identity::class),
+            new class {},
+            State::new()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            $entity1 = new class implements ContainsRecordedEvents {
+                use EventRecorder;
 
-                    public function __construct()
-                    {
-                        $this->record(new \stdClass);
-                    }
-                },
-                State::new()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                new class {},
-                State::managed()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                $entity2 = new class implements ContainsRecordedEvents {
-                    use EventRecorder;
+                public function __construct()
+                {
+                    $this->record(new \stdClass);
+                }
+            },
+            State::new()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            new class {},
+            State::managed()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            $entity2 = new class implements ContainsRecordedEvents {
+                use EventRecorder;
 
-                    public function __construct()
-                    {
-                        $this->record(new \stdClass);
-                    }
-                },
-                State::managed()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                new class {},
-                State::toBeRemoved()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                $entity3 = new class implements ContainsRecordedEvents {
-                    use EventRecorder;
+                public function __construct()
+                {
+                    $this->record(new \stdClass);
+                }
+            },
+            State::managed()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            new class {},
+            State::toBeRemoved()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            $entity3 = new class implements ContainsRecordedEvents {
+                use EventRecorder;
 
-                    public function __construct()
-                    {
-                        $this->record(new \stdClass);
-                    }
-                },
-                State::toBeRemoved()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                new class {},
-                State::removed()
-            )
-            ->push(
-                $this->createMock(Identity::class),
-                $entity4 = new class implements ContainsRecordedEvents {
-                    use EventRecorder;
+                public function __construct()
+                {
+                    $this->record(new \stdClass);
+                }
+            },
+            State::toBeRemoved()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            new class {},
+            State::removed()
+        );
+        $container->push(
+            $this->createMock(Identity::class),
+            $entity4 = new class implements ContainsRecordedEvents {
+                use EventRecorder;
 
-                    public function __construct()
-                    {
-                        $this->record(new \stdClass);
-                    }
-                },
-                State::removed()
-            );
+                public function __construct()
+                {
+                    $this->record(new \stdClass);
+                }
+            },
+            State::removed()
+        );
         $handle = new ClearDomainEvents($commandBus, $container);
 
         $this->assertNull($handle($command));

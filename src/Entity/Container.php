@@ -32,7 +32,7 @@ final class Container
     /**
      * Inject the given entity with the wished state
      */
-    public function push(Identity $identity, object $entity, State $wished): self
+    public function push(Identity $identity, object $entity, State $wished): void
     {
         if (!$this->states->contains($wished)) {
             throw new DomainException;
@@ -52,8 +52,6 @@ final class Container
 
             return $entities->remove($identity);
         });
-
-        return $this;
     }
 
     /**
@@ -69,7 +67,7 @@ final class Container
     /**
      * Remove the entity with the given identity from any state
      */
-    public function detach(Identity $identity): self
+    public function detach(Identity $identity): void
     {
         $this->states = $this->states->map(static function(
             State $state,
@@ -79,8 +77,6 @@ final class Container
         ) {
             return $entities->remove($identity);
         });
-
-        return $this;
     }
 
     /**

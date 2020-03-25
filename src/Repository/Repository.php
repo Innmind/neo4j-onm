@@ -41,11 +41,9 @@ final class Repository implements RepositoryInterface
         );
     }
 
-    public function add(object $entity): RepositoryInterface
+    public function add(object $entity): void
     {
         $this->unitOfWork()->persist($entity);
-
-        return $this;
     }
 
     public function contains(Identity $identity): bool
@@ -87,11 +85,9 @@ final class Repository implements RepositoryInterface
         }
     }
 
-    public function remove(object $entity): RepositoryInterface
+    public function remove(object $entity): void
     {
         $this->unitOfWork()->remove($entity);
-
-        return $this;
     }
 
     public function all(): Set

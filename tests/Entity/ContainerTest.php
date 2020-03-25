@@ -23,8 +23,7 @@ class ContainerTest extends TestCase
         $this->assertSame(0, $container->state(State::new())->size());
         $this->assertSame(0, $container->state(State::toBeRemoved())->size());
         $this->assertSame(0, $container->state(State::removed())->size());
-        $this->assertSame(
-            $container,
+        $this->assertNull(
             $container->push($identity, $entity = new \stdClass, State::new())
         );
         $this->assertSame(0, $container->state(State::managed())->size());
@@ -34,7 +33,7 @@ class ContainerTest extends TestCase
         $this->assertSame(State::new(), $container->stateFor($identity));
         $this->assertSame($entity, $container->get($identity));
         $this->assertTrue($container->contains($identity));
-        $this->assertSame($container, $container->detach($identity));
+        $this->assertNull($container->detach($identity));
         $this->assertFalse($container->contains($identity));
         $this->assertSame(0, $container->state(State::managed())->size());
         $this->assertSame(0, $container->state(State::new())->size());

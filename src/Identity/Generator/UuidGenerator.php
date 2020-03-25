@@ -58,15 +58,13 @@ final class UuidGenerator implements Generator
         return $this->identities->get($value);
     }
 
-    public function add(Identity $identity): Generator
+    public function add(Identity $identity): void
     {
         /** @psalm-suppress ArgumentTypeCoercion */
         $this->identities = ($this->identities)(
             $identity->toString(),
             $identity,
         );
-
-        return $this;
     }
 
     public function for($value): Identity

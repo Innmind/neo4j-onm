@@ -90,7 +90,7 @@ final class EntityFactory
 
         $entity = ($this->resolve)($meta)($identity, $meta, $data);
 
-        $this->entities = $this->entities->push(
+        $this->entities->push(
             $identity,
             $entity,
             State::managed(),

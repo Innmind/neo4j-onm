@@ -32,7 +32,7 @@ class UuidGeneratorTest extends TestCase
 
         $uuid = new Uuid($string = '11111111-1111-1111-1111-111111111111');
         $this->assertFalse($generator->knows($string));
-        $this->assertSame($generator, $generator->add($uuid));
+        $this->assertNull($generator->add($uuid));
         $this->assertTrue($generator->knows($string));
     }
 

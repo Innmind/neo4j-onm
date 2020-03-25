@@ -26,7 +26,7 @@ interface Generator
     /**
      * Add the given identity to the known ones by this generator
      */
-    public function add(Identity $identity): self;
+    public function add(Identity $identity): void;
 
     /**
      * Return an identity instance with the given value
