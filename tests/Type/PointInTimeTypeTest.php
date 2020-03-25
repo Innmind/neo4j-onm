@@ -9,10 +9,10 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
-    PointInTimeInterface,
-    PointInTime\Earth\PointInTime,
-    PointInTime\Earth\Now,
-    Format\RSS,
+    PointInTime as PointInTimeInterface,
+    Earth\PointInTime\PointInTime,
+    Earth\PointInTime\Now,
+    Earth\Format\RSS,
 };
 use PHPUnit\Framework\TestCase;
 

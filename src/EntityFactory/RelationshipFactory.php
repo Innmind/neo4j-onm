@@ -12,7 +12,7 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 use Innmind\Reflection\{
     ReflectionClass,
     Instanciator\ConstructorLessInstanciator,
@@ -38,7 +38,7 @@ final class RelationshipFactory implements EntityFactoryInterface
     public function __invoke(
         Identity $identity,
         Entity $meta,
-        MapInterface $data
+        Map $data
     ): object {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -48,7 +48,7 @@ final class RelationshipFactory implements EntityFactoryInterface
             (string) $data->keyType() !== 'string' ||
             (string) $data->valueType() !== 'mixed'
         ) {
-            throw new \TypeError('Argument 3 must be of type MapInterface<string, mixed>');
+            throw new \TypeError('Argument 3 must be of type Map<string, mixed>');
         }
 
         $reflection = ReflectionClass::of(

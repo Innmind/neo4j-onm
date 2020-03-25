@@ -19,10 +19,10 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class AggregateExtractorTest extends TestCase
@@ -94,12 +94,12 @@ class AggregateExtractorTest extends TestCase
         $extract = new AggregateExtractor;
         $data = $extract($entity, $this->meta);
 
-        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertInstanceOf(Map::class, $data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['created', 'empty', 'uuid', 'rel'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',
@@ -107,12 +107,12 @@ class AggregateExtractorTest extends TestCase
         );
         $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
-        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(Map::class, $data->get('rel'));
         $this->assertSame('string', (string) $data->get('rel')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'empty', 'child'],
-            $data->get('rel')->keys()->toPrimitive()
+            unwrap($data->get('rel')->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',
@@ -120,14 +120,14 @@ class AggregateExtractorTest extends TestCase
         );
         $this->assertNull($data->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            MapInterface::class,
+            Map::class,
             $data->get('rel')->get('child')
         );
         $this->assertSame('string', (string) $data->get('rel')->get('child')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'empty'],
-            $data->get('rel')->get('child')->keys()->toPrimitive()
+            unwrap($data->get('rel')->get('child')->keys())
         );
         $this->assertSame('foo', $data->get('rel')->get('child')->get('content'));
         $this->assertNull($data->get('rel')->get('child')->get('empty'));

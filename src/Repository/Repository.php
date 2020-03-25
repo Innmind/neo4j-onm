@@ -13,10 +13,7 @@ use Innmind\Neo4j\ONM\{
     Entity\Container\State,
     Exception\EntityNotFound,
 };
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Immutable\Set;
 use Innmind\Specification\Specification;
 
 final class Repository implements RepositoryInterface
@@ -115,7 +112,7 @@ final class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function all(): SetInterface
+    public function all(): Set
     {
         $match = ($this->all)($this->metadata());
 
@@ -128,7 +125,7 @@ final class Repository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function matching(Specification $specification): SetInterface
+    public function matching(Specification $specification): Set
     {
         $match = ($this->matching)(
             $this->metadata(),

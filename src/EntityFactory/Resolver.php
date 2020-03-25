@@ -15,7 +15,7 @@ final class Resolver
 
     public function __construct(EntityFactoryInterface ...$factories)
     {
-        $this->mapping = new Map('string', EntityFactoryInterface::class);
+        $this->mapping = Map::of('string', EntityFactoryInterface::class);
 
         foreach ($factories as $factory) {
             $this->register($factory);

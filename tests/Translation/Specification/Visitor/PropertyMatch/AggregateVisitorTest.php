@@ -20,10 +20,10 @@ use Innmind\Neo4j\ONM\{
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Specification\Sign;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class AggregateVisitorTest extends TestCase
@@ -79,7 +79,7 @@ class AggregateVisitorTest extends TestCase
                 ->and(new Property('rel.child.empty', Sign::equality(), null))
         );
 
-        $this->assertInstanceOf(MapInterface::class, $mapping);
+        $this->assertInstanceOf(Map::class, $mapping);
         $this->assertSame('string', (string) $mapping->keyType());
         $this->assertSame(
             PropertiesMatch::class,
@@ -87,7 +87,7 @@ class AggregateVisitorTest extends TestCase
         );
         $this->assertSame(
             ['entity', 'entity_rel', 'entity_rel_child'],
-            $mapping->keys()->toPrimitive()
+            unwrap($mapping->keys()),
         );
         $this->assertCount(2, $mapping->get('entity')->properties());
         $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));

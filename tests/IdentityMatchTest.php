@@ -17,7 +17,7 @@ class IdentityMatchTest extends TestCase
     {
         $identity = new IdentityMatch(
             $query = new Query,
-            $variables = new Map('string', Entity::class)
+            $variables = Map::of('string', Entity::class)
         );
 
         $this->assertSame($query, $identity->query());
@@ -27,11 +27,11 @@ class IdentityMatchTest extends TestCase
     public function testThrowWhenInvalidVariableMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, Innmind\Neo4j\ONM\Metadata\Entity>');
 
         new IdentityMatch(
             new Query,
-            new Map('int', 'int')
+            Map::of('int', 'int')
         );
     }
 }

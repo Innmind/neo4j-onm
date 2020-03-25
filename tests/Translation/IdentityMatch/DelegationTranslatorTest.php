@@ -21,7 +21,6 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
@@ -83,7 +82,7 @@ class DelegationTranslatorTest extends TestCase
             'foobar',
             $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()
@@ -125,7 +124,7 @@ class DelegationTranslatorTest extends TestCase
             'foobar',
             $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()
@@ -141,8 +140,8 @@ class DelegationTranslatorTest extends TestCase
     public function testThrowWhenGivingInvalidTranslatorsMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<string, Innmind\Neo4j\ONM\Translation\IdentityMatchTranslator>');
 
-        new DelegationTranslator(new Map('int', 'int'));
+        new DelegationTranslator(Map::of('int', 'int'));
     }
 }

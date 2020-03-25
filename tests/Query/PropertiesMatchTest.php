@@ -12,8 +12,8 @@ class PropertiesMatchTest extends TestCase
     public function testInterface()
     {
         $match = new PropertiesMatch(
-            $properties = new Map('string', 'string'),
-            $parameters = new Map('string', 'mixed')
+            $properties = Map::of('string', 'string'),
+            $parameters = Map::of('string', 'mixed')
         );
 
         $this->assertSame($properties, $match->properties());
@@ -23,13 +23,13 @@ class PropertiesMatchTest extends TestCase
     public function testMerge()
     {
         $match = new PropertiesMatch(
-            (new Map('string', 'string'))->put('foo', 'bar'),
-            (new Map('string', 'mixed'))->put('bar', 'baz')
+            (Map::of('string', 'string'))->put('foo', 'bar'),
+            (Map::of('string', 'mixed'))->put('bar', 'baz')
         );
         $match2 = $match->merge(
             new PropertiesMatch(
-                (new Map('string', 'string'))->put('bar', 'baz'),
-                (new Map('string', 'mixed'))->put('baz', 'foobar')
+                (Map::of('string', 'string'))->put('bar', 'baz'),
+                (Map::of('string', 'mixed'))->put('baz', 'foobar')
             )
         );
 
@@ -48,22 +48,22 @@ class PropertiesMatchTest extends TestCase
     public function testThrowWhenInvalidPropertyMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, string>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<string, string>');
 
         new PropertiesMatch(
-            new Map('int', 'int'),
-            new Map('string', 'mixed')
+            Map::of('int', 'int'),
+            Map::of('string', 'mixed')
         );
     }
 
     public function testThrowWhenInvalidParameterMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, mixed>');
 
         new PropertiesMatch(
-            new Map('string', 'string'),
-            new Map('string', 'variable')
+            Map::of('string', 'string'),
+            Map::of('string', 'variable')
         );
     }
 }

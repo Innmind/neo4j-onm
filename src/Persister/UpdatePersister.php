@@ -23,10 +23,10 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class UpdatePersister implements Persister
 {
@@ -47,7 +47,7 @@ final class UpdatePersister implements Persister
         $this->dispatch = $dispatch;
         $this->extract = $extract;
         $this->metadata = $metadata;
-        $this->name = new Str('e%s');
+        $this->name = Str::of('e%s');
     }
 
     /**
@@ -57,8 +57,8 @@ final class UpdatePersister implements Persister
     {
         $entities = $container->state(State::managed());
         $changesets = $entities->reduce(
-            new Map(Identity::class, MapInterface::class),
-            function(MapInterface $carry, Identity $identity, object $entity): MapInterface {
+            Map::of(Identity::class, Map::class),
+            function(Map $carry, Identity $identity, object $entity): Map {
                 $data = ($this->extract)($entity);
                 $changeset = $this->changeset->compute($identity, $data);
 
@@ -74,7 +74,7 @@ final class UpdatePersister implements Persister
             return;
         }
 
-        $changesets->foreach(function(Identity $identity, MapInterface $changeset) use ($entities): void {
+        $changesets->foreach(function(Identity $identity, Map $changeset) use ($entities): void {
             ($this->dispatch)(
                 new EntityAboutToBeUpdated(
                     $identity,
@@ -86,7 +86,7 @@ final class UpdatePersister implements Persister
 
         $connection->execute($this->queryFor($changesets, $entities));
 
-        $changesets->foreach(function(Identity $identity, MapInterface $changeset) use ($entities): void {
+        $changesets->foreach(function(Identity $identity, Map $changeset) use ($entities): void {
             $entity = $entities->get($identity);
             $this->changeset->use(
                 $identity,
@@ -105,18 +105,18 @@ final class UpdatePersister implements Persister
     /**
      * Build the query to update all entities at once
      *
-     * @param MapInterface<Identity, MapInterface<string, mixed>> $changesets
-     * @param MapInterface<Identity, object> $entities
+     * @param Map<Identity, Map<string, mixed>> $changesets
+     * @param Map<Identity, object> $entities
      */
     private function queryFor(
-        MapInterface $changesets,
-        MapInterface $entities
+        Map $changesets,
+        Map $entities
     ): Query {
-        $this->variables = new Map(Str::class, MapInterface::class);
+        $this->variables = Map::of(Str::class, Map::class);
 
         $query = $changesets->reduce(
             new Query\Query,
-            function(Query $carry, Identity $identity, MapInterface $changeset) use ($entities): Query {
+            function(Query $carry, Identity $identity, Map $changeset) use ($entities): Query {
                 $entity = $entities->get($identity);
                 $meta = ($this->metadata)(\get_class($entity));
 
@@ -143,7 +143,7 @@ final class UpdatePersister implements Persister
             ->variables
             ->reduce(
                 $query,
-                function(Query $carry, Str $variable, MapInterface $changeset): Query {
+                function(Query $carry, Str $variable, Map $changeset): Query {
                     return $this->update($variable, $changeset, $carry);
                 }
             );
@@ -155,29 +155,30 @@ final class UpdatePersister implements Persister
     /**
      * Add match clause to match all parts of the aggregate that needs to be updated
      *
-     * @param MapInterface<string, mixed> $changeset
+     * @param Map<string, mixed> $changeset
      */
     private function matchAggregate(
         Identity $identity,
         object $entity,
         Aggregate $meta,
-        MapInterface $changeset,
+        Map $changeset,
         Query $query
     ): Query {
         $name = $this->name->sprintf(\md5($identity->value()));
         $query = $query
             ->match(
-                (string) $name,
-                $meta->labels()->toPrimitive()
+                $name->toString(),
+                ...unwrap($meta->labels()),
             )
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $name
+                $name
                     ->prepend('{')
                     ->append('_identity}')
+                    ->toString(),
             )
             ->withParameter(
-                (string) $name->append('_identity'),
+                $name->append('_identity')->toString(),
                 $identity->value()
             );
         $this->variables = $this->variables->put(
@@ -224,14 +225,14 @@ final class UpdatePersister implements Persister
                     }
 
                     return $carry
-                        ->match((string) $name)
+                        ->match($name->toString())
                         ->linkedTo(
-                            $childName ? (string) $childName : null,
-                            $child->labels()->toPrimitive()
+                            $childName ? $childName->toString() : null,
+                            ...unwrap($child->labels()),
                         )
                         ->through(
                             (string) $child->relationship()->type(),
-                            (string) $relName
+                            $relName->toString(),
                         );
                 }
             );
@@ -240,13 +241,13 @@ final class UpdatePersister implements Persister
     /**
      * Add the match clause for a relationship
      *
-     * @param MapInterface<string, mixed> $changeset
+     * @param Map<string, mixed> $changeset
      */
     private function matchRelationship(
         Identity $identity,
         object $entity,
         Relationship $meta,
-        MapInterface $changeset,
+        Map $changeset,
         Query $query
     ): Query {
         $name = $this->name->sprintf(\md5($identity->value()));
@@ -263,16 +264,17 @@ final class UpdatePersister implements Persister
             ->linkedTo()
             ->through(
                 (string) $meta->type(),
-                (string) $name
+                $name->toString(),
             )
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $name
+                $name
                     ->prepend('{')
                     ->append('_identity}')
+                    ->toString(),
             )
             ->withParameter(
-                (string) $name->append('_identity'),
+                $name->append('_identity')->toString(),
                 $identity->value()
             );
     }
@@ -280,15 +282,15 @@ final class UpdatePersister implements Persister
     /**
      * Build a collection with only the elements that are properties
      *
-     * @param MapInterface<string, mixed> $changeset
-     * @param MapInterface<string, Property> $properties
+     * @param Map<string, mixed> $changeset
+     * @param Map<string, Property> $properties
      *
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
     private function buildProperties(
-        MapInterface $changeset,
-        MapInterface $properties
-    ): MapInterface {
+        Map $changeset,
+        Map $properties
+    ): Map {
         return $changeset->filter(static function(string $property) use ($properties) {
             return $properties->contains($property);
         });
@@ -298,24 +300,24 @@ final class UpdatePersister implements Persister
      * Add a clause to set all properties to be updated on the wished variable
      *
      * @param Str $variable
-     * @param MapInterface<string, mixed> $changeset
+     * @param Map<string, mixed> $changeset
      * @param Query $query
      *
      * @return Query
      */
     private function update(
         Str $variable,
-        MapInterface $changeset,
+        Map $changeset,
         Query $query
     ): Query {
         return $query
             ->set(sprintf(
                 '%s += {%s_props}',
-                $variable,
-                $variable
+                $variable->toString(),
+                $variable->toString(),
             ))
             ->withParameter(
-                (string) $variable->append('_props'),
+                $variable->append('_props')->toString(),
                 $changeset->reduce(
                     [],
                     static function(array $carry, string $key, $value): array {

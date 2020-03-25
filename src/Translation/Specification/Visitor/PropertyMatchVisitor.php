@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Translation\Specification\Visitor;
 
 use Innmind\Specification\Specification;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 
 interface PropertyMatchVisitor
 {
@@ -13,7 +13,7 @@ interface PropertyMatchVisitor
      *
      * @throws SpecificationNotApplicableAsPropertyMatchException
      *
-     * @return MapInterface<string, PropertiesMatch>
+     * @return Map<string, PropertiesMatch>
      */
-    public function __invoke(Specification $specification): MapInterface;
+    public function __invoke(Specification $specification): Map;
 }

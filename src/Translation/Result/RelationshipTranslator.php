@@ -17,9 +17,7 @@ use Innmind\Neo4j\DBAL\{
     Result\Row,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
 
@@ -32,7 +30,7 @@ final class RelationshipTranslator implements EntityTranslator
         string $variable,
         Entity $meta,
         Result $result
-    ): SetInterface {
+    ): Set {
         if (empty($variable)) {
             throw new DomainException;
         }
@@ -47,8 +45,8 @@ final class RelationshipTranslator implements EntityTranslator
                 return $row->column() === $variable;
             })
             ->reduce(
-                new Set(MapInterface::class),
-                function(SetInterface $carry, Row $row) use ($meta, $result): SetInterface {
+                Set::of(Map::class),
+                function(Set $carry, Row $row) use ($meta, $result): Set {
                     return $carry->add(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
@@ -64,7 +62,7 @@ final class RelationshipTranslator implements EntityTranslator
         $identity,
         Entity $meta,
         Result $result
-    ): MapInterface {
+    ): Map {
         $relationship = $result
             ->relationships()
             ->filter(static function(int $id, DBALRelationship $relationship) use ($identity, $meta): bool {
@@ -74,7 +72,8 @@ final class RelationshipTranslator implements EntityTranslator
                 return $properties->contains($id) &&
                     $properties->get($id) === $identity;
             })
-            ->current();
+            ->values()
+            ->first();
         $data = Map::of('string', 'mixed')
             (
                 $meta->identity()->property(),
@@ -113,7 +112,7 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name) use ($relationship): MapInterface {
+                static function(Map $carry, string $name) use ($relationship): Map {
                     return $carry->put(
                         $name,
                         $relationship->properties()->get($name)

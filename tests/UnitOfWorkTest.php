@@ -36,12 +36,12 @@ use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
 use function Innmind\HttpTransport\bootstrap as http;
 use Innmind\Url\Url;
-use Innmind\TimeContinuum\TimeContinuum\Earth;
+use Innmind\TimeContinuum\Earth\Clock as Earth;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Map,
 };
+use function Innmind\Immutable\first;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -65,7 +65,7 @@ class UnitOfWorkTest extends TestCase
         $this->conn = dbal(
             http()['default'](),
             new Earth,
-            Url::fromString('http://neo4j:ci@localhost:7474/')
+            Url::of('http://neo4j:ci@localhost:7474/')
         );
         $this->container = new Container;
         $this->entityFactory = new EntityFactory(
@@ -185,7 +185,7 @@ class UnitOfWorkTest extends TestCase
     {
         $this->conn->execute(
             (new Query)
-                ->create('n', ['Label'])
+                ->create('n', 'Label')
                 ->withProperty('uuid', '{uuid}')
                 ->withParameter('uuid', $uuid = '11111111-1111-1111-1111-111111111112')
         );
@@ -223,16 +223,16 @@ class UnitOfWorkTest extends TestCase
 
         $data = $uow->execute(
             (new Query)
-                ->match('entity', ['Label'])
+                ->match('entity', 'Label')
                 ->withProperty('uuid', '"11111111-1111-1111-1111-111111111111"')
                 ->return('entity'),
-            (new Map('string', Entity::class))
-                ->put('entity', ($this->metadata)($this->aggregateClass))
+            Map::of('string', Entity::class)
+                ('entity', ($this->metadata)($this->aggregateClass))
         );
 
-        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertInstanceOf(Set::class, $data);
         $this->assertSame(1, $data->size());
-        $this->assertSame($expectedEntity, $data->current());
+        $this->assertSame($expectedEntity, first($data));
     }
 
     public function testRemoveNewEntity()

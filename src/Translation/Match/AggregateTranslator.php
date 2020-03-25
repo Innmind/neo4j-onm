@@ -15,6 +15,7 @@ use Innmind\Immutable\{
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class AggregateTranslator implements MatchTranslator
 {
@@ -26,11 +27,11 @@ final class AggregateTranslator implements MatchTranslator
         $query = (new Query)
             ->match(
                 'entity',
-                $meta->labels()->toPrimitive()
+                ...unwrap($meta->labels()),
             )
             ->with('entity');
 
-        $variables = new Set('string');
+        $variables = Set::strings();
         $meta
             ->children()
             ->foreach(function(
@@ -45,25 +46,25 @@ final class AggregateTranslator implements MatchTranslator
                     ->append('_')
                     ->append($child->relationship()->childProperty());
                 $variables = $variables
-                    ->add((string) $relName)
-                    ->add((string) $childName);
+                    ->add($relName->toString())
+                    ->add($childName->toString());
 
                 $query = $query
                     ->match('entity')
                     ->linkedTo(
-                        (string) $childName,
-                        $child->labels()->toPrimitive()
+                        $childName->toString(),
+                        ...unwrap($child->labels()),
                     )
                     ->through(
                         (string) $child->relationship()->type(),
-                        (string) $relName,
+                        $relName->toString(),
                         'left'
                     );
             });
 
 
         return new IdentityMatch(
-            $query->return('entity', ...$variables->toPrimitive()),
+            $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
                 ('entity', $meta)
         );

@@ -4,10 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Metadata\Entity;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class Metadatas
 {
@@ -15,7 +12,7 @@ final class Metadatas
 
     public function __construct(Entity ...$metas)
     {
-        $this->mapping = new Map('string', Entity::class);
+        $this->mapping = Map::of('string', Entity::class);
 
         foreach ($metas as $meta) {
             $this->register($meta);

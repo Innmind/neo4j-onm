@@ -5,16 +5,16 @@ namespace Innmind\Neo4j\ONM\Query;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
 use Innmind\Immutable\{
-    MapInterface,
+    Map,
     Str,
 };
 
 final class Where
 {
     private string $cypher;
-    private MapInterface $parameters;
+    private Map $parameters;
 
-    public function __construct(string $cypher, MapInterface $parameters)
+    public function __construct(string $cypher, Map $parameters)
     {
         if (Str::of($cypher)->empty()) {
             throw new DomainException;
@@ -24,7 +24,7 @@ final class Where
             (string) $parameters->keyType() !== 'string' ||
             (string) $parameters->valueType() !== 'mixed'
         ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
+            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
         }
 
         $this->cypher = $cypher;
@@ -37,9 +37,9 @@ final class Where
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function parameters(): MapInterface
+    public function parameters(): Map
     {
         return $this->parameters;
     }

@@ -14,8 +14,6 @@ use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
     Map,
     Set,
-    SetInterface,
-    MapInterface,
 };
 
 final class EntityFactory
@@ -40,39 +38,39 @@ final class EntityFactory
     /**
      * Translate the dbal result into a set of entities
      *
-     * @param MapInterface<string, Entity> $variables
+     * @param Map<string, Entity> $variables
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
     public function __invoke(
         Result $result,
-        MapInterface $variables
-    ): SetInterface {
+        Map $variables
+    ): Set {
         if (
             (string) $variables->keyType() !== 'string' ||
             (string) $variables->valueType() !== Entity::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
+                'Argument 2 must be of type Map<string, %s>',
                 Entity::class
             ));
         }
 
         $structuredData = ($this->translate)($result, $variables);
-        $entities = new Set('object');
+        $entities = Set::objects();
 
         return $variables
             ->filter(static function(string $variable) use ($structuredData): bool {
                 return $structuredData->contains($variable);
             })
             ->reduce(
-                new Set('object'),
-                function(SetInterface $carry, string $variable, Entity $meta) use ($structuredData): SetInterface {
+                Set::objects(),
+                function(Set $carry, string $variable, Entity $meta) use ($structuredData): Set {
                     return $structuredData
                         ->get($variable)
                         ->reduce(
                             $carry,
-                            function(SetInterface $carry, MapInterface $data) use ($meta): SetInterface {
+                            function(Set $carry, Map $data) use ($meta): Set {
                                 return $carry->add(
                                     $this->makeEntity($meta, $data)
                                 );
@@ -83,9 +81,9 @@ final class EntityFactory
     }
 
     /**
-     * @param MapInterface<string, mixed> $data
+     * @param Map<string, mixed> $data
      */
-    private function makeEntity(Entity $meta, MapInterface $data)
+    private function makeEntity(Entity $meta, Map $data)
     {
         $identity = $this
             ->generators

@@ -7,10 +7,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class ChangesetComputer
 {
@@ -18,21 +15,21 @@ final class ChangesetComputer
 
     public function __construct()
     {
-        $this->sources = new Map(Identity::class, MapInterface::class);
+        $this->sources = Map::of(Identity::class, Map::class);
     }
 
     /**
      * Use the given collection as the original data for the given entity
      *
-     * @param MapInterface<string, mixed> $source
+     * @param Map<string, mixed> $source
      */
-    public function use(Identity $identity, MapInterface $source): self
+    public function use(Identity $identity, Map $source): self
     {
         if (
             (string) $source->keyType() !== 'string' ||
             (string) $source->valueType() !== 'mixed'
         ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
+            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
         }
 
         $this->sources = $this->sources->put($identity, $source);
@@ -43,17 +40,17 @@ final class ChangesetComputer
     /**
      * Return the collection of data that has changed for the given identity
      *
-     * @param MapInterface<string, mixed> $target
+     * @param Map<string, mixed> $target
      *
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function compute(Identity $identity, MapInterface $target): MapInterface
+    public function compute(Identity $identity, Map $target): Map
     {
         if (
             (string) $target->keyType() !== 'string' ||
             (string) $target->valueType() !== 'mixed'
         ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
+            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
         }
 
         if (!$this->sources->contains($identity)) {
@@ -66,9 +63,9 @@ final class ChangesetComputer
     }
 
     private function diff(
-        MapInterface $source,
-        MapInterface $target
-    ): MapInterface {
+        Map $source,
+        Map $target
+    ): Map {
         $changeset = $target->filter(static function(string $property, $value) use ($source): bool {
             if (
                 !$source->contains($property) ||
@@ -91,7 +88,7 @@ final class ChangesetComputer
                 }
             )
             ->map(function(string $property, $value) use ($source, $target) {
-                if (!$value instanceof MapInterface) {
+                if (!$value instanceof Map) {
                     return $value;
                 }
 
@@ -101,7 +98,7 @@ final class ChangesetComputer
                 );
             })
             ->filter(static function(string $property, $value) {
-                if (!$value instanceof MapInterface) {
+                if (!$value instanceof Map) {
                     return true;
                 }
 

@@ -11,10 +11,7 @@ use Innmind\Neo4j\ONM\{
     Type,
     Exception\DomainException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipTest extends TestCase
@@ -34,7 +31,7 @@ class RelationshipTest extends TestCase
         $this->assertSame($relationshipType, $valueObjectRelationship->type());
         $this->assertSame('relationship', $valueObjectRelationship->property());
         $this->assertSame('node', $valueObjectRelationship->childProperty());
-        $this->assertInstanceOf(MapInterface::class, $valueObjectRelationship->properties());
+        $this->assertInstanceOf(Map::class, $valueObjectRelationship->properties());
         $this->assertSame('string', (string) $valueObjectRelationship->properties()->keyType());
         $this->assertSame(Property::class, (string) $valueObjectRelationship->properties()->valueType());
         $this->assertSame(1, $valueObjectRelationship->properties()->count());

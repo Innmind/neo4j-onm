@@ -9,32 +9,30 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
 
 final class Child
 {
     private ClassName $class;
-    private SetInterface $labels;
+    private Set $labels;
     private Child\Relationship $relationship;
-    private MapInterface $properties;
+    private Map $properties;
 
     public function __construct(
         ClassName $class,
-        SetInterface $labels,
+        Set $labels,
         Child\Relationship $relationship,
-        SetInterface $properties
+        Set $properties
     ) {
         if ((string) $labels->type() !== 'string') {
-            throw new \TypeError('Argument 2 must be of type SetInterface<string>');
+            throw new \TypeError('Argument 2 must be of type Set<string>');
         }
 
         if ((string) $properties->type() !== Property::class) {
             throw new \TypeError(\sprintf(
-                'Argument 4 must be of type SetInterface<%s>',
+                'Argument 4 must be of type Set<%s>',
                 Property::class
             ));
         }
@@ -44,7 +42,7 @@ final class Child
         $this->relationship = $relationship;
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
-            static function(MapInterface $properties, Property $property): MapInterface {
+            static function(Map $properties, Property $property): Map {
                 return $properties->put($property->name(), $property);
             }
         );
@@ -52,9 +50,9 @@ final class Child
 
     public static function of(
         ClassName $class,
-        SetInterface $labels,
+        Set $labels,
         Child\Relationship $relationship,
-        MapInterface $properties = null
+        Map $properties = null
     ): self {
         return new self(
             $class,
@@ -62,7 +60,7 @@ final class Child
             $relationship,
             ($properties ?? Map::of('string', Type::class))->reduce(
                 Set::of(Property::class),
-                static function(SetInterface $properties, string $property, Type $type): SetInterface {
+                static function(Set $properties, string $property, Type $type): Set {
                     return $properties->add(new Property($property, $type));
                 }
             )
@@ -80,17 +78,17 @@ final class Child
     }
 
     /**
-     * @return SetInterface<string>
+     * @return Set<string>
      */
-    public function labels(): SetInterface
+    public function labels(): Set
     {
         return $this->labels;
     }
 
     /**
-     * @return MapInterface<string, Property>
+     * @return Map<string, Property>
      */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }

@@ -13,10 +13,7 @@ use Innmind\EventBus\{
     EventBus,
     ContainsRecordedEvents,
 };
-use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
-};
+use Innmind\Immutable\Sequence;
 
 final class DispatchDomainEvents implements CommandBus
 {
@@ -47,12 +44,12 @@ final class DispatchDomainEvents implements CommandBus
                 return $entity instanceof ContainsRecordedEvents;
             })
             ->reduce(
-                new Stream('object'),
+                Sequence::objects(),
                 static function(
-                    StreamInterface $carry,
+                    Sequence $carry,
                     Identity $identity,
                     ContainsRecordedEvents $entity
-                ): StreamInterface {
+                ): Sequence {
                     return $carry->append($entity->recordedEvents());
                 }
             )

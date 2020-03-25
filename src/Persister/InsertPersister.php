@@ -24,11 +24,11 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    Stream,
+    Sequence,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class InsertPersister implements Persister
 {
@@ -37,7 +37,7 @@ final class InsertPersister implements Persister
     private DataExtractor $extract;
     private Metadatas $metadata;
     private Str $name;
-    private ?Stream $variables = null;
+    private ?Sequence $variables = null;
 
     public function __construct(
         ChangesetComputer $changeset,
@@ -49,7 +49,7 @@ final class InsertPersister implements Persister
         $this->dispatch = $dispatch;
         $this->extract = $extract;
         $this->metadata = $metadata;
-        $this->name = new Str('e%s');
+        $this->name = Str::of('e%s');
     }
 
     /**
@@ -82,12 +82,12 @@ final class InsertPersister implements Persister
     /**
      * Build the whole cypher query to insert at once all new nodes and relationships
      *
-     * @param MapInterface<Identity, object> $entities
+     * @param Map<Identity, object> $entities
      */
-    private function queryFor(MapInterface $entities): Query
+    private function queryFor(Map $entities): Query
     {
         $query = new Query\Query;
-        $this->variables = new Stream('string');
+        $this->variables = Sequence::strings();
 
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = ($this->metadata)(\get_class($entity));
@@ -128,8 +128,8 @@ final class InsertPersister implements Persister
         $varName = $this->name->sprintf(\md5($identity->value()));
 
         $query = $query->create(
-            (string) $varName,
-            $meta->labels()->toPrimitive()
+            $varName->toString(),
+            ...unwrap($meta->labels()),
         );
         $paramKey = $varName->append('_props');
         $properties = $this->buildProperties(
@@ -141,10 +141,11 @@ final class InsertPersister implements Persister
         $query = $query
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $paramKey
+                $paramKey
                     ->prepend('{')
                     ->append('}.')
                     ->append($meta->identity()->property())
+                    ->toString()
             )
             ->withProperties($properties->reduce(
                 [],
@@ -155,7 +156,7 @@ final class InsertPersister implements Persister
                 }
             ))
             ->withParameter(
-                (string) $paramKey,
+                $paramKey->toString(),
                 $data
                     ->filter(static function(string $key) use ($keysToKeep): bool {
                         return $keysToKeep->contains($key);
@@ -187,7 +188,7 @@ final class InsertPersister implements Persister
                     );
                 }
             );
-        $this->variables = $this->variables->add((string) $varName);
+        $this->variables = $this->variables->add($varName->toString());
 
         return $query;
     }
@@ -196,12 +197,12 @@ final class InsertPersister implements Persister
      * Add the cypher clause to build the relationship and the node corresponding
      * to a child of the aggregate
      *
-     * @param MapInterface<string, mixed> $data
+     * @param Map<string, mixed> $data
      */
     private function createAggregateChild(
         Child $meta,
         Str $nodeName,
-        MapInterface $data,
+        Map $data,
         Query $query
     ): Query {
         $relationshipName = $nodeName
@@ -220,10 +221,10 @@ final class InsertPersister implements Persister
         );
 
         return $query
-            ->create((string) $nodeName)
+            ->create($nodeName->toString())
             ->linkedTo(
-                (string) $endNodeName,
-                $meta->labels()->toPrimitive()
+                $endNodeName->toString(),
+                ...unwrap($meta->labels()),
             )
             ->withProperties($endNodeProperties->reduce(
                 [],
@@ -234,7 +235,7 @@ final class InsertPersister implements Persister
                 }
             ))
             ->withParameter(
-                (string) $endNodeParamKey,
+                $endNodeParamKey->toString(),
                 $data
                     ->get($meta->relationship()->childProperty())
                     ->reduce(
@@ -248,7 +249,7 @@ final class InsertPersister implements Persister
             )
             ->through(
                 (string) $meta->relationship()->type(),
-                (string) $relationshipName,
+                $relationshipName->toString(),
                 'left'
             )
             ->withProperties($relationshipProperties->reduce(
@@ -260,7 +261,7 @@ final class InsertPersister implements Persister
                 }
             ))
             ->withParameter(
-                (string) $relationshipParamKey,
+                $relationshipParamKey->toString(),
                 $data
                     ->remove($meta->relationship()->childProperty())
                     ->reduce(
@@ -277,22 +278,22 @@ final class InsertPersister implements Persister
     /**
      * Build the collection of properties to be injected in the query
      *
-     * @param MapInterface<string, Property> $properties
+     * @param Map<string, Property> $properties
      *
-     * @return MapInterface<string, string>
+     * @return Map<string, string>
      */
     private function buildProperties(
-        MapInterface $properties,
+        Map $properties,
         Str $name
-    ): MapInterface {
+    ): Map {
         $name = $name->prepend('{')->append('}.');
 
         return $properties->reduce(
-            new Map('string', 'string'),
-            static function(MapInterface $carry, string $property) use ($name): MapInterface {
+            Map::of('string', 'string'),
+            static function(Map $carry, string $property) use ($name): Map {
                 return $carry->put(
                     $property,
-                    (string) $name->append($property)
+                    $name->append($property)->toString(),
                 );
             }
         );
@@ -330,19 +331,20 @@ final class InsertPersister implements Persister
                     $query
                 )
             )
-            ->create((string) $startName)
-            ->linkedTo((string) $endName)
+            ->create($startName->toString())
+            ->linkedTo($endName->toString())
             ->through(
                 (string) $meta->type(),
-                (string) $varName,
+                $varName->toString(),
                 'right'
             )
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $paramKey
+                $paramKey
                     ->prepend('{')
                     ->append('}.')
                     ->append($meta->identity()->property())
+                    ->toString(),
             )
             ->withProperties($properties->reduce(
                 [],
@@ -353,7 +355,7 @@ final class InsertPersister implements Persister
                 }
             ))
             ->withParameter(
-                (string) $paramKey,
+                $paramKey->toString(),
                 $data
                     ->filter(static function(string $key) use ($keysToKeep): bool {
                         return $keysToKeep->contains($key);
@@ -382,27 +384,28 @@ final class InsertPersister implements Persister
         $value,
         Query $query
     ): Query {
-        if ($this->variables->contains((string) $name)) {
+        if ($this->variables->contains($name->toString())) {
             return $query;
         }
 
         if ($this->variables->size() > 0) {
-            $query = $query->with(...$this->variables->toPrimitive());
+            $query = $query->with(...unwrap($this->variables));
         }
 
-        $this->variables = $this->variables->add((string) $name);
+        $this->variables = $this->variables->add($name->toString());
 
         return $query
-            ->match((string) $name)
+            ->match($name->toString())
             ->withProperty(
                 $meta->target(),
-                (string) $name
+                $name
                     ->prepend('{')
                     ->append('_props}.')
                     ->append($meta->target())
+                    ->toString(),
             )
             ->withParameter(
-                (string) $name->append('_props'),
+                $name->append('_props')->toString(),
                 [
                     $meta->target() => $value,
                 ]

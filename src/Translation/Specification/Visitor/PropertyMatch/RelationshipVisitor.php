@@ -19,7 +19,6 @@ use Innmind\Specification\{
     Sign,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
@@ -36,7 +35,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
     /**
      * {@inheritdo}
      */
-    public function __invoke(Specification $specification): MapInterface
+    public function __invoke(Specification $specification): Map
     {
         switch (true) {
             case $specification instanceof Comparator:
@@ -62,7 +61,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
 
     private function buildMapping(
         Comparator $specification
-    ): MapInterface {
+    ): Map {
         $property = $specification->property();
 
         switch (true) {
@@ -87,7 +86,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
 
     private function buildPropertyMapping(
         Comparator $specification
-    ): MapInterface {
+    ): Map {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
@@ -96,9 +95,9 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                 'entity',
                 new PropertiesMatch(
                     Map::of('string', 'string')
-                        ($prop, (string) $key->prepend('{')->append('}')),
+                        ($prop, $key->prepend('{')->append('}')->toString()),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
+                        ($key->toString(), $specification->value())
                 )
             );
     }
@@ -107,7 +106,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         Comparator $specification,
         RelationshipEdge $edge,
         string $side
-    ): MapInterface {
+    ): Map {
         $key = Str::of($side)
             ->append('_')
             ->append($edge->target());
@@ -124,23 +123,24 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                     Map::of('string', 'string')
                         (
                             $edge->target(),
-                            (string) $key
+                            $key
                                 ->prepend('{')
                                 ->append('}')
+                                ->toString()
                         ),
                     Map::of('string', 'mixed')
-                        ((string) $key, $value)
+                        ($key->toString(), $value)
                 )
             );
     }
 
     private function merge(
-        MapInterface $left,
-        MapInterface $right
-    ): MapInterface {
+        Map $left,
+        Map $right
+    ): Map {
         return $right->reduce(
             $left,
-            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {
                 if (!$carry->contains($var)) {
                     return $carry->put($var, $data);
                 }

@@ -5,23 +5,23 @@ namespace Innmind\Neo4j\ONM;
 
 use Innmind\Neo4j\ONM\Metadata\Entity;
 use Innmind\Neo4j\DBAL\Query;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 
 final class IdentityMatch
 {
     private Query $query;
-    private MapInterface $variables;
+    private Map $variables;
 
     public function __construct(
         Query $query,
-        MapInterface $variables
+        Map $variables
     ) {
         if (
             (string) $variables->keyType() !== 'string' ||
             (string) $variables->valueType() !== Entity::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
+                'Argument 2 must be of type Map<string, %s>',
                 Entity::class
             ));
         }
@@ -36,9 +36,9 @@ final class IdentityMatch
     }
 
     /**
-     * @return MapInterface<string, Entity>
+     * @return Map<string, Entity>
      */
-    public function variables(): MapInterface
+    public function variables(): Map
     {
         return $this->variables;
     }

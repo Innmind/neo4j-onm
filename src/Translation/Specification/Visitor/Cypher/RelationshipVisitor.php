@@ -18,7 +18,6 @@ use Innmind\Specification\{
     Not,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
@@ -49,7 +48,7 @@ final class RelationshipVisitor implements CypherVisitor
             case $specification instanceof Composite:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = (string) Str::of((string) $specification->operator())->toLower();
+                $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
                 return $left->{$operator}($right);
 
@@ -95,10 +94,10 @@ final class RelationshipVisitor implements CypherVisitor
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value())
         );
     }
 
@@ -123,10 +122,10 @@ final class RelationshipVisitor implements CypherVisitor
                 $side,
                 $edge->target(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $value)
+                ($key->toString(), $value)
         );
     }
 }

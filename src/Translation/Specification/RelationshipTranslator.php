@@ -12,10 +12,7 @@ use Innmind\Neo4j\ONM\{
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use Innmind\Specification\Specification;
 
 final class RelationshipTranslator implements SpecificationTranslator
@@ -78,12 +75,12 @@ final class RelationshipTranslator implements SpecificationTranslator
     }
 
     /**
-     * @param MapInterface<string, PropertiesMatch> $mapping
+     * @param Map<string, PropertiesMatch> $mapping
      */
     private function addProperties(
         Query $query,
         string $name,
-        MapInterface $mapping
+        Map $mapping
     ): Query {
         if ($mapping->contains($name)) {
             $match = $mapping->get($name);

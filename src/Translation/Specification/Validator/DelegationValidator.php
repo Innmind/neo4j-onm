@@ -10,16 +10,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
 };
 use Innmind\Specification\Specification;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class DelegationValidator implements Validator
 {
-    private MapInterface $validators;
+    private Map $validators;
 
-    public function __construct(MapInterface $validators = null)
+    public function __construct(Map $validators = null)
     {
         $this->validators = $validators ?? Map::of('string', Validator::class)
             (Aggregate::class, new AggregateValidator)
@@ -30,7 +27,7 @@ final class DelegationValidator implements Validator
             (string) $this->validators->valueType() !== Validator::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<string, %s>',
+                'Argument 1 must be of type Map<string, %s>',
                 Validator::class
             ));
         }

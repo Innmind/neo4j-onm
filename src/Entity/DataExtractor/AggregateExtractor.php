@@ -11,10 +11,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use Innmind\Reflection\{
     ReflectionObject,
     ExtractionStrategy\ReflectionStrategy,
@@ -32,7 +29,7 @@ final class AggregateExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
@@ -53,7 +50,7 @@ final class AggregateExtractor implements DataExtractorInterface
             ->children()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $property, Child $child) use ($entity): MapInterface {
+                function(Map $carry, string $property, Child $child) use ($entity): Map {
                     return $carry->put(
                         $property,
                         $this->extractRelationship(
@@ -66,12 +63,12 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
     private function extractRelationship(
         Child $child,
         object $entity
-    ): MapInterface {
+    ): Map {
         $rel = $this
             ->reflection($entity)
             ->extract($property = $child->relationship()->property())
@@ -96,19 +93,19 @@ final class AggregateExtractor implements DataExtractorInterface
     }
 
     /**
-     * @param MapInterface<string, Property> $properties
+     * @param Map<string, Property> $properties
      *
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
     private function extractProperties(
         object $object,
-        MapInterface $properties
-    ): MapInterface {
+        Map $properties
+    ): Map {
         $refl = $this->reflection($object);
 
         return $properties->reduce(
-            new Map('string', 'mixed'),
-            static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
+            Map::of('string', 'mixed'),
+            static function(Map $carry, string $name, Property $property) use ($refl): Map {
                 return $carry->put(
                     $name,
                     $property

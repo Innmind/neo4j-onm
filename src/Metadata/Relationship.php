@@ -9,9 +9,7 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
 
@@ -32,11 +30,11 @@ final class Relationship implements Entity
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode,
-        SetInterface $properties
+        Set $properties
     ) {
         if ((string) $properties->type() !== Property::class) {
             throw new \TypeError(\sprintf(
-                'Argument 6 must be of type SetInterface<%s>',
+                'Argument 6 must be of type Set<%s>',
                 Property::class
             ));
         }
@@ -50,7 +48,7 @@ final class Relationship implements Entity
         $this->endNode = $endNode;
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
-            static function(MapInterface $properties, Property $property): MapInterface {
+            static function(Map $properties, Property $property): Map {
                 return $properties->put($property->name(), $property);
             }
         );
@@ -62,7 +60,7 @@ final class Relationship implements Entity
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode,
-        MapInterface $properties = null
+        Map $properties = null
     ): self {
         return new self(
             $class,
@@ -72,7 +70,7 @@ final class Relationship implements Entity
             $endNode,
             ($properties ?? Map::of('string', Type::class))->reduce(
                 Set::of(Property::class),
-                static function(SetInterface $properties, string $property, Type $type): SetInterface {
+                static function(Set $properties, string $property, Type $type): Set {
                     return $properties->add(new Property($property, $type));
                 }
             )
@@ -106,7 +104,7 @@ final class Relationship implements Entity
     /**
      * {@inheritdoc}
      */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }

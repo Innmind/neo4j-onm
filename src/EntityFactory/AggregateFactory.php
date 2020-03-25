@@ -13,7 +13,7 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
-    MapInterface,
+    Map,
     Set,
 };
 use Innmind\Reflection\{
@@ -39,7 +39,7 @@ final class AggregateFactory implements EntityFactoryInterface
     public function __invoke(
         Identity $identity,
         Entity $meta,
-        MapInterface $data
+        Map $data
     ): object {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
@@ -49,7 +49,7 @@ final class AggregateFactory implements EntityFactoryInterface
             (string) $data->keyType() !== 'string' ||
             (string) $data->valueType() !== 'mixed'
         ) {
-            throw new \TypeError('Argument 3 must be of type MapInterface<string, mixed>');
+            throw new \TypeError('Argument 3 must be of type Map<string, mixed>');
         }
 
         $reflection = $this
@@ -97,7 +97,7 @@ final class AggregateFactory implements EntityFactoryInterface
             ->build();
     }
 
-    private function buildChild(Child $meta, MapInterface $data)
+    private function buildChild(Child $meta, Map $data)
     {
         $relationship = $meta->relationship();
         $data = $data->get($relationship->property());
@@ -107,7 +107,7 @@ final class AggregateFactory implements EntityFactoryInterface
 
     private function buildRelationship(
         Child $meta,
-        MapInterface $data
+        Map $data
     ) {
         $relationship = $meta->relationship();
 
@@ -148,7 +148,7 @@ final class AggregateFactory implements EntityFactoryInterface
 
     private function buildValueObject(
         Child $meta,
-        MapInterface $data
+        Map $data
     ): object {
         return $meta
             ->properties()

@@ -18,10 +18,8 @@ use Innmind\Neo4j\ONM\{
     Type,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipExtractorTest extends TestCase
@@ -66,12 +64,12 @@ class RelationshipExtractorTest extends TestCase
         $extract = new RelationshipExtractor;
         $data = $extract($entity, $this->meta);
 
-        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertInstanceOf(Map::class, $data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['uuid', 'start', 'end', 'created', 'empty'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',

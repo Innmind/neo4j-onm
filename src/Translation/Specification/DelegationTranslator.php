@@ -11,19 +11,16 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Exception\SpecificationNotApplicable,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use Innmind\Specification\Specification;
 
 final class DelegationTranslator implements SpecificationTranslator
 {
-    private MapInterface $translators;
+    private Map $translators;
     private Validator $validate;
 
     public function __construct(
-        MapInterface $translators = null,
+        Map $translators = null,
         Validator $validate = null
     ) {
         $this->translators = $translators ?? Map::of('string', SpecificationTranslator::class)
@@ -36,7 +33,7 @@ final class DelegationTranslator implements SpecificationTranslator
             (string) $this->translators->valueType() !== SpecificationTranslator::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<string, %s>',
+                'Argument 1 must be of type Map<string, %s>',
                 SpecificationTranslator::class
             ));
         }

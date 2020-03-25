@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM;
 
 use Innmind\Specification\Specification;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
 
 interface Repository
 {
@@ -38,14 +38,14 @@ interface Repository
     /**
      * Return all the entities from the repository
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function all(): SetInterface;
+    public function all(): Set;
 
     /**
      * Return all the entities matching the given specification
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function matching(Specification $specification): SetInterface;
+    public function matching(Specification $specification): Set;
 }

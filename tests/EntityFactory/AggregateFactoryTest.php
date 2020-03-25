@@ -20,11 +20,8 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
-    Stream,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -134,14 +131,14 @@ class AggregateFactoryTest extends TestCase
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
-            new Map('string', 'mixed')
+            Map::of('string', 'mixed')
         );
     }
 
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 3 must be of type Map<string, mixed>');
 
         (new AggregateFactory)(
             $this->createMock(IdentityInterface::class),
@@ -150,7 +147,7 @@ class AggregateFactoryTest extends TestCase
                 new Identity('uuid', 'foo'),
                 Set::of('string', 'Label')
             ),
-            new Map('string', 'variable')
+            Map::of('string', 'variable')
         );
     }
 }

@@ -22,10 +22,8 @@ use Innmind\Neo4j\ONM\{
 };
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Specification\Sign;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipVisitorTest extends TestCase
@@ -62,7 +60,7 @@ class RelationshipVisitorTest extends TestCase
                 ->and(new Property('end', Sign::equality(), 'bar'))
         );
 
-        $this->assertInstanceOf(MapInterface::class, $mapping);
+        $this->assertInstanceOf(Map::class, $mapping);
         $this->assertSame('string', (string) $mapping->keyType());
         $this->assertSame(
             PropertiesMatch::class,
@@ -70,7 +68,7 @@ class RelationshipVisitorTest extends TestCase
         );
         $this->assertSame(
             ['entity', 'start', 'end'],
-            $mapping->keys()->toPrimitive()
+            unwrap($mapping->keys()),
         );
         $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
         $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));

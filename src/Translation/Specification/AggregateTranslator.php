@@ -14,11 +14,11 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 use Innmind\Specification\Specification;
 
 final class AggregateTranslator implements SpecificationTranslator
@@ -30,7 +30,7 @@ final class AggregateTranslator implements SpecificationTranslator
         Entity $meta,
         Specification $specification
     ): IdentityMatch {
-        $variables = new Set('string');
+        $variables = Set::strings();
 
         try {
             $mapping = (new AggregatePropertyMatchVisitor($meta))($specification);
@@ -39,7 +39,7 @@ final class AggregateTranslator implements SpecificationTranslator
                 ->addProperties(
                     (new Query)->match(
                         'entity',
-                        $meta->labels()->toPrimitive()
+                        ...unwrap($meta->labels()),
                     ),
                     'entity',
                     $mapping
@@ -61,8 +61,8 @@ final class AggregateTranslator implements SpecificationTranslator
                         ->append('_')
                         ->append($child->relationship()->childProperty());
                     $variables = $variables
-                        ->add((string) $relName)
-                        ->add((string) $childName);
+                        ->add($relName->toString())
+                        ->add($childName->toString());
 
                     $query = $this->addProperties(
                         $this
@@ -70,18 +70,18 @@ final class AggregateTranslator implements SpecificationTranslator
                                 $query
                                     ->match('entity')
                                     ->linkedTo(
-                                        (string) $childName,
-                                        $child->labels()->toPrimitive()
+                                        $childName->toString(),
+                                        ...unwrap($child->labels()),
                                     ),
-                                (string) $childName,
+                                $childName->toString(),
                                 $mapping
                             )
                             ->through(
                                 (string) $child->relationship()->type(),
-                                (string) $relName,
+                                $relName->toString(),
                                 'left'
                             ),
-                        (string) $relName,
+                        $relName->toString(),
                         $mapping
                     );
                 });
@@ -89,7 +89,7 @@ final class AggregateTranslator implements SpecificationTranslator
             $query = (new Query)
                 ->match(
                     'entity',
-                    $meta->labels()->toPrimitive()
+                    ...unwrap($meta->labels()),
                 )
                 ->with('entity');
 
@@ -107,18 +107,18 @@ final class AggregateTranslator implements SpecificationTranslator
                         ->append('_')
                         ->append($child->relationship()->childProperty());
                     $variables = $variables
-                        ->add((string) $relName)
-                        ->add((string) $childName);
+                        ->add($relName->toString())
+                        ->add($childName->toString());
 
                     $query = $query
                         ->match('entity')
                         ->linkedTo(
-                            (string) $childName,
-                            $child->labels()->toPrimitive()
+                            $childName->toString(),
+                            ...unwrap($child->labels()),
                         )
                         ->through(
                             (string) $child->relationship()->type(),
-                            (string) $relName,
+                            $relName->toString(),
                             'left'
                         );
                 });
@@ -133,19 +133,19 @@ final class AggregateTranslator implements SpecificationTranslator
         }
 
         return new IdentityMatch(
-            $query->return('entity', ...$variables->toPrimitive()),
+            $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
                 ('entity', $meta)
         );
     }
 
     /**
-     * @param MapInterface<string, PropertiesMatch> $mapping
+     * @param Map<string, PropertiesMatch> $mapping
      */
     private function addProperties(
         Query $query,
         string $name,
-        MapInterface $mapping
+        Map $mapping
     ): Query {
         if ($mapping->contains($name)) {
             $match = $mapping->get($name);

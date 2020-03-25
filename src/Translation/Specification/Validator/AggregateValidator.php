@@ -59,14 +59,14 @@ final class AggregateValidator implements Validator
             return true;
         }
 
-        $property = new Str($property);
+        $property = Str::of($property);
 
         if (!$property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/')) {
             return false;
         }
 
         $pieces = $property->split('.');
-        $piece = (string) $pieces->get(0);
+        $piece = $pieces->get(0)->toString();
 
         if (!$meta->children()->contains($piece)) {
             return false;
@@ -77,16 +77,16 @@ final class AggregateValidator implements Validator
 
         switch ($pieces->count()) {
             case 2:
-                return $relationship->properties()->contains((string) $pieces->get(1));
+                return $relationship->properties()->contains($pieces->get(1)->toString());
 
             case 3:
-                $subPiece = (string) $pieces->get(1);
+                $subPiece = $pieces->get(1)->toString();
 
                 if (!$relationship->childProperty() === $subPiece) {
                     return false;
                 }
 
-                return $child->properties()->contains((string) $pieces->get(2));
+                return $child->properties()->contains($pieces->get(2)->toString());
         }
 
         return false;

@@ -11,9 +11,7 @@ use Innmind\Neo4j\ONM\{
     Exception\DomainException,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
     Str,
 };
@@ -24,14 +22,14 @@ final class Relationship
     private RelationshipType $type;
     private string $property;
     private string $childProperty;
-    private MapInterface $properties;
+    private Map $properties;
 
     public function __construct(
         ClassName $class,
         RelationshipType $type,
         string $property,
         string $childProperty,
-        SetInterface $properties
+        Set $properties
     ) {
         if (Str::of($property)->empty() || Str::of($childProperty)->empty()) {
             throw new DomainException;
@@ -39,7 +37,7 @@ final class Relationship
 
         if ((string) $properties->type() !== Property::class) {
             throw new \TypeError(\sprintf(
-                'Argument 5 must be of type SetInterface<%s>',
+                'Argument 5 must be of type Set<%s>',
                 Property::class
             ));
         }
@@ -50,7 +48,7 @@ final class Relationship
         $this->childProperty = $childProperty;
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
-            static function(MapInterface $properties, Property $property): MapInterface {
+            static function(Map $properties, Property $property): Map {
                 return $properties->put($property->name(), $property);
             }
         );
@@ -61,7 +59,7 @@ final class Relationship
         RelationshipType $type,
         string $property,
         string $childProperty,
-        MapInterface $properties = null
+        Map $properties = null
     ): self {
         return new self(
             $class,
@@ -70,7 +68,7 @@ final class Relationship
             $childProperty,
             ($properties ?? Map::of('string', Type::class))->reduce(
                 Set::of(Property::class),
-                static function(SetInterface $properties, string $property, Type $type): SetInterface {
+                static function(Set $properties, string $property, Type $type): Set {
                     return $properties->add(new Property($property, $type));
                 }
             )
@@ -101,9 +99,9 @@ final class Relationship
     }
 
     /**
-     * @return MapInterface<string, Property>
+     * @return Map<string, Property>
      */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }

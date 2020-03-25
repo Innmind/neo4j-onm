@@ -8,32 +8,29 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class RepositoryFactory
 {
     private UnitOfWork $unitOfWork;
     private MatchTranslator $matchTranslator;
     private SpecificationTranslator $specificationTranslator;
-    private MapInterface $repositories;
+    private Map $repositories;
 
     public function __construct(
         UnitOfWork $unitOfWork,
         MatchTranslator $matchTranslator,
         SpecificationTranslator $specificationTranslator,
-        MapInterface $repositories = null
+        Map $repositories = null
     ) {
-        $repositories = $repositories ?? new Map(Entity::class, Repository::class);
+        $repositories = $repositories ?? Map::of(Entity::class, Repository::class);
 
         if (
             (string) $repositories->keyType() !== Entity::class ||
             (string) $repositories->valueType() !== Repository::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 4 must be of type MapInterface<%s, %s>',
+                'Argument 4 must be of type Map<%s, %s>',
                 Entity::class,
                 Repository::class
             ));

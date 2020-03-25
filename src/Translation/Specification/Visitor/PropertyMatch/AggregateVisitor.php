@@ -17,10 +17,10 @@ use Innmind\Specification\{
     Sign,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
+use function Innmind\Immutable\join;
 
 final class AggregateVisitor implements PropertyMatchVisitor
 {
@@ -34,7 +34,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
     /**
      * {@inheritdo}
      */
-    public function __invoke(Specification $specification): MapInterface
+    public function __invoke(Specification $specification): Map
     {
         switch (true) {
             case $specification instanceof Comparator:
@@ -60,8 +60,8 @@ final class AggregateVisitor implements PropertyMatchVisitor
 
     private function buildMapping(
         Comparator $specification
-    ): MapInterface {
-        $property = new Str($specification->property());
+    ): Map {
+        $property = Str::of($specification->property());
 
         switch (true) {
             case $this->meta->properties()->contains($specification->property()):
@@ -74,7 +74,7 @@ final class AggregateVisitor implements PropertyMatchVisitor
 
     private function buildPropertyMapping(
         Comparator $specification
-    ): MapInterface {
+    ): Map {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
@@ -83,47 +83,54 @@ final class AggregateVisitor implements PropertyMatchVisitor
                 'entity',
                 new PropertiesMatch(
                     Map::of('string', 'string')
-                        ($prop, (string) $key->prepend('{')->append('}')),
+                        ($prop, $key->prepend('{')->append('}')->toString()),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
+                        ($key->toString(), $specification->value())
                 )
             );
     }
 
     private function buildSubPropertyMapping(
         Comparator $specification
-    ): MapInterface {
-        $prop = new Str($specification->property());
+    ): Map {
+        $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
-            (string) $pieces->dropEnd(1)->join('_')
+            join(
+                '_',
+                $pieces->dropEnd(1)->mapTo(
+                    'string',
+                    static fn(Str $piece): string => $piece->toString(),
+                ),
+            )->toString(),
         );
-        $key = $var->append('_')->append((string) $pieces->last());
+        $key = $var->append('_')->append($pieces->last()->toString());
 
         return Map::of('string', PropertiesMatch::class)
             (
-                (string) $var,
+                $var->toString(),
                 new PropertiesMatch(
                     Map::of('string', 'string')
                         (
-                            (string) $pieces->last(),
-                            (string) $key
+                            $pieces->last()->toString(),
+                            $key
                                 ->prepend('{')
                                 ->append('}')
+                                ->toString(),
                         ),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
+                        ($key->toString(), $specification->value())
                 )
             );
     }
 
     private function merge(
-        MapInterface $left,
-        MapInterface $right
-    ): MapInterface {
+        Map $left,
+        Map $right
+    ): Map {
         return $right->reduce(
             $left,
-            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {
                 if (!$carry->contains($var)) {
                     return $carry->put($var, $data);
                 }

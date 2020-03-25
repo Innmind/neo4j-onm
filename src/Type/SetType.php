@@ -8,10 +8,7 @@ use Innmind\Neo4j\ONM\{
     Exception\RecursiveTypeDeclaration,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Immutable\Set;
 
 final class SetType implements Type
 {
@@ -47,11 +44,11 @@ final class SetType implements Type
         }
 
         if (
-            !$value instanceof SetInterface ||
+            !$value instanceof Set ||
             (string) $value->type() !== $this->type
         ) {
             throw new InvalidArgumentException(sprintf(
-                'The set must be an instance of SetInterface<%s>',
+                'The set must be an instance of Set<%s>',
                 $this->type
             ));
         }
@@ -71,7 +68,7 @@ final class SetType implements Type
      */
     public function fromDatabase($value)
     {
-        $set = new Set($this->type);
+        $set = Set::of($this->type);
 
         foreach ($value as $sub) {
             $set = $set->add($this->inner->fromDatabase($sub));

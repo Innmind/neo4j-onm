@@ -8,23 +8,23 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
-    FormatInterface,
-    Format\ISO8601,
-    PointInTimeInterface,
-    PointInTime\Earth\PointInTime,
+    Format,
+    PointInTime as PointInTimeInterface,
+    Earth\Format\ISO8601,
+    Earth\PointInTime\PointInTime,
 };
 
 final class PointInTimeType implements Type
 {
     private bool $nullable = false;
-    private FormatInterface $format;
+    private Format $format;
 
-    public function __construct(FormatInterface $format = null)
+    public function __construct(Format $format = null)
     {
         $this->format = $format ?? new ISO8601;
     }
 
-    public static function nullable(FormatInterface $format = null): self
+    public static function nullable(Format $format = null): self
     {
         $self = new self($format);
         $self->nullable = true;

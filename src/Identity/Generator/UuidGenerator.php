@@ -25,7 +25,7 @@ final class UuidGenerator implements Generator
             throw new DomainException;
         }
 
-        $this->identities = new Map('string', $type);
+        $this->identities = Map::of('string', $type);
     }
 
     /**

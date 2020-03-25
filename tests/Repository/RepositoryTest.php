@@ -39,14 +39,12 @@ use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
 use function Innmind\HttpTransport\bootstrap as http;
 use Innmind\Url\Url;
-use Innmind\TimeContinuum\TimeContinuum\Earth;
+use Innmind\TimeContinuum\Earth\Clock as Earth;
 use Innmind\Specification\Sign;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Map,
 };
-use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
@@ -66,7 +64,7 @@ class RepositoryTest extends TestCase
         $conn = dbal(
             http()['default'](),
             new Earth,
-            Url::fromString('http://neo4j:ci@localhost:7474/')
+            Url::of('http://neo4j:ci@localhost:7474/')
         );
         $container = new Container;
         $entityFactory = new EntityFactory(
@@ -176,7 +174,7 @@ class RepositoryTest extends TestCase
         $this->uow->commit();
         $all = $this->repository->all();
 
-        $this->assertInstanceOf(SetInterface::class, $all);
+        $this->assertInstanceOf(Set::class, $all);
         $this->assertSame('object', (string) $all->type());
         $this->assertSame(2, $all->size());
         $this->assertTrue($all->contains($entity));
@@ -209,7 +207,7 @@ class RepositoryTest extends TestCase
 
         $entities = $this->repository->matching(new Property('content', Sign::contains(), 'foo.*'));
 
-        $this->assertInstanceOf(SetInterface::class, $entities);
+        $this->assertInstanceOf(Set::class, $entities);
         $this->assertSame('object', (string) $entities->type());
         $this->assertSame(2, $entities->size());
         $this->assertTrue($entities->contains($entity));

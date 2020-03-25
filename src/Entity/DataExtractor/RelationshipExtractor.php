@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 use Innmind\Reflection\{
     ReflectionObject,
     ExtractionStrategy\ReflectionStrategy,
@@ -28,7 +28,7 @@ final class RelationshipExtractor implements DataExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -63,7 +63,7 @@ final class RelationshipExtractor implements DataExtractorInterface
             ->properties()
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
+                static function(Map $carry, string $name, Property $property) use ($refl): Map {
                     return $carry->put(
                         $name,
                         $property

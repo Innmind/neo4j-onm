@@ -17,9 +17,10 @@ use Innmind\Neo4j\DBAL\{
     Query,
 };
 use Innmind\Immutable\{
-    MapInterface,
-    SetInterface,
+    Map,
+    Set,
 };
+use function Innmind\Immutable\first;
 use Innmind\Reflection\ReflectionObject;
 
 final class UnitOfWork
@@ -129,7 +130,7 @@ final class UnitOfWork
             throw new EntityNotFound;
         }
 
-        return $entities->current();
+        return first($entities);
     }
 
     /**
@@ -181,14 +182,14 @@ final class UnitOfWork
     /**
      * Execute the given query
      *
-     * @param MapInterface<string, EntityInterface> $variables
+     * @param Map<string, EntityInterface> $variables
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
     public function execute(
         Query $query,
-        MapInterface $variables
-    ): SetInterface {
+        Map $variables
+    ): Set {
         return ($this->makeEntity)(
             $this->connection->execute($query),
             $variables

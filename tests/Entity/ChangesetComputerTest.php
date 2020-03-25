@@ -7,10 +7,8 @@ use Innmind\Neo4j\ONM\{
     Entity\ChangesetComputer,
     Identity,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class ChangesetComputerTest extends TestCase
@@ -87,33 +85,33 @@ class ChangesetComputerTest extends TestCase
                 )
         );
 
-        $this->assertInstanceOf(MapInterface::class, $diff);
+        $this->assertInstanceOf(Map::class, $diff);
         $this->assertSame('string', (string) $diff->keyType());
         $this->assertSame('mixed', (string) $diff->valueType());
         $this->assertSame(
             ['should', 'extra', 'rel', 'another'],
-            $diff->keys()->toPrimitive()
+            unwrap($diff->keys())
         );
         $this->assertSame('to', $diff->get('should'));
         $this->assertSame('value', $diff->get('extra'));
         $this->assertNull($diff->get('another'));
-        $this->assertInstanceOf(MapInterface::class, $diff->get('rel'));
+        $this->assertInstanceOf(Map::class, $diff->get('rel'));
         $this->assertSame('string', (string) $diff->get('rel')->keyType());
         $this->assertSame('mixed', (string) $diff->get('rel')->valueType());
         $this->assertSame(
             ['child', 'empty'],
-            $diff->get('rel')->keys()->toPrimitive()
+            unwrap($diff->get('rel')->keys())
         );
         $this->assertNull($diff->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            MapInterface::class,
+            Map::class,
             $diff->get('rel')->get('child')
         );
         $this->assertSame('string', (string) $diff->get('rel')->get('child')->keyType());
         $this->assertSame('mixed', (string) $diff->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'extra'],
-            $diff->get('rel')->get('child')->keys()->toPrimitive()
+            unwrap($diff->get('rel')->get('child')->keys())
         );
         $this->assertSame('bar', $diff->get('rel')->get('child')->get('content'));
         $this->assertNull($diff->get('rel')->get('child')->get('extra'));
@@ -122,22 +120,22 @@ class ChangesetComputerTest extends TestCase
     public function testThrowWhenUsingInvalidSource()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, mixed>');
 
         $this->computer->use(
             $this->createMock(Identity::class),
-            new Map('string', 'variable')
+            Map::of('string', 'variable')
         );
     }
 
     public function testThrowWhenComputingInvalidTarget()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, mixed>');
 
         $this->computer->compute(
             $this->createMock(Identity::class),
-            new Map('string', 'variable')
+            Map::of('string', 'variable')
         );
     }
 }

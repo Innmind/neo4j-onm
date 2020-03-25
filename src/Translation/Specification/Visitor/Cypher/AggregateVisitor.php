@@ -19,6 +19,7 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
+use function Innmind\Immutable\join;
 
 final class AggregateVisitor implements CypherVisitor
 {
@@ -46,7 +47,7 @@ final class AggregateVisitor implements CypherVisitor
             case $specification instanceof Composite:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = (string) Str::of((string) $specification->operator())->toLower();
+                $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
                 return $left->{$operator}($right);
 
@@ -57,7 +58,7 @@ final class AggregateVisitor implements CypherVisitor
 
     private function buildCondition(Comparator $specification): Where
     {
-        $property = new Str($specification->property());
+        $property = Str::of($specification->property());
 
         switch (true) {
             case $this->meta->properties()->contains($specification->property()):
@@ -81,24 +82,30 @@ final class AggregateVisitor implements CypherVisitor
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value())
         );
     }
 
     private function buildSubPropertyCondition(
         Comparator $specification
     ): Where {
-        $prop = new Str($specification->property());
+        $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
-            (string) $pieces->dropEnd(1)->join('_')
+            join(
+                '_',
+                $pieces->dropEnd(1)->mapTo(
+                    'string',
+                    static fn(Str $piece): string => $piece->toString(),
+                ),
+            )->toString(),
         );
         $key = $var
             ->append('_')
-            ->append((string) $pieces->last())
+            ->append($pieces->last()->toString())
             ->append((string) $this->count);
 
         return new Where(
@@ -106,12 +113,13 @@ final class AggregateVisitor implements CypherVisitor
                 '%s %s %s',
                 $var
                     ->append('.')
-                    ->append((string) $pieces->last()),
+                    ->append($pieces->last()->toString())
+                    ->toString(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value())
         );
     }
 }

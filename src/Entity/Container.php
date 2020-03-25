@@ -9,10 +9,7 @@ use Innmind\Neo4j\ONM\{
     Exception\IdentityNotManaged,
     Exception\DomainException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class Container
 {
@@ -38,7 +35,7 @@ final class Container
 
         $this->states = $this->states->map(static function(
             State $state,
-            MapInterface $entities
+            Map $entities
         ) use (
             $identity,
             $entity,
@@ -57,9 +54,9 @@ final class Container
     /**
      * Return all the entities of a specific state
      *
-     * @return MapInterface<Identity, object>
+     * @return Map<Identity, object>
      */
-    public function state(State $state): MapInterface
+    public function state(State $state): Map
     {
         return $this->states->get($state);
     }
@@ -71,7 +68,7 @@ final class Container
     {
         $this->states = $this->states->map(static function(
             State $state,
-            MapInterface $entities
+            Map $entities
         ) use (
             $identity
         ) {
@@ -88,13 +85,26 @@ final class Container
      */
     public function stateFor(Identity $identity): State
     {
-        foreach ($this->states as $state => $entities) {
-            if ($entities->contains($identity)) {
-                return $state;
-            }
+        $state = $this->states->reduce(
+            null,
+            static function(?State $current, State $state, Map $entities) use ($identity): ?State {
+                if ($current) {
+                    return $current;
+                }
+
+                if ($entities->contains($identity)) {
+                    return $state;
+                }
+
+                return null;
+            },
+        );
+
+        if (!$state) {
+            throw new IdentityNotManaged;
         }
 
-        throw new IdentityNotManaged;
+        return $state;
     }
 
     /**

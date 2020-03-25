@@ -14,36 +14,35 @@ use Innmind\EventBus\{
 };
 use Innmind\CommandBus\CommandBus as CommandBusInterface;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 
 /**
- * @param  SetInterface<Metadata\Entity> $metas
- * @param  MapInterface<string, Generator>|null $additionalGenerators
- * @param  MapInterface<Identity, Repository>|null $repositories
- * @param  SetInterface<EntityFactory>|null $entityFactories
- * @param  MapInterface<string, EntityTranslator>|null $resultTranslators
- * @param  MapInterface<string, IdentityMatchTranslator>|null $identityMatchTranslators
- * @param  MapInterface<string, MatchTranslator>|null $matchTranslators
- * @param  MapInterface<string, SpecificationTranslator>|null $specificationTranslators
- * @param  MapInterface<string, DataExtractor>|null $dataExtractors
+ * @param  Set<Metadata\Entity> $metas
+ * @param  Map<string, Generator>|null $additionalGenerators
+ * @param  Map<Identity, Repository>|null $repositories
+ * @param  Set<EntityFactory>|null $entityFactories
+ * @param  Map<string, EntityTranslator>|null $resultTranslators
+ * @param  Map<string, IdentityMatchTranslator>|null $identityMatchTranslators
+ * @param  Map<string, MatchTranslator>|null $matchTranslators
+ * @param  Map<string, SpecificationTranslator>|null $specificationTranslators
+ * @param  Map<string, DataExtractor>|null $dataExtractors
  */
 function bootstrap(
     Connection $connection,
-    SetInterface $metas,
-    MapInterface $additionalGenerators = null,
+    Set $metas,
+    Map $additionalGenerators = null,
     EventBus $eventBus = null,
-    MapInterface $repositories = null,
+    Map $repositories = null,
     Persister $persister = null,
-    SetInterface $entityFactories = null,
-    MapInterface $resultTranslators = null,
-    MapInterface $identityMatchTranslators = null,
-    MapInterface $matchTranslators = null,
-    MapInterface $specificationTranslators = null,
-    MapInterface $dataExtractors = null
+    Set $entityFactories = null,
+    Map $resultTranslators = null,
+    Map $identityMatchTranslators = null,
+    Map $matchTranslators = null,
+    Map $specificationTranslators = null,
+    Map $dataExtractors = null
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
 
@@ -71,7 +70,7 @@ function bootstrap(
         new EntityFactory\RelationshipFactory($identityGenerators)
     );
 
-    $metadatas = new Metadatas(...$metas);
+    $metadatas = new Metadatas(...unwrap($metas));
 
     $entityChangeset = new Entity\ChangesetComputer;
     $dataExtractor = new Entity\DataExtractor\DataExtractor(
@@ -107,7 +106,7 @@ function bootstrap(
         new EntityFactory\EntityFactory(
             new Translation\ResultTranslator($resultTranslators),
             $identityGenerators,
-            new EntityFactory\Resolver(...$entityFactories),
+            new EntityFactory\Resolver(...unwrap($entityFactories)),
             $entityContainer
         ),
         new Translation\IdentityMatch\DelegationTranslator($identityMatchTranslators),

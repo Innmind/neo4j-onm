@@ -22,11 +22,11 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    Stream,
+    Sequence,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class RemovePersister implements Persister
 {
@@ -34,7 +34,7 @@ final class RemovePersister implements Persister
     private EventBus $dispatch;
     private Metadatas $metadata;
     private Str $name;
-    private ?Stream $variables = null;
+    private ?Sequence $variables = null;
 
     public function __construct(
         ChangesetComputer $changeset,
@@ -44,7 +44,7 @@ final class RemovePersister implements Persister
         $this->changeset = $changeset;
         $this->dispatch = $dispatch;
         $this->metadata = $metadata;
-        $this->name = new Str('e%s');
+        $this->name = Str::of('e%s');
     }
 
     /**
@@ -52,11 +52,10 @@ final class RemovePersister implements Persister
      */
     public function __invoke(Connection $connection, Container $container): void
     {
-        $entities = $container
-            ->state(State::toBeRemoved())
-            ->foreach(function(Identity $identity, object $object): void {
-                ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
-            });
+        $entities = $container->state(State::toBeRemoved());
+        $entities->foreach(function(Identity $identity, object $object): void {
+            ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
+        });
 
         if ($entities->size() === 0) {
             return;
@@ -66,7 +65,7 @@ final class RemovePersister implements Persister
 
         $entities->foreach(function(Identity $identity, object $object) use ($container): void {
             $container->push($identity, $object, State::removed());
-            $this->changeset->use($identity, new Map('string', 'mixed')); //in case the identity is reused later on
+            $this->changeset->use($identity, Map::of('string', 'mixed')); //in case the identity is reused later on
             ($this->dispatch)(new EntityRemoved($identity, $object));
         });
     }
@@ -74,12 +73,12 @@ final class RemovePersister implements Persister
     /**
      * Build the query to delete all entities at once
      *
-     * @param MapInterface<Identity, object> $entities
+     * @param Map<Identity, object> $entities
      */
-    private function queryFor(MapInterface $entities): Query
+    private function queryFor(Map $entities): Query
     {
         $query = new Query\Query;
-        $this->variables = new Stream('string');
+        $this->variables = Sequence::strings();
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = ($this->metadata)(\get_class($entity));
 
@@ -125,23 +124,24 @@ final class RemovePersister implements Persister
     ): Query {
         $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->value()));
-        $this->variables = $this->variables->add((string) $name);
+        $this->variables = $this->variables->add($name->toString());
 
         return $query
             ->match()
             ->linkedTo()
             ->through(
                 (string) $meta->type(),
-                (string) $name
+                $name->toString(),
             )
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $name
+                $name
                     ->prepend('{')
                     ->append('_identity}')
+                    ->toString(),
             )
             ->withParameter(
-                (string) $name->append('_identity'),
+                $name->append('_identity')->toString(),
                 $identity->value()
             );
     }
@@ -156,21 +156,22 @@ final class RemovePersister implements Persister
     ): Query {
         $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->value()));
-        $this->variables = $this->variables->add((string) $name);
+        $this->variables = $this->variables->add($name->toString());
 
         $query = $query
             ->match(
-                (string) $name,
-                $meta->labels()->toPrimitive()
+                $name->toString(),
+                ...unwrap($meta->labels()),
             )
             ->withProperty(
                 $meta->identity()->property(),
-                (string) $name
+                $name
                     ->prepend('{')
                     ->append('_identity}')
+                    ->toString()
             )
             ->withParameter(
-                (string) $name->append('_identity'),
+                $name->append('_identity')->toString(),
                 $identity->value()
             );
 
@@ -180,20 +181,22 @@ final class RemovePersister implements Persister
                 $query,
                 function(Query $carry, string $property, Child $child) use ($name): Query {
                     $carry = $carry
-                        ->match((string) $name)
+                        ->match($name->toString())
                         ->linkedTo(
-                            $childName = (string) $name
+                            $childName = $name
                                 ->append('_')
                                 ->append($child->relationship()->property())
                                 ->append('_')
-                                ->append($child->relationship()->childProperty()),
-                            $child->labels()->toPrimitive()
+                                ->append($child->relationship()->childProperty())
+                                ->toString(),
+                            ...unwrap($child->labels()),
                         )
                         ->through(
                             (string) $child->relationship()->type(),
-                            $relName = (string) $name
+                            $relName = $name
                                 ->append('_')
                                 ->append($child->relationship()->property())
+                                ->toString(),
                         );
                     $this->variables = $this->variables
                         ->add($childName)

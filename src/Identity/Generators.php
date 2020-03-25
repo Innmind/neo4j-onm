@@ -4,18 +4,15 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Identity;
 
 use Innmind\Neo4j\ONM\Identity;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class Generators
 {
-    private MapInterface $mapping;
+    private Map $mapping;
 
-    public function __construct(MapInterface $mapping = null)
+    public function __construct(Map $mapping = null)
     {
-        $mapping = $mapping ?? new Map('string', Generator::class);
+        $mapping = $mapping ?? Map::of('string', Generator::class);
         $this->mapping = Map::of('string', Generator::class)
             (Uuid::class, new Generator\UuidGenerator)
             ->merge($mapping);

@@ -10,16 +10,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
     IdentityMatch,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class DelegationTranslator implements MatchTranslator
 {
-    private MapInterface $translators;
+    private Map $translators;
 
-    public function __construct(MapInterface $translators = null)
+    public function __construct(Map $translators = null)
     {
         $this->translators = $translators ?? Map::of('string', MatchTranslator::class)
             (Aggregate::class, new AggregateTranslator)
@@ -30,7 +27,7 @@ final class DelegationTranslator implements MatchTranslator
             (string) $this->translators->valueType() !== MatchTranslator::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<string, %s>',
+                'Argument 1 must be of type Map<string, %s>',
                 MatchTranslator::class
             ));
         }

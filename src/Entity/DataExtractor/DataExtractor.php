@@ -9,10 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Relationship,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class DataExtractor
 {
@@ -21,7 +18,7 @@ final class DataExtractor
 
     public function __construct(
         Metadatas $metadata,
-        MapInterface $extractors = null
+        Map $extractors = null
     ) {
         $this->metadata = $metadata;
         $this->extractors = $extractors ?? Map::of('string', DataExtractorInterface::class)
@@ -33,7 +30,7 @@ final class DataExtractor
             (string) $this->extractors->valueType() !== DataExtractorInterface::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
+                'Argument 2 must be of type Map<string, %s>',
                 DataExtractorInterface::class
             ));
         }
@@ -42,9 +39,9 @@ final class DataExtractor
     /**
      * Extract raw data from entity based on the defined mapping
      *
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function __invoke(object $entity): MapInterface
+    public function __invoke(object $entity): Map
     {
         $meta = ($this->metadata)(get_class($entity));
         $extract = $this->extractors->get(get_class($meta));
