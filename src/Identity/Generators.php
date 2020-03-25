@@ -8,11 +8,17 @@ use Innmind\Immutable\Map;
 
 final class Generators
 {
+    /** @var Map<string, Generator> */
     private Map $mapping;
 
+    /**
+     * @param Map<string, Generator>|null $mapping
+     */
     public function __construct(Map $mapping = null)
     {
-        $mapping = $mapping ?? Map::of('string', Generator::class);
+        /** @var Map<string, Generator> */
+        $mapping ??= Map::of('string', Generator::class);
+        /** @psalm-suppress InvalidArgument */
         $this->mapping = Map::of('string', Generator::class)
             (Uuid::class, new Generator\UuidGenerator)
             ->merge($mapping);

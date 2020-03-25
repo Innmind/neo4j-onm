@@ -42,6 +42,7 @@ final class PointInTimeType implements Type
         }
 
         if (!$value instanceof PointInTimeInterface) {
+            /** @psalm-suppress MixedArgument */
             throw new InvalidArgumentException(sprintf(
                 'The value "%s" must be an instance of PointInTimeInterface',
                 $value
@@ -56,6 +57,7 @@ final class PointInTimeType implements Type
      */
     public function fromDatabase($value)
     {
+        /** @psalm-suppress MixedArgument */
         return new PointInTime($value);
     }
 

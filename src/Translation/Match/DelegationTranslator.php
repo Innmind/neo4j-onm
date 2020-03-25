@@ -14,10 +14,18 @@ use Innmind\Immutable\Map;
 
 final class DelegationTranslator implements MatchTranslator
 {
+    /** @var Map<string, MatchTranslator> */
     private Map $translators;
 
+    /**
+     * @param Map<string, MatchTranslator>|null $translators
+     */
     public function __construct(Map $translators = null)
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, MatchTranslator>
+         */
         $this->translators = $translators ?? Map::of('string', MatchTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);

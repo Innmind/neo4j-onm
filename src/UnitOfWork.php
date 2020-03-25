@@ -182,7 +182,7 @@ final class UnitOfWork
     /**
      * Execute the given query
      *
-     * @param Map<string, EntityInterface> $variables
+     * @param Map<string, Metadata\Entity> $variables
      *
      * @return Set<object>
      */
@@ -213,6 +213,7 @@ final class UnitOfWork
     {
         $identity = ($this->metadata)(get_class($entity))->identity()->property();
 
+        /** @var Identity */
         return ReflectionObject::of($entity)
             ->extract($identity)
             ->get($identity);

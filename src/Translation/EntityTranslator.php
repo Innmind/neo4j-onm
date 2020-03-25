@@ -5,14 +5,17 @@ namespace Innmind\Neo4j\ONM\Translation;
 
 use Innmind\Neo4j\ONM\Metadata\Entity;
 use Innmind\Neo4j\DBAL\Result;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\{
+    Set,
+    Map,
+};
 
 interface EntityTranslator
 {
     /**
      * Translate the wished variable from the result
      *
-     * @return Set<MapInterface<string, mixed>>
+     * @return Set<Map<string, mixed>>
      */
     public function __invoke(
         string $variable,

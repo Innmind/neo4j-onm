@@ -21,14 +21,16 @@ use function Innmind\Immutable\unwrap;
 
 /**
  * @param  Set<Metadata\Entity> $metas
- * @param  Map<string, Generator>|null $additionalGenerators
- * @param  Map<Identity, Repository>|null $repositories
+ * @param  Map<string, Identity\Generator>|null $additionalGenerators
+ * @param  Map<Metadata\Entity, Repository>|null $repositories
  * @param  Set<EntityFactory>|null $entityFactories
- * @param  Map<string, EntityTranslator>|null $resultTranslators
- * @param  Map<string, IdentityMatchTranslator>|null $identityMatchTranslators
- * @param  Map<string, MatchTranslator>|null $matchTranslators
- * @param  Map<string, SpecificationTranslator>|null $specificationTranslators
- * @param  Map<string, DataExtractor>|null $dataExtractors
+ * @param  Map<string, Translation\EntityTranslator>|null $resultTranslators
+ * @param  Map<string, Translation\IdentityMatchTranslator>|null $identityMatchTranslators
+ * @param  Map<string, Translation\MatchTranslator>|null $matchTranslators
+ * @param  Map<string, Translation\SpecificationTranslator>|null $specificationTranslators
+ * @param  Map<string, Entity\DataExtractor>|null $dataExtractors
+ *
+ * @return array{manager: Manager, command_bus: array{clear_domain_events: callable(CommandBusInterface): CommandBusInterface, dispatch_domain_events: callable(CommandBusInterface): CommandBusInterface, flush: callable(CommandBusInterface): CommandBusInterface, transaction: callable(CommandBusInterface): CommandBusInterface}}
  */
 function bootstrap(
     Connection $connection,
@@ -46,19 +48,39 @@ function bootstrap(
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
 
-    $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $resultTranslators ??= Map::of('string', Translation\EntityTranslator::class)
         (Aggregate::class, new Translation\Result\AggregateTranslator)
         (Relationship::class, new Translation\Result\RelationshipTranslator);
-    $identityMatchTranslators = $identityMatchTranslators ?? Map::of('string', Translation\IdentityMatchTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $identityMatchTranslators ??= Map::of('string', Translation\IdentityMatchTranslator::class)
         (Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
         (Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
-    $matchTranslators = $matchTranslators ?? Map::of('string', Translation\MatchTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $matchTranslators ??= Map::of('string', Translation\MatchTranslator::class)
         (Aggregate::class, new Translation\Match\AggregateTranslator)
         (Relationship::class, new Translation\Match\RelationshipTranslator);
-    $specificationTranslators = $specificationTranslators ?? Map::of('string', Translation\SpecificationTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $specificationTranslators ??= Map::of('string', Translation\SpecificationTranslator::class)
         (Aggregate::class, new Translation\Specification\AggregateTranslator)
         (Relationship::class, new Translation\Specification\RelationshipTranslator);
-    $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $dataExtractors ??= Map::of('string', Entity\DataExtractor::class)
         (Aggregate::class, new Entity\DataExtractor\AggregateExtractor)
         (Relationship::class, new Entity\DataExtractor\RelationshipExtractor);
 

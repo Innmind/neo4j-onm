@@ -56,6 +56,7 @@ final class SetType implements Type
         return $value->reduce(
             [],
             function(array $carry, $value): array {
+                /** @psalm-suppress MixedAssignment */
                 $carry[] = $this->inner->forDatabase($value);
 
                 return $carry;
@@ -70,7 +71,9 @@ final class SetType implements Type
     {
         $set = Set::of($this->type);
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
+            /** @psalm-suppress MixedArgument */
             $set = $set->add($this->inner->fromDatabase($sub));
         }
 

@@ -59,6 +59,7 @@ final class EntityFactory
         $structuredData = ($this->translate)($result, $variables);
         $entities = Set::objects();
 
+        /** @var Set<object> */
         return $variables
             ->filter(static function(string $variable) use ($structuredData): bool {
                 return $structuredData->contains($variable);
@@ -83,7 +84,7 @@ final class EntityFactory
     /**
      * @param Map<string, mixed> $data
      */
-    private function makeEntity(Entity $meta, Map $data)
+    private function makeEntity(Entity $meta, Map $data): object
     {
         $identity = $this
             ->generators

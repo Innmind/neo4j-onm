@@ -13,7 +13,10 @@ use Innmind\EventBus\{
     EventBus,
     ContainsRecordedEvents,
 };
-use Innmind\Immutable\Sequence;
+use Innmind\Immutable\{
+    Sequence,
+    Map,
+};
 
 final class DispatchDomainEvents implements CommandBus
 {
@@ -34,7 +37,8 @@ final class DispatchDomainEvents implements CommandBus
     public function __invoke(object $command): void
     {
         ($this->handle)($command);
-        $this
+        /** @var Map<Identity, ContainsRecordedEvents> */
+        $entitiesWithRecordedEvents = $this
             ->entities
             ->state(State::new())
             ->merge($this->entities->state(State::managed()))
@@ -42,7 +46,8 @@ final class DispatchDomainEvents implements CommandBus
             ->merge($this->entities->state(State::removed()))
             ->filter(static function(Identity $identity, $entity): bool {
                 return $entity instanceof ContainsRecordedEvents;
-            })
+            });
+        $entitiesWithRecordedEvents
             ->reduce(
                 Sequence::objects(),
                 static function(

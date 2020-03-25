@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Query\Where,
     Specification\ConvertSign,
+    Exception\LogicException,
 };
 use Innmind\Specification\{
     Specification,
@@ -49,10 +50,15 @@ final class AggregateVisitor implements CypherVisitor
                 $right = ($this)($specification->right());
                 $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
+                /** @var Where */
                 return $left->{$operator}($right);
 
             case $specification instanceof Not:
                 return ($this)($specification->specification())->not();
+
+            default:
+                $class = \get_class($specification);
+                throw new LogicException("Unknown specification '$class'");
         }
     }
 
@@ -66,6 +72,9 @@ final class AggregateVisitor implements CypherVisitor
 
             case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyCondition($specification);
+
+            default:
+                throw new LogicException("Unknown property '{$property->toString()}'");
         }
     }
 
@@ -77,6 +86,10 @@ final class AggregateVisitor implements CypherVisitor
             ->append($prop)
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 'entity.%s %s %s',
@@ -108,6 +121,10 @@ final class AggregateVisitor implements CypherVisitor
             ->append($pieces->last()->toString())
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 '%s %s %s',

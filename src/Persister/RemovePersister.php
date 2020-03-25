@@ -18,7 +18,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query,
+    Query\Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
@@ -34,7 +34,8 @@ final class RemovePersister implements Persister
     private EventBus $dispatch;
     private Metadatas $metadata;
     private Str $name;
-    private ?Sequence $variables = null;
+    /** @var Sequence<string> */
+    private Sequence $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
@@ -45,6 +46,7 @@ final class RemovePersister implements Persister
         $this->dispatch = $dispatch;
         $this->metadata = $metadata;
         $this->name = Str::of('e%s');
+        $this->variables = Sequence::strings();
     }
 
     /**
@@ -77,8 +79,8 @@ final class RemovePersister implements Persister
      */
     private function queryFor(Map $entities): Query
     {
-        $query = new Query\Query;
-        $this->variables = Sequence::strings();
+        $query = new Query;
+        $this->variables = $this->variables->clear();
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = ($this->metadata)(\get_class($entity));
 
@@ -109,7 +111,7 @@ final class RemovePersister implements Persister
                     return $carry->delete($variable);
                 }
             );
-        $this->variables = null;
+        $this->variables = $this->variables->clear();
 
         return $query;
     }
@@ -122,8 +124,9 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
+        /** @var Relationship */
         $meta = ($this->metadata)(\get_class($entity));
-        $name = $this->name->sprintf(\md5($identity->value()));
+        $name = $this->name->sprintf(\md5((string) $identity->value()));
         $this->variables = $this->variables->add($name->toString());
 
         return $query
@@ -154,8 +157,9 @@ final class RemovePersister implements Persister
         object $entity,
         Query $query
     ): Query {
+        /** @var Aggregate */
         $meta = ($this->metadata)(\get_class($entity));
-        $name = $this->name->sprintf(\md5($identity->value()));
+        $name = $this->name->sprintf(\md5((string) $identity->value()));
         $this->variables = $this->variables->add($name->toString());
 
         $query = $query

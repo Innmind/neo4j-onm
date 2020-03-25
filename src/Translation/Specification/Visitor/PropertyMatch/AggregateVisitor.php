@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
     Exception\SpecificationNotApplicableAsPropertyMatch,
+    Exception\LogicException,
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
@@ -58,9 +59,11 @@ final class AggregateVisitor implements PropertyMatchVisitor
         throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
-    private function buildMapping(
-        Comparator $specification
-    ): Map {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildMapping(Comparator $specification): Map
+    {
         $property = Str::of($specification->property());
 
         switch (true) {
@@ -69,15 +72,24 @@ final class AggregateVisitor implements PropertyMatchVisitor
 
             case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyMapping($specification);
+
+            default:
+                throw new LogicException("Unknown property '{$property->toString()}'");
         }
     }
 
-    private function buildPropertyMapping(
-        Comparator $specification
-    ): Map {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildPropertyMapping(Comparator $specification): Map
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 'entity',
@@ -90,9 +102,11 @@ final class AggregateVisitor implements PropertyMatchVisitor
             );
     }
 
-    private function buildSubPropertyMapping(
-        Comparator $specification
-    ): Map {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildSubPropertyMapping(Comparator $specification): Map
+    {
         $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
@@ -106,6 +120,10 @@ final class AggregateVisitor implements PropertyMatchVisitor
         );
         $key = $var->append('_')->append($pieces->last()->toString());
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 $var->toString(),
@@ -124,10 +142,15 @@ final class AggregateVisitor implements PropertyMatchVisitor
             );
     }
 
-    private function merge(
-        Map $left,
-        Map $right
-    ): Map {
+    /**
+     * @param Map<string, PropertiesMatch> $left
+     * @param Map<string, PropertiesMatch> $right
+     *
+     * @return Map<string, PropertiesMatch>
+     */
+    private function merge(Map $left, Map $right): Map
+    {
+        /** @var Map<string, PropertiesMatch> */
         return $right->reduce(
             $left,
             static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {

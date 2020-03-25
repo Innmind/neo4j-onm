@@ -22,8 +22,12 @@ final class Relationship implements Entity
     private RelationshipType $type;
     private RelationshipEdge $startNode;
     private RelationshipEdge $endNode;
+    /** @var Map<string, Property> */
     private Map $properties;
 
+    /**
+     * @param Set<Property> $properties
+     */
     public function __construct(
         ClassName $class,
         Identity $identity,
@@ -46,6 +50,7 @@ final class Relationship implements Entity
         $this->type = $type;
         $this->startNode = $startNode;
         $this->endNode = $endNode;
+        /** @var Map<string, Property> */
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
             static function(Map $properties, Property $property): Map {
@@ -54,6 +59,9 @@ final class Relationship implements Entity
         );
     }
 
+    /**
+     * @param Map<string, Type>|null $properties
+     */
     public static function of(
         ClassName $class,
         Identity $identity,
@@ -62,18 +70,21 @@ final class Relationship implements Entity
         RelationshipEdge $endNode,
         Map $properties = null
     ): self {
+        /** @var Map<string, Type> */
+        $properties ??= Map::of('string', Type::class);
+        /** @var Set<Property> */
+        $properties = $properties->toSetOf(
+            Property::class,
+            static fn(string $property, Type $type): \Generator => yield new Property($property, $type),
+        );
+
         return new self(
             $class,
             $identity,
             $type,
             $startNode,
             $endNode,
-            ($properties ?? Map::of('string', Type::class))->reduce(
-                Set::of(Property::class),
-                static function(Set $properties, string $property, Type $type): Set {
-                    return $properties->add(new Property($property, $type));
-                }
-            )
+            $properties,
         );
     }
 

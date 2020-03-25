@@ -16,10 +16,16 @@ use Innmind\Immutable\{
 final class Child
 {
     private ClassName $class;
+    /** @var Set<string> */
     private Set $labels;
     private Child\Relationship $relationship;
+    /** @var Map<string, Property> */
     private Map $properties;
 
+    /**
+     * @param Set<string> $labels
+     * @param Set<Property> $properties
+     */
     public function __construct(
         ClassName $class,
         Set $labels,
@@ -40,6 +46,7 @@ final class Child
         $this->class = $class;
         $this->labels = $labels;
         $this->relationship = $relationship;
+        /** @var Map<string, Property> */
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
             static function(Map $properties, Property $property): Map {
@@ -48,22 +55,29 @@ final class Child
         );
     }
 
+    /**
+     * @param Set<string> $labels
+     * @param Map<string, Type>|null $properties
+     */
     public static function of(
         ClassName $class,
         Set $labels,
         Child\Relationship $relationship,
         Map $properties = null
     ): self {
+        /** @var Map<string, Type> */
+        $properties ??= Map::of('string', Type::class);
+        /** @var Set<Property> */
+        $properties = $properties->toSetOf(
+            Property::class,
+            static fn(string $property, Type $type): \Generator => yield new Property($property, $type),
+        );
+
         return new self(
             $class,
             $labels,
             $relationship,
-            ($properties ?? Map::of('string', Type::class))->reduce(
-                Set::of(Property::class),
-                static function(Set $properties, string $property, Type $type): Set {
-                    return $properties->add(new Property($property, $type));
-                }
-            )
+            $properties,
         );
     }
 

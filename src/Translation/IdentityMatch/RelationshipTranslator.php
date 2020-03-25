@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity,
     Metadata\Entity,
+    Metadata\Relationship,
     IdentityMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
@@ -21,6 +22,10 @@ final class RelationshipTranslator implements IdentityMatchTranslator
         Entity $meta,
         Identity $identity
     ): IdentityMatch {
+        if (!$meta instanceof Relationship) {
+            throw new \TypeError('Argument 1 must be of type '.Relationship::class);
+        }
+
         $query = (new Query)
             ->match('start')
             ->linkedTo('end')
@@ -37,6 +42,7 @@ final class RelationshipTranslator implements IdentityMatchTranslator
             ->return('start', 'end', 'entity');
 
 
+        /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
             $query,
             Map::of('string', Entity::class)

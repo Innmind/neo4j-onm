@@ -10,12 +10,14 @@ use Innmind\Immutable\Map;
 final class IdentityMatch
 {
     private Query $query;
+    /** @var Map<string, Entity> */
     private Map $variables;
 
-    public function __construct(
-        Query $query,
-        Map $variables
-    ) {
+    /**
+     * @param Map<string, Entity> $variables
+     */
+    public function __construct(Query $query, Map $variables)
+    {
         if (
             (string) $variables->keyType() !== 'string' ||
             (string) $variables->valueType() !== Entity::class

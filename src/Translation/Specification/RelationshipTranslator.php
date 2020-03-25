@@ -8,7 +8,9 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatch\RelationshipVisitor as RelationshipPropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\RelationshipVisitor as RelationshipCypherVisitor,
     Metadata\Entity,
+    Metadata\Relationship,
     IdentityMatch,
+    Query\PropertiesMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
@@ -24,6 +26,10 @@ final class RelationshipTranslator implements SpecificationTranslator
         Entity $meta,
         Specification $specification
     ): IdentityMatch {
+        if (!$meta instanceof Relationship) {
+            throw new \TypeError('Argument 1 must be of type '.Relationship::class);
+        }
+
         try {
             $mapping = (new RelationshipPropertyMatchVisitor($meta))($specification);
 
@@ -67,6 +73,7 @@ final class RelationshipTranslator implements SpecificationTranslator
             );
         }
 
+        /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
             $query->return('start', 'end', 'entity'),
             Map::of('string', Entity::class)

@@ -97,20 +97,26 @@ final class AggregateFactory implements EntityFactoryInterface
             ->build();
     }
 
-    private function buildChild(Child $meta, Map $data)
+    /**
+     * @param Map<string, mixed> $data
+     */
+    private function buildChild(Child $meta, Map $data): object
     {
         $relationship = $meta->relationship();
+        /** @var Map<string, mixed> */
         $data = $data->get($relationship->property());
 
         return $this->buildRelationship($meta, $data);
     }
 
-    private function buildRelationship(
-        Child $meta,
-        Map $data
-    ) {
+    /**
+     * @param Map<string, mixed> $data
+     */
+    private function buildRelationship(Child $meta, Map $data): object
+    {
         $relationship = $meta->relationship();
 
+        /** @psalm-suppress MixedArgument */
         return $relationship
             ->properties()
             ->filter(static function(string $name, Property $property) use ($data): bool {
@@ -176,6 +182,9 @@ final class AggregateFactory implements EntityFactoryInterface
             ->build();
     }
 
+    /**
+     * @param class-string $class
+     */
     private function reflection(string $class): ReflectionClass
     {
         return new ReflectionClass(

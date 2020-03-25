@@ -16,11 +16,12 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Metadata\Aggregate\Child,
     Metadata\RelationshipEdge,
+    Metadata\Relationship,
     Metadatas,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query,
+    Query\Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
@@ -37,7 +38,8 @@ final class InsertPersister implements Persister
     private DataExtractor $extract;
     private Metadatas $metadata;
     private Str $name;
-    private ?Sequence $variables = null;
+    /** @var Sequence<string> */
+    private Sequence $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
@@ -50,6 +52,7 @@ final class InsertPersister implements Persister
         $this->extract = $extract;
         $this->metadata = $metadata;
         $this->name = Str::of('e%s');
+        $this->variables = Sequence::strings();
     }
 
     /**
@@ -86,8 +89,8 @@ final class InsertPersister implements Persister
      */
     private function queryFor(Map $entities): Query
     {
-        $query = new Query\Query;
-        $this->variables = Sequence::strings();
+        $query = new Query;
+        $this->variables = $this->variables->clear();
 
         $partitions = $entities->partition(function(Identity $identity, object $entity): bool {
             $meta = ($this->metadata)(\get_class($entity));
@@ -110,7 +113,7 @@ final class InsertPersister implements Persister
                     return $this->createRelationship($identity, $entity, $carry);
                 }
             );
-        $this->variables = null;
+        $this->variables = $this->variables->clear();
 
         return $query;
     }
@@ -123,9 +126,10 @@ final class InsertPersister implements Persister
         object $entity,
         Query $query
     ): Query {
+        /** @var Aggregate */
         $meta = ($this->metadata)(\get_class($entity));
         $data = ($this->extract)($entity);
-        $varName = $this->name->sprintf(\md5($identity->value()));
+        $varName = $this->name->sprintf(\md5((string) $identity->value()));
 
         $query = $query->create(
             $varName->toString(),
@@ -138,6 +142,7 @@ final class InsertPersister implements Persister
         );
         $keysToKeep = $data->keys()->intersect($properties->keys());
 
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $query = $query
             ->withProperty(
                 $meta->identity()->property(),
@@ -168,6 +173,7 @@ final class InsertPersister implements Persister
                     ->reduce(
                         [],
                         static function(array $carry, string $key, $value): array {
+                            /** @psalm-suppress MixedAssignment */
                             $carry[$key] = $value;
 
                             return $carry;
@@ -180,6 +186,7 @@ final class InsertPersister implements Persister
             ->reduce(
                 $query,
                 function(Query $carry, string $property, Child $child) use ($varName, $data): Query {
+                    /** @psalm-suppress MixedArgument */
                     return $this->createAggregateChild(
                         $child,
                         $varName,
@@ -220,6 +227,11 @@ final class InsertPersister implements Persister
             $relationshipParamKey = $relationshipName->append('_props')
         );
 
+        /**
+         * @psalm-suppress MixedArgumentTypeCoercion
+         * @psalm-suppress MissingClosureParamType
+         * @psalm-suppress MixedMethodCall
+         */
         return $query
             ->create($nodeName->toString())
             ->linkedTo(
@@ -241,6 +253,7 @@ final class InsertPersister implements Persister
                     ->reduce(
                         [],
                         static function(array $carry, string $key, $value): array {
+                            /** @psalm-suppress MixedAssignment */
                             $carry[$key] = $value;
 
                             return $carry;
@@ -267,6 +280,7 @@ final class InsertPersister implements Persister
                     ->reduce(
                         [],
                         static function(array $carry, string $key, $value): array {
+                            /** @psalm-suppress MixedAssignment */
                             $carry[$key] = $value;
 
                             return $carry;
@@ -288,6 +302,7 @@ final class InsertPersister implements Persister
     ): Map {
         $name = $name->prepend('{')->append('}.');
 
+        /** @var Map<string, string> */
         return $properties->reduce(
             Map::of('string', 'string'),
             static function(Map $carry, string $property) use ($name): Map {
@@ -307,18 +322,22 @@ final class InsertPersister implements Persister
         object $entity,
         Query $query
     ): Query {
+        /** @var Relationship */
         $meta = ($this->metadata)(\get_class($entity));
         $data = ($this->extract)($entity);
+        /** @var mixed */
         $start = $data->get($meta->startNode()->property());
+        /** @var mixed */
         $end = $data->get($meta->endNode()->property());
-        $varName = $this->name->sprintf(\md5($identity->value()));
-        $startName = $this->name->sprintf(\md5($start));
-        $endName = $this->name->sprintf(\md5($end));
+        $varName = $this->name->sprintf(\md5((string) $identity->value()));
+        $startName = $this->name->sprintf(\md5((string) $start));
+        $endName = $this->name->sprintf(\md5((string) $end));
 
         $paramKey = $varName->append('_props');
         $properties = $this->buildProperties($meta->properties(), $paramKey);
         $keysToKeep = $data->keys()->intersect($properties->keys());
 
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         return $this
             ->matchEdge(
                 $endName,
@@ -364,6 +383,7 @@ final class InsertPersister implements Persister
                     ->reduce(
                         [],
                         static function(array $carry, string $key, $value): array {
+                            /** @psalm-suppress MixedAssignment */
                             $carry[$key] = $value;
 
                             return $carry;

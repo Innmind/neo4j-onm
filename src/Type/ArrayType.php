@@ -41,7 +41,9 @@ final class ArrayType implements Type
 
         $array = [];
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
+            /** @psalm-suppress MixedAssignment */
             $array[] = $this->inner->forDatabase($sub);
         }
 
@@ -55,7 +57,9 @@ final class ArrayType implements Type
     {
         $array = [];
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
+            /** @psalm-suppress MixedAssignment */
             $array[] = $this->inner->fromDatabase($sub);
         }
 

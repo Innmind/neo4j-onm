@@ -15,15 +15,20 @@ final class RepositoryFactory
     private UnitOfWork $unitOfWork;
     private MatchTranslator $matchTranslator;
     private SpecificationTranslator $specificationTranslator;
+    /** @var Map<Entity, Repository> */
     private Map $repositories;
 
+    /**
+     * @param Map<Entity, Repository>|null $repositories
+     */
     public function __construct(
         UnitOfWork $unitOfWork,
         MatchTranslator $matchTranslator,
         SpecificationTranslator $specificationTranslator,
         Map $repositories = null
     ) {
-        $repositories = $repositories ?? Map::of(Entity::class, Repository::class);
+        /** @var Map<Entity, Repository> */
+        $repositories ??= Map::of(Entity::class, Repository::class);
 
         if (
             (string) $repositories->keyType() !== Entity::class ||
@@ -51,7 +56,9 @@ final class RepositoryFactory
             return $this->repositories->get($meta);
         }
 
+        /** @var class-string<Repository> */
         $class = (string) $meta->repository();
+        /** @var Repository */
         $repository = new $class(
             $this->unitOfWork,
             $this->matchTranslator,

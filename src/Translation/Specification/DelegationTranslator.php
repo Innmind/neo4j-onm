@@ -16,13 +16,21 @@ use Innmind\Specification\Specification;
 
 final class DelegationTranslator implements SpecificationTranslator
 {
+    /** @var Map<string, SpecificationTranslator> */
     private Map $translators;
     private Validator $validate;
 
+    /**
+     * @param Map<string, SpecificationTranslator>|null $translators
+     */
     public function __construct(
         Map $translators = null,
         Validator $validate = null
     ) {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, SpecificationTranslator>
+         */
         $this->translators = $translators ?? Map::of('string', SpecificationTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);

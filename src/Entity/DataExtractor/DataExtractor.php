@@ -14,13 +14,21 @@ use Innmind\Immutable\Map;
 final class DataExtractor
 {
     private Metadatas $metadata;
+    /** @var Map<string, DataExtractorInterface> */
     private Map $extractors;
 
+    /**
+     * @param Map<string, DataExtractorInterface>|null $extractors
+     */
     public function __construct(
         Metadatas $metadata,
         Map $extractors = null
     ) {
         $this->metadata = $metadata;
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, DataExtractorInterface>
+         */
         $this->extractors = $extractors ?? Map::of('string', DataExtractorInterface::class)
             (Aggregate::class, new AggregateExtractor)
             (Relationship::class, new RelationshipExtractor);

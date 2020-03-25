@@ -43,6 +43,7 @@ final class AggregateTranslator implements EntityTranslator
             throw new InvalidArgumentException;
         }
 
+        /** @var Set<Map<string, mixed>> */
         return $result
             ->rows()
             ->filter(static function(Row $row) use ($variable) {
@@ -51,6 +52,7 @@ final class AggregateTranslator implements EntityTranslator
             ->reduce(
                 Set::of(Map::class),
                 function(Set $carry, Row $row) use ($meta, $result): Set {
+                    /** @psalm-suppress PossiblyInvalidArrayAccess */
                     return $carry->add($this->translateNode(
                         $row->value()[$meta->identity()->property()],
                         $meta,
@@ -60,9 +62,14 @@ final class AggregateTranslator implements EntityTranslator
             );
     }
 
+    /**
+     * @param mixed $identity
+     *
+     * @return Map<string, mixed>
+     */
     private function translateNode(
         $identity,
-        Entity $meta,
+        Aggregate $meta,
         Result $result
     ): Map {
         $node = $result
@@ -76,7 +83,9 @@ final class AggregateTranslator implements EntityTranslator
             })
             ->values()
             ->first();
-        $data = Map::of('string', 'mixed')
+        /** @var Map<string, mixed> */
+        $data = Map::of('string', 'mixed');
+        $data = ($data)
             (
                 $meta->identity()->property(),
                 $node->properties()->get(
@@ -107,6 +116,7 @@ final class AggregateTranslator implements EntityTranslator
             );
 
         try {
+            /** @var Map<string, mixed> */
             return $meta
                 ->children()
                 ->reduce(
@@ -159,6 +169,10 @@ final class AggregateTranslator implements EntityTranslator
         Result $result,
         Relationship $relationship
     ): Map {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @psalm-suppress InvalidScalarArgument
+         */
         return $meta
             ->relationship()
             ->properties()

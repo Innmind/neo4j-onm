@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Identity,
     Exception\SpecificationNotApplicableAsPropertyMatch,
+    Exception\LogicException,
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
@@ -59,9 +60,11 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
-    private function buildMapping(
-        Comparator $specification
-    ): Map {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildMapping(Comparator $specification): Map
+    {
         $property = $specification->property();
 
         switch (true) {
@@ -81,15 +84,24 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                     $this->meta->endNode(),
                     'end'
                 );
+
+            default:
+                throw new LogicException("Unknown property '$property'");
         }
     }
 
-    private function buildPropertyMapping(
-        Comparator $specification
-    ): Map {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildPropertyMapping(Comparator $specification): Map
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 'entity',
@@ -102,6 +114,9 @@ final class RelationshipVisitor implements PropertyMatchVisitor
             );
     }
 
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
     private function buildEdgeMapping(
         Comparator $specification,
         RelationshipEdge $edge,
@@ -110,12 +125,18 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         $key = Str::of($side)
             ->append('_')
             ->append($edge->target());
+        /** @var mixed */
         $value = $specification->value();
 
         if ($value instanceof Identity) {
+            /** @var mixed */
             $value = $value->value();
         }
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 $side,
@@ -134,10 +155,15 @@ final class RelationshipVisitor implements PropertyMatchVisitor
             );
     }
 
-    private function merge(
-        Map $left,
-        Map $right
-    ): Map {
+    /**
+     * @param Map<string, PropertiesMatch> $left
+     * @param Map<string, PropertiesMatch> $right
+     *
+     * @return Map<string, PropertiesMatch>
+     */
+    private function merge(Map $left, Map $right): Map
+    {
+        /** @var Map<string, PropertiesMatch> */
         return $right->reduce(
             $left,
             static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {

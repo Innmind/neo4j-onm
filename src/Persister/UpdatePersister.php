@@ -15,11 +15,13 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Metadata\Aggregate\Child,
     Metadata\Relationship,
+    Metadata\Property,
     Metadatas,
+    Exception\LogicException,
 };
 use Innmind\Neo4j\DBAL\{
     Connection,
-    Query,
+    Query\Query,
 };
 use Innmind\EventBus\EventBus;
 use Innmind\Immutable\{
@@ -35,7 +37,8 @@ final class UpdatePersister implements Persister
     private DataExtractor $extract;
     private Metadatas $metadata;
     private Str $name;
-    private ?Map $variables = null;
+    /** @var Map<Str, Map<string, mixed>> */
+    private Map $variables;
 
     public function __construct(
         ChangesetComputer $changeset,
@@ -48,6 +51,7 @@ final class UpdatePersister implements Persister
         $this->extract = $extract;
         $this->metadata = $metadata;
         $this->name = Str::of('e%s');
+        $this->variables = Map::of(Str::class, Map::class);
     }
 
     /**
@@ -56,6 +60,7 @@ final class UpdatePersister implements Persister
     public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container->state(State::managed());
+        /** @var Map<Identity, Map<string, mixed>> */
         $changesets = $entities->reduce(
             Map::of(Identity::class, Map::class),
             function(Map $carry, Identity $identity, object $entity): Map {
@@ -112,10 +117,10 @@ final class UpdatePersister implements Persister
         Map $changesets,
         Map $entities
     ): Query {
-        $this->variables = Map::of(Str::class, Map::class);
+        $this->variables = $this->variables->clear();
 
         $query = $changesets->reduce(
-            new Query\Query,
+            new Query,
             function(Query $carry, Identity $identity, Map $changeset) use ($entities): Query {
                 $entity = $entities->get($identity);
                 $meta = ($this->metadata)(\get_class($entity));
@@ -137,6 +142,9 @@ final class UpdatePersister implements Persister
                         $carry
                     );
                 }
+
+                $class = \get_class($meta);
+                throw new LogicException("Unknown metadata '$class'");
             }
         );
         $query = $this
@@ -147,7 +155,7 @@ final class UpdatePersister implements Persister
                     return $this->update($variable, $changeset, $carry);
                 }
             );
-        $this->variables = null;
+        $this->variables = $this->variables->clear();
 
         return $query;
     }
@@ -164,7 +172,7 @@ final class UpdatePersister implements Persister
         Map $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(\md5($identity->value()));
+        $name = $this->name->sprintf(\md5((string) $identity->value()));
         $query = $query
             ->match(
                 $name->toString(),
@@ -197,6 +205,7 @@ final class UpdatePersister implements Persister
             ->reduce(
                 $query,
                 function(Query $carry, string $property, Child $child) use ($changeset, $name): Query {
+                    /** @var Map<string, mixed> */
                     $changeset = $changeset->get($property);
                     $childName = null;
                     $relName = $name
@@ -216,6 +225,7 @@ final class UpdatePersister implements Persister
                             ->append(
                                 $child->relationship()->childProperty()
                             );
+                        /** @psalm-suppress MixedArgument */
                         $this->variables = $this->variables->put(
                             $childName,
                             $changeset->get(
@@ -241,7 +251,7 @@ final class UpdatePersister implements Persister
     /**
      * Add the match clause for a relationship
      *
-     * @param Map<string, mixed> $changeset
+     * @param Map<string, mixed|Map<string, mixed>> $changeset
      */
     private function matchRelationship(
         Identity $identity,
@@ -250,7 +260,7 @@ final class UpdatePersister implements Persister
         Map $changeset,
         Query $query
     ): Query {
-        $name = $this->name->sprintf(\md5($identity->value()));
+        $name = $this->name->sprintf(\md5((string) $identity->value()));
         $this->variables = $this->variables->put(
             $name,
             $this->buildProperties(
@@ -321,6 +331,7 @@ final class UpdatePersister implements Persister
                 $changeset->reduce(
                     [],
                     static function(array $carry, string $key, $value): array {
+                        /** @psalm-suppress MixedAssignment */
                         $carry[$key] = $value;
 
                         return $carry;

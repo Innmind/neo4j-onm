@@ -12,8 +12,12 @@ use Innmind\Immutable\{
 final class Where
 {
     private string $cypher;
+    /** @var Map<string, mixed> */
     private Map $parameters;
 
+    /**
+     * @param Map<string, mixed> $parameters
+     */
     public function __construct(string $cypher, Map $parameters)
     {
         if (Str::of($cypher)->empty()) {

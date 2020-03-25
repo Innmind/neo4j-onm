@@ -14,10 +14,18 @@ use Innmind\Immutable\Map;
 
 final class DelegationValidator implements Validator
 {
+    /** @var Map<string, Validator> */
     private Map $validators;
 
+    /**
+     * @param Map<string, Validator>|null $validators
+     */
     public function __construct(Map $validators = null)
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, Validator>
+         */
         $this->validators = $validators ?? Map::of('string', Validator::class)
             (Aggregate::class, new AggregateValidator)
             (Relationship::class, new RelationshipValidator);

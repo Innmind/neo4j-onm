@@ -35,6 +35,7 @@ final class AggregateExtractor implements DataExtractorInterface
             throw new InvalidArgumentException;
         }
 
+        /** @psalm-suppress MixedMethodCall */
         $data = $this
             ->extractProperties($entity, $meta->properties())
             ->put(
@@ -46,6 +47,7 @@ final class AggregateExtractor implements DataExtractorInterface
                     ->value()
             );
 
+        /** @var Map<string, mixed> */
         return $meta
             ->children()
             ->reduce(
@@ -69,10 +71,13 @@ final class AggregateExtractor implements DataExtractorInterface
         Child $child,
         object $entity
     ): Map {
+        /** @var object */
         $rel = $this
             ->reflection($entity)
             ->extract($property = $child->relationship()->property())
             ->get($property);
+
+        /** @psalm-suppress MixedArgument */
         $data = $this
             ->extractProperties(
                 $rel,
@@ -103,6 +108,7 @@ final class AggregateExtractor implements DataExtractorInterface
     ): Map {
         $refl = $this->reflection($object);
 
+        /** @var Map<string, mixed> */
         return $properties->reduce(
             Map::of('string', 'mixed'),
             static function(Map $carry, string $name, Property $property) use ($refl): Map {

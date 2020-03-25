@@ -10,6 +10,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Query\Where,
     Specification\ConvertSign,
+    Exception\LogicException,
 };
 use Innmind\Specification\{
     Specification,
@@ -50,10 +51,15 @@ final class RelationshipVisitor implements CypherVisitor
                 $right = ($this)($specification->right());
                 $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
+                /** @var Where */
                 return $left->{$operator}($right);
 
             case $specification instanceof Not:
                 return ($this)($specification->specification())->not();
+
+            default:
+                $class = \get_class($specification);
+                throw new LogicException("Unknown specification '$class'");
         }
     }
 
@@ -78,6 +84,9 @@ final class RelationshipVisitor implements CypherVisitor
                     $this->meta->endNode(),
                     'end'
                 );
+
+            default:
+                throw new LogicException("Unknown property '$property'");
         }
     }
 
@@ -89,6 +98,10 @@ final class RelationshipVisitor implements CypherVisitor
             ->append($prop)
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 'entity.%s %s %s',
@@ -110,12 +123,18 @@ final class RelationshipVisitor implements CypherVisitor
             ->append('_')
             ->append($edge->target())
             ->append((string) $this->count);
+        /** @var mixed */
         $value = $specification->value();
 
         if ($value instanceof Identity) {
+            /** @var mixed */
             $value = $value->value();
         }
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 '%s.%s %s %s',

@@ -58,6 +58,7 @@ final class DateType implements Type
         }
 
         if (!$value instanceof \DateTimeInterface) {
+            /** @psalm-suppress MixedArgument */
             throw new InvalidArgumentException(sprintf(
                 'The value "%s" must be an instance of DateTimeInterface',
                 $value
@@ -73,9 +74,11 @@ final class DateType implements Type
     public function fromDatabase($value)
     {
         if ($this->immutable) {
+            /** @psalm-suppress MixedArgument */
             return \DateTimeImmutable::createFromFormat($this->format, $value);
         }
 
+        /** @psalm-suppress MixedArgument */
         return \DateTime::createFromFormat($this->format, $value);
     }
 

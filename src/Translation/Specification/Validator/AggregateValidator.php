@@ -53,7 +53,7 @@ final class AggregateValidator implements Validator
 
     private function isValidProperty(
         string $property,
-        Entity $meta
+        Aggregate $meta
     ): bool {
         if ($meta->properties()->contains($property)) {
             return true;
@@ -82,7 +82,7 @@ final class AggregateValidator implements Validator
             case 3:
                 $subPiece = $pieces->get(1)->toString();
 
-                if (!$relationship->childProperty() === $subPiece) {
+                if ($relationship->childProperty() !== $subPiece) {
                     return false;
                 }
 

@@ -20,10 +20,18 @@ final class Aggregate implements Entity
     private Identity $identity;
     private Repository $repository;
     private Factory $factory;
+    /** @var Map<string, Property> */
     private Map $properties;
+    /** @var Set<string> */
     private Set $labels;
+    /** @var Map<string, Child> */
     private Map $children;
 
+    /**
+     * @param Set<string> $labels
+     * @param Set<Property> $properties
+     * @param Set<Child> $children
+     */
     public function __construct(
         ClassName $class,
         Identity $identity,
@@ -53,6 +61,7 @@ final class Aggregate implements Entity
         $this->identity = $identity;
         $this->repository = new Repository(ConcreteRepository::class);
         $this->factory = new Factory(AggregateFactory::class);
+        /** @var Map<string, Property> */
         $this->properties = $properties->reduce(
             Map::of('string', Property::class),
             static function(Map $properties, Property $property): Map {
@@ -60,6 +69,7 @@ final class Aggregate implements Entity
             }
         );
         $this->labels = $labels;
+        /** @var Map<string, Child> */
         $this->children = $children->reduce(
             Map::of('string', Child::class),
             static function(Map $children, Child $child): Map {
@@ -73,8 +83,8 @@ final class Aggregate implements Entity
 
     /**
      * @param Set<string> $labels
-     * @param Map<string, Type> $properties
-     * @param Set<Child> $children
+     * @param Map<string, Type>|null $properties
+     * @param Set<Child>|null $children
      */
     public static function of(
         ClassName $class,
@@ -83,16 +93,19 @@ final class Aggregate implements Entity
         Map $properties = null,
         Set $children = null
     ): self {
+        /** @var Map<string, Type> */
+        $properties ??= Map::of('string', Type::class);
+        /** @var Set<Property> */
+        $properties = $properties->toSetOf(
+            Property::class,
+            static fn(string $property, Type $type): \Generator => yield new Property($property, $type),
+        );
+
         return new self(
             $class,
             $identity,
             $labels,
-            ($properties ?? Map::of('string', Type::class))->reduce(
-                Set::of(Property::class),
-                static function(Set $properties, string $name, Type $type): Set {
-                    return $properties->add(new Property($name, $type));
-                }
-            ),
+            $properties,
             $children ?? Set::of(Child::class)
         );
     }

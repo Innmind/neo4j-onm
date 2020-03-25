@@ -10,8 +10,12 @@ final class EntityAboutToBeUpdated
 {
     private Identity $identity;
     private object $entity;
+    /** @var Map<string, mixed> */
     private Map $changeset;
 
+    /**
+     * @param Map<string, mixed> $changeset
+     */
     public function __construct(
         Identity $identity,
         object $entity,

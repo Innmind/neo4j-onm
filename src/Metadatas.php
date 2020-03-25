@@ -8,10 +8,12 @@ use Innmind\Immutable\Map;
 
 final class Metadatas
 {
+    /** @var Map<string, Entity> */
     private Map $mapping;
 
     public function __construct(Entity ...$metas)
     {
+        /** @var Map<string, Entity> */
         $this->mapping = Map::of('string', Entity::class);
 
         foreach ($metas as $meta) {

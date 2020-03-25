@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\IdentityMatchTranslator,
     Identity,
     Metadata\Entity,
+    Metadata\Aggregate,
     Metadata\Aggregate\Child,
     IdentityMatch,
 };
@@ -20,6 +21,14 @@ use function Innmind\Immutable\unwrap;
 
 final class AggregateTranslator implements IdentityMatchTranslator
 {
+    /** @var Set<string> */
+    private Set $variables;
+
+    public function __construct()
+    {
+        $this->variables = Set::strings();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -27,6 +36,10 @@ final class AggregateTranslator implements IdentityMatchTranslator
         Entity $meta,
         Identity $identity
     ): IdentityMatch {
+        if (!$meta instanceof Aggregate) {
+            throw new \TypeError('Argument 1 must be of type '.Aggregate::class);
+        }
+
         $query = (new Query)
             ->match(
                 'entity',
@@ -39,25 +52,23 @@ final class AggregateTranslator implements IdentityMatchTranslator
             ->withParameter('entity_identity', $identity->value())
             ->with('entity');
 
-        $variables = Set::strings();
-        $meta
-            ->children()
-            ->foreach(function(
+        $this->variables = $this->variables->clear();
+        $query = $meta->children()->reduce(
+            $query,
+            function(
+                Query $query,
                 string $property,
                 Child $child
-            ) use (
-                &$query,
-                &$variables
-            ): void {
+            ): Query {
                 $relName = Str::of('entity_')->append($property);
                 $childName = $relName
                     ->append('_')
                     ->append($child->relationship()->childProperty());
-                $variables = $variables
+                $this->variables = $this->variables
                     ->add($relName->toString())
                     ->add($childName->toString());
 
-                $query = $query
+                return $query
                     ->match('entity')
                     ->linkedTo(
                         $childName->toString(),
@@ -70,7 +81,10 @@ final class AggregateTranslator implements IdentityMatchTranslator
                     );
             });
 
+        $variables = $this->variables;
+        $this->variables = $this->variables->clear();
 
+        /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
             $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)

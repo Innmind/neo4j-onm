@@ -13,10 +13,15 @@ use Innmind\Immutable\Map;
 
 final class Container
 {
+    /** @var Map<State, Map<Identity, object>> */
     private Map $states;
 
     public function __construct()
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<State, Map<Identity, object>>
+         */
         $this->states = Map::of(State::class, Map::class)
             (State::managed(), Map::of(Identity::class, 'object'))
             (State::new(), Map::of(Identity::class, 'object'))

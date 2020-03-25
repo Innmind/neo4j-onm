@@ -39,6 +39,7 @@ final class RelationshipTranslator implements EntityTranslator
             throw new InvalidArgumentException;
         }
 
+        /** @var Set<Map<string, mixed>> */
         return $result
             ->rows()
             ->filter(static function(Row $row) use ($variable) {
@@ -47,6 +48,7 @@ final class RelationshipTranslator implements EntityTranslator
             ->reduce(
                 Set::of(Map::class),
                 function(Set $carry, Row $row) use ($meta, $result): Set {
+                    /** @psalm-suppress PossiblyInvalidArrayAccess */
                     return $carry->add(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
@@ -58,9 +60,14 @@ final class RelationshipTranslator implements EntityTranslator
             );
     }
 
+    /**
+     * @param mixed $identity
+     *
+     * @return Map<string, mixed>
+     */
     private function translateRelationship(
         $identity,
-        Entity $meta,
+        Relationship $meta,
         Result $result
     ): Map {
         $relationship = $result
@@ -74,7 +81,9 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->values()
             ->first();
-        $data = Map::of('string', 'mixed')
+        /** @var Map<string, mixed> */
+        $data = Map::of('string', 'mixed');
+        $data = ($data)
             (
                 $meta->identity()->property(),
                 $relationship->properties()->get(
@@ -98,6 +107,7 @@ final class RelationshipTranslator implements EntityTranslator
                     ->get($meta->endNode()->target())
             );
 
+        /** @var Map<string, mixed> */
         return $meta
             ->properties()
             ->filter(static function(string $name, Property $property) use ($relationship): bool {

@@ -21,10 +21,18 @@ use Innmind\Immutable\{
 
 final class ResultTranslator
 {
+    /** @var Map<string, EntityTranslator> */
     private Map $translators;
 
+    /**
+     * @param Map<string, EntityTranslator>|null $translators
+     */
     public function __construct(Map $translators = null)
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, EntityTranslator>
+         */
         $this->translators = $translators ?? Map::of('string', EntityTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
@@ -61,6 +69,7 @@ final class ResultTranslator
             ));
         }
 
+        /** @var Map<string, Set<Map<string, mixed>>> */
         return $variables
             ->filter(static function(string $variable) use ($result): bool {
                 $forVariable = $result

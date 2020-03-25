@@ -11,10 +11,12 @@ use Innmind\Immutable\Map;
 
 final class ChangesetComputer
 {
+    /** @var Map<Identity, Map<string, mixed>> */
     private Map $sources;
 
     public function __construct()
     {
+        /** @var Map<Identity, Map<string, mixed>> */
         $this->sources = Map::of(Identity::class, Map::class);
     }
 
@@ -62,10 +64,14 @@ final class ChangesetComputer
         return $this->diff($source, $target);
     }
 
-    private function diff(
-        Map $source,
-        Map $target
-    ): Map {
+    /**
+     * @param Map<string, mixed> $source
+     * @param Map<string, mixed> $target
+     *
+     * @return Map<string, mixed>
+     */
+    private function diff(Map $source, Map $target): Map
+    {
         $changeset = $target->filter(static function(string $property, $value) use ($source): bool {
             if (
                 !$source->contains($property) ||
@@ -77,6 +83,10 @@ final class ChangesetComputer
             return false;
         });
 
+        /**
+         * @psalm-suppress MissingClosureReturnType
+         * @var Map<string, mixed>
+         */
         return $source
             ->filter(static function(string $property) use ($target): bool {
                 return !$target->contains($property);
@@ -92,6 +102,7 @@ final class ChangesetComputer
                     return $value;
                 }
 
+                /** @psalm-suppress MixedArgument */
                 return $this->diff(
                     $source->get($property),
                     $target->get($property)

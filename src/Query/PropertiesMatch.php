@@ -7,9 +7,15 @@ use Innmind\Immutable\Map;
 
 final class PropertiesMatch
 {
+    /** @var Map<string, string> */
     private Map $properties;
+    /** @var Map<string, mixed> */
     private Map $parameters;
 
+    /**
+     * @param Map<string, string> $properties
+     * @param Map<string, mixed> $parameters
+     */
     public function __construct(Map $properties, Map $parameters)
     {
         if (

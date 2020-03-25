@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Exception\EntityNotFound;
 use Innmind\Specification\Specification;
 use Innmind\Immutable\Set;
 
@@ -21,7 +22,7 @@ interface Repository
     /**
      * Return the entity with the given id
      *
-     * @throws EntityNotFoundException
+     * @throws EntityNotFound
      */
     public function get(Identity $identity): object;
 

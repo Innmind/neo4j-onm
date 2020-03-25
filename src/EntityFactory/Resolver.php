@@ -11,10 +11,12 @@ use Innmind\Immutable\Map;
 
 final class Resolver
 {
+    /** @var Map<string, EntityFactoryInterface> */
     private Map $mapping;
 
     public function __construct(EntityFactoryInterface ...$factories)
     {
+        /** @var Map<string, EntityFactoryInterface> */
         $this->mapping = Map::of('string', EntityFactoryInterface::class);
 
         foreach ($factories as $factory) {
@@ -27,6 +29,7 @@ final class Resolver
      */
     public function __invoke(Entity $meta): EntityFactoryInterface
     {
+        /** @var class-string<EntityFactoryInterface> */
         $class = (string) $meta->factory();
 
         if ($this->mapping->contains($class)) {

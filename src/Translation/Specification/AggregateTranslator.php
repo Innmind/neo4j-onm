@@ -9,7 +9,9 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
     Metadata\Aggregate\Child,
     Metadata\Entity,
+    Metadata\Aggregate,
     IdentityMatch,
+    Query\PropertiesMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
@@ -23,6 +25,14 @@ use Innmind\Specification\Specification;
 
 final class AggregateTranslator implements SpecificationTranslator
 {
+    /** @var Set<string> */
+    private Set $variables;
+
+    public function __construct()
+    {
+        $this->variables = Set::strings();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -30,7 +40,11 @@ final class AggregateTranslator implements SpecificationTranslator
         Entity $meta,
         Specification $specification
     ): IdentityMatch {
-        $variables = Set::strings();
+        if (!$meta instanceof Aggregate) {
+            throw new \TypeError('Argument 1 must be of type '.Aggregate::class);
+        }
+
+        $this->variables = $this->variables->clear();
 
         try {
             $mapping = (new AggregatePropertyMatchVisitor($meta))($specification);
@@ -46,25 +60,24 @@ final class AggregateTranslator implements SpecificationTranslator
                 )
                 ->with('entity');
 
-            $meta
-                ->children()
-                ->foreach(function(
+            $query = $meta->children()->reduce(
+                $query,
+                function(
+                    Query $query,
                     string $property,
                     Child $child
                 ) use (
-                    &$query,
-                    $mapping,
-                    &$variables
-                ): void {
+                    $mapping
+                ): Query {
                     $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $variables = $variables
+                    $this->variables = $this->variables
                         ->add($relName->toString())
                         ->add($childName->toString());
 
-                    $query = $this->addProperties(
+                    return $this->addProperties(
                         $this
                             ->addProperties(
                                 $query
@@ -93,24 +106,22 @@ final class AggregateTranslator implements SpecificationTranslator
                 )
                 ->with('entity');
 
-            $meta
-                ->children()
-                ->foreach(function(
+            $query = $meta->children()->reduce(
+                $query,
+                function(
+                    Query $query,
                     string $property,
                     Child $child
-                ) use (
-                    &$query,
-                    &$variables
-                ): void {
+                ): Query {
                     $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $variables = $variables
+                    $this->variables = $this->variables
                         ->add($relName->toString())
                         ->add($childName->toString());
 
-                    $query = $query
+                    return $query
                         ->match('entity')
                         ->linkedTo(
                             $childName->toString(),
@@ -132,6 +143,13 @@ final class AggregateTranslator implements SpecificationTranslator
             );
         }
 
+        $variables = $this->variables;
+        $this->variables = $this->variables->clear();
+
+        /**
+         * @psalm-suppress InvalidArgument
+         * @psalm-suppress MixedArgument
+         */
         return new IdentityMatch(
             $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)

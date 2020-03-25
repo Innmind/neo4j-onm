@@ -17,14 +17,19 @@ use Ramsey\Uuid\Uuid as Factory;
 
 final class UuidGenerator implements Generator
 {
+    /** @var Map<string, Uuid> */
     private Map $identities;
 
+    /**
+     * @param class-string<Uuid> $type
+     */
     public function __construct(string $type = Uuid::class)
     {
         if (Str::of($type)->empty()) {
             throw new DomainException;
         }
 
+        /** @var Map<string, Uuid> */
         $this->identities = Map::of('string', $type);
     }
 
@@ -33,10 +38,11 @@ final class UuidGenerator implements Generator
      */
     public function new(): Identity
     {
+        /** @var class-string<Uuid> */
         $class = (string) $this->identities->valueType();
         $uuid = new $class((string) Factory::uuid4());
         $this->identities = $this->identities->put(
-            $uuid->value(),
+            (string) $uuid,
             $uuid
         );
 
@@ -48,6 +54,7 @@ final class UuidGenerator implements Generator
      */
     public function knows($value): bool
     {
+        /** @psalm-suppress MixedArgument */
         return $this->identities->contains($value);
     }
 
@@ -56,6 +63,7 @@ final class UuidGenerator implements Generator
      */
     public function get($value): Identity
     {
+        /** @psalm-suppress MixedArgument */
         return $this->identities->get($value);
     }
 
@@ -64,8 +72,9 @@ final class UuidGenerator implements Generator
      */
     public function add(Identity $identity): Generator
     {
+        /** @psalm-suppress ArgumentTypeCoercion */
         $this->identities = $this->identities->put(
-            $identity->value(),
+            (string) $identity,
             $identity
         );
 
@@ -81,6 +90,7 @@ final class UuidGenerator implements Generator
             return $this->get($value);
         }
 
+        /** @var class-string<Uuid> */
         $class = (string) $this->identities->valueType();
         $uuid = new $class($value);
         $this->add($uuid);

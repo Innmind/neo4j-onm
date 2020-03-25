@@ -50,10 +50,8 @@ final class RelationshipValidator implements Validator
         return false;
     }
 
-    private function isValidProperty(
-        string $property,
-        Entity $meta
-    ): bool {
+    private function isValidProperty(string $property, Relationship $meta): bool
+    {
         if ($meta->properties()->contains($property)) {
             return true;
         }

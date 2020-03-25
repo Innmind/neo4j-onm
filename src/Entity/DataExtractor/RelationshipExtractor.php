@@ -40,11 +40,13 @@ final class RelationshipExtractor implements DataExtractorInterface
             null,
             $this->extractionStrategy
         );
+        /** @var Map<string, mixed> */
         $data = $refl->extract(
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),
             $end = $meta->endNode()->property()
         );
+        /** @psalm-suppress MixedMethodCall */
         $data = $data
             ->put(
                 $id,
@@ -59,6 +61,7 @@ final class RelationshipExtractor implements DataExtractorInterface
                 $data->get($end)->value()
             );
 
+        /** @var Map<string, mixed> */
         return $meta
             ->properties()
             ->reduce(
