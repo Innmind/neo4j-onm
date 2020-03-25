@@ -192,7 +192,7 @@ final class InsertPersister implements Persister
                     );
                 },
             );
-        $this->variables = $this->variables->add($varName->toString());
+        $this->variables = ($this->variables)($varName->toString());
 
         return $query;
     }

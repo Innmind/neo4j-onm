@@ -70,9 +70,9 @@ final class AggregateTranslator implements SpecificationTranslator
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $this->variables = $this->variables
-                        ->add($relName->toString())
-                        ->add($childName->toString());
+                    $this->variables = ($this->variables)
+                        ($relName->toString())
+                        ($childName->toString());
 
                     return $this->addProperties(
                         $this

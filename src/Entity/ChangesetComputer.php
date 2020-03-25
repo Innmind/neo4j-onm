@@ -30,7 +30,7 @@ final class ChangesetComputer
     {
         assertMap('string', 'mixed', $source, 2);
 
-        $this->sources = $this->sources->put($identity, $source);
+        $this->sources = ($this->sources)($identity, $source);
     }
 
     /**
@@ -83,7 +83,7 @@ final class ChangesetComputer
             ->reduce(
                 $changeset,
                 static function(Map $carry, string $property) use ($target): Map {
-                    return $carry->put($property, null);
+                    return ($carry)($property, null);
                 },
             )
             ->map(function(string $property, $value) use ($source, $target) {

@@ -61,9 +61,9 @@ final class AggregateTranslator implements IdentityMatchTranslator
                 $childName = $relName
                     ->append('_')
                     ->append($child->relationship()->childProperty());
-                $this->variables = $this->variables
-                    ->add($relName->toString())
-                    ->add($childName->toString());
+                $this->variables = ($this->variables)
+                    ($relName->toString())
+                    ($childName->toString());
 
                 return $query
                     ->match('entity')
