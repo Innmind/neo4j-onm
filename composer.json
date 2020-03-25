@@ -43,9 +43,6 @@
         "innmind/object-graph": "^1.2",
         "innmind/server-control": "^2.7"
     },
-    "scripts": {
-        "test": "vendor/bin/phpunit --colors=always"
-    },
     "suggest": {
         "innmind/time-continuum": "To be able to use point_in_time type",
         "innmind/command-bus": "To dispatch entities domain events"
