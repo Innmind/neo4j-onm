@@ -10,8 +10,8 @@ use Innmind\Neo4j\ONM\Metadata\{
 
 final class MoreThanOneRelationshipFound extends RuntimeException
 {
-    private $child;
-    private $entity;
+    private Child $child;
+    private Entity $entity;
 
     public static function for(Child $child): self
     {

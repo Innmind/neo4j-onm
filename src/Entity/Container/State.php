@@ -10,12 +10,12 @@ final class State
     private const TO_BE_REMOVED = 3;
     private const REMOVED = 4;
 
-    private static $managed;
-    private static $new;
-    private static $toBeRemoved;
-    private static $removed;
+    private static ?self $managed = null;
+    private static ?self $new = null;
+    private static ?self $toBeRemoved = null;
+    private static ?self $removed = null;
 
-    private $value;
+    private int $value;
 
     private function __construct(int $value)
     {
@@ -24,18 +24,18 @@ final class State
 
     public static function managed(): self
     {
-        return self::$managed ?? self::$managed = new self(self::MANAGED);
+        return self::$managed ??= new self(self::MANAGED);
     }
     public static function new(): self
     {
-        return self::$new ?? self::$new = new self(self::NEW);
+        return self::$new ??= new self(self::NEW);
     }
     public static function toBeRemoved(): self
     {
-        return self::$toBeRemoved ?? self::$toBeRemoved = new self(self::TO_BE_REMOVED);
+        return self::$toBeRemoved ??= new self(self::TO_BE_REMOVED);
     }
     public static function removed(): self
     {
-        return self::$removed ?? self::$removed = new self(self::REMOVED);
+        return self::$removed ??= new self(self::REMOVED);
     }
 }

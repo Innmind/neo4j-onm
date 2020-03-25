@@ -17,7 +17,7 @@ use Innmind\Immutable\{
 
 final class DelegationTranslator implements MatchTranslator
 {
-    private $translators;
+    private MapInterface $translators;
 
     public function __construct(MapInterface $translators = null)
     {

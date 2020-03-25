@@ -17,7 +17,7 @@ use Ramsey\Uuid\Uuid as Factory;
 
 final class UuidGenerator implements Generator
 {
-    private $identities;
+    private Map $identities;
 
     public function __construct(string $type = Uuid::class)
     {

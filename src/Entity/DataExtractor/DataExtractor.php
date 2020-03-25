@@ -16,8 +16,8 @@ use Innmind\Immutable\{
 
 final class DataExtractor
 {
-    private $metadata;
-    private $extractors;
+    private Metadatas $metadata;
+    private Map $extractors;
 
     public function __construct(
         Metadatas $metadata,

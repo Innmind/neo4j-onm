@@ -8,9 +8,9 @@ use Innmind\Immutable\MapInterface;
 
 final class EntityUpdated
 {
-    private $identity;
-    private $entity;
-    private $changeset;
+    private Identity $identity;
+    private object $entity;
+    private MapInterface $changeset;
 
     public function __construct(
         Identity $identity,

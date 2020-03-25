@@ -18,7 +18,7 @@ use Innmind\Reflection\{
 
 final class RelationshipExtractor implements DataExtractorInterface
 {
-    private $extractionStrategy;
+    private ReflectionStrategy $extractionStrategy;
 
     public function __construct()
     {

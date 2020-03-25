@@ -22,7 +22,7 @@ use Innmind\Reflection\{
 
 final class AggregateExtractor implements DataExtractorInterface
 {
-    private $extractionStrategy;
+    private ReflectionStrategy $extractionStrategy;
 
     public function __construct()
     {

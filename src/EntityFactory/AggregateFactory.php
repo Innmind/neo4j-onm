@@ -24,8 +24,8 @@ use Innmind\Reflection\{
 
 final class AggregateFactory implements EntityFactoryInterface
 {
-    private $instanciator;
-    private $injectionStrategy;
+    private ConstructorLessInstanciator $instanciator;
+    private ReflectionStrategy $injectionStrategy;
 
     public function __construct()
     {

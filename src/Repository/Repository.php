@@ -21,11 +21,11 @@ use Innmind\Specification\Specification;
 
 final class Repository implements RepositoryInterface
 {
-    private $unitOfWork;
-    private $all;
-    private $matching;
-    private $metadata;
-    private $allowedStates;
+    private UnitOfWork $unitOfWork;
+    private MatchTranslator $all;
+    private SpecificationTranslator $matching;
+    private Entity $metadata;
+    private Set $allowedStates;
 
     public function __construct(
         UnitOfWork $unitOfWork,

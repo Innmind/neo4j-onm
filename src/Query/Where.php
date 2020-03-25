@@ -11,8 +11,8 @@ use Innmind\Immutable\{
 
 final class Where
 {
-    private $cypher;
-    private $parameters;
+    private string $cypher;
+    private MapInterface $parameters;
 
     public function __construct(string $cypher, MapInterface $parameters)
     {

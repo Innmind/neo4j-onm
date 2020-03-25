@@ -24,7 +24,7 @@ use Innmind\Immutable\{
 
 final class AggregateVisitor implements PropertyMatchVisitor
 {
-    private $meta;
+    private Aggregate $meta;
 
     public function __construct(Aggregate $meta)
     {

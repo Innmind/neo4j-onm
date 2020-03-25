@@ -24,13 +24,13 @@ use Innmind\Reflection\ReflectionObject;
 
 final class UnitOfWork
 {
-    private $connection;
-    private $container;
-    private $makeEntity;
-    private $match;
-    private $metadata;
-    private $persist;
-    private $generators;
+    private Connection $connection;
+    private Container $container;
+    private EntityFactory $makeEntity;
+    private IdentityMatchTranslator $match;
+    private Metadatas $metadata;
+    private Persister $persist;
+    private Generators $generators;
 
     public function __construct(
         Connection $connection,

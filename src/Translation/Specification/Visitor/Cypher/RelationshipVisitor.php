@@ -25,9 +25,9 @@ use Innmind\Immutable\{
 
 final class RelationshipVisitor implements CypherVisitor
 {
-    private $meta;
-    private $convert;
-    private $count = 0;
+    private Relationship $meta;
+    private ConvertSign $convert;
+    private int $count = 0;
 
     public function __construct(Relationship $meta)
     {

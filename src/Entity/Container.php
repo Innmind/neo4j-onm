@@ -16,7 +16,7 @@ use Innmind\Immutable\{
 
 final class Container
 {
-    private $states;
+    private Map $states;
 
     public function __construct()
     {

@@ -9,8 +9,8 @@ use Innmind\Immutable\MapInterface;
 
 final class IdentityMatch
 {
-    private $query;
-    private $variables;
+    private Query $query;
+    private MapInterface $variables;
 
     public function __construct(
         Query $query,

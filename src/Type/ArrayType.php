@@ -10,8 +10,8 @@ use Innmind\Neo4j\ONM\{
 
 final class ArrayType implements Type
 {
-    private $nullable = false;
-    private $inner;
+    private bool $nullable = false;
+    private Type $inner;
 
     public function __construct(Type $inner)
     {

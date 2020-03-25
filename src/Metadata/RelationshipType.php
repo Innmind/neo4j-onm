@@ -8,7 +8,7 @@ use Innmind\Immutable\Str;
 
 final class RelationshipType
 {
-    private $type;
+    private string $type;
 
     public function __construct(string $type)
     {

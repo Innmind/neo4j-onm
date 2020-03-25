@@ -17,7 +17,7 @@ use Innmind\Immutable\{
 
 final class DelegationValidator implements Validator
 {
-    private $validators;
+    private MapInterface $validators;
 
     public function __construct(MapInterface $validators = null)
     {

@@ -11,8 +11,8 @@ use Innmind\Immutable\Str;
 
 final class Property
 {
-    private $name;
-    private $type;
+    private string $name;
+    private Type $type;
 
     public function __construct(string $name, Type $type)
     {

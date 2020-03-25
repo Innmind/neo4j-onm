@@ -8,7 +8,7 @@ use Innmind\Immutable\Str;
 
 final class RelationshipEdge extends Identity
 {
-    private $target;
+    private string $target;
 
     public function __construct(string $property, string $type, string $target)
     {

@@ -11,7 +11,7 @@ use Innmind\Immutable\Map;
 
 final class Resolver
 {
-    private $mapping;
+    private Map $mapping;
 
     public function __construct(EntityFactoryInterface ...$factories)
     {

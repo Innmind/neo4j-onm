@@ -17,10 +17,10 @@ use Innmind\Immutable\{
 
 final class Child
 {
-    private $class;
-    private $labels;
-    private $relationship;
-    private $properties;
+    private ClassName $class;
+    private SetInterface $labels;
+    private Child\Relationship $relationship;
+    private MapInterface $properties;
 
     public function __construct(
         ClassName $class,

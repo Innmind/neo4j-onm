@@ -22,9 +22,9 @@ use Innmind\Immutable\{
 
 final class AggregateVisitor implements CypherVisitor
 {
-    private $meta;
-    private $convert;
-    private $count = 0;
+    private Aggregate $meta;
+    private ConvertSign $convert;
+    private int $count = 0;
 
     public function __construct(Aggregate $meta)
     {

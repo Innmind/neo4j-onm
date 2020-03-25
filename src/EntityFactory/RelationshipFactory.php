@@ -21,9 +21,9 @@ use Innmind\Reflection\{
 
 final class RelationshipFactory implements EntityFactoryInterface
 {
-    private $generators;
-    private $instanciator;
-    private $injectionStrategy;
+    private Generators $generators;
+    private ConstructorLessInstanciator $instanciator;
+    private ReflectionStrategy $injectionStrategy;
 
     public function __construct(Generators $generators)
     {

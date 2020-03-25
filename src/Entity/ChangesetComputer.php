@@ -14,7 +14,7 @@ use Innmind\Immutable\{
 
 final class ChangesetComputer
 {
-    private $sources;
+    private Map $sources;
 
     public function __construct()
     {

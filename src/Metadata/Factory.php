@@ -11,7 +11,7 @@ use Innmind\Immutable\Str;
  */
 final class Factory
 {
-    private $class;
+    private string $class;
 
     public function __construct(string $class)
     {

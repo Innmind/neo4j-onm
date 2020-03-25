@@ -11,7 +11,7 @@ use Innmind\Neo4j\DBAL\Connection;
 
 final class DelegationPersister implements Persister
 {
-    private $persisters;
+    private array $persisters;
 
     public function __construct(Persister ...$persisters)
     {

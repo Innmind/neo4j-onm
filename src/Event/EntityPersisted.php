@@ -7,8 +7,8 @@ use Innmind\Neo4j\ONM\Identity;
 
 final class EntityPersisted
 {
-    private $identity;
-    private $entity;
+    private Identity $identity;
+    private object $entity;
 
     public function __construct(Identity $identity, object $entity)
     {

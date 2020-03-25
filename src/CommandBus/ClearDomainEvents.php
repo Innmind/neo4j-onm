@@ -13,8 +13,8 @@ use Innmind\EventBus\ContainsRecordedEvents;
 
 final class ClearDomainEvents implements CommandBus
 {
-    private $handle;
-    private $entities;
+    private CommandBus $handle;
+    private Container $entities;
 
     public function __construct(CommandBus $handle, Container $entities)
     {

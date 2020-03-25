@@ -18,13 +18,13 @@ use Innmind\Immutable\{
 
 final class Aggregate implements Entity
 {
-    private $class;
-    private $identity;
-    private $repository;
-    private $factory;
-    private $properties;
-    private $labels;
-    private $children;
+    private ClassName $class;
+    private Identity $identity;
+    private Repository $repository;
+    private Factory $factory;
+    private Map $properties;
+    private SetInterface $labels;
+    private Map $children;
 
     public function __construct(
         ClassName $class,

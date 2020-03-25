@@ -18,7 +18,7 @@ use Innmind\Immutable\{
 
 final class DelegationTranslator implements IdentityMatchTranslator
 {
-    private $translators;
+    private MapInterface $translators;
 
     public function __construct(MapInterface $translators = null)
     {

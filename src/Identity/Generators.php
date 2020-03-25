@@ -11,7 +11,7 @@ use Innmind\Immutable\{
 
 final class Generators
 {
-    private $mapping;
+    private MapInterface $mapping;
 
     public function __construct(MapInterface $mapping = null)
     {

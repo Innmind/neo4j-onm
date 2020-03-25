@@ -19,8 +19,8 @@ use Innmind\Specification\Specification;
 
 final class DelegationTranslator implements SpecificationTranslator
 {
-    private $translators;
-    private $validate;
+    private MapInterface $translators;
+    private Validator $validate;
 
     public function __construct(
         MapInterface $translators = null,

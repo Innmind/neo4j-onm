@@ -7,8 +7,8 @@ use Innmind\Immutable\MapInterface;
 
 final class PropertiesMatch
 {
-    private $properties;
-    private $parameters;
+    private MapInterface $properties;
+    private MapInterface $parameters;
 
     public function __construct(MapInterface $properties, MapInterface $parameters)
     {

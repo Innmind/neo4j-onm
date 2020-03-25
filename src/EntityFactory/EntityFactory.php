@@ -20,10 +20,10 @@ use Innmind\Immutable\{
 
 final class EntityFactory
 {
-    private $translate;
-    private $generators;
-    private $resolve;
-    private $entities;
+    private ResultTranslator $translate;
+    private Generators $generators;
+    private Resolver $resolve;
+    private Container $entities;
 
     public function __construct(
         ResultTranslator $translate,

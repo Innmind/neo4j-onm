@@ -30,12 +30,12 @@ use Innmind\Immutable\{
 
 final class UpdatePersister implements Persister
 {
-    private $changeset;
-    private $dispatch;
-    private $extract;
-    private $metadata;
-    private $name;
-    private $variables;
+    private ChangesetComputer $changeset;
+    private EventBus $dispatch;
+    private DataExtractor $extract;
+    private Metadatas $metadata;
+    private Str $name;
+    private ?Map $variables = null;
 
     public function __construct(
         ChangesetComputer $changeset,

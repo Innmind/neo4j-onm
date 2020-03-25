@@ -20,9 +20,9 @@ use Innmind\Immutable\{
 
 final class DispatchDomainEvents implements CommandBus
 {
-    private $handle;
-    private $dispatch;
-    private $entities;
+    private CommandBus $handle;
+    private EventBus $dispatch;
+    private Container $entities;
 
     public function __construct(
         CommandBus $handle,

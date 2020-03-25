@@ -15,9 +15,9 @@ use Innmind\Immutable\{
 
 final class SetType implements Type
 {
-    private $nullable = false;
-    private $inner;
-    private $type;
+    private bool $nullable = false;
+    private Type $inner;
+    private string $type;
 
     public function __construct(Type $inner, string $type)
     {

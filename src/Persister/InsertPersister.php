@@ -32,12 +32,12 @@ use Innmind\Immutable\{
 
 final class InsertPersister implements Persister
 {
-    private $changeset;
-    private $dispatch;
-    private $extract;
-    private $metadata;
-    private $name;
-    private $variables;
+    private ChangesetComputer $changeset;
+    private EventBus $dispatch;
+    private DataExtractor $extract;
+    private Metadatas $metadata;
+    private Str $name;
+    private ?Stream $variables = null;
 
     public function __construct(
         ChangesetComputer $changeset,

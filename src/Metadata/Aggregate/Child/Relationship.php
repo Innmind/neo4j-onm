@@ -20,11 +20,11 @@ use Innmind\Immutable\{
 
 final class Relationship
 {
-    private $class;
-    private $type;
-    private $property;
-    private $childProperty;
-    private $properties;
+    private ClassName $class;
+    private RelationshipType $type;
+    private string $property;
+    private string $childProperty;
+    private MapInterface $properties;
 
     public function __construct(
         ClassName $class,

@@ -11,7 +11,7 @@ use Innmind\Immutable\{
 
 final class Metadatas
 {
-    private $mapping;
+    private Map $mapping;
 
     public function __construct(Entity ...$metas)
     {

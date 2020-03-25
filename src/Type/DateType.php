@@ -10,9 +10,9 @@ use Innmind\Neo4j\ONM\{
 
 final class DateType implements Type
 {
-    private $format;
-    private $nullable = false;
-    private $immutable = true;
+    private string $format;
+    private bool $nullable = false;
+    private bool $immutable = true;
 
     public function __construct(string $format = null)
     {

@@ -26,7 +26,7 @@ use Innmind\Immutable\{
 
 final class RelationshipVisitor implements PropertyMatchVisitor
 {
-    private $meta;
+    private Relationship $meta;
 
     public function __construct(Relationship $meta)
     {

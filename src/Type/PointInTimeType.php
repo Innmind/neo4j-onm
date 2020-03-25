@@ -16,8 +16,8 @@ use Innmind\TimeContinuum\{
 
 final class PointInTimeType implements Type
 {
-    private $nullable = false;
-    private $format;
+    private bool $nullable = false;
+    private FormatInterface $format;
 
     public function __construct(FormatInterface $format = null)
     {

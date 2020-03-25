@@ -17,14 +17,14 @@ use Innmind\Immutable\{
 
 final class Relationship implements Entity
 {
-    private $class;
-    private $identity;
-    private $repository;
-    private $factory;
-    private $type;
-    private $startNode;
-    private $endNode;
-    private $properties;
+    private ClassName $class;
+    private Identity $identity;
+    private Repository $repository;
+    private Factory $factory;
+    private RelationshipType $type;
+    private RelationshipEdge $startNode;
+    private RelationshipEdge $endNode;
+    private Map $properties;
 
     public function __construct(
         ClassName $class,

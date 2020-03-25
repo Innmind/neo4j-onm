@@ -15,10 +15,10 @@ use Innmind\Immutable\{
 
 final class RepositoryFactory
 {
-    private $unitOfWork;
-    private $matchTranslator;
-    private $specificationTranslator;
-    private $repositories;
+    private UnitOfWork $unitOfWork;
+    private MatchTranslator $matchTranslator;
+    private SpecificationTranslator $specificationTranslator;
+    private MapInterface $repositories;
 
     public function __construct(
         UnitOfWork $unitOfWork,

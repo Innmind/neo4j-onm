@@ -16,10 +16,10 @@ use Innmind\Neo4j\DBAL\Connection;
 
 final class Manager implements ManagerInterface
 {
-    private $unitOfWork;
-    private $metadata;
-    private $make;
-    private $generators;
+    private UnitOfWork $unitOfWork;
+    private Metadatas $metadata;
+    private RepositoryFactory $make;
+    private Generators $generators;
 
     public function __construct(
         UnitOfWork $unitOfWork,
