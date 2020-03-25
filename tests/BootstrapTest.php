@@ -30,22 +30,22 @@ class BootstrapTest extends TestCase
 
         $this->assertInstanceOf(Manager::class, $services['manager']);
         $bus = $this->createMock(CommandBus::class);
-        $this->assertInternalType('callable', $services['command_bus']['clear_domain_events']);
+        $this->assertIsCallable($services['command_bus']['clear_domain_events']);
         $this->assertInstanceOf(
             ClearDomainEvents::class,
             $services['command_bus']['clear_domain_events']($bus)
         );
-        $this->assertInternalType('callable', $services['command_bus']['dispatch_domain_events']);
+        $this->assertIsCallable($services['command_bus']['dispatch_domain_events']);
         $this->assertInstanceOf(
             DispatchDomainEvents::class,
             $services['command_bus']['dispatch_domain_events']($bus)
         );
-        $this->assertInternalType('callable', $services['command_bus']['flush']);
+        $this->assertIsCallable($services['command_bus']['flush']);
         $this->assertInstanceOf(
             Flush::class,
             $services['command_bus']['flush']($bus)
         );
-        $this->assertInternalType('callable', $services['command_bus']['transaction']);
+        $this->assertIsCallable($services['command_bus']['transaction']);
         $this->assertInstanceOf(
             Transaction::class,
             $services['command_bus']['transaction']($bus)

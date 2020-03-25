@@ -29,7 +29,7 @@ class AggregateTranslatorTest extends TestCase
 {
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->meta = Aggregate::of(
             new ClassName('FQCN'),

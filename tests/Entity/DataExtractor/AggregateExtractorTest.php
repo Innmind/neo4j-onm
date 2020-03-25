@@ -30,7 +30,7 @@ class AggregateExtractorTest extends TestCase
     private $extract;
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->extract = new AggregateExtractor;
         $this->meta = Aggregate::of(

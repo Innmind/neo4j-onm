@@ -18,9 +18,6 @@ class ClassNameTest extends TestCase
         $this->assertSame('Class\Name\Space', (string) $className);
     }
 
-    /**
-     * @expectedException Innmind\Neo4j\ONM\Exception\DomainException
-     */
     public function testThrowWhenEmptyClass()
     {
         $this->expectException(DomainException::class);

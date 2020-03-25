@@ -44,7 +44,7 @@ class UpdatePersisterTest extends TestCase
     private $aggregateRootClass;
     private $relationshipClass;
 
-    public function setUp()
+    public function setUp(): void
     {
         $aggregateRoot = new class {
             public $uuid;

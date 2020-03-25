@@ -29,7 +29,7 @@ class RelationshipVisitorTest extends TestCase
 {
     private $visitor;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->visitor = new RelationshipVisitor(
             Relationship::of(

@@ -33,7 +33,7 @@ class DataExtractorTest extends TestCase
     private $relationshipClass;
     private $metadatas;
 
-    public function setUp()
+    public function setUp(): void
     {
         $aggregateRoot = new class {
             public $uuid;

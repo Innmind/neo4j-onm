@@ -29,7 +29,7 @@ class RelationshipTranslatorTest extends TestCase
 {
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->meta = Relationship::of(
             new ClassName('foo'),

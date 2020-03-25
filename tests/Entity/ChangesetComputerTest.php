@@ -17,7 +17,7 @@ class ChangesetComputerTest extends TestCase
 {
     private $computer;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->computer = new ChangesetComputer;
     }

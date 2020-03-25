@@ -31,7 +31,7 @@ class DelegationValidatorTest extends TestCase
     private $aggregate;
     private $relationship;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->aggregate = Aggregate::of(
             new ClassName('FQCN'),

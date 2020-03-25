@@ -36,7 +36,7 @@ class AggregateTranslatorTest extends TestCase
     private $translate;
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->translate = new AggregateTranslator;
         $this->meta = Aggregate::of(

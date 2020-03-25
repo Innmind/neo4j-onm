@@ -39,7 +39,7 @@ class EntityFactoryTest extends TestCase
 {
     private $make;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->make = new EntityFactory(
             new ResultTranslator,

@@ -55,7 +55,7 @@ class RepositoryTest extends TestCase
     private $class;
     private $uow;
 
-    public function setUp()
+    public function setUp(): void
     {
         $entity = new class {
             public $uuid;

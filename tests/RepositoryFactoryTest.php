@@ -28,7 +28,7 @@ class RepositoryFactoryTest extends TestCase
 {
     private $make;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->make = new RepositoryFactory(
             new UnitOfWork(
