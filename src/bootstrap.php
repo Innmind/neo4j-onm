@@ -20,15 +20,15 @@ use Innmind\Immutable\{
 use function Innmind\Immutable\unwrap;
 
 /**
- * @param  Set<Metadata\Entity> $metas
- * @param  Map<string, Identity\Generator>|null $additionalGenerators
- * @param  Map<Metadata\Entity, Repository>|null $repositories
- * @param  Set<EntityFactory>|null $entityFactories
- * @param  Map<string, Translation\EntityTranslator>|null $resultTranslators
- * @param  Map<string, Translation\IdentityMatchTranslator>|null $identityMatchTranslators
- * @param  Map<string, Translation\MatchTranslator>|null $matchTranslators
- * @param  Map<string, Translation\SpecificationTranslator>|null $specificationTranslators
- * @param  Map<string, Entity\DataExtractor>|null $dataExtractors
+ * @param Set<Metadata\Entity> $metas
+ * @param Map<string, Identity\Generator>|null $additionalGenerators
+ * @param Map<Metadata\Entity, Repository>|null $repositories
+ * @param Set<EntityFactory>|null $entityFactories
+ * @param Map<string, Translation\EntityTranslator>|null $resultTranslators
+ * @param Map<string, Translation\IdentityMatchTranslator>|null $identityMatchTranslators
+ * @param Map<string, Translation\MatchTranslator>|null $matchTranslators
+ * @param Map<string, Translation\SpecificationTranslator>|null $specificationTranslators
+ * @param Map<string, Entity\DataExtractor>|null $dataExtractors
  *
  * @return array{manager: Manager, command_bus: array{clear_domain_events: callable(CommandBusInterface): CommandBusInterface, dispatch_domain_events: callable(CommandBusInterface): CommandBusInterface, flush: callable(CommandBusInterface): CommandBusInterface, transaction: callable(CommandBusInterface): CommandBusInterface}}
  */
@@ -89,7 +89,7 @@ function bootstrap(
     $entityFactories = $entityFactories ?? Set::of(
         EntityFactory::class,
         new EntityFactory\AggregateFactory,
-        new EntityFactory\RelationshipFactory($identityGenerators)
+        new EntityFactory\RelationshipFactory($identityGenerators),
     );
 
     $metadatas = new Metadatas(...unwrap($metas));
@@ -97,7 +97,7 @@ function bootstrap(
     $entityChangeset = new Entity\ChangesetComputer;
     $dataExtractor = new Entity\DataExtractor\DataExtractor(
         $metadatas,
-        $dataExtractors
+        $dataExtractors,
     );
 
     $persister = $persister ?? new Persister\DelegationPersister(
@@ -105,19 +105,19 @@ function bootstrap(
             $entityChangeset,
             $eventBus,
             $dataExtractor,
-            $metadatas
+            $metadatas,
         ),
         new Persister\UpdatePersister(
             $entityChangeset,
             $eventBus,
             $dataExtractor,
-            $metadatas
+            $metadatas,
         ),
         new Persister\RemovePersister(
             $entityChangeset,
             $eventBus,
-            $metadatas
-        )
+            $metadatas,
+        ),
     );
 
     $entityContainer = new Entity\Container;
@@ -129,12 +129,12 @@ function bootstrap(
             new Translation\ResultTranslator($resultTranslators),
             $identityGenerators,
             new EntityFactory\Resolver(...unwrap($entityFactories)),
-            $entityContainer
+            $entityContainer,
         ),
         new Translation\IdentityMatch\DelegationTranslator($identityMatchTranslators),
         $metadatas,
         $persister,
-        $identityGenerators
+        $identityGenerators,
     );
 
     $manager = new Manager\Manager(
@@ -144,9 +144,9 @@ function bootstrap(
             $unitOfWork,
             new Translation\Match\DelegationTranslator($matchTranslators),
             new Translation\Specification\DelegationTranslator($specificationTranslators),
-            $repositories
+            $repositories,
         ),
-        $identityGenerators
+        $identityGenerators,
     );
 
     return [

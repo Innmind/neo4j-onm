@@ -24,17 +24,11 @@ class Uuid implements Identity
         $this->value = $uuid;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function value()
     {
         return $this->value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function toString(): string
     {
         return $this->value;

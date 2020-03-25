@@ -11,6 +11,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
 };
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class DelegationTranslator implements MatchTranslator
 {
@@ -30,20 +31,12 @@ final class DelegationTranslator implements MatchTranslator
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
 
-        if (
-            (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== MatchTranslator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Map<string, %s>',
-                MatchTranslator::class
-            ));
-        }
+        assertMap('string', MatchTranslator::class, $this->translators, 1);
     }
 
     public function __invoke(Entity $meta): IdentityMatch
     {
-        $translate = $this->translators->get(get_class($meta));
+        $translate = $this->translators->get(\get_class($meta));
 
         return $translate($meta);
     }

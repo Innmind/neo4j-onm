@@ -12,6 +12,7 @@ use Innmind\Neo4j\ONM\{
     Exception\SpecificationNotApplicable,
 };
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 use Innmind\Specification\Specification;
 
 final class DelegationTranslator implements SpecificationTranslator
@@ -36,15 +37,7 @@ final class DelegationTranslator implements SpecificationTranslator
             (Relationship::class, new RelationshipTranslator);
         $this->validate = $validate ?? new Validator\DelegationValidator;
 
-        if (
-            (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== SpecificationTranslator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Map<string, %s>',
-                SpecificationTranslator::class
-            ));
-        }
+        assertMap('string', SpecificationTranslator::class, $this->translators, 1);
     }
 
     public function __invoke(
@@ -55,7 +48,7 @@ final class DelegationTranslator implements SpecificationTranslator
             throw new SpecificationNotApplicable;
         }
 
-        $translate = $this->translators->get(get_class($meta));
+        $translate = $this->translators->get(\get_class($meta));
 
         return $translate($meta, $specification);
     }

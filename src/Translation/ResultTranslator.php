@@ -18,6 +18,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertMap;
 
 final class ResultTranslator
 {
@@ -37,15 +38,7 @@ final class ResultTranslator
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
 
-        if (
-            (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== EntityTranslator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Map<string, %s>',
-                EntityTranslator::class
-            ));
-        }
+        assertMap('string', EntityTranslator::class, $this->translators, 1);
     }
 
     /**
@@ -55,19 +48,9 @@ final class ResultTranslator
      *
      * @return Map<string, Set<Map<string, mixed>>>
      */
-    public function __invoke(
-        Result $result,
-        Map $variables
-    ): Map {
-        if (
-            (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== Entity::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type Map<string, %s>',
-                Entity::class
-            ));
-        }
+    public function __invoke(Result $result, Map $variables): Map
+    {
+        assertMap('string', Entity::class, $variables, 2);
 
         /** @var Map<string, Set<Map<string, mixed>>> */
         return $variables
@@ -78,18 +61,18 @@ final class ResultTranslator
                         return $row->column() === $variable;
                     });
 
-                return $forVariable->size() > 0;
+                return !$forVariable->empty();
             })
             ->reduce(
                 Map::of('string', Set::class),
                 function(Map $carry, string $variable, Entity $meta) use ($result): Map {
                     $translate = $this->translators->get(get_class($meta));
 
-                    return $carry->put(
+                    return ($carry)(
                         $variable,
-                        $translate($variable, $meta, $result)
+                        $translate($variable, $meta, $result),
                     );
-                }
+                },
             );
     }
 }

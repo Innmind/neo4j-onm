@@ -34,9 +34,6 @@ final class AggregateVisitor implements CypherVisitor
         $this->convert = new ConvertSign;
     }
 
-    /**
-     * {@inheritdo}
-     */
     public function __invoke(Specification $specification): Where
     {
         switch (true) {
@@ -78,9 +75,8 @@ final class AggregateVisitor implements CypherVisitor
         }
     }
 
-    private function buildPropertyCondition(
-        Comparator $specification
-    ): Where {
+    private function buildPropertyCondition(Comparator $specification): Where
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')
             ->append($prop)
@@ -98,13 +94,12 @@ final class AggregateVisitor implements CypherVisitor
                 $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ($key->toString(), $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 
-    private function buildSubPropertyCondition(
-        Comparator $specification
-    ): Where {
+    private function buildSubPropertyCondition(Comparator $specification): Where
+    {
         $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
@@ -136,7 +131,7 @@ final class AggregateVisitor implements CypherVisitor
                 $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ($key->toString(), $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 }

@@ -15,6 +15,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertMap;
 
 final class EntityFactory
 {
@@ -42,19 +43,9 @@ final class EntityFactory
      *
      * @return Set<object>
      */
-    public function __invoke(
-        Result $result,
-        Map $variables
-    ): Set {
-        if (
-            (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== Entity::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type Map<string, %s>',
-                Entity::class
-            ));
-        }
+    public function __invoke(Result $result, Map $variables): Set
+    {
+        assertMap('string', Entity::class, $variables, 2);
 
         $structuredData = ($this->translate)($result, $variables);
         $entities = Set::objects();
@@ -65,19 +56,19 @@ final class EntityFactory
                 return $structuredData->contains($variable);
             })
             ->reduce(
-                Set::objects(),
-                function(Set $carry, string $variable, Entity $meta) use ($structuredData): Set {
+                $entities,
+                function(Set $entities, string $variable, Entity $meta) use ($structuredData): Set {
                     return $structuredData
                         ->get($variable)
                         ->reduce(
-                            $carry,
-                            function(Set $carry, Map $data) use ($meta): Set {
-                                return $carry->add(
-                                    $this->makeEntity($meta, $data)
+                            $entities,
+                            function(Set $entities, Map $data) use ($meta): Set {
+                                return ($entities)(
+                                    $this->makeEntity($meta, $data),
                                 );
-                            }
+                            },
                         );
-                }
+                },
             );
     }
 
@@ -90,7 +81,7 @@ final class EntityFactory
             ->generators
             ->get($meta->identity()->type())
             ->for(
-                $data->get($meta->identity()->property())
+                $data->get($meta->identity()->property()),
             );
 
         if ($this->entities->contains($identity)) {
@@ -102,7 +93,7 @@ final class EntityFactory
         $this->entities = $this->entities->push(
             $identity,
             $entity,
-            State::managed()
+            State::managed(),
         );
 
         return $entity;

@@ -13,6 +13,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Aggregate implements Entity
 {
@@ -39,45 +40,30 @@ final class Aggregate implements Entity
         Set $properties,
         Set $children
     ) {
-        if ((string) $labels->type() !== 'string') {
-            throw new \TypeError('Argument 3 must be of type Set<string>');
-        }
-
-        if ((string) $properties->type() !== Property::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 4 must be of type Set<%s>',
-                Type::class
-            ));
-        }
-
-        if ((string) $children->type() !== Child::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 5 must be of type Set<%s>',
-                Child::class
-            ));
-        }
+        assertSet('string', $labels, 3);
+        assertSet(Property::class, $properties, 4);
+        assertSet(Child::class, $children, 5);
 
         $this->class = $class;
         $this->identity = $identity;
         $this->repository = new Repository(ConcreteRepository::class);
         $this->factory = new Factory(AggregateFactory::class);
         /** @var Map<string, Property> */
-        $this->properties = $properties->reduce(
-            Map::of('string', Property::class),
-            static function(Map $properties, Property $property): Map {
-                return $properties->put($property->name(), $property);
-            }
+        $this->properties = $properties->toMapOf(
+            'string',
+            Property::class,
+            static function(Property $property): \Generator {
+                yield $property->name() => $property;
+            },
         );
         $this->labels = $labels;
         /** @var Map<string, Child> */
-        $this->children = $children->reduce(
-            Map::of('string', Child::class),
-            static function(Map $children, Child $child): Map {
-                return $children->put(
-                    $child->relationship()->property(),
-                    $child
-                );
-            }
+        $this->children = $children->toMapOf(
+            'string',
+            Child::class,
+            static function(Child $child): \Generator {
+                yield $child->relationship()->property() => $child;
+            },
         );
     }
 
@@ -106,45 +92,30 @@ final class Aggregate implements Entity
             $identity,
             $labels,
             $properties,
-            $children ?? Set::of(Child::class)
+            $children ?? Set::of(Child::class),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function identity(): Identity
     {
         return $this->identity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function repository(): Repository
     {
         return $this->repository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function factory(): Factory
     {
         return $this->factory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function properties(): Map
     {
         return $this->properties;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function class(): ClassName
     {
         return $this->class;

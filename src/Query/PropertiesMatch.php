@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Query;
 
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class PropertiesMatch
 {
@@ -18,19 +19,8 @@ final class PropertiesMatch
      */
     public function __construct(Map $properties, Map $parameters)
     {
-        if (
-            (string) $properties->keyType() !== 'string' ||
-            (string) $properties->valueType() !== 'string'
-        ) {
-            throw new \TypeError('Argument 1 must be of type Map<string, string>');
-        }
-
-        if (
-            (string) $parameters->keyType() !== 'string' ||
-            (string) $parameters->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
-        }
+        assertMap('string', 'string', $properties, 1);
+        assertMap('string', 'mixed', $parameters, 2);
 
         $this->properties = $properties;
         $this->parameters = $parameters;
@@ -56,7 +46,7 @@ final class PropertiesMatch
     {
         return new self(
             $this->properties()->merge($match->properties()),
-            $this->parameters()->merge($match->parameters())
+            $this->parameters()->merge($match->parameters()),
         );
     }
 }

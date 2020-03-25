@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class ChangesetComputer
 {
@@ -27,12 +28,7 @@ final class ChangesetComputer
      */
     public function use(Identity $identity, Map $source): self
     {
-        if (
-            (string) $source->keyType() !== 'string' ||
-            (string) $source->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
-        }
+        assertMap('string', 'mixed', $source, 2);
 
         $this->sources = $this->sources->put($identity, $source);
 
@@ -48,12 +44,7 @@ final class ChangesetComputer
      */
     public function compute(Identity $identity, Map $target): Map
     {
-        if (
-            (string) $target->keyType() !== 'string' ||
-            (string) $target->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
-        }
+        assertMap('string', 'mixed', $target, 2);
 
         if (!$this->sources->contains($identity)) {
             return $target;
@@ -95,7 +86,7 @@ final class ChangesetComputer
                 $changeset,
                 static function(Map $carry, string $property) use ($target): Map {
                     return $carry->put($property, null);
-                }
+                },
             )
             ->map(function(string $property, $value) use ($source, $target) {
                 if (!$value instanceof Map) {
@@ -105,7 +96,7 @@ final class ChangesetComputer
                 /** @psalm-suppress MixedArgument */
                 return $this->diff(
                     $source->get($property),
-                    $target->get($property)
+                    $target->get($property),
                 );
             })
             ->filter(static function(string $property, $value) {
@@ -113,7 +104,7 @@ final class ChangesetComputer
                     return true;
                 }
 
-                return $value->size() !== 0;
+                return !$value->empty();
             });
     }
 }

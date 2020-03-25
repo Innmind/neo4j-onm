@@ -29,9 +29,6 @@ final class AggregateTranslator implements IdentityMatchTranslator
         $this->variables = Set::strings();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         Entity $meta,
         Identity $identity
@@ -43,11 +40,11 @@ final class AggregateTranslator implements IdentityMatchTranslator
         $query = (new Query)
             ->match(
                 'entity',
-                ...unwrap($meta->labels())
+                ...unwrap($meta->labels()),
             )
             ->withProperty(
                 $meta->identity()->property(),
-                '{entity_identity}'
+                '{entity_identity}',
             )
             ->withParameter('entity_identity', $identity->value())
             ->with('entity');
@@ -72,12 +69,12 @@ final class AggregateTranslator implements IdentityMatchTranslator
                     ->match('entity')
                     ->linkedTo(
                         $childName->toString(),
-                        ...unwrap($child->labels())
+                        ...unwrap($child->labels()),
                     )
                     ->through(
                         $child->relationship()->type()->toString(),
                         $relName->toString(),
-                        'left'
+                        'left',
                     );
             });
 
@@ -88,7 +85,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
         return new IdentityMatch(
             $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 }

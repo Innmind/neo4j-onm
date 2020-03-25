@@ -44,33 +44,27 @@ final class DateType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
             return null;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             $value = new \DateTimeImmutable($value);
         }
 
         if (!$value instanceof \DateTimeInterface) {
             /** @psalm-suppress MixedArgument */
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'The value "%s" must be an instance of DateTimeInterface',
-                $value
+                $value,
             ));
         }
 
         return $value->format($this->format);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         if ($this->immutable) {
@@ -82,9 +76,6 @@ final class DateType implements Type
         return \DateTime::createFromFormat($this->format, $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

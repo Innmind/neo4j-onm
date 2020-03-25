@@ -23,9 +23,6 @@ use Innmind\Immutable\{
 
 final class RelationshipTranslator implements EntityTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         string $variable,
         Entity $meta,
@@ -49,14 +46,14 @@ final class RelationshipTranslator implements EntityTranslator
                 Set::of(Map::class),
                 function(Set $carry, Row $row) use ($meta, $result): Set {
                     /** @psalm-suppress PossiblyInvalidArrayAccess */
-                    return $carry->add(
+                    return ($carry)(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
                             $meta,
-                            $result
-                        )
+                            $result,
+                        ),
                     );
-                }
+                },
             );
     }
 
@@ -87,8 +84,8 @@ final class RelationshipTranslator implements EntityTranslator
             (
                 $meta->identity()->property(),
                 $relationship->properties()->get(
-                    $meta->identity()->property()
-                )
+                    $meta->identity()->property(),
+                ),
             )
             (
                 $meta->startNode()->property(),
@@ -96,7 +93,7 @@ final class RelationshipTranslator implements EntityTranslator
                     ->nodes()
                     ->get($relationship->startNode()->value())
                     ->properties()
-                    ->get($meta->startNode()->target())
+                    ->get($meta->startNode()->target()),
             )
             (
                 $meta->endNode()->property(),
@@ -104,7 +101,7 @@ final class RelationshipTranslator implements EntityTranslator
                     ->nodes()
                     ->get($relationship->endNode()->value())
                     ->properties()
-                    ->get($meta->endNode()->target())
+                    ->get($meta->endNode()->target()),
             );
 
         /** @var Map<string, mixed> */
@@ -123,11 +120,11 @@ final class RelationshipTranslator implements EntityTranslator
             ->reduce(
                 $data,
                 static function(Map $carry, string $name) use ($relationship): Map {
-                    return $carry->put(
+                    return ($carry)(
                         $name,
-                        $relationship->properties()->get($name)
+                        $relationship->properties()->get($name),
                     );
-                }
+                },
             );
     }
 }

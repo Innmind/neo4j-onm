@@ -19,9 +19,6 @@ final class DelegationPersister implements Persister
         $this->persisters = $persisters;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Connection $connection, Container $container): void
     {
         foreach ($this->persisters as $persist) {

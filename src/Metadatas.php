@@ -32,10 +32,8 @@ final class Metadatas
     /**
      * Register a new entity metadata
      */
-    private function register(Entity $meta): self
+    private function register(Entity $meta): void
     {
-        $this->mapping = $this->mapping->put($meta->class()->toString(), $meta);
-
-        return $this;
+        $this->mapping = ($this->mapping)($meta->class()->toString(), $meta);
     }
 }

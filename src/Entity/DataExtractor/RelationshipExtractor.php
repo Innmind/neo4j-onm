@@ -25,9 +25,6 @@ final class RelationshipExtractor implements DataExtractorInterface
         $this->extractionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Relationship) {
@@ -38,28 +35,19 @@ final class RelationshipExtractor implements DataExtractorInterface
             $entity,
             null,
             null,
-            $this->extractionStrategy
+            $this->extractionStrategy,
         );
         /** @var Map<string, mixed> */
         $data = $refl->extract(
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),
-            $end = $meta->endNode()->property()
+            $end = $meta->endNode()->property(),
         );
         /** @psalm-suppress MixedMethodCall */
         $data = $data
-            ->put(
-                $id,
-                $data->get($id)->value()
-            )
-            ->put(
-                $start,
-                $data->get($start)->value()
-            )
-            ->put(
-                $end,
-                $data->get($end)->value()
-            );
+            ($id, $data->get($id)->value())
+            ($start, $data->get($start)->value())
+            ($end, $data->get($end)->value());
 
         /** @var Map<string, mixed> */
         return $meta
@@ -67,15 +55,15 @@ final class RelationshipExtractor implements DataExtractorInterface
             ->reduce(
                 $data,
                 static function(Map $carry, string $name, Property $property) use ($refl): Map {
-                    return $carry->put(
+                    return ($carry)(
                         $name,
                         $property
                             ->type()
                             ->forDatabase(
-                                $refl->extract($name)->get($name)
-                            )
+                                $refl->extract($name)->get($name),
+                            ),
                     );
-                }
+                },
             );
     }
 }

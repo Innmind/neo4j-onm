@@ -35,9 +35,6 @@ final class RelationshipVisitor implements CypherVisitor
         $this->convert = new ConvertSign;
     }
 
-    /**
-     * {@inheritdo}
-     */
     public function __invoke(Specification $specification): Where
     {
         switch (true) {
@@ -75,14 +72,14 @@ final class RelationshipVisitor implements CypherVisitor
                 return $this->buildEdgeCondition(
                     $specification,
                     $this->meta->startNode(),
-                    'start'
+                    'start',
                 );
 
             case $this->meta->endNode()->property() === $property:
                 return $this->buildEdgeCondition(
                     $specification,
                     $this->meta->endNode(),
-                    'end'
+                    'end',
                 );
 
             default:
@@ -90,9 +87,8 @@ final class RelationshipVisitor implements CypherVisitor
         }
     }
 
-    private function buildPropertyCondition(
-        Comparator $specification
-    ): Where {
+    private function buildPropertyCondition(Comparator $specification): Where
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')
             ->append($prop)
@@ -110,7 +106,7 @@ final class RelationshipVisitor implements CypherVisitor
                 $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ($key->toString(), $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 
@@ -144,7 +140,7 @@ final class RelationshipVisitor implements CypherVisitor
                 $key->prepend('{')->append('}')->toString(),
             ),
             Map::of('string', 'mixed')
-                ($key->toString(), $value)
+                ($key->toString(), $value),
         );
     }
 }

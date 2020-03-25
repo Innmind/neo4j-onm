@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM;
 use Innmind\Neo4j\ONM\Metadata\Entity;
 use Innmind\Neo4j\DBAL\Query;
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class IdentityMatch
 {
@@ -18,15 +19,7 @@ final class IdentityMatch
      */
     public function __construct(Query $query, Map $variables)
     {
-        if (
-            (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== Entity::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type Map<string, %s>',
-                Entity::class
-            ));
-        }
+        assertMap('string', Entity::class, $variables, 2);
 
         $this->query = $query;
         $this->variables = $variables;

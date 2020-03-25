@@ -37,13 +37,10 @@ final class Repository implements RepositoryInterface
         $this->allowedStates = Set::of(
             State::class,
             State::new(),
-            State::managed()
+            State::managed(),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function add(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->persist($entity);
@@ -51,9 +48,6 @@ final class Repository implements RepositoryInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function has(Identity $identity): bool
     {
         if ($this->unitOfWork()->contains($identity)) {
@@ -69,14 +63,11 @@ final class Repository implements RepositoryInterface
         return (bool) $this->find($identity);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function get(Identity $identity): object
     {
         $entity = $this->unitOfWork()->get(
             $this->metadata()->class()->toString(),
-            $identity
+            $identity,
         );
         $state = $this->unitOfWork()->stateFor($identity);
 
@@ -87,9 +78,6 @@ final class Repository implements RepositoryInterface
         return $entity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function find(Identity $identity): ?object
     {
         try {
@@ -99,9 +87,6 @@ final class Repository implements RepositoryInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function remove(object $entity): RepositoryInterface
     {
         $this->unitOfWork()->remove($entity);
@@ -109,32 +94,26 @@ final class Repository implements RepositoryInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function all(): Set
     {
         $match = ($this->all)($this->metadata());
 
         return $this->unitOfWork()->execute(
             $match->query(),
-            $match->variables()
+            $match->variables(),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function matching(Specification $specification): Set
     {
         $match = ($this->matching)(
             $this->metadata(),
-            $specification
+            $specification,
         );
 
         return $this->unitOfWork()->execute(
             $match->query(),
-            $match->variables()
+            $match->variables(),
         );
     }
 

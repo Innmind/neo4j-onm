@@ -55,14 +55,11 @@ final class InsertPersister implements Persister
         $this->variables = Sequence::strings();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container->state(State::new());
 
-        if ($entities->size() === 0) {
+        if ($entities->empty()) {
             return;
         }
 
@@ -76,7 +73,7 @@ final class InsertPersister implements Persister
             $container->push($identity, $entity, State::managed());
             $this->changeset->use(
                 $identity,
-                ($this->extract)($entity)
+                ($this->extract)($entity),
             );
             ($this->dispatch)(new EntityPersisted($identity, $entity));
         });
@@ -103,7 +100,7 @@ final class InsertPersister implements Persister
                 $query,
                 function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createAggregate($identity, $entity, $carry);
-                }
+                },
             );
         $query = $partitions
             ->get(false)
@@ -111,7 +108,7 @@ final class InsertPersister implements Persister
                 $query,
                 function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->createRelationship($identity, $entity, $carry);
-                }
+                },
             );
         $this->variables = $this->variables->clear();
 
@@ -138,7 +135,7 @@ final class InsertPersister implements Persister
         $paramKey = $varName->append('_props');
         $properties = $this->buildProperties(
             $meta->properties(),
-            $paramKey
+            $paramKey,
         );
         $keysToKeep = $data->keys()->intersect($properties->keys());
 
@@ -150,7 +147,7 @@ final class InsertPersister implements Persister
                     ->prepend('{')
                     ->append('}.')
                     ->append($meta->identity()->property())
-                    ->toString()
+                    ->toString(),
             )
             ->withProperties($properties->reduce(
                 [],
@@ -158,7 +155,7 @@ final class InsertPersister implements Persister
                     $carry[$property] = $cypher;
 
                     return $carry;
-                }
+                },
             ))
             ->withParameter(
                 $paramKey->toString(),
@@ -177,8 +174,8 @@ final class InsertPersister implements Persister
                             $carry[$key] = $value;
 
                             return $carry;
-                        }
-                    )
+                        },
+                    ),
             );
 
         $query = $meta
@@ -191,9 +188,9 @@ final class InsertPersister implements Persister
                         $child,
                         $varName,
                         $data->get($property),
-                        $carry
+                        $carry,
                     );
-                }
+                },
             );
         $this->variables = $this->variables->add($varName->toString());
 
@@ -220,11 +217,11 @@ final class InsertPersister implements Persister
             ->append($meta->relationship()->childProperty());
         $endNodeProperties = $this->buildProperties(
             $meta->properties(),
-            $endNodeParamKey = $endNodeName->append('_props')
+            $endNodeParamKey = $endNodeName->append('_props'),
         );
         $relationshipProperties = $this->buildProperties(
             $meta->relationship()->properties(),
-            $relationshipParamKey = $relationshipName->append('_props')
+            $relationshipParamKey = $relationshipName->append('_props'),
         );
 
         /**
@@ -244,7 +241,7 @@ final class InsertPersister implements Persister
                     $carry[$property] = $cypher;
 
                     return $carry;
-                }
+                },
             ))
             ->withParameter(
                 $endNodeParamKey->toString(),
@@ -257,13 +254,13 @@ final class InsertPersister implements Persister
                             $carry[$key] = $value;
 
                             return $carry;
-                        }
-                    )
+                        },
+                    ),
             )
             ->through(
                 $meta->relationship()->type()->toString(),
                 $relationshipName->toString(),
-                'left'
+                'left',
             )
             ->withProperties($relationshipProperties->reduce(
                 [],
@@ -271,7 +268,7 @@ final class InsertPersister implements Persister
                     $carry[$property] = $cypher;
 
                     return $carry;
-                }
+                },
             ))
             ->withParameter(
                 $relationshipParamKey->toString(),
@@ -284,8 +281,8 @@ final class InsertPersister implements Persister
                             $carry[$key] = $value;
 
                             return $carry;
-                        }
-                    )
+                        },
+                    ),
             );
     }
 
@@ -296,21 +293,17 @@ final class InsertPersister implements Persister
      *
      * @return Map<string, string>
      */
-    private function buildProperties(
-        Map $properties,
-        Str $name
-    ): Map {
+    private function buildProperties(Map $properties, Str $name): Map
+    {
         $name = $name->prepend('{')->append('}.');
 
         /** @var Map<string, string> */
-        return $properties->reduce(
-            Map::of('string', 'string'),
-            static function(Map $carry, string $property) use ($name): Map {
-                return $carry->put(
-                    $property,
-                    $name->append($property)->toString(),
-                );
-            }
+        return $properties->toMapOf(
+            'string',
+            'string',
+            static function(string $property) use ($name): \Generator {
+                yield $property => $name->append($property)->toString();
+            },
         );
     }
 
@@ -347,15 +340,15 @@ final class InsertPersister implements Persister
                     $startName,
                     $meta->startNode(),
                     $start,
-                    $query
-                )
+                    $query,
+                ),
             )
             ->create($startName->toString())
             ->linkedTo($endName->toString())
             ->through(
                 $meta->type()->toString(),
                 $varName->toString(),
-                'right'
+                'right',
             )
             ->withProperty(
                 $meta->identity()->property(),
@@ -371,7 +364,7 @@ final class InsertPersister implements Persister
                     $carry[$property] = $cypher;
 
                     return $carry;
-                }
+                },
             ))
             ->withParameter(
                 $paramKey->toString(),
@@ -387,8 +380,8 @@ final class InsertPersister implements Persister
                             $carry[$key] = $value;
 
                             return $carry;
-                        }
-                    )
+                        },
+                    ),
             );
     }
 
@@ -408,11 +401,11 @@ final class InsertPersister implements Persister
             return $query;
         }
 
-        if ($this->variables->size() > 0) {
+        if (!$this->variables->empty()) {
             $query = $query->with(...unwrap($this->variables));
         }
 
-        $this->variables = $this->variables->add($name->toString());
+        $this->variables = ($this->variables)($name->toString());
 
         return $query
             ->match($name->toString())
@@ -428,7 +421,7 @@ final class InsertPersister implements Persister
                 $name->append('_props')->toString(),
                 [
                     $meta->target() => $value,
-                ]
+                ],
             );
     }
 }

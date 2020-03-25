@@ -33,9 +33,6 @@ final class RelationshipVisitor implements PropertyMatchVisitor
         $this->meta = $meta;
     }
 
-    /**
-     * {@inheritdo}
-     */
     public function __invoke(Specification $specification): Map
     {
         switch (true) {
@@ -53,7 +50,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
 
                 return $this->merge(
                     ($this)($specification->left()),
-                    ($this)($specification->right())
+                    ($this)($specification->right()),
                 );
         }
 
@@ -75,14 +72,14 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                 return $this->buildEdgeMapping(
                     $specification,
                     $this->meta->startNode(),
-                    'start'
+                    'start',
                 );
 
             case $this->meta->endNode()->property() === $property:
                 return $this->buildEdgeMapping(
                     $specification,
                     $this->meta->endNode(),
-                    'end'
+                    'end',
                 );
 
             default:
@@ -109,8 +106,8 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                     Map::of('string', 'string')
                         ($prop, $key->prepend('{')->append('}')->toString()),
                     Map::of('string', 'mixed')
-                        ($key->toString(), $specification->value())
-                )
+                        ($key->toString(), $specification->value()),
+                ),
             );
     }
 
@@ -147,11 +144,11 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                             $key
                                 ->prepend('{')
                                 ->append('}')
-                                ->toString()
+                                ->toString(),
                         ),
                     Map::of('string', 'mixed')
-                        ($key->toString(), $value)
-                )
+                        ($key->toString(), $value),
+                ),
             );
     }
 
@@ -168,12 +165,12 @@ final class RelationshipVisitor implements PropertyMatchVisitor
             $left,
             static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {
                 if (!$carry->contains($var)) {
-                    return $carry->put($var, $data);
+                    return ($carry)($var, $data);
                 }
 
-                return $carry->put(
+                return ($carry)(
                     $var,
-                    $data->merge($left->get($var))
+                    $data->merge($left->get($var)),
                 );
             }
         );

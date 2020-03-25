@@ -14,9 +14,6 @@ use Innmind\Immutable\Map;
 
 final class RelationshipTranslator implements MatchTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Entity $meta): IdentityMatch
     {
         if (!$meta instanceof Relationship) {
@@ -29,7 +26,7 @@ final class RelationshipTranslator implements MatchTranslator
             ->through(
                 $meta->type()->toString(),
                 'entity',
-                'right'
+                'right',
             )
             ->return('start', 'end', 'entity');
 
@@ -38,7 +35,7 @@ final class RelationshipTranslator implements MatchTranslator
         return new IdentityMatch(
             $query,
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 }

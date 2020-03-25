@@ -32,9 +32,6 @@ final class PointInTimeType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -43,27 +40,21 @@ final class PointInTimeType implements Type
 
         if (!$value instanceof PointInTimeInterface) {
             /** @psalm-suppress MixedArgument */
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'The value "%s" must be an instance of PointInTimeInterface',
-                $value
+                $value,
             ));
         }
 
         return $value->format($this->format);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         /** @psalm-suppress MixedArgument */
         return new PointInTime($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

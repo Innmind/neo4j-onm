@@ -44,13 +44,11 @@ final class Resolver
     /**
      * Register the given entity factory instance
      */
-    private function register(EntityFactoryInterface $factory): self
+    private function register(EntityFactoryInterface $factory): void
     {
-        $this->mapping = $this->mapping->put(
-            get_class($factory),
-            $factory
+        $this->mapping = ($this->mapping)(
+            \get_class($factory),
+            $factory,
         );
-
-        return $this;
     }
 }

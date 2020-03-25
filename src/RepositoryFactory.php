@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Entity,
 };
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class RepositoryFactory
 {
@@ -30,16 +31,7 @@ final class RepositoryFactory
         /** @var Map<Entity, Repository> */
         $repositories ??= Map::of(Entity::class, Repository::class);
 
-        if (
-            (string) $repositories->keyType() !== Entity::class ||
-            (string) $repositories->valueType() !== Repository::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 4 must be of type Map<%s, %s>',
-                Entity::class,
-                Repository::class
-            ));
-        }
+        assertMap(Entity::class, Repository::class, $repositories, 4);
 
         $this->unitOfWork = $unitOfWork;
         $this->matchTranslator = $matchTranslator;
@@ -62,7 +54,7 @@ final class RepositoryFactory
             $this->unitOfWork,
             $this->matchTranslator,
             $this->specificationTranslator,
-            $meta
+            $meta,
         );
         $this->register($meta, $repository);
 
@@ -74,15 +66,11 @@ final class RepositoryFactory
      *
      * To be used in case the repository can't be instanciated automatically
      */
-    private function register(
-        Entity $meta,
-        Repository $repository
-    ): self {
-        $this->repositories = $this->repositories->put(
+    private function register(Entity $meta, Repository $repository): void
+    {
+        $this->repositories = ($this->repositories)(
             $meta,
-            $repository
+            $repository,
         );
-
-        return $this;
     }
 }

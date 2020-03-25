@@ -10,6 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Relationship,
 };
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class DataExtractor
 {
@@ -20,10 +21,8 @@ final class DataExtractor
     /**
      * @param Map<string, DataExtractorInterface>|null $extractors
      */
-    public function __construct(
-        Metadatas $metadata,
-        Map $extractors = null
-    ) {
+    public function __construct(Metadatas $metadata, Map $extractors = null)
+    {
         $this->metadata = $metadata;
         /**
          * @psalm-suppress InvalidArgument
@@ -33,15 +32,7 @@ final class DataExtractor
             (Aggregate::class, new AggregateExtractor)
             (Relationship::class, new RelationshipExtractor);
 
-        if (
-            (string) $this->extractors->keyType() !== 'string' ||
-            (string) $this->extractors->valueType() !== DataExtractorInterface::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type Map<string, %s>',
-                DataExtractorInterface::class
-            ));
-        }
+        assertMap('string', DataExtractorInterface::class, $this->extractors, 2);
     }
 
     /**
@@ -51,8 +42,8 @@ final class DataExtractor
      */
     public function __invoke(object $entity): Map
     {
-        $meta = ($this->metadata)(get_class($entity));
-        $extract = $this->extractors->get(get_class($meta));
+        $meta = ($this->metadata)(\get_class($entity));
+        $extract = $this->extractors->get(\get_class($meta));
 
         return $extract($entity, $meta);
     }

@@ -12,6 +12,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Child
 {
@@ -32,26 +33,19 @@ final class Child
         Child\Relationship $relationship,
         Set $properties
     ) {
-        if ((string) $labels->type() !== 'string') {
-            throw new \TypeError('Argument 2 must be of type Set<string>');
-        }
-
-        if ((string) $properties->type() !== Property::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 4 must be of type Set<%s>',
-                Property::class
-            ));
-        }
+        assertSet('string', $labels, 2);
+        assertSet(Property::class, $properties, 4);
 
         $this->class = $class;
         $this->labels = $labels;
         $this->relationship = $relationship;
         /** @var Map<string, Property> */
-        $this->properties = $properties->reduce(
-            Map::of('string', Property::class),
-            static function(Map $properties, Property $property): Map {
-                return $properties->put($property->name(), $property);
-            }
+        $this->properties = $properties->toMapOf(
+            'string',
+            Property::class,
+            static function(Property $property): \Generator {
+                yield $property->name() => $property;
+            },
         );
     }
 

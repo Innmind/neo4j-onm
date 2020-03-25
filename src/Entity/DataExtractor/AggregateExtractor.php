@@ -26,9 +26,6 @@ final class AggregateExtractor implements DataExtractorInterface
         $this->extractionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Aggregate) {
@@ -44,7 +41,7 @@ final class AggregateExtractor implements DataExtractorInterface
                     ->reflection($entity)
                     ->extract($id)
                     ->get($id)
-                    ->value()
+                    ->value(),
             );
 
         /** @var Map<string, mixed> */
@@ -53,24 +50,19 @@ final class AggregateExtractor implements DataExtractorInterface
             ->reduce(
                 $data,
                 function(Map $carry, string $property, Child $child) use ($entity): Map {
-                    return $carry->put(
+                    return ($carry)(
                         $property,
-                        $this->extractRelationship(
-                            $child,
-                            $entity
-                        )
+                        $this->extractRelationship($child, $entity),
                     );
-                }
+                },
             );
     }
 
     /**
      * @return Map<string, mixed>
      */
-    private function extractRelationship(
-        Child $child,
-        object $entity
-    ): Map {
+    private function extractRelationship(Child $child, object $entity): Map
+    {
         /** @var object */
         $rel = $this
             ->reflection($entity)
@@ -78,10 +70,10 @@ final class AggregateExtractor implements DataExtractorInterface
             ->get($property);
 
         /** @psalm-suppress MixedArgument */
-        $data = $this
+        return $this
             ->extractProperties(
                 $rel,
-                $child->relationship()->properties()
+                $child->relationship()->properties(),
             )
             ->put(
                 $property = $child->relationship()->childProperty(),
@@ -90,11 +82,9 @@ final class AggregateExtractor implements DataExtractorInterface
                         ->reflection($rel)
                         ->extract($property)
                         ->get($property),
-                    $child->properties()
-                )
+                    $child->properties(),
+                ),
             );
-
-        return $data;
     }
 
     /**
@@ -102,25 +92,21 @@ final class AggregateExtractor implements DataExtractorInterface
      *
      * @return Map<string, mixed>
      */
-    private function extractProperties(
-        object $object,
-        Map $properties
-    ): Map {
+    private function extractProperties(object $object, Map $properties): Map
+    {
         $refl = $this->reflection($object);
 
         /** @var Map<string, mixed> */
-        return $properties->reduce(
-            Map::of('string', 'mixed'),
-            static function(Map $carry, string $name, Property $property) use ($refl): Map {
-                return $carry->put(
-                    $name,
-                    $property
-                        ->type()
-                        ->forDatabase(
-                            $refl->extract($name)->get($name)
-                        )
-                );
-            }
+        return $properties->toMapOf(
+            'string',
+            'mixed',
+            static function(string $name, Property $property) use ($refl): \Generator {
+                yield $name => $property
+                    ->type()
+                    ->forDatabase(
+                        $refl->extract($name)->get($name)
+                    );
+            },
         );
     }
 
@@ -130,7 +116,7 @@ final class AggregateExtractor implements DataExtractorInterface
             $object,
             null,
             null,
-            $this->extractionStrategy
+            $this->extractionStrategy,
         );
     }
 }

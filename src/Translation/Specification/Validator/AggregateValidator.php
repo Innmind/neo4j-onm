@@ -19,9 +19,6 @@ use Innmind\Immutable\Str;
 
 final class AggregateValidator implements Validator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         Specification $specification,
         Entity $meta
@@ -34,7 +31,7 @@ final class AggregateValidator implements Validator
             case $specification instanceof Comparator:
                 return $this->isValidProperty(
                     $specification->property(),
-                    $meta
+                    $meta,
                 );
 
             case $specification instanceof Composite:
@@ -51,10 +48,8 @@ final class AggregateValidator implements Validator
         return false;
     }
 
-    private function isValidProperty(
-        string $property,
-        Aggregate $meta
-    ): bool {
+    private function isValidProperty(string $property, Aggregate $meta): bool
+    {
         if ($meta->properties()->contains($property)) {
             return true;
         }

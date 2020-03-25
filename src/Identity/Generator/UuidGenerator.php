@@ -33,57 +33,42 @@ final class UuidGenerator implements Generator
         $this->identities = Map::of('string', $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function new(): Identity
     {
         /** @var class-string<Uuid> */
-        $class = (string) $this->identities->valueType();
-        $uuid = new $class((string) Factory::uuid4());
-        $this->identities = $this->identities->put(
+        $class = $this->identities->valueType();
+        $uuid = new $class(Factory::uuid4()->toString());
+        $this->identities = ($this->identities)(
             $uuid->toString(),
-            $uuid
+            $uuid,
         );
 
         return $uuid;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function knows($value): bool
     {
         /** @psalm-suppress MixedArgument */
         return $this->identities->contains($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function get($value): Identity
     {
         /** @psalm-suppress MixedArgument */
         return $this->identities->get($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function add(Identity $identity): Generator
     {
         /** @psalm-suppress ArgumentTypeCoercion */
-        $this->identities = $this->identities->put(
+        $this->identities = ($this->identities)(
             $identity->toString(),
-            $identity
+            $identity,
         );
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function for($value): Identity
     {
         if ($this->knows($value)) {
@@ -91,7 +76,7 @@ final class UuidGenerator implements Generator
         }
 
         /** @var class-string<Uuid> */
-        $class = (string) $this->identities->valueType();
+        $class = $this->identities->valueType();
         $uuid = new $class($value);
         $this->add($uuid);
 

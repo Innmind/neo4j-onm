@@ -27,9 +27,6 @@ use Innmind\Immutable\{
 
 final class AggregateTranslator implements EntityTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         string $variable,
         Entity $meta,
@@ -53,12 +50,12 @@ final class AggregateTranslator implements EntityTranslator
                 Set::of(Map::class),
                 function(Set $carry, Row $row) use ($meta, $result): Set {
                     /** @psalm-suppress PossiblyInvalidArrayAccess */
-                    return $carry->add($this->translateNode(
+                    return ($carry)($this->translateNode(
                         $row->value()[$meta->identity()->property()],
                         $meta,
-                        $result
+                        $result,
                     ));
-                }
+                },
             );
     }
 
@@ -89,8 +86,8 @@ final class AggregateTranslator implements EntityTranslator
             (
                 $meta->identity()->property(),
                 $node->properties()->get(
-                    $meta->identity()->property()
-                )
+                    $meta->identity()->property(),
+                ),
             );
 
         $data = $meta
@@ -108,11 +105,11 @@ final class AggregateTranslator implements EntityTranslator
             ->reduce(
                 $data,
                 static function(Map $carry, string $name) use ($node): Map {
-                    return $carry->put(
+                    return ($carry)(
                         $name,
-                        $node->properties()->get($name)
+                        $node->properties()->get($name),
                     );
-                }
+                },
             );
 
         try {
@@ -122,11 +119,11 @@ final class AggregateTranslator implements EntityTranslator
                 ->reduce(
                     $data,
                     function(Map $carry, string $name, Child $meta) use ($node, $result): Map {
-                        return $carry->put(
+                        return ($carry)(
                             $name,
-                            $this->translateChild($meta, $result, $node)
+                            $this->translateChild($meta, $result, $node),
                         );
-                    }
+                    },
                 );
         } catch (MoreThanOneRelationshipFound $e) {
             throw $e->on($meta);
@@ -160,7 +157,7 @@ final class AggregateTranslator implements EntityTranslator
         return $this->translateRelationship(
             $meta,
             $result,
-            $relationships->first()
+            $relationships->first(),
         );
     }
 
@@ -186,22 +183,20 @@ final class AggregateTranslator implements EntityTranslator
 
                 return true;
             })
-            ->reduce(
-                Map::of('string', 'mixed'),
-                static function(Map $carry, string $name) use ($relationship): Map {
-                    return $carry->put(
-                        $name,
-                        $relationship->properties()->get($name)
-                    );
-                }
+            ->toMapOf(
+                'string',
+                'mixed',
+                static function(string $name) use ($relationship): \Generator {
+                    yield $name => $relationship->properties()->get($name);
+                },
             )
             ->put(
                 $meta->relationship()->childProperty(),
                 $this->translateValueObject(
                     $meta,
                     $result,
-                    $relationship
-                )
+                    $relationship,
+                ),
             );
     }
 
@@ -226,14 +221,12 @@ final class AggregateTranslator implements EntityTranslator
 
                 return true;
             })
-            ->reduce(
-                Map::of('string', 'mixed'),
-                static function(Map $carry, string $name) use ($node): Map {
-                    return $carry->put(
-                        $name,
-                        $node->properties()->get($name)
-                    );
-                }
+            ->toMapOf(
+                'string',
+                'mixed',
+                static function(string $name) use ($node): \Generator {
+                    yield $name => $node->properties()->get($name);
+                },
             );
     }
 }

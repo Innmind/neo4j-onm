@@ -11,6 +11,7 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\Specification\Specification;
 use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class DelegationValidator implements Validator
 {
@@ -30,25 +31,12 @@ final class DelegationValidator implements Validator
             (Aggregate::class, new AggregateValidator)
             (Relationship::class, new RelationshipValidator);
 
-        if (
-            (string) $this->validators->keyType() !== 'string' ||
-            (string) $this->validators->valueType() !== Validator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Map<string, %s>',
-                Validator::class
-            ));
-        }
+        assertMap('string', Validator::class, $this->validators, 1);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(
-        Specification $specification,
-        Entity $meta
-    ): bool {
-        $validate = $this->validators->get(get_class($meta));
+    public function __invoke(Specification $specification, Entity $meta): bool
+    {
+        $validate = $this->validators->get(\get_class($meta));
 
         return $validate($specification, $meta);
     }

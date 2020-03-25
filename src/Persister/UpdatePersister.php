@@ -54,9 +54,6 @@ final class UpdatePersister implements Persister
         $this->variables = Map::of(Str::class, Map::class);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container->state(State::managed());
@@ -67,15 +64,15 @@ final class UpdatePersister implements Persister
                 $data = ($this->extract)($entity);
                 $changeset = $this->changeset->compute($identity, $data);
 
-                if ($changeset->size() === 0) {
+                if ($changeset->empty()) {
                     return $carry;
                 }
 
-                return $carry->put($identity, $changeset);
+                return ($carry)($identity, $changeset);
             }
         );
 
-        if ($changesets->size() === 0) {
+        if ($changesets->empty()) {
             return;
         }
 
@@ -84,8 +81,8 @@ final class UpdatePersister implements Persister
                 new EntityAboutToBeUpdated(
                     $identity,
                     $entities->get($identity),
-                    $changeset
-                )
+                    $changeset,
+                ),
             );
         });
 
@@ -95,14 +92,14 @@ final class UpdatePersister implements Persister
             $entity = $entities->get($identity);
             $this->changeset->use(
                 $identity,
-                ($this->extract)($entity)
+                ($this->extract)($entity),
             );
             ($this->dispatch)(
                 new EntityUpdated(
                     $identity,
                     $entity,
-                    $changeset
-                )
+                    $changeset,
+                ),
             );
         });
     }
@@ -113,10 +110,8 @@ final class UpdatePersister implements Persister
      * @param Map<Identity, Map<string, mixed>> $changesets
      * @param Map<Identity, object> $entities
      */
-    private function queryFor(
-        Map $changesets,
-        Map $entities
-    ): Query {
+    private function queryFor(Map $changesets, Map $entities): Query
+    {
         $this->variables = $this->variables->clear();
 
         $query = $changesets->reduce(
@@ -131,7 +126,7 @@ final class UpdatePersister implements Persister
                         $entity,
                         $meta,
                         $changeset,
-                        $carry
+                        $carry,
                     );
                 } else if ($meta instanceof Relationship) {
                     return $this->matchRelationship(
@@ -139,13 +134,13 @@ final class UpdatePersister implements Persister
                         $entity,
                         $meta,
                         $changeset,
-                        $carry
+                        $carry,
                     );
                 }
 
                 $class = \get_class($meta);
                 throw new LogicException("Unknown metadata '$class'");
-            }
+            },
         );
         $query = $this
             ->variables
@@ -153,7 +148,7 @@ final class UpdatePersister implements Persister
                 $query,
                 function(Query $carry, Str $variable, Map $changeset): Query {
                     return $this->update($variable, $changeset, $carry);
-                }
+                },
             );
         $this->variables = $this->variables->clear();
 
@@ -187,14 +182,14 @@ final class UpdatePersister implements Persister
             )
             ->withParameter(
                 $name->append('_identity')->toString(),
-                $identity->value()
+                $identity->value(),
             );
-        $this->variables = $this->variables->put(
+        $this->variables = ($this->variables)(
             $name,
             $this->buildProperties(
                 $changeset,
-                $meta->properties()
-            )
+                $meta->properties(),
+            ),
         );
 
         return $meta
@@ -211,26 +206,26 @@ final class UpdatePersister implements Persister
                     $relName = $name
                         ->append('_')
                         ->append($property);
-                    $this->variables = $this->variables->put(
+                    $this->variables = ($this->variables)(
                         $relName,
                         $this->buildProperties(
                             $changeset,
-                            $child->relationship()->properties()
-                        )
+                            $child->relationship()->properties(),
+                        ),
                     );
 
                     if ($changeset->contains($child->relationship()->childProperty())) {
                         $childName = $relName
                             ->append('_')
                             ->append(
-                                $child->relationship()->childProperty()
+                                $child->relationship()->childProperty(),
                             );
                         /** @psalm-suppress MixedArgument */
-                        $this->variables = $this->variables->put(
+                        $this->variables = ($this->variables)(
                             $childName,
                             $changeset->get(
-                                $child->relationship()->childProperty()
-                            )
+                                $child->relationship()->childProperty(),
+                            ),
                         );
                     }
 
@@ -244,7 +239,7 @@ final class UpdatePersister implements Persister
                             $child->relationship()->type()->toString(),
                             $relName->toString(),
                         );
-                }
+                },
             );
     }
 
@@ -261,12 +256,12 @@ final class UpdatePersister implements Persister
         Query $query
     ): Query {
         $name = $this->name->sprintf(\md5($identity->toString()));
-        $this->variables = $this->variables->put(
+        $this->variables = ($this->variables)(
             $name,
             $this->buildProperties(
                 $changeset,
-                $meta->properties()
-            )
+                $meta->properties(),
+            ),
         );
 
         return $query
@@ -285,7 +280,7 @@ final class UpdatePersister implements Persister
             )
             ->withParameter(
                 $name->append('_identity')->toString(),
-                $identity->value()
+                $identity->value(),
             );
     }
 
@@ -297,10 +292,8 @@ final class UpdatePersister implements Persister
      *
      * @return Map<string, mixed>
      */
-    private function buildProperties(
-        Map $changeset,
-        Map $properties
-    ): Map {
+    private function buildProperties(Map $changeset, Map $properties): Map
+    {
         return $changeset->filter(static function(string $property) use ($properties) {
             return $properties->contains($property);
         });
@@ -315,13 +308,10 @@ final class UpdatePersister implements Persister
      *
      * @return Query
      */
-    private function update(
-        Str $variable,
-        Map $changeset,
-        Query $query
-    ): Query {
+    private function update(Str $variable, Map $changeset, Query $query): Query
+    {
         return $query
-            ->set(sprintf(
+            ->set(\sprintf(
                 '%s += {%s_props}',
                 $variable->toString(),
                 $variable->toString(),
@@ -335,8 +325,8 @@ final class UpdatePersister implements Persister
                         $carry[$key] = $value;
 
                         return $carry;
-                    }
-                )
+                    },
+                ),
             );
     }
 }

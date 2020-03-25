@@ -18,13 +18,8 @@ use Innmind\Specification\{
 
 final class RelationshipValidator implements Validator
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(
-        Specification $specification,
-        Entity $meta
-    ): bool {
+    public function __invoke(Specification $specification, Entity $meta): bool
+    {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }

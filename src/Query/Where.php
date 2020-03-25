@@ -8,6 +8,7 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
+use function Innmind\Immutable\assertMap;
 
 final class Where
 {
@@ -24,12 +25,7 @@ final class Where
             throw new DomainException;
         }
 
-        if (
-            (string) $parameters->keyType() !== 'string' ||
-            (string) $parameters->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type Map<string, mixed>');
-        }
+        assertMap('string', 'mixed', $parameters, 2);
 
         $this->cypher = $cypher;
         $this->parameters = $parameters;
@@ -52,7 +48,7 @@ final class Where
     {
         return new self(
             \sprintf('(%s AND %s)', $this->cypher(), $where->cypher()),
-            $this->parameters()->merge($where->parameters())
+            $this->parameters()->merge($where->parameters()),
         );
     }
 
@@ -60,7 +56,7 @@ final class Where
     {
         return new self(
             \sprintf('(%s OR %s)', $this->cypher(), $where->cypher()),
-            $this->parameters()->merge($where->parameters())
+            $this->parameters()->merge($where->parameters()),
         );
     }
 
@@ -68,7 +64,7 @@ final class Where
     {
         return new self(
             \sprintf('NOT (%s)', $this->cypher()),
-            $this->parameters()
+            $this->parameters(),
         );
     }
 }

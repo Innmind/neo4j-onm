@@ -12,6 +12,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Relationship implements Entity
 {
@@ -36,12 +37,7 @@ final class Relationship implements Entity
         RelationshipEdge $endNode,
         Set $properties
     ) {
-        if ((string) $properties->type() !== Property::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 6 must be of type Set<%s>',
-                Property::class
-            ));
-        }
+        assertSet(Property::class, $properties, 6);
 
         $this->class = $class;
         $this->identity = $identity;
@@ -51,11 +47,12 @@ final class Relationship implements Entity
         $this->startNode = $startNode;
         $this->endNode = $endNode;
         /** @var Map<string, Property> */
-        $this->properties = $properties->reduce(
-            Map::of('string', Property::class),
-            static function(Map $properties, Property $property): Map {
-                return $properties->put($property->name(), $property);
-            }
+        $this->properties = $properties->toMapOf(
+            'string',
+            Property::class,
+            static function(Property $property): \Generator {
+                yield $property->name() => $property;
+            },
         );
     }
 
@@ -88,41 +85,26 @@ final class Relationship implements Entity
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function identity(): Identity
     {
         return $this->identity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function repository(): Repository
     {
         return $this->repository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function factory(): Factory
     {
         return $this->factory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function properties(): Map
     {
         return $this->properties;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function class(): ClassName
     {
         return $this->class;

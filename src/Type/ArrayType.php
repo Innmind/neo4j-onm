@@ -30,9 +30,6 @@ final class ArrayType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -50,9 +47,6 @@ final class ArrayType implements Type
         return $array;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         $array = [];
@@ -66,9 +60,6 @@ final class ArrayType implements Type
         return $array;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

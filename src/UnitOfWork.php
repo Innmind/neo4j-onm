@@ -67,11 +67,11 @@ final class UnitOfWork
         $identity = $this->extractIdentity($entity);
 
         if (!$this->container->contains($identity)) {
-            $meta = ($this->metadata)(get_class($entity));
+            $meta = ($this->metadata)(\get_class($entity));
             $this->container->push(
                 $identity,
                 $entity,
-                State::new()
+                State::new(),
             );
             $this
                 ->generators
@@ -123,7 +123,7 @@ final class UnitOfWork
         $match = ($this->match)($meta, $identity);
         $entities = $this->execute(
             $match->query(),
-            $match->variables()
+            $match->variables(),
         );
 
         if ($entities->size() !== 1) {
@@ -148,7 +148,7 @@ final class UnitOfWork
                     $this->container->push(
                         $identity,
                         $entity,
-                        State::removed()
+                        State::removed(),
                     );
                     break;
 
@@ -156,7 +156,7 @@ final class UnitOfWork
                     $this->container->push(
                         $identity,
                         $entity,
-                        State::toBeRemoved()
+                        State::toBeRemoved(),
                     );
                     break;
             }
@@ -173,7 +173,7 @@ final class UnitOfWork
     public function detach(object $entity): self
     {
         $this->container->detach(
-            $this->extractIdentity($entity)
+            $this->extractIdentity($entity),
         );
 
         return $this;
@@ -186,13 +186,11 @@ final class UnitOfWork
      *
      * @return Set<object>
      */
-    public function execute(
-        Query $query,
-        Map $variables
-    ): Set {
+    public function execute(Query $query, Map $variables): Set
+    {
         return ($this->makeEntity)(
             $this->connection->execute($query),
-            $variables
+            $variables,
         );
     }
 
@@ -211,7 +209,7 @@ final class UnitOfWork
      */
     private function extractIdentity(object $entity): Identity
     {
-        $identity = ($this->metadata)(get_class($entity))->identity()->property();
+        $identity = ($this->metadata)(\get_class($entity))->identity()->property();
 
         /** @var Identity */
         return ReflectionObject::of($entity)

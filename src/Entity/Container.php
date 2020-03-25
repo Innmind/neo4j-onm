@@ -47,7 +47,7 @@ final class Container
             $wished
         ) {
             if ($wished === $state) {
-                return $entities->put($identity, $entity);
+                return ($entities)($identity, $entity);
             }
 
             return $entities->remove($identity);

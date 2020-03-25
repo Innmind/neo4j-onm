@@ -33,9 +33,6 @@ final class AggregateTranslator implements SpecificationTranslator
         $this->variables = Set::strings();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         Entity $meta,
         Specification $specification
@@ -56,7 +53,7 @@ final class AggregateTranslator implements SpecificationTranslator
                         ...unwrap($meta->labels()),
                     ),
                     'entity',
-                    $mapping
+                    $mapping,
                 )
                 ->with('entity');
 
@@ -87,15 +84,15 @@ final class AggregateTranslator implements SpecificationTranslator
                                         ...unwrap($child->labels()),
                                     ),
                                 $childName->toString(),
-                                $mapping
+                                $mapping,
                             )
                             ->through(
                                 $child->relationship()->type()->toString(),
                                 $relName->toString(),
-                                'left'
+                                'left',
                             ),
                         $relName->toString(),
-                        $mapping
+                        $mapping,
                     );
                 });
         } catch (SpecificationNotApplicableAsPropertyMatch $e) {
@@ -117,9 +114,9 @@ final class AggregateTranslator implements SpecificationTranslator
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $this->variables = $this->variables
-                        ->add($relName->toString())
-                        ->add($childName->toString());
+                    $this->variables = ($this->variables)
+                        ($relName->toString())
+                        ($childName->toString());
 
                     return $query
                         ->match('entity')
@@ -130,7 +127,7 @@ final class AggregateTranslator implements SpecificationTranslator
                         ->through(
                             $child->relationship()->type()->toString(),
                             $relName->toString(),
-                            'left'
+                            'left',
                         );
                 });
             $condition = (new AggregateCypherVisitor($meta))($specification);
@@ -139,7 +136,7 @@ final class AggregateTranslator implements SpecificationTranslator
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 
@@ -153,7 +150,7 @@ final class AggregateTranslator implements SpecificationTranslator
         return new IdentityMatch(
             $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 
@@ -171,13 +168,13 @@ final class AggregateTranslator implements SpecificationTranslator
                 $query,
                 static function(Query $query, string $property, string $cypher): Query {
                     return $query->withProperty($property, $cypher);
-                }
+                },
             );
             $query = $match->parameters()->reduce(
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 

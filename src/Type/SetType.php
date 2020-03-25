@@ -34,9 +34,6 @@ final class SetType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -45,11 +42,11 @@ final class SetType implements Type
 
         if (
             !$value instanceof Set ||
-            (string) $value->type() !== $this->type
+            !$value->isOfType($this->type)
         ) {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'The set must be an instance of Set<%s>',
-                $this->type
+                $this->type,
             ));
         }
 
@@ -60,13 +57,10 @@ final class SetType implements Type
                 $carry[] = $this->inner->forDatabase($value);
 
                 return $carry;
-            }
+            },
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         $set = Set::of($this->type);
@@ -74,15 +68,12 @@ final class SetType implements Type
         /** @var mixed $sub */
         foreach ($value as $sub) {
             /** @psalm-suppress MixedArgument */
-            $set = $set->add($this->inner->fromDatabase($sub));
+            $set = ($set)($this->inner->fromDatabase($sub));
         }
 
         return $set;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

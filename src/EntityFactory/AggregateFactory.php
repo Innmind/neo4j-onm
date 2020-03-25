@@ -16,6 +16,7 @@ use Innmind\Immutable\{
     Map,
     Set,
 };
+use function Innmind\Immutable\assertMap;
 use Innmind\Reflection\{
     ReflectionClass,
     Instanciator\ConstructorLessInstanciator,
@@ -33,30 +34,19 @@ final class AggregateFactory implements EntityFactoryInterface
         $this->injectionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(
-        Identity $identity,
-        Entity $meta,
-        Map $data
-    ): object {
+    public function __invoke(Identity $identity, Entity $meta, Map $data): object
+    {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
-        if (
-            (string) $data->keyType() !== 'string' ||
-            (string) $data->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 3 must be of type Map<string, mixed>');
-        }
+        assertMap('string', 'mixed', $data, 3);
 
         $reflection = $this
             ->reflection($meta->class()->toString())
             ->withProperty(
                 $meta->identity()->property(),
-                $identity
+                $identity,
             );
 
         $reflection = $meta
@@ -77,10 +67,10 @@ final class AggregateFactory implements EntityFactoryInterface
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
-                            $data->get($name)
-                        )
+                            $data->get($name),
+                        ),
                     );
-                }
+                },
             );
 
         return $meta
@@ -90,9 +80,9 @@ final class AggregateFactory implements EntityFactoryInterface
                 function(ReflectionClass $carry, string $property, Child $meta) use ($data): ReflectionClass {
                     return $carry->withProperty(
                         $property,
-                        $this->buildChild($meta, $data)
+                        $this->buildChild($meta, $data),
                     );
-                }
+                },
             )
             ->build();
     }
@@ -135,27 +125,25 @@ final class AggregateFactory implements EntityFactoryInterface
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
-                            $data->get($name)
-                        )
+                            $data->get($name),
+                        ),
                     );
-                }
+                },
             )
             ->withProperty(
                 $relationship->childProperty(),
                 $this->buildValueObject(
                     $meta,
                     $data->get(
-                        $relationship->childProperty()
-                    )
-                )
+                        $relationship->childProperty(),
+                    ),
+                ),
             )
             ->build();
     }
 
-    private function buildValueObject(
-        Child $meta,
-        Map $data
-    ): object {
+    private function buildValueObject(Child $meta, Map $data): object
+    {
         return $meta
             ->properties()
             ->filter(static function(string $name, Property $property) use ($data): bool {
@@ -174,10 +162,10 @@ final class AggregateFactory implements EntityFactoryInterface
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
-                            $data->get($name)
-                        )
+                            $data->get($name),
+                        ),
                     );
-                }
+                },
             )
             ->build();
     }
@@ -191,7 +179,7 @@ final class AggregateFactory implements EntityFactoryInterface
             $class,
             null,
             $this->injectionStrategy,
-            $this->instanciator
+            $this->instanciator,
         );
     }
 }

@@ -41,13 +41,10 @@ final class Manager implements ManagerInterface
     public function repository(string $class): Repository
     {
         return ($this->make)(
-            ($this->metadata)($class)
+            ($this->metadata)($class),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function flush(): ManagerInterface
     {
         $this->unitOfWork->commit();

@@ -49,9 +49,6 @@ final class RemovePersister implements Persister
         $this->variables = Sequence::strings();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Connection $connection, Container $container): void
     {
         $entities = $container->state(State::toBeRemoved());
@@ -59,7 +56,7 @@ final class RemovePersister implements Persister
             ($this->dispatch)(new EntityAboutToBeRemoved($identity, $object));
         });
 
-        if ($entities->size() === 0) {
+        if ($entities->empty()) {
             return;
         }
 
@@ -93,7 +90,7 @@ final class RemovePersister implements Persister
                 $query,
                 function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchRelationship($identity, $entity, $carry);
-                }
+                },
             );
         $query = $partitions
             ->get(false)
@@ -101,7 +98,7 @@ final class RemovePersister implements Persister
                 $query,
                 function(Query $carry, Identity $identity, object $entity): Query {
                     return $this->matchAggregate($identity, $entity, $carry);
-                }
+                },
             );
         $query = $this
             ->variables
@@ -109,7 +106,7 @@ final class RemovePersister implements Persister
                 $query,
                 static function(Query $carry, string $variable): Query {
                     return $carry->delete($variable);
-                }
+                },
             );
         $this->variables = $this->variables->clear();
 
@@ -127,7 +124,7 @@ final class RemovePersister implements Persister
         /** @var Relationship */
         $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->toString()));
-        $this->variables = $this->variables->add($name->toString());
+        $this->variables = ($this->variables)($name->toString());
 
         return $query
             ->match()
@@ -145,7 +142,7 @@ final class RemovePersister implements Persister
             )
             ->withParameter(
                 $name->append('_identity')->toString(),
-                $identity->value()
+                $identity->value(),
             );
     }
 
@@ -160,7 +157,7 @@ final class RemovePersister implements Persister
         /** @var Aggregate */
         $meta = ($this->metadata)(\get_class($entity));
         $name = $this->name->sprintf(\md5($identity->toString()));
-        $this->variables = $this->variables->add($name->toString());
+        $this->variables = ($this->variables)($name->toString());
 
         $query = $query
             ->match(
@@ -172,11 +169,11 @@ final class RemovePersister implements Persister
                 $name
                     ->prepend('{')
                     ->append('_identity}')
-                    ->toString()
+                    ->toString(),
             )
             ->withParameter(
                 $name->append('_identity')->toString(),
-                $identity->value()
+                $identity->value(),
             );
 
         return $meta
@@ -202,12 +199,10 @@ final class RemovePersister implements Persister
                                 ->append($child->relationship()->property())
                                 ->toString(),
                         );
-                    $this->variables = $this->variables
-                        ->add($childName)
-                        ->add($relName);
+                    $this->variables = ($this->variables)($childName)($relName);
 
                     return $carry;
-                }
+                },
             );
     }
 }
