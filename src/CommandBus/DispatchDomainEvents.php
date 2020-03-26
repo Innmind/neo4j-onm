@@ -14,15 +14,15 @@ use Innmind\EventBus\{
     ContainsRecordedEvents,
 };
 use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
+    Sequence,
+    Map,
 };
 
 final class DispatchDomainEvents implements CommandBus
 {
-    private $handle;
-    private $dispatch;
-    private $entities;
+    private CommandBus $handle;
+    private EventBus $dispatch;
+    private Container $entities;
 
     public function __construct(
         CommandBus $handle,
@@ -37,7 +37,8 @@ final class DispatchDomainEvents implements CommandBus
     public function __invoke(object $command): void
     {
         ($this->handle)($command);
-        $this
+        /** @var Map<Identity, ContainsRecordedEvents> */
+        $entitiesWithRecordedEvents = $this
             ->entities
             ->state(State::new())
             ->merge($this->entities->state(State::managed()))
@@ -45,14 +46,15 @@ final class DispatchDomainEvents implements CommandBus
             ->merge($this->entities->state(State::removed()))
             ->filter(static function(Identity $identity, $entity): bool {
                 return $entity instanceof ContainsRecordedEvents;
-            })
+            });
+        $entitiesWithRecordedEvents
             ->reduce(
-                new Stream('object'),
+                Sequence::objects(),
                 static function(
-                    StreamInterface $carry,
+                    Sequence $carry,
                     Identity $identity,
                     ContainsRecordedEvents $entity
-                ): StreamInterface {
+                ): Sequence {
                     return $carry->append($entity->recordedEvents());
                 }
             )

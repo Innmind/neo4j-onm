@@ -8,25 +8,25 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatch\RelationshipVisitor as RelationshipPropertyMatchVisitor,
     Translation\Specification\Visitor\Cypher\RelationshipVisitor as RelationshipCypherVisitor,
     Metadata\Entity,
+    Metadata\Relationship,
     IdentityMatch,
+    Query\PropertiesMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use Innmind\Specification\Specification;
 
 final class RelationshipTranslator implements SpecificationTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         Entity $meta,
         Specification $specification
     ): IdentityMatch {
+        if (!$meta instanceof Relationship) {
+            throw new \TypeError('Argument 1 must be of type '.Relationship::class);
+        }
+
         try {
             $mapping = (new RelationshipPropertyMatchVisitor($meta))($specification);
 
@@ -37,19 +37,19 @@ final class RelationshipTranslator implements SpecificationTranslator
                             ->addProperties(
                                 (new Query)->match('start'),
                                 'start',
-                                $mapping
+                                $mapping,
                             )
                             ->linkedTo('end'),
                         'end',
-                        $mapping
+                        $mapping,
                     )
                     ->through(
-                        (string) $meta->type(),
+                        $meta->type()->toString(),
                         'entity',
-                        'right'
+                        'right',
                     ),
                 'entity',
-                $mapping
+                $mapping,
             );
         } catch (SpecificationNotApplicableAsPropertyMatch $e) {
             $condition = (new RelationshipCypherVisitor($meta))($specification);
@@ -57,33 +57,34 @@ final class RelationshipTranslator implements SpecificationTranslator
                 ->match('start')
                 ->linkedTo('end')
                 ->through(
-                    (string) $meta->type(),
+                    $meta->type()->toString(),
                     'entity',
-                    'right'
+                    'right',
                 )
                 ->where($condition->cypher());
             $query = $condition->parameters()->reduce(
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 
+        /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
             $query->return('start', 'end', 'entity'),
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 
     /**
-     * @param MapInterface<string, PropertiesMatch> $mapping
+     * @param Map<string, PropertiesMatch> $mapping
      */
     private function addProperties(
         Query $query,
         string $name,
-        MapInterface $mapping
+        Map $mapping
     ): Query {
         if ($mapping->contains($name)) {
             $match = $mapping->get($name);
@@ -91,13 +92,13 @@ final class RelationshipTranslator implements SpecificationTranslator
                 $query,
                 static function(Query $query, string $property, string $cypher): Query {
                     return $query->withProperty($property, $cypher);
-                }
+                },
             );
             $query = $match->parameters()->reduce(
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 

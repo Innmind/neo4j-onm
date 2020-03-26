@@ -11,10 +11,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use Innmind\Reflection\{
     ReflectionObject,
     ExtractionStrategy\ReflectionStrategy,
@@ -22,22 +19,20 @@ use Innmind\Reflection\{
 
 final class AggregateExtractor implements DataExtractorInterface
 {
-    private $extractionStrategy;
+    private ReflectionStrategy $extractionStrategy;
 
     public function __construct()
     {
         $this->extractionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Aggregate) {
             throw new InvalidArgumentException;
         }
 
+        /** @psalm-suppress MixedMethodCall */
         $data = $this
             ->extractProperties($entity, $meta->properties())
             ->put(
@@ -46,40 +41,39 @@ final class AggregateExtractor implements DataExtractorInterface
                     ->reflection($entity)
                     ->extract($id)
                     ->get($id)
-                    ->value()
+                    ->value(),
             );
 
+        /** @var Map<string, mixed> */
         return $meta
             ->children()
             ->reduce(
                 $data,
-                function(MapInterface $carry, string $property, Child $child) use ($entity): MapInterface {
-                    return $carry->put(
+                function(Map $carry, string $property, Child $child) use ($entity): Map {
+                    return ($carry)(
                         $property,
-                        $this->extractRelationship(
-                            $child,
-                            $entity
-                        )
+                        $this->extractRelationship($child, $entity),
                     );
-                }
+                },
             );
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    private function extractRelationship(
-        Child $child,
-        object $entity
-    ): MapInterface {
+    private function extractRelationship(Child $child, object $entity): Map
+    {
+        /** @var object */
         $rel = $this
             ->reflection($entity)
             ->extract($property = $child->relationship()->property())
             ->get($property);
-        $data = $this
+
+        /** @psalm-suppress MixedArgument */
+        return $this
             ->extractProperties(
                 $rel,
-                $child->relationship()->properties()
+                $child->relationship()->properties(),
             )
             ->put(
                 $property = $child->relationship()->childProperty(),
@@ -88,36 +82,31 @@ final class AggregateExtractor implements DataExtractorInterface
                         ->reflection($rel)
                         ->extract($property)
                         ->get($property),
-                    $child->properties()
-                )
+                    $child->properties(),
+                ),
             );
-
-        return $data;
     }
 
     /**
-     * @param MapInterface<string, Property> $properties
+     * @param Map<string, Property> $properties
      *
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    private function extractProperties(
-        object $object,
-        MapInterface $properties
-    ): MapInterface {
+    private function extractProperties(object $object, Map $properties): Map
+    {
         $refl = $this->reflection($object);
 
-        return $properties->reduce(
-            new Map('string', 'mixed'),
-            static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
-                return $carry->put(
-                    $name,
-                    $property
-                        ->type()
-                        ->forDatabase(
-                            $refl->extract($name)->get($name)
-                        )
-                );
-            }
+        /** @var Map<string, mixed> */
+        return $properties->toMapOf(
+            'string',
+            'mixed',
+            static function(string $name, Property $property) use ($refl): \Generator {
+                yield $name => $property
+                    ->type()
+                    ->forDatabase(
+                        $refl->extract($name)->get($name)
+                    );
+            },
         );
     }
 
@@ -127,7 +116,7 @@ final class AggregateExtractor implements DataExtractorInterface
             $object,
             null,
             null,
-            $this->extractionStrategy
+            $this->extractionStrategy,
         );
     }
 }

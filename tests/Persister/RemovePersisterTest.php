@@ -36,7 +36,7 @@ class RemovePersisterTest extends TestCase
     private $aggregateRootClass;
     private $relationshipClass;
 
-    public function setUp()
+    public function setUp(): void
     {
         $aggregateRoot = new class {
             public $uuid;
@@ -122,7 +122,7 @@ class RemovePersisterTest extends TestCase
             ->method('execute')
             ->will($this->returnCallback(function($query) use (&$count) {
                 $this->assertSame(
-                    'MATCH ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_identity} }]-(), (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_identity} }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel) DELETE e50ead852f3361489a400ab5c70f6c5cf, e38c6cbd28bf165070d070980dd1fb595, e38c6cbd28bf165070d070980dd1fb595_rel_child, e38c6cbd28bf165070d070980dd1fb595_rel',
+                    'MATCH ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: $e50ead852f3361489a400ab5c70f6c5cf_identity }]-(), (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: $e38c6cbd28bf165070d070980dd1fb595_identity }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel) DELETE e50ead852f3361489a400ab5c70f6c5cf, e38c6cbd28bf165070d070980dd1fb595, e38c6cbd28bf165070d070980dd1fb595_rel_child, e38c6cbd28bf165070d070980dd1fb595_rel',
                     $query->cypher()
                 );
                 $this->assertCount(2, $query->parameters());

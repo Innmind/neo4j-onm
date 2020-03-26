@@ -29,7 +29,7 @@ class RelationshipTranslatorTest extends TestCase
 {
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->meta = Relationship::of(
             new ClassName('foo'),
@@ -65,7 +65,7 @@ class RelationshipTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
         $this->assertSame(
-            'MATCH (start { id: {start_id} })-[entity:type { empty: {entity_empty}, created: {entity_created} }]->(end { id: {end_id} }) RETURN start, end, entity',
+            'MATCH (start { id: $start_id })-[entity:type { empty: $entity_empty, created: $entity_created }]->(end { id: $end_id }) RETURN start, end, entity',
             $match->query()->cypher()
         );
         $this->assertCount(4, $match->query()->parameters());
@@ -104,7 +104,7 @@ class RelationshipTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
         $this->assertSame(
-            'MATCH (start)-[entity:type]->(end) WHERE (((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4})) RETURN start, end, entity',
+            'MATCH (start)-[entity:type]->(end) WHERE (((entity.created = $entity_created1 OR entity.empty = $entity_empty2) AND start.id = $start_id3) AND NOT (end.id = $end_id4)) RETURN start, end, entity',
             $match->query()->cypher()
         );
         $this->assertCount(4, $match->query()->parameters());

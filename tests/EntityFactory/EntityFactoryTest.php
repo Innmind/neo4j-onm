@@ -30,16 +30,16 @@ use Innmind\Neo4j\DBAL\{
 };
 use Innmind\Immutable\{
     Map,
-    SetInterface,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class EntityFactoryTest extends TestCase
 {
     private $make;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->make = new EntityFactory(
             new ResultTranslator,
@@ -216,21 +216,22 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertInstanceOf(
-            SetInterface::class,
+            Set::class,
             $entities
         );
         $this->assertCount(2, $entities);
+        $entities = unwrap($entities);
         $this->assertInstanceOf(
-            (string) $aggregate->class(),
-            $entities->current()
+            $aggregate->class()->toString(),
+            \current($entities)
         );
-        $entities->next();
+        \next($entities);
         $this->assertInstanceOf(
-            (string) $relationship->class(),
-            $entities->current()
+            $relationship->class()->toString(),
+            \current($entities)
         );
-        $entities->rewind();
-        $aggregateRoot = $entities->current();
+        \reset($entities);
+        $aggregateRoot = \current($entities);
         $this->assertInstanceOf(Uuid::class, $aggregateRoot->uuid);
         $this->assertSame(
             '11111111-1111-1111-1111-111111111111',
@@ -246,7 +247,7 @@ class EntityFactoryTest extends TestCase
         );
         $this->assertNull($aggregateRoot->empty);
         $this->assertInstanceOf(
-            (string) $aggregate->children()->get('rel')->relationship()->class(),
+            $aggregate->children()->get('rel')->relationship()->class()->toString(),
             $aggregateRoot->rel
         );
         $this->assertInstanceOf(
@@ -259,14 +260,14 @@ class EntityFactoryTest extends TestCase
         );
         $this->assertNull($aggregateRoot->rel->empty);
         $this->assertInstanceOf(
-            (string) $aggregate->children()->get('rel')->class(),
+            $aggregate->children()->get('rel')->class()->toString(),
             $aggregateRoot->rel->child
         );
         $this->assertSame('foo', $aggregateRoot->rel->child->content);
         $this->assertNull($aggregateRoot->rel->child->empty);
-        $entities->next();
-        $rel = $entities->current();
-        $this->assertInstanceOf((string) $relationship->class(), $rel);
+        \next($entities);
+        $rel = \current($entities);
+        $this->assertInstanceOf($relationship->class()->toString(), $rel);
         $this->assertInstanceOf(Uuid::class, $rel->uuid);
         $this->assertSame(
             '11111111-1111-1111-1111-111111111112',
@@ -293,7 +294,9 @@ class EntityFactoryTest extends TestCase
         );
 
         $this->assertTrue(
-            ($this->make)($result, $variables)->equals($entities)
+            ($this->make)($result, $variables)->equals(
+                ($this->make)($result, $variables),
+            ),
         );
     }
 
@@ -344,11 +347,11 @@ class EntityFactoryTest extends TestCase
     public function testThrowWhenInvalidVariableMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, Innmind\Neo4j\ONM\Metadata\Entity>');
 
         ($this->make)(
             $this->createMock(ResultInterface::class),
-            new Map('string', 'object')
+            Map::of('string', 'object')
         );
     }
 }

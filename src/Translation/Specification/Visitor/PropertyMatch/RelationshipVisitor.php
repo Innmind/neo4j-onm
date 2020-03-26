@@ -9,6 +9,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\RelationshipEdge,
     Identity,
     Exception\SpecificationNotApplicableAsPropertyMatch,
+    Exception\LogicException,
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
@@ -19,24 +20,20 @@ use Innmind\Specification\{
     Sign,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
 
 final class RelationshipVisitor implements PropertyMatchVisitor
 {
-    private $meta;
+    private Relationship $meta;
 
     public function __construct(Relationship $meta)
     {
         $this->meta = $meta;
     }
 
-    /**
-     * {@inheritdo}
-     */
-    public function __invoke(Specification $specification): MapInterface
+    public function __invoke(Specification $specification): Map
     {
         switch (true) {
             case $specification instanceof Comparator:
@@ -53,16 +50,18 @@ final class RelationshipVisitor implements PropertyMatchVisitor
 
                 return $this->merge(
                     ($this)($specification->left()),
-                    ($this)($specification->right())
+                    ($this)($specification->right()),
                 );
         }
 
         throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
-    private function buildMapping(
-        Comparator $specification
-    ): MapInterface {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildMapping(Comparator $specification): Map
+    {
         $property = $specification->property();
 
         switch (true) {
@@ -73,50 +72,68 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                 return $this->buildEdgeMapping(
                     $specification,
                     $this->meta->startNode(),
-                    'start'
+                    'start',
                 );
 
             case $this->meta->endNode()->property() === $property:
                 return $this->buildEdgeMapping(
                     $specification,
                     $this->meta->endNode(),
-                    'end'
+                    'end',
                 );
+
+            default:
+                throw new LogicException("Unknown property '$property'");
         }
     }
 
-    private function buildPropertyMapping(
-        Comparator $specification
-    ): MapInterface {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildPropertyMapping(Comparator $specification): Map
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 'entity',
                 new PropertiesMatch(
                     Map::of('string', 'string')
-                        ($prop, (string) $key->prepend('{')->append('}')),
+                        ($prop, $key->prepend('$')->toString()),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
-                )
+                        ($key->toString(), $specification->value()),
+                ),
             );
     }
 
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
     private function buildEdgeMapping(
         Comparator $specification,
         RelationshipEdge $edge,
         string $side
-    ): MapInterface {
+    ): Map {
         $key = Str::of($side)
             ->append('_')
             ->append($edge->target());
+        /** @var mixed */
         $value = $specification->value();
 
         if ($value instanceof Identity) {
+            /** @var mixed */
             $value = $value->value();
         }
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 $side,
@@ -124,30 +141,35 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                     Map::of('string', 'string')
                         (
                             $edge->target(),
-                            (string) $key
-                                ->prepend('{')
-                                ->append('}')
+                            $key
+                                ->prepend('$')
+                                ->toString(),
                         ),
                     Map::of('string', 'mixed')
-                        ((string) $key, $value)
-                )
+                        ($key->toString(), $value),
+                ),
             );
     }
 
-    private function merge(
-        MapInterface $left,
-        MapInterface $right
-    ): MapInterface {
+    /**
+     * @param Map<string, PropertiesMatch> $left
+     * @param Map<string, PropertiesMatch> $right
+     *
+     * @return Map<string, PropertiesMatch>
+     */
+    private function merge(Map $left, Map $right): Map
+    {
+        /** @var Map<string, PropertiesMatch> */
         return $right->reduce(
             $left,
-            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {
                 if (!$carry->contains($var)) {
-                    return $carry->put($var, $data);
+                    return ($carry)($var, $data);
                 }
 
-                return $carry->put(
+                return ($carry)(
                     $var,
-                    $data->merge($left->get($var))
+                    $data->merge($left->get($var)),
                 );
             }
         );

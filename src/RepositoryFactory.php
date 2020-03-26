@@ -8,36 +8,30 @@ use Innmind\Neo4j\ONM\{
     Translation\SpecificationTranslator,
     Metadata\Entity,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class RepositoryFactory
 {
-    private $unitOfWork;
-    private $matchTranslator;
-    private $specificationTranslator;
-    private $repositories;
+    private UnitOfWork $unitOfWork;
+    private MatchTranslator $matchTranslator;
+    private SpecificationTranslator $specificationTranslator;
+    /** @var Map<Entity, Repository> */
+    private Map $repositories;
 
+    /**
+     * @param Map<Entity, Repository>|null $repositories
+     */
     public function __construct(
         UnitOfWork $unitOfWork,
         MatchTranslator $matchTranslator,
         SpecificationTranslator $specificationTranslator,
-        MapInterface $repositories = null
+        Map $repositories = null
     ) {
-        $repositories = $repositories ?? new Map(Entity::class, Repository::class);
+        /** @var Map<Entity, Repository> */
+        $repositories ??= Map::of(Entity::class, Repository::class);
 
-        if (
-            (string) $repositories->keyType() !== Entity::class ||
-            (string) $repositories->valueType() !== Repository::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 4 must be of type MapInterface<%s, %s>',
-                Entity::class,
-                Repository::class
-            ));
-        }
+        assertMap(Entity::class, Repository::class, $repositories, 4);
 
         $this->unitOfWork = $unitOfWork;
         $this->matchTranslator = $matchTranslator;
@@ -54,12 +48,13 @@ final class RepositoryFactory
             return $this->repositories->get($meta);
         }
 
-        $class = (string) $meta->repository();
+        $class = $meta->repository()->toString();
+        /** @var Repository */
         $repository = new $class(
             $this->unitOfWork,
             $this->matchTranslator,
             $this->specificationTranslator,
-            $meta
+            $meta,
         );
         $this->register($meta, $repository);
 
@@ -71,15 +66,11 @@ final class RepositoryFactory
      *
      * To be used in case the repository can't be instanciated automatically
      */
-    private function register(
-        Entity $meta,
-        Repository $repository
-    ): self {
-        $this->repositories = $this->repositories->put(
+    private function register(Entity $meta, Repository $repository): void
+    {
+        $this->repositories = ($this->repositories)(
             $meta,
-            $repository
+            $repository,
         );
-
-        return $this;
     }
 }

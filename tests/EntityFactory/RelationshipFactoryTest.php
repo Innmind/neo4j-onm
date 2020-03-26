@@ -22,13 +22,7 @@ use Innmind\Neo4j\ONM\{
     EntityFactory,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    Map,
-    MapInterface,
-    SetInterface,
-    Set,
-    Stream,
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipFactoryTest extends TestCase
@@ -97,14 +91,14 @@ class RelationshipFactoryTest extends TestCase
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
             $this->createMock(Entity::class),
-            new Map('string', 'mixed')
+            Map::of('string', 'mixed')
         );
     }
 
     public function testThrowWhenTryingToBuildWithInvalidData()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 3 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 3 must be of type Map<string, mixed>');
 
         (new RelationshipFactory(new Generators))(
             $this->createMock(IdentityInterface::class),
@@ -115,7 +109,7 @@ class RelationshipFactoryTest extends TestCase
                 new RelationshipEdge('start', Uuid::class, 'target'),
                 new RelationshipEdge('end', Uuid::class, 'target')
             ),
-            new Map('string', 'variable')
+            Map::of('string', 'variable')
         );
     }
 }

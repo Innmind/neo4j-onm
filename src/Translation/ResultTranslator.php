@@ -15,53 +15,44 @@ use Innmind\Neo4j\DBAL\{
     Result\Row,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
+    Set,
 };
+use function Innmind\Immutable\assertMap;
 
 final class ResultTranslator
 {
-    private $translators;
+    /** @var Map<string, EntityTranslator> */
+    private Map $translators;
 
-    public function __construct(MapInterface $translators = null)
+    /**
+     * @param Map<string, EntityTranslator>|null $translators
+     */
+    public function __construct(Map $translators = null)
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, EntityTranslator>
+         */
         $this->translators = $translators ?? Map::of('string', EntityTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
 
-        if (
-            (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== EntityTranslator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<string, %s>',
-                EntityTranslator::class
-            ));
-        }
+        assertMap('string', EntityTranslator::class, $this->translators, 1);
     }
 
     /**
      * Translate a raw dbal result into formated data usable for entity factories
      *
-     * @param MapInterface<string, Entity> $variables Association between query variables and entity definitions
+     * @param Map<string, Entity> $variables Association between query variables and entity definitions
      *
-     * @return MapInterface<string, SetInterface<MapInterface<string, mixed>>>
+     * @return Map<string, Set<Map<string, mixed>>>
      */
-    public function __invoke(
-        Result $result,
-        MapInterface $variables
-    ): MapInterface {
-        if (
-            (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== Entity::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
-                Entity::class
-            ));
-        }
+    public function __invoke(Result $result, Map $variables): Map
+    {
+        assertMap('string', Entity::class, $variables, 2);
 
+        /** @var Map<string, Set<Map<string, mixed>>> */
         return $variables
             ->filter(static function(string $variable) use ($result): bool {
                 $forVariable = $result
@@ -70,18 +61,18 @@ final class ResultTranslator
                         return $row->column() === $variable;
                     });
 
-                return $forVariable->size() > 0;
+                return !$forVariable->empty();
             })
             ->reduce(
-                new Map('string', SetInterface::class),
-                function(MapInterface $carry, string $variable, Entity $meta) use ($result): MapInterface {
+                Map::of('string', Set::class),
+                function(Map $carry, string $variable, Entity $meta) use ($result): Map {
                     $translate = $this->translators->get(get_class($meta));
 
-                    return $carry->put(
+                    return ($carry)(
                         $variable,
-                        $translate($variable, $meta, $result)
+                        $translate($variable, $meta, $result),
                     );
-                }
+                },
             );
     }
 }

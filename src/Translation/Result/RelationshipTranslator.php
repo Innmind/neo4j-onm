@@ -17,22 +17,17 @@ use Innmind\Neo4j\DBAL\{
     Result\Row,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
 
 final class RelationshipTranslator implements EntityTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         string $variable,
         Entity $meta,
         Result $result
-    ): SetInterface {
+    ): Set {
         if (empty($variable)) {
             throw new DomainException;
         }
@@ -41,30 +36,37 @@ final class RelationshipTranslator implements EntityTranslator
             throw new InvalidArgumentException;
         }
 
+        /** @var Set<Map<string, mixed>> */
         return $result
             ->rows()
             ->filter(static function(Row $row) use ($variable) {
                 return $row->column() === $variable;
             })
             ->reduce(
-                new Set(MapInterface::class),
-                function(SetInterface $carry, Row $row) use ($meta, $result): SetInterface {
-                    return $carry->add(
+                Set::of(Map::class),
+                function(Set $carry, Row $row) use ($meta, $result): Set {
+                    /** @psalm-suppress PossiblyInvalidArrayAccess */
+                    return ($carry)(
                         $this->translateRelationship(
                             $row->value()[$meta->identity()->property()],
                             $meta,
-                            $result
-                        )
+                            $result,
+                        ),
                     );
-                }
+                },
             );
     }
 
+    /**
+     * @param mixed $identity
+     *
+     * @return Map<string, mixed>
+     */
     private function translateRelationship(
         $identity,
-        Entity $meta,
+        Relationship $meta,
         Result $result
-    ): MapInterface {
+    ): Map {
         $relationship = $result
             ->relationships()
             ->filter(static function(int $id, DBALRelationship $relationship) use ($identity, $meta): bool {
@@ -74,13 +76,16 @@ final class RelationshipTranslator implements EntityTranslator
                 return $properties->contains($id) &&
                     $properties->get($id) === $identity;
             })
-            ->current();
-        $data = Map::of('string', 'mixed')
+            ->values()
+            ->first();
+        /** @var Map<string, mixed> */
+        $data = Map::of('string', 'mixed');
+        $data = ($data)
             (
                 $meta->identity()->property(),
                 $relationship->properties()->get(
-                    $meta->identity()->property()
-                )
+                    $meta->identity()->property(),
+                ),
             )
             (
                 $meta->startNode()->property(),
@@ -88,7 +93,7 @@ final class RelationshipTranslator implements EntityTranslator
                     ->nodes()
                     ->get($relationship->startNode()->value())
                     ->properties()
-                    ->get($meta->startNode()->target())
+                    ->get($meta->startNode()->target()),
             )
             (
                 $meta->endNode()->property(),
@@ -96,9 +101,10 @@ final class RelationshipTranslator implements EntityTranslator
                     ->nodes()
                     ->get($relationship->endNode()->value())
                     ->properties()
-                    ->get($meta->endNode()->target())
+                    ->get($meta->endNode()->target()),
             );
 
+        /** @var Map<string, mixed> */
         return $meta
             ->properties()
             ->filter(static function(string $name, Property $property) use ($relationship): bool {
@@ -113,12 +119,12 @@ final class RelationshipTranslator implements EntityTranslator
             })
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name) use ($relationship): MapInterface {
-                    return $carry->put(
+                static function(Map $carry, string $name) use ($relationship): Map {
+                    return ($carry)(
                         $name,
-                        $relationship->properties()->get($name)
+                        $relationship->properties()->get($name),
                     );
-                }
+                },
             );
     }
 }

@@ -3,25 +3,26 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM;
 
+use Innmind\Neo4j\ONM\Exception\EntityNotFound;
 use Innmind\Specification\Specification;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
 
 interface Repository
 {
     /**
      * Add a new entity to the repository
      */
-    public function add(object $entity): self;
+    public function add(object $entity): void;
 
     /**
      * Check if the repository has an entity with the given id
      */
-    public function has(Identity $identity): bool;
+    public function contains(Identity $identity): bool;
 
     /**
      * Return the entity with the given id
      *
-     * @throws EntityNotFoundException
+     * @throws EntityNotFound
      */
     public function get(Identity $identity): object;
 
@@ -33,19 +34,19 @@ interface Repository
     /**
      * Remove the given entity from the repository
      */
-    public function remove(object $entity): self;
+    public function remove(object $entity): void;
 
     /**
      * Return all the entities from the repository
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function all(): SetInterface;
+    public function all(): Set;
 
     /**
      * Return all the entities matching the given specification
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function matching(Specification $specification): SetInterface;
+    public function matching(Specification $specification): Set;
 }

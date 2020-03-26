@@ -12,7 +12,8 @@ use Innmind\Neo4j\ONM\{
     Identity\Generators,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 use Innmind\Reflection\{
     ReflectionClass,
     Instanciator\ConstructorLessInstanciator,
@@ -21,9 +22,9 @@ use Innmind\Reflection\{
 
 final class RelationshipFactory implements EntityFactoryInterface
 {
-    private $generators;
-    private $instanciator;
-    private $injectionStrategy;
+    private Generators $generators;
+    private ConstructorLessInstanciator $instanciator;
+    private ReflectionStrategy $injectionStrategy;
 
     public function __construct(Generators $generators)
     {
@@ -32,34 +33,23 @@ final class RelationshipFactory implements EntityFactoryInterface
         $this->injectionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(
-        Identity $identity,
-        Entity $meta,
-        MapInterface $data
-    ): object {
+    public function __invoke(Identity $identity, Entity $meta, Map $data): object
+    {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
         }
 
-        if (
-            (string) $data->keyType() !== 'string' ||
-            (string) $data->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 3 must be of type MapInterface<string, mixed>');
-        }
+        assertMap('string', 'mixed', $data, 3);
 
         $reflection = ReflectionClass::of(
-            (string) $meta->class(),
+            $meta->class()->toString(),
             null,
             $this->injectionStrategy,
             $this->instanciator
         )
             ->withProperty(
                 $meta->identity()->property(),
-                $identity
+                $identity,
             )
             ->withProperty(
                 $meta->startNode()->property(),
@@ -67,8 +57,8 @@ final class RelationshipFactory implements EntityFactoryInterface
                     ->generators
                     ->get($meta->startNode()->type())
                     ->for(
-                        $data->get($meta->startNode()->property())
-                    )
+                        $data->get($meta->startNode()->property()),
+                    ),
             )
             ->withProperty(
                 $meta->endNode()->property(),
@@ -76,8 +66,8 @@ final class RelationshipFactory implements EntityFactoryInterface
                     ->generators
                     ->get($meta->endNode()->type())
                     ->for(
-                        $data->get($meta->endNode()->property())
-                    )
+                        $data->get($meta->endNode()->property()),
+                    ),
             );
 
         return $meta
@@ -98,10 +88,10 @@ final class RelationshipFactory implements EntityFactoryInterface
                     return $carry->withProperty(
                         $name,
                         $property->type()->fromDatabase(
-                            $data->get($name)
-                        )
+                            $data->get($name),
+                        ),
                     );
-                }
+                },
             )
             ->build();
     }

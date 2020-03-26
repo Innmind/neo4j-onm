@@ -3,45 +3,41 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Query;
 
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class PropertiesMatch
 {
-    private $properties;
-    private $parameters;
+    /** @var Map<string, string> */
+    private Map $properties;
+    /** @var Map<string, mixed> */
+    private Map $parameters;
 
-    public function __construct(MapInterface $properties, MapInterface $parameters)
+    /**
+     * @param Map<string, string> $properties
+     * @param Map<string, mixed> $parameters
+     */
+    public function __construct(Map $properties, Map $parameters)
     {
-        if (
-            (string) $properties->keyType() !== 'string' ||
-            (string) $properties->valueType() !== 'string'
-        ) {
-            throw new \TypeError('Argument 1 must be of type MapInterface<string, string>');
-        }
-
-        if (
-            (string) $parameters->keyType() !== 'string' ||
-            (string) $parameters->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
-        }
+        assertMap('string', 'string', $properties, 1);
+        assertMap('string', 'mixed', $parameters, 2);
 
         $this->properties = $properties;
         $this->parameters = $parameters;
     }
 
     /**
-     * @return MapInterface<string, string>
+     * @return Map<string, string>
      */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function parameters(): MapInterface
+    public function parameters(): Map
     {
         return $this->parameters;
     }
@@ -50,7 +46,7 @@ final class PropertiesMatch
     {
         return new self(
             $this->properties()->merge($match->properties()),
-            $this->parameters()->merge($match->parameters())
+            $this->parameters()->merge($match->parameters()),
         );
     }
 }

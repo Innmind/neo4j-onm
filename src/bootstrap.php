@@ -14,52 +14,73 @@ use Innmind\EventBus\{
 };
 use Innmind\CommandBus\CommandBus as CommandBusInterface;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 
 /**
- * @param  SetInterface<Metadata\Entity> $metas
- * @param  MapInterface<string, Generator>|null $additionalGenerators
- * @param  MapInterface<Identity, Repository>|null $repositories
- * @param  SetInterface<EntityFactory>|null $entityFactories
- * @param  MapInterface<string, EntityTranslator>|null $resultTranslators
- * @param  MapInterface<string, IdentityMatchTranslator>|null $identityMatchTranslators
- * @param  MapInterface<string, MatchTranslator>|null $matchTranslators
- * @param  MapInterface<string, SpecificationTranslator>|null $specificationTranslators
- * @param  MapInterface<string, DataExtractor>|null $dataExtractors
+ * @param Set<Metadata\Entity> $metas
+ * @param Map<string, Identity\Generator>|null $additionalGenerators
+ * @param Map<Metadata\Entity, Repository>|null $repositories
+ * @param Set<EntityFactory>|null $entityFactories
+ * @param Map<string, Translation\EntityTranslator>|null $resultTranslators
+ * @param Map<string, Translation\IdentityMatchTranslator>|null $identityMatchTranslators
+ * @param Map<string, Translation\MatchTranslator>|null $matchTranslators
+ * @param Map<string, Translation\SpecificationTranslator>|null $specificationTranslators
+ * @param Map<string, Entity\DataExtractor>|null $dataExtractors
+ *
+ * @return array{manager: Manager, command_bus: array{clear_domain_events: callable(CommandBusInterface): CommandBusInterface, dispatch_domain_events: callable(CommandBusInterface): CommandBusInterface, flush: callable(CommandBusInterface): CommandBusInterface, transaction: callable(CommandBusInterface): CommandBusInterface}}
  */
 function bootstrap(
     Connection $connection,
-    SetInterface $metas,
-    MapInterface $additionalGenerators = null,
+    Set $metas,
+    Map $additionalGenerators = null,
     EventBus $eventBus = null,
-    MapInterface $repositories = null,
+    Map $repositories = null,
     Persister $persister = null,
-    SetInterface $entityFactories = null,
-    MapInterface $resultTranslators = null,
-    MapInterface $identityMatchTranslators = null,
-    MapInterface $matchTranslators = null,
-    MapInterface $specificationTranslators = null,
-    MapInterface $dataExtractors = null
+    Set $entityFactories = null,
+    Map $resultTranslators = null,
+    Map $identityMatchTranslators = null,
+    Map $matchTranslators = null,
+    Map $specificationTranslators = null,
+    Map $dataExtractors = null
 ): array {
     $eventBus = $eventBus ?? new NullEventBus;
 
-    $resultTranslators = $resultTranslators ?? Map::of('string', Translation\EntityTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $resultTranslators ??= Map::of('string', Translation\EntityTranslator::class)
         (Aggregate::class, new Translation\Result\AggregateTranslator)
         (Relationship::class, new Translation\Result\RelationshipTranslator);
-    $identityMatchTranslators = $identityMatchTranslators ?? Map::of('string', Translation\IdentityMatchTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $identityMatchTranslators ??= Map::of('string', Translation\IdentityMatchTranslator::class)
         (Aggregate::class, new Translation\IdentityMatch\AggregateTranslator)
         (Relationship::class, new Translation\IdentityMatch\RelationshipTranslator);
-    $matchTranslators = $matchTranslators ?? Map::of('string', Translation\MatchTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $matchTranslators ??= Map::of('string', Translation\MatchTranslator::class)
         (Aggregate::class, new Translation\Match\AggregateTranslator)
         (Relationship::class, new Translation\Match\RelationshipTranslator);
-    $specificationTranslators = $specificationTranslators ?? Map::of('string', Translation\SpecificationTranslator::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $specificationTranslators ??= Map::of('string', Translation\SpecificationTranslator::class)
         (Aggregate::class, new Translation\Specification\AggregateTranslator)
         (Relationship::class, new Translation\Specification\RelationshipTranslator);
-    $dataExtractors = $dataExtractors ?? Map::of('string', Entity\DataExtractor::class)
+    /**
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidArgument
+     */
+    $dataExtractors ??= Map::of('string', Entity\DataExtractor::class)
         (Aggregate::class, new Entity\DataExtractor\AggregateExtractor)
         (Relationship::class, new Entity\DataExtractor\RelationshipExtractor);
 
@@ -68,15 +89,15 @@ function bootstrap(
     $entityFactories = $entityFactories ?? Set::of(
         EntityFactory::class,
         new EntityFactory\AggregateFactory,
-        new EntityFactory\RelationshipFactory($identityGenerators)
+        new EntityFactory\RelationshipFactory($identityGenerators),
     );
 
-    $metadatas = new Metadatas(...$metas);
+    $metadatas = new Metadatas(...unwrap($metas));
 
     $entityChangeset = new Entity\ChangesetComputer;
     $dataExtractor = new Entity\DataExtractor\DataExtractor(
         $metadatas,
-        $dataExtractors
+        $dataExtractors,
     );
 
     $persister = $persister ?? new Persister\DelegationPersister(
@@ -84,19 +105,19 @@ function bootstrap(
             $entityChangeset,
             $eventBus,
             $dataExtractor,
-            $metadatas
+            $metadatas,
         ),
         new Persister\UpdatePersister(
             $entityChangeset,
             $eventBus,
             $dataExtractor,
-            $metadatas
+            $metadatas,
         ),
         new Persister\RemovePersister(
             $entityChangeset,
             $eventBus,
-            $metadatas
-        )
+            $metadatas,
+        ),
     );
 
     $entityContainer = new Entity\Container;
@@ -107,13 +128,13 @@ function bootstrap(
         new EntityFactory\EntityFactory(
             new Translation\ResultTranslator($resultTranslators),
             $identityGenerators,
-            new EntityFactory\Resolver(...$entityFactories),
-            $entityContainer
+            new EntityFactory\Resolver(...unwrap($entityFactories)),
+            $entityContainer,
         ),
         new Translation\IdentityMatch\DelegationTranslator($identityMatchTranslators),
         $metadatas,
         $persister,
-        $identityGenerators
+        $identityGenerators,
     );
 
     $manager = new Manager\Manager(
@@ -123,9 +144,9 @@ function bootstrap(
             $unitOfWork,
             new Translation\Match\DelegationTranslator($matchTranslators),
             new Translation\Specification\DelegationTranslator($specificationTranslators),
-            $repositories
+            $repositories,
         ),
-        $identityGenerators
+        $identityGenerators,
     );
 
     return [

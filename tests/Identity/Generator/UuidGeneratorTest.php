@@ -32,7 +32,7 @@ class UuidGeneratorTest extends TestCase
 
         $uuid = new Uuid($string = '11111111-1111-1111-1111-111111111111');
         $this->assertFalse($generator->knows($string));
-        $this->assertSame($generator, $generator->add($uuid));
+        $this->assertNull($generator->add($uuid));
         $this->assertTrue($generator->knows($string));
     }
 
@@ -64,7 +64,7 @@ class UuidGeneratorTest extends TestCase
                 return $this->value;
             }
 
-            public function __toString(): string
+            public function toString(): string
             {
                 return $this->value;
             }
@@ -73,7 +73,10 @@ class UuidGeneratorTest extends TestCase
 
         $uuid2 = $generator->new();
         $this->assertInstanceOf(get_class($uuid), $uuid2);
-        $this->assertRegExp(Uuid::PATTERN, $uuid2->value());
+        $this->assertRegExp(
+            '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/',
+            $uuid2->value(),
+        );
     }
 
     public function testThrowWhenEmptyType()

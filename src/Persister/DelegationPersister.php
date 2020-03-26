@@ -11,16 +11,14 @@ use Innmind\Neo4j\DBAL\Connection;
 
 final class DelegationPersister implements Persister
 {
-    private $persisters;
+    /** @var list<Persister> */
+    private array $persisters;
 
     public function __construct(Persister ...$persisters)
     {
         $this->persisters = $persisters;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Connection $connection, Container $container): void
     {
         foreach ($this->persisters as $persist) {

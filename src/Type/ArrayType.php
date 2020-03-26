@@ -10,8 +10,8 @@ use Innmind\Neo4j\ONM\{
 
 final class ArrayType implements Type
 {
-    private $nullable = false;
-    private $inner;
+    private bool $nullable = false;
+    private Type $inner;
 
     public function __construct(Type $inner)
     {
@@ -30,9 +30,6 @@ final class ArrayType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -41,30 +38,28 @@ final class ArrayType implements Type
 
         $array = [];
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
+            /** @psalm-suppress MixedAssignment */
             $array[] = $this->inner->forDatabase($sub);
         }
 
         return $array;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         $array = [];
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
+            /** @psalm-suppress MixedAssignment */
             $array[] = $this->inner->fromDatabase($sub);
         }
 
         return $array;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

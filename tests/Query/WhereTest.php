@@ -16,7 +16,7 @@ class WhereTest extends TestCase
     {
         $where = new Where(
             'foo',
-            $parameters = new Map('string', 'mixed')
+            $parameters = Map::of('string', 'mixed')
         );
 
         $this->assertSame('foo', $where->cypher());
@@ -27,29 +27,29 @@ class WhereTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        new Where('', new Map('string', 'mixed'));
+        new Where('', Map::of('string', 'mixed'));
     }
 
     public function testThrowWhenInvalidParameterMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, mixed>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, mixed>');
 
-        new Where('foo', new Map('string', 'variable'));
+        new Where('foo', Map::of('string', 'variable'));
     }
 
     public function testAnd()
     {
         $where = new Where(
             'foo',
-            (new Map('string', 'mixed'))
+            (Map::of('string', 'mixed'))
                 ->put('foo', 'bar')
         );
 
         $where2 = $where->and(
             new Where(
                 'bar',
-                (new Map('string', 'mixed'))
+                (Map::of('string', 'mixed'))
                     ->put('bar', 'baz')
             )
         );
@@ -68,14 +68,14 @@ class WhereTest extends TestCase
     {
         $where = new Where(
             'foo',
-            (new Map('string', 'mixed'))
+            (Map::of('string', 'mixed'))
                 ->put('foo', 'bar')
         );
 
         $where2 = $where->or(
             new Where(
                 'bar',
-                (new Map('string', 'mixed'))
+                (Map::of('string', 'mixed'))
                     ->put('bar', 'baz')
             )
         );
@@ -95,7 +95,7 @@ class WhereTest extends TestCase
 
         $where = new Where(
             'foo',
-            (new Map('string', 'mixed'))
+            (Map::of('string', 'mixed'))
                 ->put('foo', 'bar')
         );
 

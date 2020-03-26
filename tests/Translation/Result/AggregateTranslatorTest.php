@@ -24,10 +24,12 @@ use Innmind\Neo4j\DBAL\{
     Result as ResultInterface,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
+};
+use function Innmind\Immutable\{
+    first,
+    unwrap,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -36,7 +38,7 @@ class AggregateTranslatorTest extends TestCase
     private $translate;
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->translate = new AggregateTranslator;
         $this->meta = Aggregate::of(
@@ -161,32 +163,32 @@ class AggregateTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(SetInterface::class, $data);
-        $this->assertSame(MapInterface::class, (string) $data->type());
+        $this->assertInstanceOf(Set::class, $data);
+        $this->assertSame(Map::class, (string) $data->type());
         $this->assertCount(1, $data);
-        $data = $data->current();
+        $data = first($data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertCount(4, $data);
         $this->assertSame(
             ['id', 'created', 'rel', 'rel2'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
         $this->assertSame(42, $data->get('id'));
         $this->assertSame('2016-01-01T00:00:00+0200', $data->get('created'));
-        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(Map::class, $data->get('rel'));
         $this->assertSame('string', (string) $data->get('rel')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'child'],
-            $data->get('rel')->keys()->toPrimitive()
+            unwrap($data->get('rel')->keys())
         );
         $this->assertSame(
             '2016-01-01T00:00:00+0200',
             $data->get('rel')->get('created')
         );
         $this->assertInstanceOf(
-            MapInterface::class,
+            Map::class,
             $data->get('rel')->get('child')
         );
         $this->assertSame(
@@ -199,26 +201,26 @@ class AggregateTranslatorTest extends TestCase
         );
         $this->assertSame(
             ['content'],
-            $data->get('rel')->get('child')->keys()->toPrimitive()
+            unwrap($data->get('rel')->get('child')->keys())
         );
         $this->assertSame(
             'foo',
             $data->get('rel')->get('child')->get('content')
         );
-        $this->assertInstanceOf(MapInterface::class, $data->get('rel2'));
+        $this->assertInstanceOf(Map::class, $data->get('rel2'));
         $this->assertSame('string', (string) $data->get('rel2')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel2')->valueType());
         $this->assertCount(2, $data->get('rel2'));
         $this->assertSame(
             ['created', 'child'],
-            $data->get('rel2')->keys()->toPrimitive()
+            unwrap($data->get('rel2')->keys())
         );
         $this->assertSame(
             '2016-01-03T00:00:00+0200',
             $data->get('rel2')->get('created')
         );
         $this->assertInstanceOf(
-            MapInterface::class,
+            Map::class,
             $data->get('rel2')->get('child')
         );
         $this->assertSame(
@@ -231,7 +233,7 @@ class AggregateTranslatorTest extends TestCase
         );
         $this->assertSame(
             ['content'],
-            $data->get('rel2')->get('child')->keys()->toPrimitive()
+            unwrap($data->get('rel2')->get('child')->keys())
         );
         $this->assertSame(
             'baz',
@@ -314,21 +316,22 @@ class AggregateTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertInstanceOf(Set::class, $data);
         $this->assertCount(2, $data);
+        $data = unwrap($data);
         $this->assertSame(
             ['id', 'created'],
-            $data->current()->keys()->toPrimitive()
+            unwrap(\current($data)->keys())
         );
-        $this->assertSame(42, $data->current()->get('id'));
-        $this->assertSame('2016-01-01T00:00:00+0200', $data->current()->get('created'));
-        $data->next();
+        $this->assertSame(42, \current($data)->get('id'));
+        $this->assertSame('2016-01-01T00:00:00+0200', \current($data)->get('created'));
+        \next($data);
         $this->assertSame(
             ['id', 'created'],
-            $data->current()->keys()->toPrimitive()
+            unwrap(\current($data)->keys())
         );
-        $this->assertSame(43, $data->current()->get('id'));
-        $this->assertSame('2016-01-02T00:00:00+0200', $data->current()->get('created'));
+        $this->assertSame(43, \current($data)->get('id'));
+        $this->assertSame('2016-01-02T00:00:00+0200', \current($data)->get('created'));
     }
 
     public function testThrowWhenMoreThanOneRelationshipFound()

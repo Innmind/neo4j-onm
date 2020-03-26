@@ -29,7 +29,7 @@ class AggregateTranslatorTest extends TestCase
 {
     private $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->meta = Aggregate::of(
             new ClassName('FQCN'),
@@ -84,7 +84,7 @@ class AggregateTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
         $this->assertSame(
-            'MATCH (entity:Label { empty: {entity_empty}, created: {entity_created} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF { empty: {entity_rel_empty}, created: {entity_rel_created} }]-(entity_rel_child:AnotherLabel { empty: {entity_rel_child_empty}, content: {entity_rel_child_content} }) RETURN entity, entity_rel, entity_rel_child',
+            'MATCH (entity:Label { empty: $entity_empty, created: $entity_created }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF { empty: $entity_rel_empty, created: $entity_rel_created }]-(entity_rel_child:AnotherLabel { empty: $entity_rel_child_empty, content: $entity_rel_child_content }) RETURN entity, entity_rel, entity_rel_child',
             $match->query()->cypher()
         );
         $this->assertCount(6, $match->query()->parameters());
@@ -127,7 +127,7 @@ class AggregateTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $match);
         $this->assertSame(
-            'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) WHERE (((((entity.created = {entity_created1} AND entity.empty = {entity_empty2}) OR entity_rel.created = {entity_rel_created3}) AND entity_rel.empty = {entity_rel_empty4}) AND entity_rel_child.content = {entity_rel_child_content5}) AND NOT (entity_rel_child.empty = {entity_rel_child_empty6})) RETURN entity, entity_rel, entity_rel_child',
+            'MATCH (entity:Label) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) WHERE (((((entity.created = $entity_created1 AND entity.empty = $entity_empty2) OR entity_rel.created = $entity_rel_created3) AND entity_rel.empty = $entity_rel_empty4) AND entity_rel_child.content = $entity_rel_child_content5) AND NOT (entity_rel_child.empty = $entity_rel_child_empty6)) RETURN entity, entity_rel, entity_rel_child',
             $match->query()->cypher()
         );
         $this->assertCount(6, $match->query()->parameters());

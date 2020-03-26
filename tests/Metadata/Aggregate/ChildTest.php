@@ -12,11 +12,10 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class ChildTest extends TestCase
@@ -37,11 +36,11 @@ class ChildTest extends TestCase
         );
 
         $this->assertSame($className, $valueObject->class());
-        $this->assertInstanceOf(SetInterface::class, $valueObject->labels());
+        $this->assertInstanceOf(Set::class, $valueObject->labels());
         $this->assertSame('string', (string) $valueObject->labels()->type());
-        $this->assertSame(['LabelA', 'LabelB'], $valueObject->labels()->toPrimitive());
+        $this->assertSame(['LabelA', 'LabelB'], unwrap($valueObject->labels()));
         $this->assertSame($valueObjectRelationship, $valueObject->relationship());
-        $this->assertInstanceOf(MapInterface::class, $valueObject->properties());
+        $this->assertInstanceOf(Map::class, $valueObject->properties());
         $this->assertSame('string', (string) $valueObject->properties()->keyType());
         $this->assertSame(Property::class, (string) $valueObject->properties()->valueType());
         $this->assertSame(1, $valueObject->properties()->count());

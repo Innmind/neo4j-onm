@@ -43,7 +43,7 @@ class InsertPersisterTest extends TestCase
     private $aggregateRootClass;
     private $relationshipClass;
 
-    public function setUp()
+    public function setUp(): void
     {
         $aggregateRoot = new class {
             public $uuid;
@@ -155,7 +155,7 @@ class InsertPersisterTest extends TestCase
             ->method('execute')
             ->will($this->returnCallback(function($query) use (&$count) {
                 $this->assertSame(
-                    'CREATE (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_props}.uuid, created: {e38c6cbd28bf165070d070980dd1fb595_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_props}.empty }), (e38c6cbd28bf165070d070980dd1fb595)<-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO { created: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.created, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_props}.empty }]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel { content: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.content, empty: {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}.empty }) WITH e38c6cbd28bf165070d070980dd1fb595 MATCH (e3c0eb72d56d7c664157fe196fa61f653 { uuid: {e3c0eb72d56d7c664157fe196fa61f653_props}.uuid }) WITH e38c6cbd28bf165070d070980dd1fb595, e3c0eb72d56d7c664157fe196fa61f653 MATCH (e4519d9310a314e2fce041e833b6553a9 { uuid: {e4519d9310a314e2fce041e833b6553a9_props}.uuid }) CREATE (e3c0eb72d56d7c664157fe196fa61f653)-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_props}.uuid, created: {e50ead852f3361489a400ab5c70f6c5cf_props}.created, empty: {e50ead852f3361489a400ab5c70f6c5cf_props}.empty }]->(e4519d9310a314e2fce041e833b6553a9)',
+                    'CREATE (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: $e38c6cbd28bf165070d070980dd1fb595_props.uuid, created: $e38c6cbd28bf165070d070980dd1fb595_props.created, empty: $e38c6cbd28bf165070d070980dd1fb595_props.empty }), (e38c6cbd28bf165070d070980dd1fb595)<-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO { created: $e38c6cbd28bf165070d070980dd1fb595_rel_props.created, empty: $e38c6cbd28bf165070d070980dd1fb595_rel_props.empty }]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel { content: $e38c6cbd28bf165070d070980dd1fb595_rel_child_props.content, empty: $e38c6cbd28bf165070d070980dd1fb595_rel_child_props.empty }) WITH e38c6cbd28bf165070d070980dd1fb595 MATCH (e3c0eb72d56d7c664157fe196fa61f653 { uuid: $e3c0eb72d56d7c664157fe196fa61f653_props.uuid }) WITH e38c6cbd28bf165070d070980dd1fb595, e3c0eb72d56d7c664157fe196fa61f653 MATCH (e4519d9310a314e2fce041e833b6553a9 { uuid: $e4519d9310a314e2fce041e833b6553a9_props.uuid }) CREATE (e3c0eb72d56d7c664157fe196fa61f653)-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: $e50ead852f3361489a400ab5c70f6c5cf_props.uuid, created: $e50ead852f3361489a400ab5c70f6c5cf_props.created, empty: $e50ead852f3361489a400ab5c70f6c5cf_props.empty }]->(e4519d9310a314e2fce041e833b6553a9)',
                     $query->cypher()
                 );
                 $this->assertCount(6, $query->parameters());

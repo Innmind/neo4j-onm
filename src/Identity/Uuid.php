@@ -11,9 +11,9 @@ use Innmind\Immutable\Str;
 
 class Uuid implements Identity
 {
-    const PATTERN = '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/';
+    private const PATTERN = '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/';
 
-    private $value;
+    private string $value;
 
     public function __construct(string $uuid)
     {
@@ -24,18 +24,12 @@ class Uuid implements Identity
         $this->value = $uuid;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function value()
     {
         return $this->value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
     }

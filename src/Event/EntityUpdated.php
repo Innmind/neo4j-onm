@@ -4,18 +4,22 @@ declare(strict_types = 1);
 namespace Innmind\Neo4j\ONM\Event;
 
 use Innmind\Neo4j\ONM\Identity;
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 
 final class EntityUpdated
 {
-    private $identity;
-    private $entity;
-    private $changeset;
+    private Identity $identity;
+    private object $entity;
+    /** @var Map<string, mixed> */
+    private Map $changeset;
 
+    /**
+     * @param Map<string, mixed> $changeset
+     */
     public function __construct(
         Identity $identity,
         object $entity,
-        MapInterface $changeset
+        Map $changeset
     ) {
         $this->identity = $identity;
         $this->entity = $entity;
@@ -33,9 +37,9 @@ final class EntityUpdated
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function changeset(): MapInterface
+    public function changeset(): Map
     {
         return $this->changeset;
     }

@@ -10,7 +10,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Property,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 use Innmind\Reflection\{
     ReflectionObject,
     ExtractionStrategy\ReflectionStrategy,
@@ -18,17 +18,14 @@ use Innmind\Reflection\{
 
 final class RelationshipExtractor implements DataExtractorInterface
 {
-    private $extractionStrategy;
+    private ReflectionStrategy $extractionStrategy;
 
     public function __construct()
     {
         $this->extractionStrategy = new ReflectionStrategy;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(object $entity, Entity $meta): MapInterface
+    public function __invoke(object $entity, Entity $meta): Map
     {
         if (!$meta instanceof Relationship) {
             throw new InvalidArgumentException;
@@ -38,41 +35,35 @@ final class RelationshipExtractor implements DataExtractorInterface
             $entity,
             null,
             null,
-            $this->extractionStrategy
+            $this->extractionStrategy,
         );
+        /** @var Map<string, mixed> */
         $data = $refl->extract(
             $id = $meta->identity()->property(),
             $start = $meta->startNode()->property(),
-            $end = $meta->endNode()->property()
+            $end = $meta->endNode()->property(),
         );
+        /** @psalm-suppress MixedMethodCall */
         $data = $data
-            ->put(
-                $id,
-                $data->get($id)->value()
-            )
-            ->put(
-                $start,
-                $data->get($start)->value()
-            )
-            ->put(
-                $end,
-                $data->get($end)->value()
-            );
+            ($id, $data->get($id)->value())
+            ($start, $data->get($start)->value())
+            ($end, $data->get($end)->value());
 
+        /** @var Map<string, mixed> */
         return $meta
             ->properties()
             ->reduce(
                 $data,
-                static function(MapInterface $carry, string $name, Property $property) use ($refl): MapInterface {
-                    return $carry->put(
+                static function(Map $carry, string $name, Property $property) use ($refl): Map {
+                    return ($carry)(
                         $name,
                         $property
                             ->type()
                             ->forDatabase(
-                                $refl->extract($name)->get($name)
-                            )
+                                $refl->extract($name)->get($name),
+                            ),
                     );
-                }
+                },
             );
     }
 }

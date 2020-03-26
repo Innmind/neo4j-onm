@@ -18,10 +18,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Type,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipTranslatorTest extends TestCase
@@ -56,7 +53,7 @@ class RelationshipTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
-            'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
+            'MATCH (start)-[entity:type { id: $entity_identity }]->(end) RETURN start, end, entity',
             $identityMatch->query()->cypher()
         );
         $this->assertCount(1, $identityMatch->query()->parameters());
@@ -64,7 +61,7 @@ class RelationshipTranslatorTest extends TestCase
             'foobar',
             $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()

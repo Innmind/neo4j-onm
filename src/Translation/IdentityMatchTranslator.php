@@ -14,8 +14,5 @@ interface IdentityMatchTranslator
     /**
      * Translate an identity into a query to match the expected element
      */
-    public function __invoke(
-        Entity $meta,
-        Identity $identity
-    ): IdentityMatch;
+    public function __invoke(Entity $meta, Identity $identity): IdentityMatch;
 }

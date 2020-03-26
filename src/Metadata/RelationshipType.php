@@ -8,7 +8,7 @@ use Innmind\Immutable\Str;
 
 final class RelationshipType
 {
-    private $type;
+    private string $type;
 
     public function __construct(string $type)
     {
@@ -19,7 +19,7 @@ final class RelationshipType
         $this->type = $type;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->type;
     }

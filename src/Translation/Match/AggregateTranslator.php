@@ -6,6 +6,7 @@ namespace Innmind\Neo4j\ONM\Translation\Match;
 use Innmind\Neo4j\ONM\{
     Translation\MatchTranslator,
     Metadata\Entity,
+    Metadata\Aggregate,
     Metadata\Aggregate\Child,
     IdentityMatch,
 };
@@ -15,57 +16,68 @@ use Innmind\Immutable\{
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class AggregateTranslator implements MatchTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
+    /** @var Set<string> */
+    private Set $variables;
+
+    public function __construct()
+    {
+        $this->variables = Set::strings();
+    }
+
     public function __invoke(Entity $meta): IdentityMatch
     {
+        if (!$meta instanceof Aggregate) {
+            throw new \TypeError('Argument 1 must be of type '.Aggregate::class);
+        }
+
         $query = (new Query)
             ->match(
                 'entity',
-                $meta->labels()->toPrimitive()
+                ...unwrap($meta->labels()),
             )
             ->with('entity');
 
-        $variables = new Set('string');
-        $meta
-            ->children()
-            ->foreach(function(
+        $this->variables = $this->variables->clear();
+        $query = $meta->children()->reduce(
+            $query,
+            function(
+                Query $query,
                 string $property,
                 Child $child
-            ) use (
-                &$query,
-                &$variables
-            ) {
+            ): Query {
                 $relName = Str::of('entity_')->append($property);
                 $childName = $relName
                     ->append('_')
                     ->append($child->relationship()->childProperty());
-                $variables = $variables
-                    ->add((string) $relName)
-                    ->add((string) $childName);
+                $this->variables = ($this->variables)
+                    ($relName->toString())
+                    ($childName->toString());
 
-                $query = $query
+                return $query
                     ->match('entity')
                     ->linkedTo(
-                        (string) $childName,
-                        $child->labels()->toPrimitive()
+                        $childName->toString(),
+                        ...unwrap($child->labels()),
                     )
                     ->through(
-                        (string) $child->relationship()->type(),
-                        (string) $relName,
-                        'left'
+                        $child->relationship()->type()->toString(),
+                        $relName->toString(),
+                        'left',
                     );
             });
 
+        $variables = $this->variables;
+        $this->variables = $this->variables->clear();
 
+        /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
-            $query->return('entity', ...$variables->toPrimitive()),
+            $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 }

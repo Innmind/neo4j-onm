@@ -9,37 +9,35 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Relationship implements Entity
 {
-    private $class;
-    private $identity;
-    private $repository;
-    private $factory;
-    private $type;
-    private $startNode;
-    private $endNode;
-    private $properties;
+    private ClassName $class;
+    private Identity $identity;
+    private Repository $repository;
+    private Factory $factory;
+    private RelationshipType $type;
+    private RelationshipEdge $startNode;
+    private RelationshipEdge $endNode;
+    /** @var Map<string, Property> */
+    private Map $properties;
 
+    /**
+     * @param Set<Property> $properties
+     */
     public function __construct(
         ClassName $class,
         Identity $identity,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode,
-        SetInterface $properties
+        Set $properties
     ) {
-        if ((string) $properties->type() !== Property::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 6 must be of type SetInterface<%s>',
-                Property::class
-            ));
-        }
+        assertSet(Property::class, $properties, 6);
 
         $this->class = $class;
         $this->identity = $identity;
@@ -48,72 +46,65 @@ final class Relationship implements Entity
         $this->type = $type;
         $this->startNode = $startNode;
         $this->endNode = $endNode;
-        $this->properties = $properties->reduce(
-            Map::of('string', Property::class),
-            static function(MapInterface $properties, Property $property): MapInterface {
-                return $properties->put($property->name(), $property);
-            }
+        /** @var Map<string, Property> */
+        $this->properties = $properties->toMapOf(
+            'string',
+            Property::class,
+            static function(Property $property): \Generator {
+                yield $property->name() => $property;
+            },
         );
     }
 
+    /**
+     * @param Map<string, Type>|null $properties
+     */
     public static function of(
         ClassName $class,
         Identity $identity,
         RelationshipType $type,
         RelationshipEdge $startNode,
         RelationshipEdge $endNode,
-        MapInterface $properties = null
+        Map $properties = null
     ): self {
+        /** @var Map<string, Type> */
+        $properties ??= Map::of('string', Type::class);
+        /** @var Set<Property> */
+        $properties = $properties->toSetOf(
+            Property::class,
+            static fn(string $property, Type $type): \Generator => yield new Property($property, $type),
+        );
+
         return new self(
             $class,
             $identity,
             $type,
             $startNode,
             $endNode,
-            ($properties ?? Map::of('string', Type::class))->reduce(
-                Set::of(Property::class),
-                static function(SetInterface $properties, string $property, Type $type): SetInterface {
-                    return $properties->add(new Property($property, $type));
-                }
-            )
+            $properties,
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function identity(): Identity
     {
         return $this->identity;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function repository(): Repository
     {
         return $this->repository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function factory(): Factory
     {
         return $this->factory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function class(): ClassName
     {
         return $this->class;

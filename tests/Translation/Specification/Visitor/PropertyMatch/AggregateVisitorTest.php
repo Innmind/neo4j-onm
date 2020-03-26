@@ -20,17 +20,17 @@ use Innmind\Neo4j\ONM\{
 use Fixtures\Innmind\Neo4j\ONM\Specification\Property;
 use Innmind\Specification\Sign;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class AggregateVisitorTest extends TestCase
 {
     private $visitor;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->visitor = new AggregateVisitor(
             Aggregate::of(
@@ -79,7 +79,7 @@ class AggregateVisitorTest extends TestCase
                 ->and(new Property('rel.child.empty', Sign::equality(), null))
         );
 
-        $this->assertInstanceOf(MapInterface::class, $mapping);
+        $this->assertInstanceOf(Map::class, $mapping);
         $this->assertSame('string', (string) $mapping->keyType());
         $this->assertSame(
             PropertiesMatch::class,
@@ -87,23 +87,23 @@ class AggregateVisitorTest extends TestCase
         );
         $this->assertSame(
             ['entity', 'entity_rel', 'entity_rel_child'],
-            $mapping->keys()->toPrimitive()
+            unwrap($mapping->keys()),
         );
         $this->assertCount(2, $mapping->get('entity')->properties());
-        $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
-        $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));
+        $this->assertSame('$entity_empty', $mapping->get('entity')->properties()->get('empty'));
+        $this->assertSame('$entity_created', $mapping->get('entity')->properties()->get('created'));
         $this->assertCount(2, $mapping->get('entity')->parameters());
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_empty'));
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_created'));
         $this->assertCount(2, $mapping->get('entity_rel')->properties());
-        $this->assertSame('{entity_rel_empty}', $mapping->get('entity_rel')->properties()->get('empty'));
-        $this->assertSame('{entity_rel_created}', $mapping->get('entity_rel')->properties()->get('created'));
+        $this->assertSame('$entity_rel_empty', $mapping->get('entity_rel')->properties()->get('empty'));
+        $this->assertSame('$entity_rel_created', $mapping->get('entity_rel')->properties()->get('created'));
         $this->assertCount(2, $mapping->get('entity_rel')->parameters());
         $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_empty'));
         $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_created'));
         $this->assertCount(2, $mapping->get('entity_rel_child')->properties());
-        $this->assertSame('{entity_rel_child_empty}', $mapping->get('entity_rel_child')->properties()->get('empty'));
-        $this->assertSame('{entity_rel_child_content}', $mapping->get('entity_rel_child')->properties()->get('content'));
+        $this->assertSame('$entity_rel_child_empty', $mapping->get('entity_rel_child')->properties()->get('empty'));
+        $this->assertSame('$entity_rel_child_content', $mapping->get('entity_rel_child')->properties()->get('content'));
         $this->assertCount(2, $mapping->get('entity_rel_child')->parameters());
         $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_empty'));
         $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_content'));

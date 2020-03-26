@@ -35,8 +35,8 @@ class RelationshipTest extends TestCase
         $this->assertInstanceOf(Entity::class, $relationship);
         $this->assertSame($className, $relationship->class());
         $this->assertSame($identity, $relationship->identity());
-        $this->assertSame(Repository::class, (string) $relationship->repository());
-        $this->assertSame(RelationshipFactory::class, (string) $relationship->factory());
+        $this->assertSame(Repository::class, $relationship->repository()->toString());
+        $this->assertSame(RelationshipFactory::class, $relationship->factory()->toString());
         $this->assertSame($type, $relationship->type());
         $this->assertSame($start, $relationship->startNode());
         $this->assertSame($end, $relationship->endNode());

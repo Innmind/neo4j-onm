@@ -31,7 +31,7 @@ class DelegationValidatorTest extends TestCase
     private $aggregate;
     private $relationship;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->aggregate = Aggregate::of(
             new ClassName('FQCN'),
@@ -221,8 +221,8 @@ class DelegationValidatorTest extends TestCase
     public function testThrowWhenInjectingInvalidValidator()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<string, Innmind\Neo4j\ONM\Translation\Specification\Validator>');
 
-        new DelegationValidator(new Map('int', 'int'));
+        new DelegationValidator(Map::of('int', 'int'));
     }
 }

@@ -10,6 +10,7 @@ use Innmind\Neo4j\ONM\{
     Identity,
     Query\Where,
     Specification\ConvertSign,
+    Exception\LogicException,
 };
 use Innmind\Specification\{
     Specification,
@@ -18,16 +19,15 @@ use Innmind\Specification\{
     Not,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
 
 final class RelationshipVisitor implements CypherVisitor
 {
-    private $meta;
-    private $convert;
-    private $count = 0;
+    private Relationship $meta;
+    private ConvertSign $convert;
+    private int $count = 0;
 
     public function __construct(Relationship $meta)
     {
@@ -35,9 +35,6 @@ final class RelationshipVisitor implements CypherVisitor
         $this->convert = new ConvertSign;
     }
 
-    /**
-     * {@inheritdo}
-     */
     public function __invoke(Specification $specification): Where
     {
         switch (true) {
@@ -49,12 +46,17 @@ final class RelationshipVisitor implements CypherVisitor
             case $specification instanceof Composite:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = (string) Str::of((string) $specification->operator())->toLower();
+                $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
+                /** @var Where */
                 return $left->{$operator}($right);
 
             case $specification instanceof Not:
                 return ($this)($specification->specification())->not();
+
+            default:
+                $class = \get_class($specification);
+                throw new LogicException("Unknown specification '$class'");
         }
     }
 
@@ -70,35 +72,41 @@ final class RelationshipVisitor implements CypherVisitor
                 return $this->buildEdgeCondition(
                     $specification,
                     $this->meta->startNode(),
-                    'start'
+                    'start',
                 );
 
             case $this->meta->endNode()->property() === $property:
                 return $this->buildEdgeCondition(
                     $specification,
                     $this->meta->endNode(),
-                    'end'
+                    'end',
                 );
+
+            default:
+                throw new LogicException("Unknown property '$property'");
         }
     }
 
-    private function buildPropertyCondition(
-        Comparator $specification
-    ): Where {
+    private function buildPropertyCondition(Comparator $specification): Where
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')
             ->append($prop)
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 
@@ -111,22 +119,28 @@ final class RelationshipVisitor implements CypherVisitor
             ->append('_')
             ->append($edge->target())
             ->append((string) $this->count);
+        /** @var mixed */
         $value = $specification->value();
 
         if ($value instanceof Identity) {
+            /** @var mixed */
             $value = $value->value();
         }
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 '%s.%s %s %s',
                 $side,
                 $edge->target(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $value)
+                ($key->toString(), $value),
         );
     }
 }

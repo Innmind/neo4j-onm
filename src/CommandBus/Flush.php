@@ -8,8 +8,8 @@ use Innmind\CommandBus\CommandBus;
 
 final class Flush implements CommandBus
 {
-    private $handle;
-    private $manager;
+    private CommandBus $handle;
+    private Manager $manager;
 
     public function __construct(CommandBus $handle, Manager $manager)
     {

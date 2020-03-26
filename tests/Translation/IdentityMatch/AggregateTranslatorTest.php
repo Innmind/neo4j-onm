@@ -19,7 +19,6 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
@@ -74,7 +73,7 @@ class AggregateTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
-            'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
+            'MATCH (entity:Label { id: $entity_identity }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $identityMatch->query()->cypher()
         );
         $this->assertCount(1, $identityMatch->query()->parameters());
@@ -82,7 +81,7 @@ class AggregateTranslatorTest extends TestCase
             'foobar',
             $identityMatch->query()->parameters()->get('entity_identity')->value()
         );
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()

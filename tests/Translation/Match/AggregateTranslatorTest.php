@@ -18,7 +18,6 @@ use Innmind\Neo4j\ONM\{
     Type,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
@@ -73,7 +72,7 @@ class AggregateTranslatorTest extends TestCase
             $identityMatch->query()->cypher()
         );
         $this->assertSame(0, $identityMatch->query()->parameters()->count());
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()

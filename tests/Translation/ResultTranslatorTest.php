@@ -22,10 +22,12 @@ use Innmind\Neo4j\DBAL\{
     Result as ResultInterface,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
+};
+use function Innmind\Immutable\{
+    unwrap,
+    first,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -183,76 +185,76 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', Entity::class))
+            (Map::of('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );
 
-        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertInstanceOf(Map::class, $data);
         $this->assertSame('string', (string) $data->keyType());
-        $this->assertSame(SetInterface::class, (string) $data->valueType());
+        $this->assertSame(Set::class, (string) $data->valueType());
         $this->assertSame(
             ['n', 'r'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
-        $this->assertCount(4, $data->get('n')->current());
+        $this->assertCount(4, first($data->get('n')));
         $this->assertSame(
             ['id', 'created', 'rel', 'rel2'],
-            $data->get('n')->current()->keys()->toPrimitive()
+            unwrap(first($data->get('n'))->keys())
         );
-        $this->assertSame(42, $data->get('n')->current()->get('id'));
-        $this->assertSame('2016-01-01T00:00:00+0200', $data->get('n')->current()->get('created'));
-        $this->assertInstanceOf(MapInterface::class, $data->get('n')->current()->get('rel'));
+        $this->assertSame(42, first($data->get('n'))->get('id'));
+        $this->assertSame('2016-01-01T00:00:00+0200', first($data->get('n'))->get('created'));
+        $this->assertInstanceOf(Map::class, first($data->get('n'))->get('rel'));
         $this->assertSame(
             ['created', 'child'],
-            $data->get('n')->current()->get('rel')->keys()->toPrimitive()
+            unwrap(first($data->get('n'))->get('rel')->keys())
         );
         $this->assertSame(
             '2016-01-01T00:00:00+0200',
-            $data->get('n')->current()->get('rel')->get('created')
+            first($data->get('n'))->get('rel')->get('created')
         );
         $this->assertInstanceOf(
-            MapInterface::class,
-            $data->get('n')->current()->get('rel')->get('child')
+            Map::class,
+            first($data->get('n'))->get('rel')->get('child')
         );
         $this->assertSame(
             ['content'],
-            $data->get('n')->current()->get('rel')->get('child')->keys()->toPrimitive()
+            unwrap(first($data->get('n'))->get('rel')->get('child')->keys())
         );
         $this->assertSame(
             'foo',
-            $data->get('n')->current()->get('rel')->get('child')->get('content')
+            first($data->get('n'))->get('rel')->get('child')->get('content')
         );
-        $this->assertInstanceOf(MapInterface::class, $data->get('n')->current()->get('rel2'));
-        $this->assertSame(2, $data->get('n')->current()->get('rel2')->count());
+        $this->assertInstanceOf(Map::class, first($data->get('n'))->get('rel2'));
+        $this->assertSame(2, first($data->get('n'))->get('rel2')->count());
         $this->assertSame(
             ['created', 'child'],
-            $data->get('n')->current()->get('rel2')->keys()->toPrimitive()
+            unwrap(first($data->get('n'))->get('rel2')->keys())
         );
         $this->assertSame(
             '2016-01-03T00:00:00+0200',
-            $data->get('n')->current()->get('rel2')->get('created')
+            first($data->get('n'))->get('rel2')->get('created')
         );
         $this->assertInstanceOf(
-            MapInterface::class,
-            $data->get('n')->current()->get('rel2')->get('child')
+            Map::class,
+            first($data->get('n'))->get('rel2')->get('child')
         );
         $this->assertSame(
             ['content'],
-            $data->get('n')->current()->get('rel2')->get('child')->keys()->toPrimitive()
+            unwrap(first($data->get('n'))->get('rel2')->get('child')->keys())
         );
         $this->assertSame(
             'baz',
-            $data->get('n')->current()->get('rel2')->get('child')->get('content')
+            first($data->get('n'))->get('rel2')->get('child')->get('content')
         );
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->get('r')->current()->keys()->toPrimitive()
+            unwrap(first($data->get('r'))->keys())
         );
-        $this->assertSame(42, $data->get('r')->current()->get('id'));
-        $this->assertSame(24, $data->get('r')->current()->get('start'));
-        $this->assertSame(66, $data->get('r')->current()->get('end'));
-        $this->assertSame('2016-01-03T00:00:00+0200', $data->get('r')->current()->get('created'));
+        $this->assertSame(42, first($data->get('r'))->get('id'));
+        $this->assertSame(24, first($data->get('r'))->get('start'));
+        $this->assertSame(66, first($data->get('r'))->get('end'));
+        $this->assertSame('2016-01-03T00:00:00+0200', first($data->get('r'))->get('created'));
     }
 
     public function testTranslateWithoutExpectedVariable()
@@ -281,7 +283,7 @@ class ResultTranslatorTest extends TestCase
                     ],
                 ]],
             ]),
-            (new Map('string', Entity::class))
+            (Map::of('string', Entity::class))
                 ->put('n', $aggregate)
                 ->put('r', $relationship)
         );
@@ -292,17 +294,17 @@ class ResultTranslatorTest extends TestCase
     public function testThrowWhenEmptyInvalidMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>');
-        new ResultTranslator(new Map('string', 'callable'));
+        $this->expectExceptionMessage('Argument 1 must be of type Map<string, Innmind\Neo4j\ONM\Translation\EntityTranslator>');
+        new ResultTranslator(Map::of('string', 'callable'));
     }
 
     public function testThrowWhenEmptyInvalidVariableMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Metadata\Entity>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, Innmind\Neo4j\ONM\Metadata\Entity>');
         (new ResultTranslator)(
             $this->createMock(ResultInterface::class),
-            new Map('string', 'object')
+            Map::of('string', 'object')
         );
     }
 }

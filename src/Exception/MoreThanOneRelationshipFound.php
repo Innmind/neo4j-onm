@@ -10,25 +10,31 @@ use Innmind\Neo4j\ONM\Metadata\{
 
 final class MoreThanOneRelationshipFound extends RuntimeException
 {
-    private $child;
-    private $entity;
+    private Child $child;
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    private Entity $entity;
+
+    private function __construct(string $message, Child $child)
+    {
+        parent::__construct($message);
+        $this->child = $child;
+    }
 
     public static function for(Child $child): self
     {
-        $exception = new self;
-        $exception->child = $child;
-
-        return $exception;
+        return new self('', $child);
     }
 
     public function on(Entity $entity): self
     {
-        $exception = new self(sprintf(
-            'More than one relationship found on "%s::%s"',
-            $entity->class(),
-            $this->child->relationship()->property()
-        ));
-        $exception->child = $this->child;
+        $exception = new self(
+            \sprintf(
+                'More than one relationship found on "%s::%s"',
+                $entity->class()->toString(),
+                $this->child->relationship()->property(),
+            ),
+            $this->child,
+        );
         $exception->entity = $entity;
 
         return $exception;

@@ -53,7 +53,7 @@ class DelegationTranslatorTest extends TestCase
 
                 return new IdentityMatch(
                     $this->createMock(Query::class),
-                    new Map('string', Entity::class)
+                    Map::of('string', Entity::class)
                 );
             }));
         $mock2 = $this->createMock(SpecificationTranslator::class);
@@ -66,7 +66,7 @@ class DelegationTranslatorTest extends TestCase
 
                 return new IdentityMatch(
                     $this->createMock(Query::class),
-                    new Map('string', Entity::class)
+                    Map::of('string', Entity::class)
                 );
             }));
 
@@ -110,9 +110,9 @@ class DelegationTranslatorTest extends TestCase
     public function testThrowWhenInjectingInvalidTranslators()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<string, Innmind\Neo4j\ONM\Translation\SpecificationTranslator>');
 
-        new DelegationTranslator(new Map('int', 'int'));
+        new DelegationTranslator(Map::of('int', 'int'));
     }
 
     public function testThrowWhenSpecificationNotApplicableToAggregate()

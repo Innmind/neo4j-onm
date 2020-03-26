@@ -9,28 +9,39 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\Cypher\AggregateVisitor as AggregateCypherVisitor,
     Metadata\Aggregate\Child,
     Metadata\Entity,
+    Metadata\Aggregate,
     IdentityMatch,
+    Query\PropertiesMatch,
     Exception\SpecificationNotApplicableAsPropertyMatch,
 };
 use Innmind\Neo4j\DBAL\Query\Query;
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 use Innmind\Specification\Specification;
 
 final class AggregateTranslator implements SpecificationTranslator
 {
-    /**
-     * {@inheritdoc}
-     */
+    /** @var Set<string> */
+    private Set $variables;
+
+    public function __construct()
+    {
+        $this->variables = Set::strings();
+    }
+
     public function __invoke(
         Entity $meta,
         Specification $specification
     ): IdentityMatch {
-        $variables = new Set('string');
+        if (!$meta instanceof Aggregate) {
+            throw new \TypeError('Argument 1 must be of type '.Aggregate::class);
+        }
+
+        $this->variables = $this->variables->clear();
 
         try {
             $mapping = (new AggregatePropertyMatchVisitor($meta))($specification);
@@ -39,87 +50,84 @@ final class AggregateTranslator implements SpecificationTranslator
                 ->addProperties(
                     (new Query)->match(
                         'entity',
-                        $meta->labels()->toPrimitive()
+                        ...unwrap($meta->labels()),
                     ),
                     'entity',
-                    $mapping
+                    $mapping,
                 )
                 ->with('entity');
 
-            $meta
-                ->children()
-                ->foreach(function(
+            $query = $meta->children()->reduce(
+                $query,
+                function(
+                    Query $query,
                     string $property,
                     Child $child
                 ) use (
-                    &$query,
-                    $mapping,
-                    &$variables
-                ): void {
+                    $mapping
+                ): Query {
                     $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $variables = $variables
-                        ->add((string) $relName)
-                        ->add((string) $childName);
+                    $this->variables = ($this->variables)
+                        ($relName->toString())
+                        ($childName->toString());
 
-                    $query = $this->addProperties(
+                    return $this->addProperties(
                         $this
                             ->addProperties(
                                 $query
                                     ->match('entity')
                                     ->linkedTo(
-                                        (string) $childName,
-                                        $child->labels()->toPrimitive()
+                                        $childName->toString(),
+                                        ...unwrap($child->labels()),
                                     ),
-                                (string) $childName,
-                                $mapping
+                                $childName->toString(),
+                                $mapping,
                             )
                             ->through(
-                                (string) $child->relationship()->type(),
-                                (string) $relName,
-                                'left'
+                                $child->relationship()->type()->toString(),
+                                $relName->toString(),
+                                'left',
                             ),
-                        (string) $relName,
-                        $mapping
+                        $relName->toString(),
+                        $mapping,
                     );
                 });
         } catch (SpecificationNotApplicableAsPropertyMatch $e) {
             $query = (new Query)
                 ->match(
                     'entity',
-                    $meta->labels()->toPrimitive()
+                    ...unwrap($meta->labels()),
                 )
                 ->with('entity');
 
-            $meta
-                ->children()
-                ->foreach(function(
+            $query = $meta->children()->reduce(
+                $query,
+                function(
+                    Query $query,
                     string $property,
                     Child $child
-                ) use (
-                    &$query,
-                    &$variables
-                ): void {
+                ): Query {
                     $relName = Str::of('entity_')->append($property);
                     $childName = $relName
                         ->append('_')
                         ->append($child->relationship()->childProperty());
-                    $variables = $variables
-                        ->add((string) $relName)
-                        ->add((string) $childName);
+                    $this->variables = ($this->variables)
+                        ($relName->toString())
+                        ($childName->toString());
 
-                    $query = $query
+                    return $query
                         ->match('entity')
                         ->linkedTo(
-                            (string) $childName,
-                            $child->labels()->toPrimitive()
+                            $childName->toString(),
+                            ...unwrap($child->labels()),
                         )
                         ->through(
-                            (string) $child->relationship()->type(),
-                            (string) $relName,
-                            'left'
+                            $child->relationship()->type()->toString(),
+                            $relName->toString(),
+                            'left',
                         );
                 });
             $condition = (new AggregateCypherVisitor($meta))($specification);
@@ -128,24 +136,31 @@ final class AggregateTranslator implements SpecificationTranslator
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 
+        $variables = $this->variables;
+        $this->variables = $this->variables->clear();
+
+        /**
+         * @psalm-suppress InvalidArgument
+         * @psalm-suppress MixedArgument
+         */
         return new IdentityMatch(
-            $query->return('entity', ...$variables->toPrimitive()),
+            $query->return('entity', ...unwrap($variables)),
             Map::of('string', Entity::class)
-                ('entity', $meta)
+                ('entity', $meta),
         );
     }
 
     /**
-     * @param MapInterface<string, PropertiesMatch> $mapping
+     * @param Map<string, PropertiesMatch> $mapping
      */
     private function addProperties(
         Query $query,
         string $name,
-        MapInterface $mapping
+        Map $mapping
     ): Query {
         if ($mapping->contains($name)) {
             $match = $mapping->get($name);
@@ -153,13 +168,13 @@ final class AggregateTranslator implements SpecificationTranslator
                 $query,
                 static function(Query $query, string $property, string $cypher): Query {
                     return $query->withProperty($property, $cypher);
-                }
+                },
             );
             $query = $match->parameters()->reduce(
                 $query,
                 static function(Query $query, string $key, $value): Query {
                     return $query->withParameter($key, $value);
-                }
+                },
             );
         }
 

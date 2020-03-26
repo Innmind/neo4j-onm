@@ -14,16 +14,15 @@ use Innmind\Neo4j\DBAL\Result;
 use Innmind\Immutable\{
     Map,
     Set,
-    SetInterface,
-    MapInterface,
 };
+use function Innmind\Immutable\assertMap;
 
 final class EntityFactory
 {
-    private $translate;
-    private $generators;
-    private $resolve;
-    private $entities;
+    private ResultTranslator $translate;
+    private Generators $generators;
+    private Resolver $resolve;
+    private Container $entities;
 
     public function __construct(
         ResultTranslator $translate,
@@ -40,58 +39,49 @@ final class EntityFactory
     /**
      * Translate the dbal result into a set of entities
      *
-     * @param MapInterface<string, Entity> $variables
+     * @param Map<string, Entity> $variables
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function __invoke(
-        Result $result,
-        MapInterface $variables
-    ): SetInterface {
-        if (
-            (string) $variables->keyType() !== 'string' ||
-            (string) $variables->valueType() !== Entity::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
-                Entity::class
-            ));
-        }
+    public function __invoke(Result $result, Map $variables): Set
+    {
+        assertMap('string', Entity::class, $variables, 2);
 
         $structuredData = ($this->translate)($result, $variables);
-        $entities = new Set('object');
+        $entities = Set::objects();
 
+        /** @var Set<object> */
         return $variables
             ->filter(static function(string $variable) use ($structuredData): bool {
                 return $structuredData->contains($variable);
             })
             ->reduce(
-                new Set('object'),
-                function(SetInterface $carry, string $variable, Entity $meta) use ($structuredData): SetInterface {
+                $entities,
+                function(Set $entities, string $variable, Entity $meta) use ($structuredData): Set {
                     return $structuredData
                         ->get($variable)
                         ->reduce(
-                            $carry,
-                            function(SetInterface $carry, MapInterface $data) use ($meta): SetInterface {
-                                return $carry->add(
-                                    $this->makeEntity($meta, $data)
+                            $entities,
+                            function(Set $entities, Map $data) use ($meta): Set {
+                                return ($entities)(
+                                    $this->makeEntity($meta, $data),
                                 );
-                            }
+                            },
                         );
-                }
+                },
             );
     }
 
     /**
-     * @param MapInterface<string, mixed> $data
+     * @param Map<string, mixed> $data
      */
-    private function makeEntity(Entity $meta, MapInterface $data)
+    private function makeEntity(Entity $meta, Map $data): object
     {
         $identity = $this
             ->generators
             ->get($meta->identity()->type())
             ->for(
-                $data->get($meta->identity()->property())
+                $data->get($meta->identity()->property()),
             );
 
         if ($this->entities->contains($identity)) {
@@ -100,10 +90,10 @@ final class EntityFactory
 
         $entity = ($this->resolve)($meta)($identity, $meta, $data);
 
-        $this->entities = $this->entities->push(
+        $this->entities->push(
             $identity,
             $entity,
-            State::managed()
+            State::managed(),
         );
 
         return $entity;

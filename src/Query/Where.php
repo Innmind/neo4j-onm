@@ -5,27 +5,27 @@ namespace Innmind\Neo4j\ONM\Query;
 
 use Innmind\Neo4j\ONM\Exception\DomainException;
 use Innmind\Immutable\{
-    MapInterface,
+    Map,
     Str,
 };
+use function Innmind\Immutable\assertMap;
 
 final class Where
 {
-    private $cypher;
-    private $parameters;
+    private string $cypher;
+    /** @var Map<string, mixed> */
+    private Map $parameters;
 
-    public function __construct(string $cypher, MapInterface $parameters)
+    /**
+     * @param Map<string, mixed> $parameters
+     */
+    public function __construct(string $cypher, Map $parameters)
     {
         if (Str::of($cypher)->empty()) {
             throw new DomainException;
         }
 
-        if (
-            (string) $parameters->keyType() !== 'string' ||
-            (string) $parameters->valueType() !== 'mixed'
-        ) {
-            throw new \TypeError('Argument 2 must be of type MapInterface<string, mixed>');
-        }
+        assertMap('string', 'mixed', $parameters, 2);
 
         $this->cypher = $cypher;
         $this->parameters = $parameters;
@@ -37,9 +37,9 @@ final class Where
     }
 
     /**
-     * @return MapInterface<string, mixed>
+     * @return Map<string, mixed>
      */
-    public function parameters(): MapInterface
+    public function parameters(): Map
     {
         return $this->parameters;
     }
@@ -48,7 +48,7 @@ final class Where
     {
         return new self(
             \sprintf('(%s AND %s)', $this->cypher(), $where->cypher()),
-            $this->parameters()->merge($where->parameters())
+            $this->parameters()->merge($where->parameters()),
         );
     }
 
@@ -56,7 +56,7 @@ final class Where
     {
         return new self(
             \sprintf('(%s OR %s)', $this->cypher(), $where->cypher()),
-            $this->parameters()->merge($where->parameters())
+            $this->parameters()->merge($where->parameters()),
         );
     }
 
@@ -64,7 +64,7 @@ final class Where
     {
         return new self(
             \sprintf('NOT (%s)', $this->cypher()),
-            $this->parameters()
+            $this->parameters(),
         );
     }
 }

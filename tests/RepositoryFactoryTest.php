@@ -28,7 +28,7 @@ class RepositoryFactoryTest extends TestCase
 {
     private $make;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->make = new RepositoryFactory(
             new UnitOfWork(
@@ -95,7 +95,7 @@ class RepositoryFactoryTest extends TestCase
     public function testThrowWhenInvalidRepositoriesMapKey()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
+        $this->expectExceptionMessage('Argument 4 must be of type Map<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
 
         new RepositoryFactory(
             new UnitOfWork(
@@ -114,14 +114,14 @@ class RepositoryFactoryTest extends TestCase
             ),
             new MatchTranslator,
             new SpecificationTranslator,
-            new Map('foo', RepositoryInterface::class)
+            Map::of('foo', RepositoryInterface::class)
         );
     }
 
     public function testThrowWhenInvalidRepositoriesMapValue()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 4 must be of type MapInterface<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
+        $this->expectExceptionMessage('Argument 4 must be of type Map<Innmind\Neo4j\ONM\Metadata\Entity, Innmind\Neo4j\ONM\Repository>');
 
         new RepositoryFactory(
             new UnitOfWork(
@@ -140,7 +140,7 @@ class RepositoryFactoryTest extends TestCase
             ),
             new MatchTranslator,
             new SpecificationTranslator,
-            new Map(Entity::class, 'foo')
+            Map::of(Entity::class, 'foo')
         );
     }
 }

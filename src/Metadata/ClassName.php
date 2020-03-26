@@ -8,8 +8,12 @@ use Innmind\Immutable\Str;
 
 final class ClassName
 {
-    private $class;
+    /** @var class-string */
+    private string $class;
 
+    /**
+     * @param class-string $class
+     */
     public function __construct(string $class)
     {
         if (Str::of($class)->empty()) {
@@ -19,7 +23,10 @@ final class ClassName
         $this->class = $class;
     }
 
-    public function __toString(): string
+    /**
+     * @return class-string
+     */
+    public function toString(): string
     {
         return $this->class;
     }

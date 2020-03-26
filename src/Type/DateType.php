@@ -10,9 +10,9 @@ use Innmind\Neo4j\ONM\{
 
 final class DateType implements Type
 {
-    private $format;
-    private $nullable = false;
-    private $immutable = true;
+    private string $format;
+    private bool $nullable = false;
+    private bool $immutable = true;
 
     public function __construct(string $format = null)
     {
@@ -44,44 +44,38 @@ final class DateType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
             return null;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             $value = new \DateTimeImmutable($value);
         }
 
         if (!$value instanceof \DateTimeInterface) {
-            throw new InvalidArgumentException(sprintf(
+            /** @psalm-suppress MixedArgument */
+            throw new InvalidArgumentException(\sprintf(
                 'The value "%s" must be an instance of DateTimeInterface',
-                $value
+                $value,
             ));
         }
 
         return $value->format($this->format);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         if ($this->immutable) {
+            /** @psalm-suppress MixedArgument */
             return \DateTimeImmutable::createFromFormat($this->format, $value);
         }
 
+        /** @psalm-suppress MixedArgument */
         return \DateTime::createFromFormat($this->format, $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

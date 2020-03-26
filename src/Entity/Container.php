@@ -9,17 +9,19 @@ use Innmind\Neo4j\ONM\{
     Exception\IdentityNotManaged,
     Exception\DomainException,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 
 final class Container
 {
-    private $states;
+    /** @var Map<State, Map<Identity, object>> */
+    private Map $states;
 
     public function __construct()
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<State, Map<Identity, object>>
+         */
         $this->states = Map::of(State::class, Map::class)
             (State::managed(), Map::of(Identity::class, 'object'))
             (State::new(), Map::of(Identity::class, 'object'))
@@ -30,7 +32,7 @@ final class Container
     /**
      * Inject the given entity with the wished state
      */
-    public function push(Identity $identity, object $entity, State $wished): self
+    public function push(Identity $identity, object $entity, State $wished): void
     {
         if (!$this->states->contains($wished)) {
             throw new DomainException;
@@ -38,28 +40,26 @@ final class Container
 
         $this->states = $this->states->map(static function(
             State $state,
-            MapInterface $entities
+            Map $entities
         ) use (
             $identity,
             $entity,
             $wished
         ) {
             if ($wished === $state) {
-                return $entities->put($identity, $entity);
+                return ($entities)($identity, $entity);
             }
 
             return $entities->remove($identity);
         });
-
-        return $this;
     }
 
     /**
      * Return all the entities of a specific state
      *
-     * @return MapInterface<Identity, object>
+     * @return Map<Identity, object>
      */
-    public function state(State $state): MapInterface
+    public function state(State $state): Map
     {
         return $this->states->get($state);
     }
@@ -67,18 +67,16 @@ final class Container
     /**
      * Remove the entity with the given identity from any state
      */
-    public function detach(Identity $identity): self
+    public function detach(Identity $identity): void
     {
         $this->states = $this->states->map(static function(
             State $state,
-            MapInterface $entities
+            Map $entities
         ) use (
             $identity
         ) {
             return $entities->remove($identity);
         });
-
-        return $this;
     }
 
     /**
@@ -88,13 +86,26 @@ final class Container
      */
     public function stateFor(Identity $identity): State
     {
-        foreach ($this->states as $state => $entities) {
-            if ($entities->contains($identity)) {
-                return $state;
-            }
+        $state = $this->states->reduce(
+            null,
+            static function(?State $current, State $state, Map $entities) use ($identity): ?State {
+                if ($current) {
+                    return $current;
+                }
+
+                if ($entities->contains($identity)) {
+                    return $state;
+                }
+
+                return null;
+            },
+        );
+
+        if (!$state) {
+            throw new IdentityNotManaged;
         }
 
-        throw new IdentityNotManaged;
+        return $state;
     }
 
     /**

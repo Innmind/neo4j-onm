@@ -11,37 +11,35 @@ use Innmind\Neo4j\ONM\{
     Identity,
     IdentityMatch,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
+use function Innmind\Immutable\assertMap;
 
 final class DelegationTranslator implements IdentityMatchTranslator
 {
-    private $translators;
+    /** @var Map<string, IdentityMatchTranslator> */
+    private Map $translators;
 
-    public function __construct(MapInterface $translators = null)
+    /**
+     * @param Map<string, IdentityMatchTranslator>|null $translators
+     */
+    public function __construct(Map $translators = null)
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var Map<string, IdentityMatchTranslator>
+         */
         $this->translators = $translators ?? Map::of('string', IdentityMatchTranslator::class)
             (Aggregate::class, new AggregateTranslator)
             (Relationship::class, new RelationshipTranslator);
 
-        if (
-            (string) $this->translators->keyType() !== 'string' ||
-            (string) $this->translators->valueType() !== IdentityMatchTranslator::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<string, %s>',
-                IdentityMatchTranslator::class
-            ));
-        }
+        assertMap('string', IdentityMatchTranslator::class, $this->translators, 1);
     }
 
     public function __invoke(
         Entity $meta,
         Identity $identity
     ): IdentityMatch {
-        $translate = $this->translators->get(get_class($meta));
+        $translate = $this->translators->get(\get_class($meta));
 
         return $translate($meta, $identity);
     }

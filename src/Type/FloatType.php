@@ -7,7 +7,7 @@ use Innmind\Neo4j\ONM\Type;
 
 final class FloatType implements Type
 {
-    private $nullable = false;
+    private bool $nullable = false;
 
     public static function nullable(): self
     {
@@ -17,9 +17,6 @@ final class FloatType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -29,17 +26,11 @@ final class FloatType implements Type
         return (float) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
         return (float) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

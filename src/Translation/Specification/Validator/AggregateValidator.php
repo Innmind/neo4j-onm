@@ -19,9 +19,6 @@ use Innmind\Immutable\Str;
 
 final class AggregateValidator implements Validator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(
         Specification $specification,
         Entity $meta
@@ -34,7 +31,7 @@ final class AggregateValidator implements Validator
             case $specification instanceof Comparator:
                 return $this->isValidProperty(
                     $specification->property(),
-                    $meta
+                    $meta,
                 );
 
             case $specification instanceof Composite:
@@ -51,22 +48,20 @@ final class AggregateValidator implements Validator
         return false;
     }
 
-    private function isValidProperty(
-        string $property,
-        Entity $meta
-    ): bool {
+    private function isValidProperty(string $property, Aggregate $meta): bool
+    {
         if ($meta->properties()->contains($property)) {
             return true;
         }
 
-        $property = new Str($property);
+        $property = Str::of($property);
 
         if (!$property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/')) {
             return false;
         }
 
         $pieces = $property->split('.');
-        $piece = (string) $pieces->get(0);
+        $piece = $pieces->get(0)->toString();
 
         if (!$meta->children()->contains($piece)) {
             return false;
@@ -77,16 +72,16 @@ final class AggregateValidator implements Validator
 
         switch ($pieces->count()) {
             case 2:
-                return $relationship->properties()->contains((string) $pieces->get(1));
+                return $relationship->properties()->contains($pieces->get(1)->toString());
 
             case 3:
-                $subPiece = (string) $pieces->get(1);
+                $subPiece = $pieces->get(1)->toString();
 
-                if (!$relationship->childProperty() === $subPiece) {
+                if ($relationship->childProperty() !== $subPiece) {
                     return false;
                 }
 
-                return $child->properties()->contains((string) $pieces->get(2));
+                return $child->properties()->contains($pieces->get(2)->toString());
         }
 
         return false;

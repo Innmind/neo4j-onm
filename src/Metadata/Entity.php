@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Immutable\MapInterface;
+use Innmind\Immutable\Map;
 
 interface Entity
 {
@@ -25,9 +25,9 @@ interface Entity
     /**
      * Return the list of properties defined for this entity
      *
-     * @return MapInterface<string, Property>
+     * @return Map<string, Property>
      */
-    public function properties(): MapInterface;
+    public function properties(): Map;
 
     /**
      * Return the class name of the entity

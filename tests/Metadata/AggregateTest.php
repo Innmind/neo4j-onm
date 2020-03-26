@@ -15,11 +15,10 @@ use Innmind\Neo4j\ONM\{
     Repository\Repository,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class AggregateTest extends TestCase
@@ -50,16 +49,16 @@ class AggregateTest extends TestCase
         $this->assertInstanceOf(Entity::class, $aggregateRoot);
         $this->assertSame($className, $aggregateRoot->class());
         $this->assertSame($identity, $aggregateRoot->identity());
-        $this->assertSame(Repository::class, (string) $aggregateRoot->repository());
-        $this->assertSame(AggregateFactory::class, (string) $aggregateRoot->factory());
-        $this->assertInstanceOf(SetInterface::class, $aggregateRoot->labels());
+        $this->assertSame(Repository::class, $aggregateRoot->repository()->toString());
+        $this->assertSame(AggregateFactory::class, $aggregateRoot->factory()->toString());
+        $this->assertInstanceOf(Set::class, $aggregateRoot->labels());
         $this->assertSame('string', (string) $aggregateRoot->labels()->type());
-        $this->assertSame(['LabelA'], $aggregateRoot->labels()->toPrimitive());
-        $this->assertInstanceOf(MapInterface::class, $aggregateRoot->children());
+        $this->assertSame(['LabelA'], unwrap($aggregateRoot->labels()));
+        $this->assertInstanceOf(Map::class, $aggregateRoot->children());
         $this->assertSame('string', (string) $aggregateRoot->children()->keyType());
         $this->assertSame(Child::class, (string) $aggregateRoot->children()->valueType());
         $this->assertCount(1, $aggregateRoot->children());
-        $this->assertSame($vo, $aggregateRoot->children()->current());
+        $this->assertSame($vo, $aggregateRoot->children()->values()->first());
         $this->assertCount(1, $aggregateRoot->properties());
         $this->assertTrue($aggregateRoot->properties()->contains('foo'));
     }

@@ -15,6 +15,8 @@ use Innmind\Server\Control\Server\Command;
 use Innmind\ObjectGraph\{
     Graph,
     Visualize,
+    Visitor\FlagDependencies,
+    Visitor\RemoveDependenciesSubGraph,
 };
 use Innmind\Immutable\Set;
 
@@ -32,6 +34,12 @@ new class extends Main {
 
         $graph = new Graph;
         $visualize = new Visualize;
+        $flag = new FlagDependencies($dbal);
+        $remove = new RemoveDependenciesSubGraph;
+
+        $node = $graph($package['manager']);
+        $flag($node);
+        $remove($node);
 
         $os
             ->control()
@@ -40,9 +48,7 @@ new class extends Main {
                 Command::foreground('dot')
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', 'graph.svg')
-                    ->withInput(
-                        $visualize($graph($package['manager']))
-                    )
+                    ->withInput($visualize($node))
             )
             ->wait();
     }

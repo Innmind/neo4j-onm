@@ -15,13 +15,13 @@
         "issues": "http://github.com/Innmind/neo4j-onm/issues"
     },
     "require": {
-        "php": "~7.2",
-        "innmind/neo4j-dbal": "~5.0",
-        "innmind/immutable": "~2.10",
+        "php": "~7.4",
+        "innmind/neo4j-dbal": "~6.0",
+        "innmind/immutable": "~3.5",
         "ramsey/uuid": "^3.2",
-        "innmind/reflection": "~3.0",
+        "innmind/reflection": "~4.0",
         "innmind/specification": "~2.0",
-        "innmind/event-bus": "~3.0"
+        "innmind/event-bus": "~4.0"
     },
     "autoload": {
         "psr-4": {
@@ -36,15 +36,13 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "~7.0",
-        "innmind/time-continuum": "^1.0",
-        "innmind/command-bus": "^3.0",
-        "innmind/cli": "^1.5",
-        "innmind/object-graph": "^1.2",
-        "innmind/server-control": "^2.7"
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit --colors=always"
+        "phpunit/phpunit": "~8.0",
+        "innmind/time-continuum": "~2.0",
+        "innmind/command-bus": "~4.0",
+        "innmind/cli": "~2.0",
+        "innmind/object-graph": "~2.0",
+        "innmind/server-control": "~3.0",
+        "vimeo/psalm": "^3.10"
     },
     "suggest": {
         "innmind/time-continuum": "To be able to use point_in_time type",

@@ -7,6 +7,7 @@ use Innmind\Neo4j\ONM\{
     Translation\Specification\Visitor\PropertyMatchVisitor,
     Metadata\Aggregate,
     Exception\SpecificationNotApplicableAsPropertyMatch,
+    Exception\LogicException,
     Query\PropertiesMatch,
 };
 use Innmind\Specification\{
@@ -17,24 +18,21 @@ use Innmind\Specification\{
     Sign,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Str,
 };
+use function Innmind\Immutable\join;
 
 final class AggregateVisitor implements PropertyMatchVisitor
 {
-    private $meta;
+    private Aggregate $meta;
 
     public function __construct(Aggregate $meta)
     {
         $this->meta = $meta;
     }
 
-    /**
-     * {@inheritdo}
-     */
-    public function __invoke(Specification $specification): MapInterface
+    public function __invoke(Specification $specification): Map
     {
         switch (true) {
             case $specification instanceof Comparator:
@@ -51,17 +49,19 @@ final class AggregateVisitor implements PropertyMatchVisitor
 
                 return $this->merge(
                     ($this)($specification->left()),
-                    ($this)($specification->right())
+                    ($this)($specification->right()),
                 );
         }
 
         throw new SpecificationNotApplicableAsPropertyMatch;
     }
 
-    private function buildMapping(
-        Comparator $specification
-    ): MapInterface {
-        $property = new Str($specification->property());
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildMapping(Comparator $specification): Map
+    {
+        $property = Str::of($specification->property());
 
         switch (true) {
             case $this->meta->properties()->contains($specification->property()):
@@ -69,70 +69,96 @@ final class AggregateVisitor implements PropertyMatchVisitor
 
             case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyMapping($specification);
+
+            default:
+                throw new LogicException("Unknown property '{$property->toString()}'");
         }
     }
 
-    private function buildPropertyMapping(
-        Comparator $specification
-    ): MapInterface {
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildPropertyMapping(Comparator $specification): Map
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')->append($prop);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
                 'entity',
                 new PropertiesMatch(
                     Map::of('string', 'string')
-                        ($prop, (string) $key->prepend('{')->append('}')),
+                        ($prop, $key->prepend('$')->toString()),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
-                )
+                        ($key->toString(), $specification->value()),
+                ),
             );
     }
 
-    private function buildSubPropertyMapping(
-        Comparator $specification
-    ): MapInterface {
-        $prop = new Str($specification->property());
+    /**
+     * @return Map<string, PropertiesMatch>
+     */
+    private function buildSubPropertyMapping(Comparator $specification): Map
+    {
+        $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
-            (string) $pieces->dropEnd(1)->join('_')
+            join(
+                '_',
+                $pieces->dropEnd(1)->mapTo(
+                    'string',
+                    static fn(Str $piece): string => $piece->toString(),
+                ),
+            )->toString(),
         );
-        $key = $var->append('_')->append((string) $pieces->last());
+        $key = $var->append('_')->append($pieces->last()->toString());
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return Map::of('string', PropertiesMatch::class)
             (
-                (string) $var,
+                $var->toString(),
                 new PropertiesMatch(
                     Map::of('string', 'string')
                         (
-                            (string) $pieces->last(),
-                            (string) $key
-                                ->prepend('{')
-                                ->append('}')
+                            $pieces->last()->toString(),
+                            $key
+                                ->prepend('$')
+                                ->toString(),
                         ),
                     Map::of('string', 'mixed')
-                        ((string) $key, $specification->value())
-                )
+                        ($key->toString(), $specification->value()),
+                ),
             );
     }
 
-    private function merge(
-        MapInterface $left,
-        MapInterface $right
-    ): MapInterface {
+    /**
+     * @param Map<string, PropertiesMatch> $left
+     * @param Map<string, PropertiesMatch> $right
+     *
+     * @return Map<string, PropertiesMatch>
+     */
+    private function merge(Map $left, Map $right): Map
+    {
+        /** @var Map<string, PropertiesMatch> */
         return $right->reduce(
             $left,
-            static function(MapInterface $carry, string $var, PropertiesMatch $data) use ($left): MapInterface {
+            static function(Map $carry, string $var, PropertiesMatch $data) use ($left): Map {
                 if (!$carry->contains($var)) {
-                    return $carry->put($var, $data);
+                    return ($carry)($var, $data);
                 }
 
-                return $carry->put(
+                return ($carry)(
                     $var,
-                    $data->merge($left->get($var))
+                    $data->merge($left->get($var)),
                 );
-            }
+            },
         );
     }
 }

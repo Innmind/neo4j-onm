@@ -16,10 +16,10 @@ use Innmind\Neo4j\DBAL\Connection;
 
 final class Manager implements ManagerInterface
 {
-    private $unitOfWork;
-    private $metadata;
-    private $make;
-    private $generators;
+    private UnitOfWork $unitOfWork;
+    private Metadatas $metadata;
+    private RepositoryFactory $make;
+    private Generators $generators;
 
     public function __construct(
         UnitOfWork $unitOfWork,
@@ -41,18 +41,13 @@ final class Manager implements ManagerInterface
     public function repository(string $class): Repository
     {
         return ($this->make)(
-            ($this->metadata)($class)
+            ($this->metadata)($class),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function flush(): ManagerInterface
+    public function flush(): void
     {
         $this->unitOfWork->commit();
-
-        return $this;
     }
 
     public function identities(): Generators

@@ -8,6 +8,7 @@ use Innmind\Neo4j\ONM\{
     Metadata\Aggregate,
     Query\Where,
     Specification\ConvertSign,
+    Exception\LogicException,
 };
 use Innmind\Specification\{
     Specification,
@@ -19,12 +20,13 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
+use function Innmind\Immutable\join;
 
 final class AggregateVisitor implements CypherVisitor
 {
-    private $meta;
-    private $convert;
-    private $count = 0;
+    private Aggregate $meta;
+    private ConvertSign $convert;
+    private int $count = 0;
 
     public function __construct(Aggregate $meta)
     {
@@ -32,9 +34,6 @@ final class AggregateVisitor implements CypherVisitor
         $this->convert = new ConvertSign;
     }
 
-    /**
-     * {@inheritdo}
-     */
     public function __invoke(Specification $specification): Where
     {
         switch (true) {
@@ -46,18 +45,23 @@ final class AggregateVisitor implements CypherVisitor
             case $specification instanceof Composite:
                 $left = ($this)($specification->left());
                 $right = ($this)($specification->right());
-                $operator = (string) Str::of((string) $specification->operator())->toLower();
+                $operator = Str::of((string) $specification->operator())->toLower()->toString();
 
+                /** @var Where */
                 return $left->{$operator}($right);
 
             case $specification instanceof Not:
                 return ($this)($specification->specification())->not();
+
+            default:
+                $class = \get_class($specification);
+                throw new LogicException("Unknown specification '$class'");
         }
     }
 
     private function buildCondition(Comparator $specification): Where
     {
-        $property = new Str($specification->property());
+        $property = Str::of($specification->property());
 
         switch (true) {
             case $this->meta->properties()->contains($specification->property()):
@@ -65,53 +69,69 @@ final class AggregateVisitor implements CypherVisitor
 
             case $property->matches('/[a-zA-Z]+(\.[a-zA-Z]+)+/'):
                 return $this->buildSubPropertyCondition($specification);
+
+            default:
+                throw new LogicException("Unknown property '{$property->toString()}'");
         }
     }
 
-    private function buildPropertyCondition(
-        Comparator $specification
-    ): Where {
+    private function buildPropertyCondition(Comparator $specification): Where
+    {
         $prop = $specification->property();
         $key = Str::of('entity_')
             ->append($prop)
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 
-    private function buildSubPropertyCondition(
-        Comparator $specification
-    ): Where {
-        $prop = new Str($specification->property());
+    private function buildSubPropertyCondition(Comparator $specification): Where
+    {
+        $prop = Str::of($specification->property());
         $pieces = $prop->split('.');
         $var = Str::of('entity_')->append(
-            (string) $pieces->dropEnd(1)->join('_')
+            join(
+                '_',
+                $pieces->dropEnd(1)->mapTo(
+                    'string',
+                    static fn(Str $piece): string => $piece->toString(),
+                ),
+            )->toString(),
         );
         $key = $var
             ->append('_')
-            ->append((string) $pieces->last())
+            ->append($pieces->last()->toString())
             ->append((string) $this->count);
 
+        /**
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress InvalidArgument
+         */
         return new Where(
             \sprintf(
                 '%s %s %s',
                 $var
                     ->append('.')
-                    ->append((string) $pieces->last()),
+                    ->append($pieces->last()->toString())
+                    ->toString(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
-                ((string) $key, $specification->value())
+                ($key->toString(), $specification->value()),
         );
     }
 }

@@ -8,23 +8,23 @@ use Innmind\Neo4j\ONM\{
     Exception\InvalidArgumentException,
 };
 use Innmind\TimeContinuum\{
-    FormatInterface,
-    Format\ISO8601,
-    PointInTimeInterface,
-    PointInTime\Earth\PointInTime,
+    Format,
+    PointInTime as PointInTimeInterface,
+    Earth\Format\ISO8601,
+    Earth\PointInTime\PointInTime,
 };
 
 final class PointInTimeType implements Type
 {
-    private $nullable = false;
-    private $format;
+    private bool $nullable = false;
+    private Format $format;
 
-    public function __construct(FormatInterface $format = null)
+    public function __construct(Format $format = null)
     {
         $this->format = $format ?? new ISO8601;
     }
 
-    public static function nullable(FormatInterface $format = null): self
+    public static function nullable(Format $format = null): self
     {
         $self = new self($format);
         $self->nullable = true;
@@ -32,9 +32,6 @@ final class PointInTimeType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -42,26 +39,22 @@ final class PointInTimeType implements Type
         }
 
         if (!$value instanceof PointInTimeInterface) {
-            throw new InvalidArgumentException(sprintf(
+            /** @psalm-suppress MixedArgument */
+            throw new InvalidArgumentException(\sprintf(
                 'The value "%s" must be an instance of PointInTimeInterface',
-                $value
+                $value,
             ));
         }
 
         return $value->format($this->format);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
+        /** @psalm-suppress MixedArgument */
         return new PointInTime($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

@@ -8,16 +8,13 @@ use Innmind\Neo4j\ONM\{
     Exception\RecursiveTypeDeclaration,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Immutable\Set;
 
 final class SetType implements Type
 {
-    private $nullable = false;
-    private $inner;
-    private $type;
+    private bool $nullable = false;
+    private Type $inner;
+    private string $type;
 
     public function __construct(Type $inner, string $type)
     {
@@ -37,9 +34,6 @@ final class SetType implements Type
         return $self;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
@@ -47,42 +41,39 @@ final class SetType implements Type
         }
 
         if (
-            !$value instanceof SetInterface ||
-            (string) $value->type() !== $this->type
+            !$value instanceof Set ||
+            !$value->isOfType($this->type)
         ) {
-            throw new InvalidArgumentException(sprintf(
-                'The set must be an instance of SetInterface<%s>',
-                $this->type
+            throw new InvalidArgumentException(\sprintf(
+                'The set must be an instance of Set<%s>',
+                $this->type,
             ));
         }
 
         return $value->reduce(
             [],
             function(array $carry, $value): array {
+                /** @psalm-suppress MixedAssignment */
                 $carry[] = $this->inner->forDatabase($value);
 
                 return $carry;
-            }
+            },
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fromDatabase($value)
     {
-        $set = new Set($this->type);
+        $set = Set::of($this->type);
 
+        /** @var mixed $sub */
         foreach ($value as $sub) {
-            $set = $set->add($this->inner->fromDatabase($sub));
+            /** @psalm-suppress MixedArgument */
+            $set = ($set)($this->inner->fromDatabase($sub));
         }
 
         return $set;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isNullable(): bool
     {
         return $this->nullable;

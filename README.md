@@ -1,10 +1,8 @@
 # Neo4j-ONM
 
-| `master` | `develop` |
-|----------|-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/master) | [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/develop) |
+[![Build Status](https://github.com/Innmind/neo4j-onm/workflows/CI/badge.svg)](https://github.com/Innmind/neo4j-onm/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/Innmind/neo4j-onm/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/neo4j-onm)
+[![Type Coverage](https://shepherd.dev/github/Innmind/neo4j-onm/coverage.svg)](https://shepherd.dev/github/Innmind/neo4j-onm)
 
 This an _ORM_ for the [Neo4j](http://neo4j.com/) graph database, with an emphasis on Domain Driven Design (DDD). It will allow you to easily build `Entities`, `Repositories` and query them via `Specification`s. Another important aspect is that each block of this library is fully replaceable.
 
@@ -29,7 +27,7 @@ Each entity is fully managed by its own `Repository`, meaning it's used to `add`
 
 **Note**: for performance issues, when you `add` an entity to its repository it's not directly inserted in the graph.
 
-To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `identities`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/Connection.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `identities` allows you to generate a new identity of the specified type
+To access an entity repository, you'll use a `Manager` which only contains 4 methods: `connection`, `repository`, `flush` and `identities`. The first one gives you access to the DBAL [`Connection`](https://github.com/Innmind/neo4j-dbal/blob/master/src/Connection.php) so you can open/commit transactions. The method `repository` takes the entity class in order to return the associated repository. `flush` will persist in the graph all of your modifications from your repositories. Finally, `identities` allows you to generate a new identity of the specified type
 
 When you `flush` the sequence of how the modifications are persisted is as follow:
 
@@ -161,7 +159,7 @@ Now that you know how to add/remove, let's learn how query our entities back fro
 $image = images->get(new Uuid($_GET['wished_image_id']));
 ```
 
-**Note**: the usage of `$_GET` here is only to be framework agnostic, but even if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](Identity/Uuid.php#L20)).
+**Note**: the usage of `$_GET` here is only to be framework agnostic, but even if you'd use it would be pretty safe as `Uuid` validates the data (as you can see [here](src/Identity/Uuid.php#L20)).
 
 But accessing entities through their identifiers is not enough, that's why a repository as a method called `matching` which allows only a single parameter that has to be a [specification](https://github.com/Innmind/Specification).
 
@@ -195,7 +193,7 @@ By default there's only 7 types you can use for your entities' properties:
 * `SetType` (similar as `ArrayType` except it uses the immutable [`Set`](https://github.com/Innmind/Immutable#set))
 * `StringType`
 
-To add your own type you need to create a class implementing [`Type.php`](Type.php).
+To add your own type you need to create a class implementing [`Type.php`](src/Type.php).
 
 
 #### Entity Translators
@@ -257,7 +255,7 @@ $services = bootstrap(
 
 By default this library only use UUIDs as identity objects. But you can easily add your own kind of identity object.
 
-You need to create the identity class implementing [`Identity`](Identity.php) and the corresponding generator implementing [`Generator`](Identity/Generator.php).
+You need to create the identity class implementing [`Identity`](src/Identity.php) and the corresponding generator implementing [`Generator`](src/Identity/Generator.php).
 
 ```php
 use Innmind\Neo4j\ONM\{

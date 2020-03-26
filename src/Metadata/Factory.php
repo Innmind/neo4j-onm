@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Neo4j\ONM\Metadata;
 
-use Innmind\Neo4j\ONM\Exception\DomainException;
+use Innmind\Neo4j\ONM\{
+    EntityFactory,
+    Exception\DomainException,
+};
 use Innmind\Immutable\Str;
 
 /**
@@ -11,8 +14,12 @@ use Innmind\Immutable\Str;
  */
 final class Factory
 {
-    private $class;
+    /** @var class-string<EntityFactory> */
+    private string $class;
 
+    /**
+     * @param class-string<EntityFactory> $class
+     */
     public function __construct(string $class)
     {
         if (Str::of($class)->empty()) {
@@ -22,7 +29,10 @@ final class Factory
         $this->class = $class;
     }
 
-    public function __toString(): string
+    /**
+     * @return class-string<EntityFactory>
+     */
+    public function toString(): string
     {
         return $this->class;
     }

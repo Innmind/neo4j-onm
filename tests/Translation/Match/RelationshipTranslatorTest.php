@@ -17,10 +17,7 @@ use Innmind\Neo4j\ONM\{
     IdentityMatch,
     Type,
 };
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-};
+use Innmind\Immutable\Map;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipTranslatorTest extends TestCase
@@ -55,7 +52,7 @@ class RelationshipTranslatorTest extends TestCase
             $identityMatch->query()->cypher()
         );
         $this->assertSame(0, $identityMatch->query()->parameters()->count());
-        $this->assertInstanceOf(MapInterface::class, $identityMatch->variables());
+        $this->assertInstanceOf(Map::class, $identityMatch->variables());
         $this->assertSame(
             'string',
             (string) $identityMatch->variables()->keyType()

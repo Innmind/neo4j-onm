@@ -23,9 +23,12 @@ use Innmind\Neo4j\DBAL\{
     Result as ResultInterface,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
+    Set,
+};
+use function Innmind\Immutable\{
+    unwrap,
+    first,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -99,15 +102,15 @@ class RelationshipTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(SetInterface::class, $data);
-        $this->assertSame(MapInterface::class, (string) $data->type());
+        $this->assertInstanceOf(Set::class, $data);
+        $this->assertSame(Map::class, (string) $data->type());
         $this->assertCount(1, $data);
-        $data = $data->current();
+        $data = first($data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys()),
         );
         $this->assertSame(42, $data->get('id'));
         $this->assertSame(24, $data->get('start'));
@@ -235,25 +238,26 @@ class RelationshipTranslatorTest extends TestCase
             ])
         );
 
-        $this->assertInstanceOf(SetInterface::class, $data);
+        $this->assertInstanceOf(Set::class, $data);
         $this->assertCount(2, $data);
+        $data = unwrap($data);
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->current()->keys()->toPrimitive()
+            unwrap(\current($data)->keys())
         );
-        $this->assertSame(42, $data->current()->get('id'));
-        $this->assertSame(24, $data->current()->get('start'));
-        $this->assertSame(66, $data->current()->get('end'));
-        $this->assertSame('2016-01-03T00:00:00+0200', $data->current()->get('created'));
-        $data->next();
+        $this->assertSame(42, \current($data)->get('id'));
+        $this->assertSame(24, \current($data)->get('start'));
+        $this->assertSame(66, \current($data)->get('end'));
+        $this->assertSame('2016-01-03T00:00:00+0200', \current($data)->get('created'));
+        \next($data);
         $this->assertSame(
             ['id', 'start', 'end', 'created'],
-            $data->current()->keys()->toPrimitive()
+            unwrap(\current($data)->keys()),
         );
-        $this->assertSame(43, $data->current()->get('id'));
-        $this->assertSame(24, $data->current()->get('start'));
-        $this->assertSame(66, $data->current()->get('end'));
-        $this->assertSame('2016-01-04T00:00:00+0200', $data->current()->get('created'));
+        $this->assertSame(43, \current($data)->get('id'));
+        $this->assertSame(24, \current($data)->get('start'));
+        $this->assertSame(66, \current($data)->get('end'));
+        $this->assertSame('2016-01-04T00:00:00+0200', \current($data)->get('created'));
     }
 
     public function testThrowWhenTranslatingNonSupportedEntity()

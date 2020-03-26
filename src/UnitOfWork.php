@@ -17,20 +17,21 @@ use Innmind\Neo4j\DBAL\{
     Query,
 };
 use Innmind\Immutable\{
-    MapInterface,
-    SetInterface,
+    Map,
+    Set,
 };
+use function Innmind\Immutable\first;
 use Innmind\Reflection\ReflectionObject;
 
 final class UnitOfWork
 {
-    private $connection;
-    private $container;
-    private $makeEntity;
-    private $match;
-    private $metadata;
-    private $persist;
-    private $generators;
+    private Connection $connection;
+    private Container $container;
+    private EntityFactory $makeEntity;
+    private IdentityMatchTranslator $match;
+    private Metadatas $metadata;
+    private Persister $persist;
+    private Generators $generators;
 
     public function __construct(
         Connection $connection,
@@ -61,24 +62,22 @@ final class UnitOfWork
     /**
      * Add the given entity to the ones to be persisted
      */
-    public function persist(object $entity): self
+    public function persist(object $entity): void
     {
         $identity = $this->extractIdentity($entity);
 
         if (!$this->container->contains($identity)) {
-            $meta = ($this->metadata)(get_class($entity));
+            $meta = ($this->metadata)(\get_class($entity));
             $this->container->push(
                 $identity,
                 $entity,
-                State::new()
+                State::new(),
             );
             $this
                 ->generators
                 ->get($meta->identity()->type())
                 ->add($identity);
         }
-
-        return $this;
     }
 
     /**
@@ -122,20 +121,20 @@ final class UnitOfWork
         $match = ($this->match)($meta, $identity);
         $entities = $this->execute(
             $match->query(),
-            $match->variables()
+            $match->variables(),
         );
 
         if ($entities->size() !== 1) {
             throw new EntityNotFound;
         }
 
-        return $entities->current();
+        return first($entities);
     }
 
     /**
      * Plan the given entity to be removed
      */
-    public function remove(object $entity): self
+    public function remove(object $entity): void
     {
         $identity = $this->extractIdentity($entity);
 
@@ -147,7 +146,7 @@ final class UnitOfWork
                     $this->container->push(
                         $identity,
                         $entity,
-                        State::removed()
+                        State::removed(),
                     );
                     break;
 
@@ -155,54 +154,46 @@ final class UnitOfWork
                     $this->container->push(
                         $identity,
                         $entity,
-                        State::toBeRemoved()
+                        State::toBeRemoved(),
                     );
                     break;
             }
         } catch (IdentityNotManaged $e) {
             //pass
         }
-
-        return $this;
     }
 
     /**
      * Detach the given entity from the unit of work
      */
-    public function detach(object $entity): self
+    public function detach(object $entity): void
     {
         $this->container->detach(
-            $this->extractIdentity($entity)
+            $this->extractIdentity($entity),
         );
-
-        return $this;
     }
 
     /**
      * Execute the given query
      *
-     * @param MapInterface<string, EntityInterface> $variables
+     * @param Map<string, Metadata\Entity> $variables
      *
-     * @return SetInterface<object>
+     * @return Set<object>
      */
-    public function execute(
-        Query $query,
-        MapInterface $variables
-    ): SetInterface {
+    public function execute(Query $query, Map $variables): Set
+    {
         return ($this->makeEntity)(
             $this->connection->execute($query),
-            $variables
+            $variables,
         );
     }
 
     /**
      * Send the modifications to the database
      */
-    public function commit(): self
+    public function commit(): void
     {
         ($this->persist)($this->connection, $this->container);
-
-        return $this;
     }
 
     /**
@@ -210,8 +201,9 @@ final class UnitOfWork
      */
     private function extractIdentity(object $entity): Identity
     {
-        $identity = ($this->metadata)(get_class($entity))->identity()->property();
+        $identity = ($this->metadata)(\get_class($entity))->identity()->property();
 
+        /** @var Identity */
         return ReflectionObject::of($entity)
             ->extract($identity)
             ->get($identity);

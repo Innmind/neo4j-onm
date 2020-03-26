@@ -10,11 +10,12 @@ use Innmind\Neo4j\ONM\{
 };
 use Innmind\CommandBus\CommandBus;
 use Innmind\EventBus\ContainsRecordedEvents;
+use Innmind\Immutable\Map;
 
 final class ClearDomainEvents implements CommandBus
 {
-    private $handle;
-    private $entities;
+    private CommandBus $handle;
+    private Container $entities;
 
     public function __construct(CommandBus $handle, Container $entities)
     {
@@ -25,7 +26,8 @@ final class ClearDomainEvents implements CommandBus
     public function __invoke(object $command): void
     {
         ($this->handle)($command);
-        $this
+        /** @var Map<Identity, ContainsRecordedEvents> */
+        $entitiesWithRecordedEvents = $this
             ->entities
             ->state(State::new())
             ->merge($this->entities->state(State::managed()))
@@ -33,9 +35,9 @@ final class ClearDomainEvents implements CommandBus
             ->merge($this->entities->state(State::removed()))
             ->filter(static function(Identity $identity, $entity): bool {
                 return $entity instanceof ContainsRecordedEvents;
-            })
-            ->foreach(static function(Identity $identity, ContainsRecordedEvents $entity): void {
-                $entity->clearEvents();
             });
+        $entitiesWithRecordedEvents->foreach(static function(Identity $identity, ContainsRecordedEvents $entity): void {
+            $entity->clearEvents();
+        });
     }
 }

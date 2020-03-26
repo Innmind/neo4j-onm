@@ -11,8 +11,8 @@ use Innmind\Immutable\Str;
 
 final class Property
 {
-    private $name;
-    private $type;
+    private string $name;
+    private Type $type;
 
     public function __construct(string $name, Type $type)
     {
@@ -27,11 +27,6 @@ final class Property
     public function name(): string
     {
         return $this->name;
-    }
-
-    public function __toString(): string
-    {
-        return $this->name();
     }
 
     public function type(): Type

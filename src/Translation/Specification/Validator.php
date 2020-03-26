@@ -11,8 +11,5 @@ interface Validator
     /**
      * Check if the given specification is applicable for the given entity definition
      */
-    public function __invoke(
-        Specification $specification,
-        Entity $meta
-    ): bool;
+    public function __invoke(Specification $specification, Entity $meta): bool;
 }

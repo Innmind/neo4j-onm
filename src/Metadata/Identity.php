@@ -11,8 +11,8 @@ use Innmind\Immutable\Str;
  */
 class Identity
 {
-    private $property;
-    private $type;
+    private string $property;
+    private string $type;
 
     public function __construct(string $property, string $type)
     {
@@ -30,11 +30,6 @@ class Identity
     }
 
     public function property(): string
-    {
-        return $this->property;
-    }
-
-    public function __toString(): string
     {
         return $this->property;
     }

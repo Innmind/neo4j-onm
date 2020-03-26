@@ -10,10 +10,8 @@ use Innmind\Neo4j\ONM\{
     Exception\RecursiveTypeDeclaration,
     Exception\InvalidArgumentException,
 };
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class SetTypeTest extends TestCase
@@ -49,7 +47,7 @@ class SetTypeTest extends TestCase
 
         $this->assertSame(
             ['foo'],
-            $type->forDatabase((new Set('string'))->add('foo'))
+            $type->forDatabase((Set::of('string'))->add('foo'))
         );
 
         $this->assertSame(
@@ -58,7 +56,7 @@ class SetTypeTest extends TestCase
         );
         $this->assertSame(
             [''],
-            SetType::nullable(new StringType, 'string')->forDatabase((new Set('string'))->add(''))
+            SetType::nullable(new StringType, 'string')->forDatabase((Set::of('string'))->add(''))
         );
     }
 
@@ -98,7 +96,7 @@ class SetTypeTest extends TestCase
     public function testThrowWhenInvalidType()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The set must be an instance of SetInterface<string>');
+        $this->expectExceptionMessage('The set must be an instance of Set<string>');
 
         SetType::nullable(new StringType, 'string')->forDatabase(['']);
     }
@@ -106,27 +104,27 @@ class SetTypeTest extends TestCase
     public function testThrowWhenInvalidSetType()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The set must be an instance of SetInterface<string>');
+        $this->expectExceptionMessage('The set must be an instance of Set<string>');
 
-        SetType::nullable(new StringType, 'string')->forDatabase(new Set('int'));
+        SetType::nullable(new StringType, 'string')->forDatabase(Set::of('int'));
     }
 
     public function testFromDatabase()
     {
         $type = new SetType(new StringType, 'string');
 
-        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase(['foo']));
+        $this->assertInstanceOf(Set::class, $type->fromDatabase(['foo']));
         $this->assertSame('string', (string) $type->fromDatabase(['foo'])->type());
-        $this->assertSame(['foo'], $type->fromDatabase(['foo'])->toPrimitive());
-        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase([null]));
+        $this->assertSame(['foo'], unwrap($type->fromDatabase(['foo'])));
+        $this->assertInstanceOf(Set::class, $type->fromDatabase([null]));
         $this->assertSame('string', (string) $type->fromDatabase([null])->type());
-        $this->assertSame([''], $type->fromDatabase([null])->toPrimitive());
+        $this->assertSame([''], unwrap($type->fromDatabase([null])));
 
         $t = SetType::nullable(new StringType, 'string');
 
-        $this->assertInstanceOf(SetInterface::class, $type->fromDatabase([null]));
+        $this->assertInstanceOf(Set::class, $type->fromDatabase([null]));
         $this->assertSame('string', (string) $type->fromDatabase([null])->type());
-        $this->assertSame([''], $type->fromDatabase([null])->toPrimitive());
+        $this->assertSame([''], unwrap($type->fromDatabase([null])));
     }
 
     public function testUseSpecificSetTypeInsteadOfInnerTypeName()
@@ -135,7 +133,7 @@ class SetTypeTest extends TestCase
 
         $set = $type->fromDatabase([]);
 
-        $this->assertInstanceOf(SetInterface::class, $set);
+        $this->assertInstanceOf(Set::class, $set);
         $this->assertSame('stdClass', (string) $set->type());
     }
 }

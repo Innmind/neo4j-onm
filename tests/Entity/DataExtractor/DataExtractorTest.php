@@ -20,10 +20,10 @@ use Innmind\Neo4j\ONM\{
     Exception\TypeError,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
     Set,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class DataExtractorTest extends TestCase
@@ -33,7 +33,7 @@ class DataExtractorTest extends TestCase
     private $relationshipClass;
     private $metadatas;
 
-    public function setUp()
+    public function setUp(): void
     {
         $aggregateRoot = new class {
             public $uuid;
@@ -114,12 +114,12 @@ class DataExtractorTest extends TestCase
 
         $data = ($this->extract)($entity);
 
-        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertInstanceOf(Map::class, $data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['created', 'empty', 'uuid', 'rel'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',
@@ -127,12 +127,12 @@ class DataExtractorTest extends TestCase
         );
         $this->assertNull($data->get('empty'));
         $this->assertSame($u, $data->get('uuid'));
-        $this->assertInstanceOf(MapInterface::class, $data->get('rel'));
+        $this->assertInstanceOf(Map::class, $data->get('rel'));
         $this->assertSame('string', (string) $data->get('rel')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel')->valueType());
         $this->assertSame(
             ['created', 'empty', 'child'],
-            $data->get('rel')->keys()->toPrimitive()
+            unwrap($data->get('rel')->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',
@@ -140,14 +140,14 @@ class DataExtractorTest extends TestCase
         );
         $this->assertNull($data->get('rel')->get('empty'));
         $this->assertInstanceOf(
-            MapInterface::class,
+            Map::class,
             $data->get('rel')->get('child')
         );
         $this->assertSame('string', (string) $data->get('rel')->get('child')->keyType());
         $this->assertSame('mixed', (string) $data->get('rel')->get('child')->valueType());
         $this->assertSame(
             ['content', 'empty'],
-            $data->get('rel')->get('child')->keys()->toPrimitive()
+            unwrap($data->get('rel')->get('child')->keys())
         );
         $this->assertSame('foo', $data->get('rel')->get('child')->get('content'));
         $this->assertNull($data->get('rel')->get('child')->get('empty'));
@@ -163,12 +163,12 @@ class DataExtractorTest extends TestCase
 
         $data = ($this->extract)($entity);
 
-        $this->assertInstanceOf(MapInterface::class, $data);
+        $this->assertInstanceOf(Map::class, $data);
         $this->assertSame('string', (string) $data->keyType());
         $this->assertSame('mixed', (string) $data->valueType());
         $this->assertSame(
             ['uuid', 'start', 'end', 'created', 'empty'],
-            $data->keys()->toPrimitive()
+            unwrap($data->keys())
         );
         $this->assertRegExp(
             '/2016-01-01T00:00:00\+\d{4}/',
@@ -183,11 +183,11 @@ class DataExtractorTest extends TestCase
     public function testThrowWhenInvalidExtractorMap()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Neo4j\ONM\Entity\DataExtractor>');
+        $this->expectExceptionMessage('Argument 2 must be of type Map<string, Innmind\Neo4j\ONM\Entity\DataExtractor>');
 
         new DataExtractor(
             $this->metadatas,
-            new Map('string', 'callable')
+            Map::of('string', 'callable')
         );
     }
 }

@@ -39,14 +39,12 @@ use function Innmind\Neo4j\DBAL\bootstrap as dbal;
 use Innmind\EventBus\EventBus;
 use function Innmind\HttpTransport\bootstrap as http;
 use Innmind\Url\Url;
-use Innmind\TimeContinuum\TimeContinuum\Earth;
+use Innmind\TimeContinuum\Earth\Clock as Earth;
 use Innmind\Specification\Sign;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Map,
 };
-use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends TestCase
@@ -55,7 +53,7 @@ class RepositoryTest extends TestCase
     private $class;
     private $uow;
 
-    public function setUp()
+    public function setUp(): void
     {
         $entity = new class {
             public $uuid;
@@ -66,7 +64,7 @@ class RepositoryTest extends TestCase
         $conn = dbal(
             http()['default'](),
             new Earth,
-            Url::fromString('http://neo4j:ci@localhost:7474/')
+            Url::of('http://neo4j:ci@localhost:7474/')
         );
         $container = new Container;
         $entityFactory = new EntityFactory(
@@ -133,15 +131,15 @@ class RepositoryTest extends TestCase
         $entity = new $this->class;
         $entity->uuid = new Uuid('21111111-1111-1111-1111-111111111111');
 
-        $this->assertFalse($this->repository->has($entity->uuid));
-        $this->assertSame($this->repository, $this->repository->add($entity));
-        $this->assertTrue($this->repository->has($entity->uuid));
+        $this->assertFalse($this->repository->contains($entity->uuid));
+        $this->assertNull($this->repository->add($entity));
+        $this->assertTrue($this->repository->contains($entity->uuid));
         $this->assertSame(
             $entity,
             $this->repository->get($entity->uuid)
         );
-        $this->assertSame($this->repository, $this->repository->remove($entity));
-        $this->assertFalse($this->repository->has($entity->uuid));
+        $this->assertNull($this->repository->remove($entity));
+        $this->assertFalse($this->repository->contains($entity->uuid));
 
         $this->expectException(EntityNotFound::class);
         $this->repository->get($entity->uuid);
@@ -169,22 +167,18 @@ class RepositoryTest extends TestCase
         $entity2 = new $this->class;
         $entity2->uuid = new Uuid('41111111-1111-1111-1111-111111111111');
 
-        $this
-            ->repository
-            ->add($entity)
-            ->add($entity2);
+        $this->repository->add($entity);
+        $this->repository->add($entity2);
         $this->uow->commit();
         $all = $this->repository->all();
 
-        $this->assertInstanceOf(SetInterface::class, $all);
+        $this->assertInstanceOf(Set::class, $all);
         $this->assertSame('object', (string) $all->type());
         $this->assertSame(2, $all->size());
         $this->assertTrue($all->contains($entity));
         $this->assertTrue($all->contains($entity2));
-        $this
-            ->repository
-            ->remove($entity)
-            ->remove($entity2);
+        $this->repository->remove($entity);
+        $this->repository->remove($entity2);
         $this->uow->commit();
     }
 
@@ -200,26 +194,22 @@ class RepositoryTest extends TestCase
         $entity3->uuid = new Uuid('71111111-1111-1111-1111-111111111111');
         $entity3->content = 'bar';
 
-        $this
-            ->repository
-            ->add($entity)
-            ->add($entity2)
-            ->add($entity3);
+        $this->repository->add($entity);
+        $this->repository->add($entity2);
+        $this->repository->add($entity3);
         $this->uow->commit();
 
         $entities = $this->repository->matching(new Property('content', Sign::contains(), 'foo.*'));
 
-        $this->assertInstanceOf(SetInterface::class, $entities);
+        $this->assertInstanceOf(Set::class, $entities);
         $this->assertSame('object', (string) $entities->type());
         $this->assertSame(2, $entities->size());
         $this->assertTrue($entities->contains($entity));
         $this->assertTrue($entities->contains($entity2));
 
-        $this
-            ->repository
-            ->remove($entity)
-            ->remove($entity2)
-            ->remove($entity3);
+        $this->repository->remove($entity);
+        $this->repository->remove($entity2);
+        $this->repository->remove($entity3);
         $this->uow->commit();
     }
 }

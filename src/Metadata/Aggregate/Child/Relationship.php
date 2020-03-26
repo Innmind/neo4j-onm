@@ -11,69 +11,75 @@ use Innmind\Neo4j\ONM\{
     Exception\DomainException,
 };
 use Innmind\Immutable\{
-    MapInterface,
     Map,
-    SetInterface,
     Set,
     Str,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Relationship
 {
-    private $class;
-    private $type;
-    private $property;
-    private $childProperty;
-    private $properties;
+    private ClassName $class;
+    private RelationshipType $type;
+    private string $property;
+    private string $childProperty;
+    /** @var Map<string, Property> */
+    private Map $properties;
 
+    /**
+     * @param Set<Property> $properties
+     */
     public function __construct(
         ClassName $class,
         RelationshipType $type,
         string $property,
         string $childProperty,
-        SetInterface $properties
+        Set $properties
     ) {
         if (Str::of($property)->empty() || Str::of($childProperty)->empty()) {
             throw new DomainException;
         }
 
-        if ((string) $properties->type() !== Property::class) {
-            throw new \TypeError(\sprintf(
-                'Argument 5 must be of type SetInterface<%s>',
-                Property::class
-            ));
-        }
+        assertSet(Property::class, $properties, 5);
 
         $this->class = $class;
         $this->type = $type;
         $this->property = $property;
         $this->childProperty = $childProperty;
-        $this->properties = $properties->reduce(
-            Map::of('string', Property::class),
-            static function(MapInterface $properties, Property $property): MapInterface {
-                return $properties->put($property->name(), $property);
-            }
+        /** @var Map<string, Property> */
+        $this->properties = $properties->toMapOf(
+            'string',
+            Property::class,
+            static function(Property $property): \Generator {
+                yield $property->name() => $property;
+            },
         );
     }
 
+    /**
+     * @param Map<string, Type>|null $properties
+     */
     public static function of(
         ClassName $class,
         RelationshipType $type,
         string $property,
         string $childProperty,
-        MapInterface $properties = null
+        Map $properties = null
     ): self {
+        /** @var Map<string, Type> */
+        $properties ??= Map::of('string', Type::class);
+        /** @var Set<Property> */
+        $properties = $properties->toSetOf(
+            Property::class,
+            static fn(string $property, Type $type): \Generator => yield new Property($property, $type),
+        );
+
         return new self(
             $class,
             $type,
             $property,
             $childProperty,
-            ($properties ?? Map::of('string', Type::class))->reduce(
-                Set::of(Property::class),
-                static function(SetInterface $properties, string $property, Type $type): SetInterface {
-                    return $properties->add(new Property($property, $type));
-                }
-            )
+            $properties,
         );
     }
 
@@ -101,9 +107,9 @@ final class Relationship
     }
 
     /**
-     * @return MapInterface<string, Property>
+     * @return Map<string, Property>
      */
-    public function properties(): MapInterface
+    public function properties(): Map
     {
         return $this->properties;
     }
