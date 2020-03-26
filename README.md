@@ -1,10 +1,8 @@
 # Neo4j-ONM
 
-| `master` | `develop` |
-|----------|-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/master) | [![Build Status](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/neo4j-onm/build-status/develop) |
+[![Build Status](https://github.com/Innmind/neo4j-onm/workflows/CI/badge.svg)](https://github.com/Innmind/neo4j-onm/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/Innmind/neo4j-onm/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/neo4j-onm)
+[![Type Coverage](https://shepherd.dev/github/Innmind/neo4j-onm/coverage.svg)](https://shepherd.dev/github/Innmind/neo4j-onm)
 
 This an _ORM_ for the [Neo4j](http://neo4j.com/) graph database, with an emphasis on Domain Driven Design (DDD). It will allow you to easily build `Entities`, `Repositories` and query them via `Specification`s. Another important aspect is that each block of this library is fully replaceable.
 
