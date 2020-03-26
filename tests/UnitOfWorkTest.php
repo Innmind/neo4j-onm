@@ -184,7 +184,7 @@ class UnitOfWorkTest extends TestCase
         $this->conn->execute(
             (new Query)
                 ->create('n', 'Label')
-                ->withProperty('uuid', '{uuid}')
+                ->withProperty('uuid', '$uuid')
                 ->withParameter('uuid', $uuid = '11111111-1111-1111-1111-111111111112')
         );
 
