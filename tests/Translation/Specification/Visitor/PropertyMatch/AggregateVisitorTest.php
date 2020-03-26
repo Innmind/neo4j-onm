@@ -90,20 +90,20 @@ class AggregateVisitorTest extends TestCase
             unwrap($mapping->keys()),
         );
         $this->assertCount(2, $mapping->get('entity')->properties());
-        $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
-        $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));
+        $this->assertSame('$entity_empty', $mapping->get('entity')->properties()->get('empty'));
+        $this->assertSame('$entity_created', $mapping->get('entity')->properties()->get('created'));
         $this->assertCount(2, $mapping->get('entity')->parameters());
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_empty'));
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_created'));
         $this->assertCount(2, $mapping->get('entity_rel')->properties());
-        $this->assertSame('{entity_rel_empty}', $mapping->get('entity_rel')->properties()->get('empty'));
-        $this->assertSame('{entity_rel_created}', $mapping->get('entity_rel')->properties()->get('created'));
+        $this->assertSame('$entity_rel_empty', $mapping->get('entity_rel')->properties()->get('empty'));
+        $this->assertSame('$entity_rel_created', $mapping->get('entity_rel')->properties()->get('created'));
         $this->assertCount(2, $mapping->get('entity_rel')->parameters());
         $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_empty'));
         $this->assertNull($mapping->get('entity_rel')->parameters()->get('entity_rel_created'));
         $this->assertCount(2, $mapping->get('entity_rel_child')->properties());
-        $this->assertSame('{entity_rel_child_empty}', $mapping->get('entity_rel_child')->properties()->get('empty'));
-        $this->assertSame('{entity_rel_child_content}', $mapping->get('entity_rel_child')->properties()->get('content'));
+        $this->assertSame('$entity_rel_child_empty', $mapping->get('entity_rel_child')->properties()->get('empty'));
+        $this->assertSame('$entity_rel_child_content', $mapping->get('entity_rel_child')->properties()->get('content'));
         $this->assertCount(2, $mapping->get('entity_rel_child')->parameters());
         $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_empty'));
         $this->assertNull($mapping->get('entity_rel_child')->parameters()->get('entity_rel_child_content'));

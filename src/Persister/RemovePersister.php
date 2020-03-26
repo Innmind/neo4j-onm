@@ -136,8 +136,8 @@ final class RemovePersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $name
-                    ->prepend('{')
-                    ->append('_identity}')
+                    ->prepend('$')
+                    ->append('_identity')
                     ->toString(),
             )
             ->withParameter(
@@ -167,8 +167,8 @@ final class RemovePersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $name
-                    ->prepend('{')
-                    ->append('_identity}')
+                    ->prepend('$')
+                    ->append('_identity')
                     ->toString(),
             )
             ->withParameter(

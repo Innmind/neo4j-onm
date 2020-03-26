@@ -91,7 +91,7 @@ final class AggregateVisitor implements CypherVisitor
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')->toString(),
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
                 ($key->toString(), $specification->value()),
@@ -128,7 +128,7 @@ final class AggregateVisitor implements CypherVisitor
                     ->append($pieces->last()->toString())
                     ->toString(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')->toString(),
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
                 ($key->toString(), $specification->value()),

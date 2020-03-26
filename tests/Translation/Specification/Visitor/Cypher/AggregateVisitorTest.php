@@ -77,7 +77,7 @@ class AggregateVisitorTest extends TestCase
         );
 
         $this->assertSame(
-            '(((((entity.created = {entity_created1} AND entity.empty = {entity_empty2}) OR entity_rel.created = {entity_rel_created3}) AND entity_rel.empty = {entity_rel_empty4}) AND entity_rel_child.content = {entity_rel_child_content5}) AND NOT (entity_rel_child.empty = {entity_rel_child_empty6}))',
+            '(((((entity.created = $entity_created1 AND entity.empty = $entity_empty2) OR entity_rel.created = $entity_rel_created3) AND entity_rel.empty = $entity_rel_empty4) AND entity_rel_child.content = $entity_rel_child_content5) AND NOT (entity_rel_child.empty = $entity_rel_child_empty6))',
             $condition->cypher()
         );
         $this->assertSame('string', (string) $condition->parameters()->keyType());

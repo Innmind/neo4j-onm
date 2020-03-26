@@ -73,7 +73,7 @@ class AggregateTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
-            'MATCH (entity:Label { id: {entity_identity} }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
+            'MATCH (entity:Label { id: $entity_identity }) WITH entity MATCH (entity)<-[entity_rel:CHILD1_OF]-(entity_rel_child:AnotherLabel) RETURN entity, entity_rel, entity_rel_child',
             $identityMatch->query()->cypher()
         );
         $this->assertCount(1, $identityMatch->query()->parameters());

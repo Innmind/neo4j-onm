@@ -176,7 +176,7 @@ class UpdatePersisterTest extends TestCase
             ->method('execute')
             ->will($this->returnCallback(function($query) use (&$count) {
                 $this->assertSame(
-                    'MATCH (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: {e38c6cbd28bf165070d070980dd1fb595_identity} }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel), ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: {e50ead852f3361489a400ab5c70f6c5cf_identity} }]-() SET e38c6cbd28bf165070d070980dd1fb595 += {e38c6cbd28bf165070d070980dd1fb595_props}, e38c6cbd28bf165070d070980dd1fb595_rel += {e38c6cbd28bf165070d070980dd1fb595_rel_props}, e38c6cbd28bf165070d070980dd1fb595_rel_child += {e38c6cbd28bf165070d070980dd1fb595_rel_child_props}, e50ead852f3361489a400ab5c70f6c5cf += {e50ead852f3361489a400ab5c70f6c5cf_props}',
+                    'MATCH (e38c6cbd28bf165070d070980dd1fb595:Label { uuid: $e38c6cbd28bf165070d070980dd1fb595_identity }), (e38c6cbd28bf165070d070980dd1fb595)-[e38c6cbd28bf165070d070980dd1fb595_rel:FOO]-(e38c6cbd28bf165070d070980dd1fb595_rel_child:AnotherLabel), ()-[e50ead852f3361489a400ab5c70f6c5cf:type { uuid: $e50ead852f3361489a400ab5c70f6c5cf_identity }]-() SET e38c6cbd28bf165070d070980dd1fb595 += $e38c6cbd28bf165070d070980dd1fb595_props, e38c6cbd28bf165070d070980dd1fb595_rel += $e38c6cbd28bf165070d070980dd1fb595_rel_props, e38c6cbd28bf165070d070980dd1fb595_rel_child += $e38c6cbd28bf165070d070980dd1fb595_rel_child_props, e50ead852f3361489a400ab5c70f6c5cf += $e50ead852f3361489a400ab5c70f6c5cf_props',
                     $query->cypher()
                 );
                 $this->assertCount(6, $query->parameters());

@@ -53,7 +53,7 @@ class RelationshipTranslatorTest extends TestCase
 
         $this->assertInstanceOf(IdentityMatch::class, $identityMatch);
         $this->assertSame(
-            'MATCH (start)-[entity:type { id: {entity_identity} }]->(end) RETURN start, end, entity',
+            'MATCH (start)-[entity:type { id: $entity_identity }]->(end) RETURN start, end, entity',
             $identityMatch->query()->cypher()
         );
         $this->assertCount(1, $identityMatch->query()->parameters());

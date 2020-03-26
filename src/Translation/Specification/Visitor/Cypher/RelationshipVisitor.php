@@ -103,7 +103,7 @@ final class RelationshipVisitor implements CypherVisitor
                 'entity.%s %s %s',
                 $prop,
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')->toString(),
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
                 ($key->toString(), $specification->value()),
@@ -137,7 +137,7 @@ final class RelationshipVisitor implements CypherVisitor
                 $side,
                 $edge->target(),
                 ($this->convert)($specification->sign()),
-                $key->prepend('{')->append('}')->toString(),
+                $key->prepend('$')->toString(),
             ),
             Map::of('string', 'mixed')
                 ($key->toString(), $value),

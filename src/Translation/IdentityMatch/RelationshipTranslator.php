@@ -33,7 +33,7 @@ final class RelationshipTranslator implements IdentityMatchTranslator
             )
             ->withProperty(
                 $meta->identity()->property(),
-                '{entity_identity}',
+                '$entity_identity',
             )
             ->withParameter('entity_identity', $identity->value())
             ->return('start', 'end', 'entity');

@@ -104,7 +104,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                 'entity',
                 new PropertiesMatch(
                     Map::of('string', 'string')
-                        ($prop, $key->prepend('{')->append('}')->toString()),
+                        ($prop, $key->prepend('$')->toString()),
                     Map::of('string', 'mixed')
                         ($key->toString(), $specification->value()),
                 ),
@@ -142,8 +142,7 @@ final class RelationshipVisitor implements PropertyMatchVisitor
                         (
                             $edge->target(),
                             $key
-                                ->prepend('{')
-                                ->append('}')
+                                ->prepend('$')
                                 ->toString(),
                         ),
                     Map::of('string', 'mixed')

@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         php-version: ['7.4']
-        neo4j-version: ['3.4']
+        neo4j-version: ['3.4', '4.0']
     name: 'PHPUnit - PHP/${{ matrix.php-version }} - OS/${{ matrix.os }} - Neo4j/${{ matrix.neo4j-version }}'
     steps:
       - name: Checkout

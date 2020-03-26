@@ -44,7 +44,7 @@ final class AggregateTranslator implements IdentityMatchTranslator
             )
             ->withProperty(
                 $meta->identity()->property(),
-                '{entity_identity}',
+                '$entity_identity',
             )
             ->withParameter('entity_identity', $identity->value())
             ->with('entity');

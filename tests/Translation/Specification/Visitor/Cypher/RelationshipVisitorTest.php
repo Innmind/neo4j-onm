@@ -60,7 +60,7 @@ class RelationshipVisitorTest extends TestCase
         );
 
         $this->assertSame(
-            '(((entity.created = {entity_created1} OR entity.empty = {entity_empty2}) AND start.id = {start_id3}) AND NOT (end.id = {end_id4}))',
+            '(((entity.created = $entity_created1 OR entity.empty = $entity_empty2) AND start.id = $start_id3) AND NOT (end.id = $end_id4))',
             $condition->cypher()
         );
         $this->assertSame('string', (string) $condition->parameters()->keyType());

@@ -70,16 +70,16 @@ class RelationshipVisitorTest extends TestCase
             ['entity', 'start', 'end'],
             unwrap($mapping->keys()),
         );
-        $this->assertSame('{entity_empty}', $mapping->get('entity')->properties()->get('empty'));
-        $this->assertSame('{entity_created}', $mapping->get('entity')->properties()->get('created'));
+        $this->assertSame('$entity_empty', $mapping->get('entity')->properties()->get('empty'));
+        $this->assertSame('$entity_created', $mapping->get('entity')->properties()->get('created'));
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_empty'));
         $this->assertNull($mapping->get('entity')->parameters()->get('entity_created'));
         $this->assertCount(1, $mapping->get('start')->properties());
-        $this->assertSame('{start_id}', $mapping->get('start')->properties()->get('id'));
+        $this->assertSame('$start_id', $mapping->get('start')->properties()->get('id'));
         $this->assertCount(1, $mapping->get('start')->parameters());
         $this->assertSame('foo', $mapping->get('start')->parameters()->get('start_id'));
         $this->assertCount(1, $mapping->get('end')->properties());
-        $this->assertSame('{end_id}', $mapping->get('end')->properties()->get('id'));
+        $this->assertSame('$end_id', $mapping->get('end')->properties()->get('id'));
         $this->assertCount(1, $mapping->get('end')->parameters());
         $this->assertSame('bar', $mapping->get('end')->parameters()->get('end_id'));
     }

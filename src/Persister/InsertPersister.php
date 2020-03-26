@@ -144,8 +144,8 @@ final class InsertPersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $paramKey
-                    ->prepend('{')
-                    ->append('}.')
+                    ->prepend('$')
+                    ->append('.')
                     ->append($meta->identity()->property())
                     ->toString(),
             )
@@ -295,7 +295,7 @@ final class InsertPersister implements Persister
      */
     private function buildProperties(Map $properties, Str $name): Map
     {
-        $name = $name->prepend('{')->append('}.');
+        $name = $name->prepend('$')->append('.');
 
         /** @var Map<string, string> */
         return $properties->toMapOf(
@@ -353,8 +353,8 @@ final class InsertPersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $paramKey
-                    ->prepend('{')
-                    ->append('}.')
+                    ->prepend('$')
+                    ->append('.')
                     ->append($meta->identity()->property())
                     ->toString(),
             )
@@ -412,8 +412,8 @@ final class InsertPersister implements Persister
             ->withProperty(
                 $meta->target(),
                 $name
-                    ->prepend('{')
-                    ->append('_props}.')
+                    ->prepend('$')
+                    ->append('_props.')
                     ->append($meta->target())
                     ->toString(),
             )

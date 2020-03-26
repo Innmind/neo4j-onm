@@ -176,8 +176,8 @@ final class UpdatePersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $name
-                    ->prepend('{')
-                    ->append('_identity}')
+                    ->prepend('$')
+                    ->append('_identity')
                     ->toString(),
             )
             ->withParameter(
@@ -274,8 +274,8 @@ final class UpdatePersister implements Persister
             ->withProperty(
                 $meta->identity()->property(),
                 $name
-                    ->prepend('{')
-                    ->append('_identity}')
+                    ->prepend('$')
+                    ->append('_identity')
                     ->toString(),
             )
             ->withParameter(
@@ -312,7 +312,7 @@ final class UpdatePersister implements Persister
     {
         return $query
             ->set(\sprintf(
-                '%s += {%s_props}',
+                '%s += $%s_props',
                 $variable->toString(),
                 $variable->toString(),
             ))
