@@ -74,6 +74,7 @@ final class ChangesetComputer
 
         /**
          * @psalm-suppress MissingClosureReturnType
+         * @psalm-suppress MixedArgumentTypeCoercion
          * @var Map<string, mixed>
          */
         return $source

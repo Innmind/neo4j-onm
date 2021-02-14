@@ -1,6 +1,6 @@
 # Neo4j-ONM
 
-[![Build Status](https://github.com/Innmind/neo4j-onm/workflows/CI/badge.svg)](https://github.com/Innmind/neo4j-onm/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/Innmind/neo4j-onm/workflows/CI/badge.svg?branch=master)](https://github.com/Innmind/neo4j-onm/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/Innmind/neo4j-onm/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/neo4j-onm)
 [![Type Coverage](https://shepherd.dev/github/Innmind/neo4j-onm/coverage.svg)](https://shepherd.dev/github/Innmind/neo4j-onm)
 

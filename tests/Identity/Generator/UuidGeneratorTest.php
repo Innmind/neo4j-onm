@@ -50,8 +50,7 @@ class UuidGeneratorTest extends TestCase
 
     public function testGenerateWishedClass()
     {
-        $uuid = new class('foo') implements Identity
-        {
+        $uuid = new class('foo') implements Identity {
             private $value;
 
             public function __construct(string $value)
@@ -69,11 +68,11 @@ class UuidGeneratorTest extends TestCase
                 return $this->value;
             }
         };
-        $generator = new UuidGenerator(get_class($uuid));
+        $generator = new UuidGenerator(\get_class($uuid));
 
         $uuid2 = $generator->new();
-        $this->assertInstanceOf(get_class($uuid), $uuid2);
-        $this->assertRegExp(
+        $this->assertInstanceOf(\get_class($uuid), $uuid2);
+        $this->assertMatchesRegularExpression(
             '/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/',
             $uuid2->value(),
         );

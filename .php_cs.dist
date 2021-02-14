@@ -1,0 +1,8 @@
+<?php
+
+return Innmind\CodingStandard\CodingStandard::config(
+    ['tests', 'src'],
+    Innmind\CodingStandard\CodingStandard::rules([
+        'date_time_immutable' => false,
+    ]),
+);

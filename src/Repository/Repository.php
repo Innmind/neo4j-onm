@@ -115,8 +115,6 @@ final class Repository implements RepositoryInterface
 
     /**
      * Return the unit of work
-     *
-     * @return UnitOfWork
      */
     protected function unitOfWork(): UnitOfWork
     {

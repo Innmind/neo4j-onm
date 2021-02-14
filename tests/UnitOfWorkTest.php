@@ -42,7 +42,6 @@ use Innmind\Immutable\{
     Map,
 };
 use function Innmind\Immutable\first;
-use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 class UnitOfWorkTest extends TestCase
@@ -60,7 +59,7 @@ class UnitOfWorkTest extends TestCase
         $entity = new class {
             public $uuid;
         };
-        $this->aggregateClass = get_class($entity);
+        $this->aggregateClass = \get_class($entity);
 
         $this->conn = dbal(
             http()['default'](),
@@ -150,7 +149,7 @@ class UnitOfWorkTest extends TestCase
      */
     public function testCommit(array $args)
     {
-        list($uow, $entity) = $args;
+        [$uow, $entity] = $args;
 
         $this->assertNull(
             $uow->commit()
@@ -168,7 +167,7 @@ class UnitOfWorkTest extends TestCase
      */
     public function testGet(array $args)
     {
-        list($uow, $expectedEntity) = $args;
+        [$uow, $expectedEntity] = $args;
         $expectedUuid = $expectedEntity->uuid;
 
         $entity = $uow->get(
@@ -217,7 +216,7 @@ class UnitOfWorkTest extends TestCase
      */
     public function testExecute(array $args)
     {
-        list($uow, $expectedEntity) = $args;
+        [$uow, $expectedEntity] = $args;
 
         $data = $uow->execute(
             (new Query)
@@ -251,7 +250,7 @@ class UnitOfWorkTest extends TestCase
      */
     public function testRemoveManagedEntity(array $args)
     {
-        list($uow, $entity) = $args;
+        [$uow, $entity] = $args;
 
         $this->assertNull(
             $uow->remove($entity)
@@ -279,7 +278,7 @@ class UnitOfWorkTest extends TestCase
      */
     public function testDetach(array $args)
     {
-        list($uow, $entity) = $args;
+        [$uow, $entity] = $args;
 
         $this->assertNull(
             $uow->detach($entity)

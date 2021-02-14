@@ -59,7 +59,7 @@ class RepositoryTest extends TestCase
             public $uuid;
             public $content;
         };
-        $this->class = get_class($entity);
+        $this->class = \get_class($entity);
 
         $conn = dbal(
             http()['default'](),

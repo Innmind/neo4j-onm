@@ -42,13 +42,13 @@ class RemovePersisterTest extends TestCase
             public $uuid;
             public $rel;
         };
-        $this->aggregateRootClass = get_class($aggregateRoot);
+        $this->aggregateRootClass = \get_class($aggregateRoot);
         $relationship = new class {
             public $uuid;
             public $start;
             public $end;
         };
-        $this->relationshipClass  = get_class($relationship);
+        $this->relationshipClass  = \get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(
@@ -106,7 +106,8 @@ class RemovePersisterTest extends TestCase
         $rel = new class {
             public $child;
         };
-        $child = new class {};
+        $child = new class {
+        };
         $aggregate->uuid = new Uuid($u = '11111111-1111-1111-1111-111111111111');
         $aggregate->rel = $rel;
         $rel->child = $child;
@@ -145,33 +146,26 @@ class RemovePersisterTest extends TestCase
                 return $this->createMock(Result::class);
             }));
         $bus
-            ->expects($this->at(0))
+            ->expects($this->exactly(4))
             ->method('__invoke')
-            ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($aggregate): bool {
-                return $event->entity() instanceof $aggregate &&
-                    $event->identity() === $aggregate->uuid;
-            }));
-        $bus
-            ->expects($this->at(1))
-            ->method('__invoke')
-            ->with($this->callback(function(EntityAboutToBeRemoved $event) use ($relationship): bool {
-                return $event->entity() instanceof $relationship &&
-                    $event->identity() === $relationship->uuid;
-            }));
-        $bus
-            ->expects($this->at(2))
-            ->method('__invoke')
-            ->with($this->callback(function(EntityRemoved $event) use ($aggregate): bool {
-                return $event->entity() instanceof $aggregate &&
-                    $event->identity() === $aggregate->uuid;
-            }));
-        $bus
-            ->expects($this->at(3))
-            ->method('__invoke')
-            ->with($this->callback(function(EntityRemoved $event) use ($relationship): bool {
-                return $event->entity() instanceof $relationship &&
-                    $event->identity() === $relationship->uuid;
-            }));
+            ->withConsecutive(
+                [$this->callback(static function(EntityAboutToBeRemoved $event) use ($aggregate): bool {
+                    return $event->entity() instanceof $aggregate &&
+                        $event->identity() === $aggregate->uuid;
+                })],
+                [$this->callback(static function(EntityAboutToBeRemoved $event) use ($relationship): bool {
+                    return $event->entity() instanceof $relationship &&
+                        $event->identity() === $relationship->uuid;
+                })],
+                [$this->callback(static function(EntityRemoved $event) use ($aggregate): bool {
+                    return $event->entity() instanceof $aggregate &&
+                        $event->identity() === $aggregate->uuid;
+                })],
+                [$this->callback(static function(EntityRemoved $event) use ($relationship): bool {
+                    return $event->entity() instanceof $relationship &&
+                        $event->identity() === $relationship->uuid;
+                })],
+            );
 
         $this->assertNull($persist($conn, $container));
         $this->assertSame(1, $count);

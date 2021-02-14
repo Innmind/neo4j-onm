@@ -41,7 +41,7 @@ class DataExtractorTest extends TestCase
             public $empty;
             public $rel;
         };
-        $this->aggregateRootClass = get_class($aggregateRoot);
+        $this->aggregateRootClass = \get_class($aggregateRoot);
         $relationship = new class {
             public $uuid;
             public $created;
@@ -49,7 +49,7 @@ class DataExtractorTest extends TestCase
             public $start;
             public $end;
         };
-        $this->relationshipClass  = get_class($relationship);
+        $this->relationshipClass  = \get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(
@@ -121,7 +121,7 @@ class DataExtractorTest extends TestCase
             ['created', 'empty', 'uuid', 'rel'],
             unwrap($data->keys())
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
@@ -134,7 +134,7 @@ class DataExtractorTest extends TestCase
             ['created', 'empty', 'child'],
             unwrap($data->get('rel')->keys())
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('rel')->get('created')
         );
@@ -170,7 +170,7 @@ class DataExtractorTest extends TestCase
             ['uuid', 'start', 'end', 'created', 'empty'],
             unwrap($data->keys())
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );

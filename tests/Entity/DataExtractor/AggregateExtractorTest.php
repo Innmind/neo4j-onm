@@ -101,7 +101,7 @@ class AggregateExtractorTest extends TestCase
             ['created', 'empty', 'uuid', 'rel'],
             unwrap($data->keys())
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('created')
         );
@@ -114,7 +114,7 @@ class AggregateExtractorTest extends TestCase
             ['created', 'empty', 'child'],
             unwrap($data->get('rel')->keys())
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{4}/',
             $data->get('rel')->get('created')
         );

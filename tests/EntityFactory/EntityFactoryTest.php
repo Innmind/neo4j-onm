@@ -69,7 +69,7 @@ class EntityFactoryTest extends TestCase
             public $empty;
         };
         $aggregate = Aggregate::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', Uuid::class),
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
@@ -78,10 +78,10 @@ class EntityFactoryTest extends TestCase
             Set::of(
                 Child::class,
                 Child::of(
-                    new ClassName(get_class($child)),
+                    new ClassName(\get_class($child)),
                     Set::of('string', 'AnotherLabel'),
                     Child\Relationship::of(
-                        new ClassName(get_class($rel)),
+                        new ClassName(\get_class($rel)),
                         new RelationshipType('CHILD1_OF'),
                         'rel',
                         'child',
@@ -103,7 +103,7 @@ class EntityFactoryTest extends TestCase
             public $end;
         };
         $relationship = Relationship::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', Uuid::class),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),
@@ -306,7 +306,7 @@ class EntityFactoryTest extends TestCase
             public $uuid;
         };
         $aggregate = Aggregate::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', Uuid::class),
             Set::of('string', 'Label')
         );
@@ -316,7 +316,7 @@ class EntityFactoryTest extends TestCase
             public $end;
         };
         $relationship = Relationship::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', Uuid::class),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'uuid'),

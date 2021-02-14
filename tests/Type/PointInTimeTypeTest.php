@@ -40,16 +40,16 @@ class PointInTimeTypeTest extends TestCase
     {
         $type = new PointInTimeType;
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/2016-01-01T00:00:00\+\d{2}:\d{2}/',
             $type->forDatabase(new PointInTime('2016-01-01'))
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}/',
             $type->forDatabase(new Now)
         );
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/Fri, 01 Jan 2016 00:00:00 \+\d{4}/',
             (new PointInTimeType(new RSS))->forDatabase(new PointInTime('2016-01-01'))
         );

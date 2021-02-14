@@ -56,10 +56,10 @@ class RepositoryFactoryTest extends TestCase
         $meta = $this->createMock(Entity::class);
         $meta
             ->method('repository')
-            ->willReturn(new Repository(get_class($mock)));
+            ->willReturn(new Repository(\get_class($mock)));
         $repo = ($this->make)($meta);
 
-        $this->assertInstanceOf(get_class($mock), $repo);
+        $this->assertInstanceOf(\get_class($mock), $repo);
         $this->assertSame($repo, ($this->make)($meta));
     }
 

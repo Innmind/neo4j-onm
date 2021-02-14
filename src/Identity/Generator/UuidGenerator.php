@@ -37,6 +37,7 @@ final class UuidGenerator implements Generator
     {
         /** @var class-string<Uuid> */
         $class = $this->identities->valueType();
+        /** @psalm-suppress UnsafeInstantiation */
         $uuid = new $class(Factory::uuid4()->toString());
         $this->identities = ($this->identities)(
             $uuid->toString(),
@@ -75,6 +76,7 @@ final class UuidGenerator implements Generator
 
         /** @var class-string<Uuid> */
         $class = $this->identities->valueType();
+        /** @psalm-suppress UnsafeInstantiation */
         $uuid = new $class($value);
         $this->add($uuid);
 
