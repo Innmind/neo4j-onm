@@ -35,19 +35,19 @@ class DateTypeTest extends TestCase
         $expected = '/2016-01-01T00:00:00\+\d{4}/';
         $type = new DateType;
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             $expected,
             $type->forDatabase('2016-01-01')
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             $expected,
             $type->forDatabase(new \DateTime('2016-01-01'))
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             $expected,
             $type->forDatabase(new \DateTimeImmutable('2016-01-01'))
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             $expected,
             DateType::mutable()->forDatabase(new \DateTimeImmutable('2016-01-01'))
         );
