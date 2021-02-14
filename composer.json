@@ -15,7 +15,7 @@
         "issues": "http://github.com/Innmind/neo4j-onm/issues"
     },
     "require": {
-        "php": "~7.4",
+        "php": "~7.4|~8.0",
         "innmind/neo4j-dbal": "~6.0",
         "innmind/immutable": "~3.5",
         "ramsey/uuid": "^3.2",
