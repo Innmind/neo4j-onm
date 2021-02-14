@@ -59,6 +59,7 @@ final class DispatchDomainEvents implements CommandBus
                 }
             )
             ->foreach(function(object $event): void {
+                /** @psalm-suppress MixedArgument */
                 ($this->dispatch)($event);
             });
     }
