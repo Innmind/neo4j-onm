@@ -42,7 +42,7 @@
         "innmind/cli": "~2.0",
         "innmind/object-graph": "~2.0",
         "innmind/server-control": "~3.0",
-        "vimeo/psalm": "^3.10"
+        "vimeo/psalm": "~4.4"
     },
     "suggest": {
         "innmind/time-continuum": "To be able to use point_in_time type",
