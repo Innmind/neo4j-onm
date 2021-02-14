@@ -128,7 +128,9 @@ final class UpdatePersister implements Persister
                         $changeset,
                         $carry,
                     );
-                } else if ($meta instanceof Relationship) {
+                }
+
+                if ($meta instanceof Relationship) {
                     return $this->matchRelationship(
                         $identity,
                         $entity,
@@ -139,6 +141,7 @@ final class UpdatePersister implements Persister
                 }
 
                 $class = \get_class($meta);
+
                 throw new LogicException("Unknown metadata '$class'");
             },
         );
@@ -302,11 +305,7 @@ final class UpdatePersister implements Persister
     /**
      * Add a clause to set all properties to be updated on the wished variable
      *
-     * @param Str $variable
      * @param Map<string, mixed> $changeset
-     * @param Query $query
-     *
-     * @return Query
      */
     private function update(Str $variable, Map $changeset, Query $query): Query
     {

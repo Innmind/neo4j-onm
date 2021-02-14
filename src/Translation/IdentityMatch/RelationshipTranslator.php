@@ -38,7 +38,6 @@ final class RelationshipTranslator implements IdentityMatchTranslator
             ->withParameter('entity_identity', $identity->value())
             ->return('start', 'end', 'entity');
 
-
         /** @psalm-suppress InvalidArgument */
         return new IdentityMatch(
             $query,

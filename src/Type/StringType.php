@@ -20,7 +20,7 @@ final class StringType implements Type
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
-            return null;
+            return;
         }
 
         return (string) $value;

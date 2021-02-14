@@ -20,7 +20,7 @@ final class BooleanType implements Type
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
-            return null;
+            return;
         }
 
         return (bool) $value;

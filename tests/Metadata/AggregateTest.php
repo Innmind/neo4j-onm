@@ -63,4 +63,3 @@ class AggregateTest extends TestCase
         $this->assertTrue($aggregateRoot->properties()->contains('foo'));
     }
 }
-

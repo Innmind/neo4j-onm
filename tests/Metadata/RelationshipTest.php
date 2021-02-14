@@ -44,4 +44,3 @@ class RelationshipTest extends TestCase
         $this->assertTrue($relationship->properties()->contains('foo'));
     }
 }
-

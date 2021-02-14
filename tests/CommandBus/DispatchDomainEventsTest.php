@@ -43,13 +43,14 @@ class DispatchDomainEventsTest extends TestCase
         $eventBus
             ->expects($this->exactly(4))
             ->method('__invoke')
-            ->with($this->callback(function($event): bool {
+            ->with($this->callback(static function($event): bool {
                 return $event instanceof \stdClass;
             }));
         $container = new Container;
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::new()
         );
         $container->push(
@@ -66,7 +67,8 @@ class DispatchDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::managed()
         );
         $container->push(
@@ -83,7 +85,8 @@ class DispatchDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::toBeRemoved()
         );
         $container->push(
@@ -100,7 +103,8 @@ class DispatchDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::removed()
         );
         $container->push(

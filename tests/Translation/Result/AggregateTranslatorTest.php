@@ -311,7 +311,7 @@ class AggregateTranslatorTest extends TestCase
                             ],
                             'relationships' => [],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );

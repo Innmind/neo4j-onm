@@ -47,7 +47,7 @@ final class DateType implements Type
     public function forDatabase($value)
     {
         if ($this->nullable && $value === null) {
-            return null;
+            return;
         }
 
         if (\is_string($value)) {

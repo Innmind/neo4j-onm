@@ -233,7 +233,7 @@ class RelationshipTranslatorTest extends TestCase
                                 ],
                             ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );

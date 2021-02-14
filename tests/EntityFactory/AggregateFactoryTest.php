@@ -55,7 +55,7 @@ class AggregateFactoryTest extends TestCase
             public $empty;
         };
         $meta = Aggregate::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', 'foo'),
             Set::of('string', 'Label'),
             Map::of('string', Type::class)
@@ -64,10 +64,10 @@ class AggregateFactoryTest extends TestCase
             Set::of(
                 Child::class,
                 Child::of(
-                    new ClassName(get_class($child)),
+                    new ClassName(\get_class($child)),
                     Set::of('string', 'AnotherLabel'),
                     Child\Relationship::of(
-                        new ClassName(get_class($rel)),
+                        new ClassName(\get_class($rel)),
                         new RelationshipType('foo'),
                         'rel',
                         'child',
@@ -96,7 +96,7 @@ class AggregateFactoryTest extends TestCase
                 )
         );
 
-        $this->assertInstanceOf(get_class($entity), $aggregateRoot);
+        $this->assertInstanceOf(\get_class($entity), $aggregateRoot);
         $this->assertSame($identity, $aggregateRoot->uuid);
         $this->assertInstanceOf(
             \DateTimeImmutable::class,
@@ -117,7 +117,7 @@ class AggregateFactoryTest extends TestCase
         );
         $this->assertNull($aggregateRoot->rel->empty);
         $this->assertInstanceOf(
-            get_class($child),
+            \get_class($child),
             $aggregateRoot->rel->child
         );
         $this->assertSame('foo', $aggregateRoot->rel->child->content);

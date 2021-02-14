@@ -47,7 +47,7 @@ class RelationshipFactoryTest extends TestCase
             public $end;
         };
         $meta = Relationship::of(
-            new ClassName(get_class($entity)),
+            new ClassName(\get_class($entity)),
             new Identity('uuid', 'foo'),
             new RelationshipType('type'),
             new RelationshipEdge('start', Uuid::class, 'target'),
@@ -67,7 +67,7 @@ class RelationshipFactoryTest extends TestCase
                 ('end', $end = '11111111-1111-1111-1111-111111111111')
         );
 
-        $this->assertInstanceOf(get_class($entity), $rel);
+        $this->assertInstanceOf(\get_class($entity), $rel);
         $this->assertSame($identity, $rel->uuid);
         $this->assertInstanceOf(
             \DateTimeImmutable::class,

@@ -40,7 +40,8 @@ class ClearDomainEventsTest extends TestCase
         $container = new Container;
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::new()
         );
         $container->push(
@@ -57,7 +58,8 @@ class ClearDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::managed()
         );
         $container->push(
@@ -74,7 +76,8 @@ class ClearDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::toBeRemoved()
         );
         $container->push(
@@ -91,7 +94,8 @@ class ClearDomainEventsTest extends TestCase
         );
         $container->push(
             $this->createMock(Identity::class),
-            new class {},
+            new class {
+            },
             State::removed()
         );
         $container->push(

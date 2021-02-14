@@ -41,7 +41,7 @@ class DataExtractorTest extends TestCase
             public $empty;
             public $rel;
         };
-        $this->aggregateRootClass = get_class($aggregateRoot);
+        $this->aggregateRootClass = \get_class($aggregateRoot);
         $relationship = new class {
             public $uuid;
             public $created;
@@ -49,7 +49,7 @@ class DataExtractorTest extends TestCase
             public $start;
             public $end;
         };
-        $this->relationshipClass  = get_class($relationship);
+        $this->relationshipClass  = \get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(

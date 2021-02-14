@@ -40,7 +40,7 @@ class ManagerTest extends TestCase
             ->willReturn(new ClassName('foo'));
         $meta
             ->method('repository')
-            ->willReturn(new Repository(get_class($mock)));
+            ->willReturn(new Repository(\get_class($mock)));
         $uow = new UnitOfWork(
             $conn,
             $container = new Container,
@@ -74,7 +74,7 @@ class ManagerTest extends TestCase
 
         $this->assertInstanceOf(ManagerInterface::class, $manager);
         $this->assertSame($conn, $manager->connection());
-        $this->assertInstanceOf(get_class($mock), $manager->repository('foo'));
+        $this->assertInstanceOf(\get_class($mock), $manager->repository('foo'));
         $this->assertNull($manager->flush());
         $this->assertInstanceOf(Uuid::class, $manager->identities()->new(Uuid::class));
     }

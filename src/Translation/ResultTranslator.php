@@ -66,7 +66,7 @@ final class ResultTranslator
             ->reduce(
                 Map::of('string', Set::class),
                 function(Map $carry, string $variable, Entity $meta) use ($result): Map {
-                    $translate = $this->translators->get(get_class($meta));
+                    $translate = $this->translators->get(\get_class($meta));
 
                     return ($carry)(
                         $variable,

@@ -88,7 +88,7 @@ class SetTypeTest extends TestCase
         $this->assertSame(
             ['foo'],
             $type->forDatabase(
-                Set::of(get_class($mock), $mock)
+                Set::of(\get_class($mock), $mock)
             )
         );
     }

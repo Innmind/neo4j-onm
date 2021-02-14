@@ -56,6 +56,7 @@ final class RelationshipVisitor implements CypherVisitor
 
             default:
                 $class = \get_class($specification);
+
                 throw new LogicException("Unknown specification '$class'");
         }
     }

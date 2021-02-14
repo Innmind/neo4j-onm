@@ -21,7 +21,7 @@ final class Generators
         /** @psalm-suppress InvalidArgument */
         $this->mapping = Map::of('string', Generator::class)
             (Uuid::class, new Generator\UuidGenerator)
-            ->merge($mapping);
+                ->merge($mapping);
     }
 
     /**

@@ -92,7 +92,6 @@ class WhereTest extends TestCase
 
     public function testNot()
     {
-
         $where = new Where(
             'foo',
             (Map::of('string', 'mixed'))

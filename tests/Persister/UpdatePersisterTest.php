@@ -52,7 +52,7 @@ class UpdatePersisterTest extends TestCase
             public $empty;
             public $rel;
         };
-        $this->aggregateRootClass = get_class($aggregateRoot);
+        $this->aggregateRootClass = \get_class($aggregateRoot);
         $relationship = new class {
             public $uuid;
             public $created;
@@ -60,7 +60,7 @@ class UpdatePersisterTest extends TestCase
             public $start;
             public $end;
         };
-        $this->relationshipClass  = get_class($relationship);
+        $this->relationshipClass  = \get_class($relationship);
 
         $this->metadatas = new Metadatas(
             Aggregate::of(
@@ -214,19 +214,19 @@ class UpdatePersisterTest extends TestCase
             ->expects($this->exactly(4))
             ->method('__invoke')
             ->withConsecutive(
-                [$this->callback(function(EntityAboutToBeUpdated $event) use ($aggregate): bool {
+                [$this->callback(static function(EntityAboutToBeUpdated $event) use ($aggregate): bool {
                     return $event->entity() instanceof $aggregate &&
                         $event->identity() === $aggregate->uuid;
                 })],
-                [$this->callback(function(EntityAboutToBeUpdated $event) use ($relationship): bool {
+                [$this->callback(static function(EntityAboutToBeUpdated $event) use ($relationship): bool {
                     return $event->entity() instanceof $relationship &&
                         $event->identity() === $relationship->uuid;
                 })],
-                [$this->callback(function(EntityUpdated $event) use ($aggregate): bool {
+                [$this->callback(static function(EntityUpdated $event) use ($aggregate): bool {
                     return $event->entity() instanceof $aggregate &&
                         $event->identity() === $aggregate->uuid;
                 })],
-                [$this->callback(function(EntityUpdated $event) use ($relationship): bool {
+                [$this->callback(static function(EntityUpdated $event) use ($relationship): bool {
                     return $event->entity() instanceof $relationship &&
                         $event->identity() === $relationship->uuid;
                 })],
